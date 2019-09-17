@@ -27,7 +27,7 @@
 
 	<artifactId>fitnesseintegration</artifactId>
 	<packaging>jar</packaging>
-	<version>1.2-SNAPSHOT</version>
+	<version>1.2.0</version>
 	<name>Fitnesse integration</name>
 
 	<properties>
@@ -42,7 +42,7 @@
 		<connection>scm:git:https://github.com/lsu-ub-uu/cora-fitnesseintegration.git</connection>
 		<developerConnection>scm:git:https://github.com/lsu-ub-uu/cora-fitnesseintegration.git</developerConnection>
 		<url>https://github.com/lsu-ub-uu/cora-fitnesseintegration.git</url>
-	  <tag>release/1.2</tag>
+	  <tag>fitnesseintegration-1.2.0</tag>
   </scm>
 
 	<dependencies>
