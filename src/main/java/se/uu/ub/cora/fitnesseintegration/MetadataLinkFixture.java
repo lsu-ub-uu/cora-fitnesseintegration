@@ -192,7 +192,7 @@ public class MetadataLinkFixture {
 		JsonObject recordJsonObject = createJsonObjectFromResponseText(responseText);
 		recordConverter = JsonToDataRecordConverterImp
 				.usingConverterFactory(jsonToDataConverterFactory);
-		DataRecord clientDataRecord = (DataRecord) recordConverter.toInstance(recordJsonObject);
+		DataRecord clientDataRecord = recordConverter.toInstance(recordJsonObject);
 		return getNameInDataFromDataGroupInRecord(clientDataRecord);
 	}
 
