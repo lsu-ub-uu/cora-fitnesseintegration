@@ -28,6 +28,8 @@ import se.uu.ub.cora.json.parser.JsonValueType;
 
 public class JsonArraySpy implements JsonArray {
 
+	public IteratorSpy returnedIterator = new IteratorSpy();
+
 	@Override
 	public JsonValueType getValueType() {
 		// TODO Auto-generated method stub
@@ -36,8 +38,7 @@ public class JsonArraySpy implements JsonArray {
 
 	@Override
 	public Iterator<JsonValue> iterator() {
-		// TODO Auto-generated method stub
-		return null;
+		return returnedIterator;
 	}
 
 	@Override

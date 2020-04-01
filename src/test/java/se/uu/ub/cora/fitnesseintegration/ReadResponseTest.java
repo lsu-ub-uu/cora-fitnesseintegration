@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Uppsala University Library
+ * Copyright 2020 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -18,23 +18,21 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
-import se.uu.ub.cora.clientdata.DataRecord;
+import static org.testng.Assert.assertSame;
 
-public class RecordHolder {
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.StatusType;
 
-	public RecordHolder() {
-		// needed by fitnesse
-		super();
+import org.testng.annotations.Test;
+
+public class ReadResponseTest {
+
+	@Test
+	public void testReadResponse() {
+		StatusType statusType = Response.Status.fromStatusCode(200);
+		String responseText = "some response text";
+		ReadResponse readResponse = new ReadResponse(statusType, responseText);
+		assertSame(readResponse.statusType, statusType);
+		assertSame(readResponse.responseText, responseText);
 	}
-
-	private static DataRecord clientDataRecord;
-
-	public static void setRecord(DataRecord clientDataRecord) {
-		RecordHolder.clientDataRecord = clientDataRecord;
-	}
-
-	public static DataRecord getRecord() {
-		return clientDataRecord;
-	}
-
 }

@@ -19,26 +19,32 @@
 package se.uu.ub.cora.fitnesseintegration;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-import se.uu.ub.cora.clientdata.DataRecord;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
-import se.uu.ub.cora.json.parser.JsonObject;
+import se.uu.ub.cora.json.parser.JsonValue;
 
-public class JsonToDataRecordConverterSpy implements JsonToDataRecordConverter {
+public class IteratorSpy implements Iterator<JsonValue> {
 
-	public JsonObject jsonObject;
-	public List<JsonObject> jsonObjects = new ArrayList<>();
-	public ClientDataRecordSpy clientDataRecordSpy;
-	public List<ClientDataRecordSpy> returnedSpies = new ArrayList<>();
+	public boolean hasNextWasCalled = false;
+	public List<JsonObjectSpy> objectsReturnedFromNext = new ArrayList<>();
+	private int numNextCalled = 0;
 
 	@Override
-	public DataRecord toInstance(JsonObject jsonObject) {
-		this.jsonObject = jsonObject;
-		jsonObjects.add(jsonObject);
-		clientDataRecordSpy = new ClientDataRecordSpy();
-		returnedSpies.add(clientDataRecordSpy);
-		return clientDataRecordSpy;
+	public boolean hasNext() {
+		hasNextWasCalled = true;
+		if (numNextCalled < 2) {
+			numNextCalled++;
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public JsonValue next() {
+		JsonObjectSpy next = new JsonObjectSpy();
+		objectsReturnedFromNext.add(next);
+		return next;
 	}
 
 }

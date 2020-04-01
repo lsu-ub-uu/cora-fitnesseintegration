@@ -25,8 +25,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.StringJoiner;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
@@ -40,7 +38,6 @@ import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpMultiPartUploader;
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
-import se.uu.ub.cora.json.parser.JsonParseException;
 import se.uu.ub.cora.json.parser.JsonParser;
 import se.uu.ub.cora.json.parser.JsonValue;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
@@ -70,7 +67,6 @@ public class RecordEndpointFixture {
 	private JsonHandler jsonHandler;
 	private JsonToDataRecordConverter jsonToDataRecordConverter;
 	private ChildComparer childComparer;
-	private String childrenToCompare;
 
 	public RecordEndpointFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
@@ -401,7 +397,7 @@ public class RecordEndpointFixture {
 		String responseText = testReadRecord();
 		DataRecord clientDataRecord = convertJsonToClientDataRecord(responseText);
 
-		RecordHolder.setRecord(clientDataRecord);
+		DataHolder.setRecord(clientDataRecord);
 	}
 
 	protected DataRecord convertJsonToClientDataRecord(String responseText) {
@@ -409,7 +405,7 @@ public class RecordEndpointFixture {
 
 		JsonToDataRecordConverter converter = JsonToDataRecordConverterImp
 				.usingConverterFactory(jsonToDataConverterFactory);
-		return (DataRecord) converter.toInstance(recordJsonObject);
+		return converter.toInstance(recordJsonObject);
 	}
 
 	public HttpHandlerFactory getHttpHandlerFactory() {
@@ -420,49 +416,12 @@ public class RecordEndpointFixture {
 		return jsonToDataConverterFactory;
 	}
 
-	public String testReadCheckContain() {
-		String readJson = testReadRecord();
-		JsonObject jsonObject = jsonHandler.parseStringAsObject(readJson);
-		DataRecord record = (DataRecord) jsonToDataRecordConverter.toInstance(jsonObject);
-
-		JsonObject childrenObject = jsonHandler.parseStringAsObject(childrenToCompare);
-		return tryToCompareChildren(record, childrenObject);
-
-	}
-
-	private String tryToCompareChildren(DataRecord record, JsonObject childrenObject) {
-		try {
-			List<String> errorMessages = childComparer
-					.checkDataGroupContainsChildren(record.getClientDataGroup(), childrenObject);
-			return errorMessages.isEmpty() ? "OK" : joinErrorMessages(errorMessages);
-		} catch (JsonParseException exception) {
-			return exception.getMessage();
-		}
-	}
-
-	private String joinErrorMessages(List<String> errorMessages) {
-		StringJoiner compareError = new StringJoiner(" ");
-		for (String errorMessage : errorMessages) {
-			compareError.add(errorMessage);
-		}
-		return compareError.toString();
-	}
-
-	public void setChildren(String children) {
-		this.childrenToCompare = children;
-	}
-
-	void setJsonToDataRecordConverter(JsonToDataRecordConverter jsonToDataConverter) {
-		// needed for test
-		this.jsonToDataRecordConverter = jsonToDataConverter;
-	}
-
 	public ChildComparer getChildComparer() {
 		// needed for test
 		return childComparer;
 	}
 
-	public JsonToDataRecordConverter getJsonToDataRecordConverter() {
+	JsonToDataRecordConverter getJsonToDataRecordConverter() {
 		// needed for test
 		return jsonToDataRecordConverter;
 	}
@@ -470,31 +429,5 @@ public class RecordEndpointFixture {
 	public JsonHandler getJsonHandler() {
 		// needed for test
 		return jsonHandler;
-	}
-
-	public void setJsonHandler(JsonHandler jsonHandler) {
-		// needed for test
-		this.jsonHandler = jsonHandler;
-	}
-
-	public String testReadCheckContainWithValues() {
-		String readJson = testReadRecord();
-		JsonObject jsonObject = jsonHandler.parseStringAsObject(readJson);
-		DataRecord record = (DataRecord) jsonToDataRecordConverter.toInstance(jsonObject);
-
-		JsonObject childrenObject = jsonHandler.parseStringAsObject(childrenToCompare);
-		return tryToCompareChildrenWithCorrectValues(record, childrenObject);
-	}
-
-	private String tryToCompareChildrenWithCorrectValues(DataRecord record,
-			JsonObject childrenObject) {
-		try {
-			List<String> errorMessages = childComparer
-					.checkDataGroupContainsChildrenWithCorrectValues(record.getClientDataGroup(),
-							childrenObject);
-			return errorMessages.isEmpty() ? "OK" : joinErrorMessages(errorMessages);
-		} catch (JsonParseException exception) {
-			return exception.getMessage();
-		}
 	}
 }

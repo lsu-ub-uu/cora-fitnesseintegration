@@ -18,6 +18,8 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -30,6 +32,9 @@ import se.uu.ub.cora.json.parser.JsonValueType;
 public class JsonObjectSpy implements JsonObject {
 
 	public JsonObjectSpy jsonObjectSpy;
+	public List<String> getValueKeys = new ArrayList<>();
+	public List<JsonObjectSpy> getValueObjectsReturned = new ArrayList<>();
+	public List<JsonArraySpy> getValueArraysReturned = new ArrayList<>();
 
 	@Override
 	public JsonValueType getValueType() {
@@ -39,7 +44,17 @@ public class JsonObjectSpy implements JsonObject {
 
 	@Override
 	public JsonValue getValue(String key) {
-		// TODO Auto-generated method stub
+		getValueKeys.add(key);
+		if ("dataList".equals(key)) {
+			JsonObjectSpy valueObjectSpy = new JsonObjectSpy();
+			getValueObjectsReturned.add(valueObjectSpy);
+			return valueObjectSpy;
+		}
+		if ("data".equals(key)) {
+			JsonArraySpy jsonArraySpy = new JsonArraySpy();
+			getValueArraysReturned.add(jsonArraySpy);
+			return jsonArraySpy;
+		}
 		return null;
 	}
 

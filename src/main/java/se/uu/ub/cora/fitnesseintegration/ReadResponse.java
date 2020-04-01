@@ -18,27 +18,16 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.ws.rs.core.Response.StatusType;
 
-import se.uu.ub.cora.clientdata.DataRecord;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
-import se.uu.ub.cora.json.parser.JsonObject;
+public class ReadResponse {
 
-public class JsonToDataRecordConverterSpy implements JsonToDataRecordConverter {
+	public final StatusType statusType;
+	public final String responseText;
 
-	public JsonObject jsonObject;
-	public List<JsonObject> jsonObjects = new ArrayList<>();
-	public ClientDataRecordSpy clientDataRecordSpy;
-	public List<ClientDataRecordSpy> returnedSpies = new ArrayList<>();
-
-	@Override
-	public DataRecord toInstance(JsonObject jsonObject) {
-		this.jsonObject = jsonObject;
-		jsonObjects.add(jsonObject);
-		clientDataRecordSpy = new ClientDataRecordSpy();
-		returnedSpies.add(clientDataRecordSpy);
-		return clientDataRecordSpy;
+	public ReadResponse(StatusType statusType, String responseText) {
+		this.statusType = statusType;
+		this.responseText = responseText;
 	}
 
 }

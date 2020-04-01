@@ -40,7 +40,7 @@ public class PresentationGroupFixtureTest {
 		topLevelDataGroup = createTopLevelDataGroup();
 
 		DataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
-		RecordHolder.setRecord(record);
+		DataHolder.setRecord(record);
 
 	}
 
@@ -72,7 +72,7 @@ public class PresentationGroupFixtureTest {
 
 	@Test
 	public void testNumOfChildrenWithoutRecord() throws Exception {
-		RecordHolder.setRecord(null);
+		DataHolder.setRecord(null);
 		fixture.setLinkedRecordId("somePresentationPGroup");
 		fixture.setLinkedRecordType("presentationGroup");
 		assertEquals(fixture.numberOfRefs(), 0);
@@ -81,7 +81,7 @@ public class PresentationGroupFixtureTest {
 	@Test
 	public void testNoTopLevelDataGroup() {
 		DataRecord record = ClientDataRecord.withClientDataGroup(null);
-		RecordHolder.setRecord(record);
+		DataHolder.setRecord(record);
 		fixture.setLinkedRecordId("somePresentationPGroup");
 		fixture.setLinkedRecordType("presentationGroup");
 		assertEquals(fixture.numberOfRefs(), 0);
@@ -92,7 +92,7 @@ public class PresentationGroupFixtureTest {
 
 		ClientDataGroup dataGroup = ClientDataGroup.withNameInData("presentation");
 		DataRecord record = ClientDataRecord.withClientDataGroup(dataGroup);
-		RecordHolder.setRecord(record);
+		DataHolder.setRecord(record);
 		fixture.setLinkedRecordId("somePresentationPGroup");
 		fixture.setLinkedRecordType("presentationGroup");
 		assertEquals(fixture.numberOfRefs(), 0);

@@ -27,6 +27,7 @@ import se.uu.ub.cora.httphandler.HttpHandler;
 public class HttpHandlerInvalidSpy implements HttpHandler {
 
 	public HttpURLConnection urlConnection;
+	public String returnedErrorText;
 
 	public HttpHandlerInvalidSpy(HttpURLConnection urlConnection) {
 		this.urlConnection = urlConnection;
@@ -64,7 +65,8 @@ public class HttpHandlerInvalidSpy implements HttpHandler {
 
 	@Override
 	public String getErrorText() {
-		return "bad things happend";
+		returnedErrorText = "bad things happend";
+		return returnedErrorText;
 	}
 
 	@Override

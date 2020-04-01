@@ -33,7 +33,7 @@
 	<properties>
 		<json.version>2.0.1</json.version>
 		<httphandler.version>2.0.0</httphandler.version>
-		<cora-clientdata.version>3.0.0</cora-clientdata.version>
+		<cora-clientdata.version>3.1.0</cora-clientdata.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 		<fitnesse.version>20200205</fitnesse.version>
 		<jaxb-api.version>2.3.0</jaxb-api.version>

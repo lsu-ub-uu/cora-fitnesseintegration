@@ -18,7 +18,7 @@ public class PresentationGroupFixture extends MetadataLinkFixture {
 	}
 
 	public int numberOfRefs() {
-		DataRecord record = RecordHolder.getRecord();
+		DataRecord record = DataHolder.getRecord();
 		if (recordHasDataGroup(record)) {
 			return possiblyGetNumberOfMatchingChildren(record);
 		}

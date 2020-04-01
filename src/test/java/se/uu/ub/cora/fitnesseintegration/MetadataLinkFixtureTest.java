@@ -55,7 +55,7 @@ public class MetadataLinkFixtureTest {
 		ClientDataGroup topLevelDataGroup = createTopLevelDataGroup();
 
 		DataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
-		RecordHolder.setRecord(record);
+		DataHolder.setRecord(record);
 
 	}
 
@@ -124,7 +124,7 @@ public class MetadataLinkFixtureTest {
 	public void testNoMatchingChild() {
 		ClientDataGroup topLevelDataGroup = ClientDataGroup.withNameInData("metadata");
 		DataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
-		RecordHolder.setRecord(record);
+		DataHolder.setRecord(record);
 		fixture.setLinkedRecordType("metadataGroup");
 		fixture.setLinkedRecordId("someRecordId");
 		assertEquals(fixture.getRepeatMin(), "not found");
@@ -134,14 +134,14 @@ public class MetadataLinkFixtureTest {
 	@Test
 	public void testNoTopLevelDatagroupInRecord() {
 		DataRecord record = ClientDataRecord.withClientDataGroup(null);
-		RecordHolder.setRecord(record);
+		DataHolder.setRecord(record);
 		fixture.setLinkedRecordId("someRecordId");
 		fixture.setLinkedRecordType("metadataGroup");
 		assertEquals(fixture.getRepeatMin(), "not found");
 	}
 
 	private void createAndAddSecondChild() {
-		DataRecord record = (DataRecord) RecordHolder.getRecord();
+		DataRecord record = (DataRecord) DataHolder.getRecord();
 		ClientDataGroup clientDataGroup = record.getClientDataGroup();
 		ClientDataGroup childReferences = clientDataGroup
 				.getFirstGroupWithNameInData("childReferences");
@@ -152,7 +152,7 @@ public class MetadataLinkFixtureTest {
 
 	@Test
 	public void testRepeatMinWithoutRecord() throws Exception {
-		RecordHolder.setRecord(null);
+		DataHolder.setRecord(null);
 		fixture.setLinkedRecordType("metadataGroup");
 		fixture.setLinkedRecordId("someRecordId");
 		assertEquals(fixture.getRepeatMin(), "not found");
@@ -189,7 +189,7 @@ public class MetadataLinkFixtureTest {
 
 	@Test
 	public void testRepeatMaxWithoutRecord() throws Exception {
-		RecordHolder.setRecord(null);
+		DataHolder.setRecord(null);
 		assertEquals(fixture.getRepeatMax(), "not found");
 	}
 

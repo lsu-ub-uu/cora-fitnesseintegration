@@ -82,7 +82,7 @@ public class MetadataLinkFixture {
 	}
 
 	private void possiblySetChildReferenceList() {
-		DataRecord record = RecordHolder.getRecord();
+		DataRecord record = DataHolder.getRecord();
 		if (recordContainsDataGroup(record)) {
 			ClientDataGroup topLevelDataGroup = record.getClientDataGroup();
 			setChildReferenceList(topLevelDataGroup);

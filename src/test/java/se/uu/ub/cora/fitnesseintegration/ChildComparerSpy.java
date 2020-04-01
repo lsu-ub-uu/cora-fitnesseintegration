@@ -29,7 +29,7 @@ public class ChildComparerSpy implements ChildComparer {
 
 	public ClientDataGroup dataGroup;
 	public JsonValue jsonValue;
-	public int numberToReturn = 0;
+	public int numberOfErrorsToReturn = 0;
 	public List<String> listToReturn;
 	public boolean spyShouldThrowError = false;
 	public String errorMessage;
@@ -47,13 +47,13 @@ public class ChildComparerSpy implements ChildComparer {
 		this.jsonValue = jsonValue;
 		possiblyThrowError();
 		listToReturn = new ArrayList<>();
-		possiblyAddErrorMessages();
+		possiblyAddErrorMessages("is missing.");
 		return listToReturn;
 	}
 
-	private void possiblyAddErrorMessages() {
-		for (int i = 0; i < numberToReturn; i++) {
-			String errorMessage = "From spy: Child with number " + i + " is missing.";
+	private void possiblyAddErrorMessages(String extraMessage) {
+		for (int i = 0; i < numberOfErrorsToReturn; i++) {
+			String errorMessage = "From spy: Child with number " + i + " " + extraMessage;
 			listToReturn.add(errorMessage);
 		}
 	}
@@ -72,7 +72,7 @@ public class ChildComparerSpy implements ChildComparer {
 		this.jsonValue = jsonValue;
 		possiblyThrowError();
 		listToReturn = new ArrayList<>();
-		possiblyAddErrorMessages();
+		possiblyAddErrorMessages("has incorrect value.");
 		return listToReturn;
 	}
 

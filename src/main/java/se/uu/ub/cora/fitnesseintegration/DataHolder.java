@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2018 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -22,23 +22,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 import se.uu.ub.cora.clientdata.DataRecord;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
-import se.uu.ub.cora.json.parser.JsonObject;
 
-public class JsonToDataRecordConverterSpy implements JsonToDataRecordConverter {
+public class DataHolder {
 
-	public JsonObject jsonObject;
-	public List<JsonObject> jsonObjects = new ArrayList<>();
-	public ClientDataRecordSpy clientDataRecordSpy;
-	public List<ClientDataRecordSpy> returnedSpies = new ArrayList<>();
+	public DataHolder() {
+		// needed by fitnesse
+		super();
+	}
 
-	@Override
-	public DataRecord toInstance(JsonObject jsonObject) {
-		this.jsonObject = jsonObject;
-		jsonObjects.add(jsonObject);
-		clientDataRecordSpy = new ClientDataRecordSpy();
-		returnedSpies.add(clientDataRecordSpy);
-		return clientDataRecordSpy;
+	private static DataRecord clientDataRecord;
+	private static List<DataRecord> dataRecords;
+
+	public static void setRecord(DataRecord clientDataRecord) {
+		DataHolder.clientDataRecord = clientDataRecord;
+	}
+
+	public static DataRecord getRecord() {
+		return clientDataRecord;
+	}
+
+	public static void setRecordList(List<DataRecord> recordList) {
+		dataRecords = new ArrayList<>();
+		dataRecords.addAll(recordList);
+
+	}
+
+	public static List<DataRecord> getRecordList() {
+		return dataRecords;
 	}
 
 }

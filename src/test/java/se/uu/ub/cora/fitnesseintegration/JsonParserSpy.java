@@ -45,7 +45,6 @@ public class JsonParserSpy implements JsonParser {
 	@Override
 	public JsonObject parseStringAsObject(String jsonString) {
 		jsonStringsSentToParser.add(jsonString);
-		// jsonStringSentToParser = jsonString;
 		jsonObjectSpy = new JsonObjectSpy();
 		jsonObjectSpies.add(jsonObjectSpy);
 		return jsonObjectSpy;
