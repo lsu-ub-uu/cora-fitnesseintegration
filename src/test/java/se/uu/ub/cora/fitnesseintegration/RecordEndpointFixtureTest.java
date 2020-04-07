@@ -38,9 +38,6 @@ import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterIm
 public class RecordEndpointFixtureTest {
 	private RecordEndpointFixture fixture;
 	private HttpHandlerFactorySpy httpHandlerFactorySpy;
-	private JsonHandler jsonHandler;
-	private JsonParserSpy jsonParser;
-	private JsonToDataRecordConverterSpy jsonToDataConverter;
 
 	@BeforeMethod
 	public void setUp() {
@@ -53,8 +50,6 @@ public class RecordEndpointFixtureTest {
 		DependencyProvider
 				.setChildComparerClassName("se.uu.ub.cora.fitnesseintegration.ChildComparerSpy");
 		httpHandlerFactorySpy = (HttpHandlerFactorySpy) DependencyProvider.getHttpHandlerFactory();
-		jsonParser = new JsonParserSpy();
-		jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
 
 		fixture = new RecordEndpointFixture();
 	}

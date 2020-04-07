@@ -28,7 +28,7 @@ public class RecordHandlerSpy implements RecordHandler {
 	public boolean readRecordWasCalled = false;
 
 	@Override
-	public ReadResponse readRecordList(String url, String filter, String authToken) {
+	public ReadResponse readRecordList(String url, String authToken, String filter) {
 		readRecordListWasCalled = true;
 		this.url = url;
 		this.filter = filter;
@@ -45,6 +45,12 @@ public class RecordHandlerSpy implements RecordHandler {
 		readRecordWasCalled = true;
 		jsonToReturn = "some json returned from read record in spy";
 		return new ReadResponse(new StatusTypeSpy(), jsonToReturn);
+	}
+
+	@Override
+	public ReadResponse searchRecord(String url, String authToken, String json) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -66,8 +66,8 @@ public class ComparerFixture {
 
 	public void testReadRecordListAndStoreRecords() throws UnsupportedEncodingException {
 		String baseUrl = SystemUrl.getUrl() + "rest/record/";
-		storedListAsJson = recordHandler.readRecordList(baseUrl + type, listFilter,
-				authToken).responseText;
+		storedListAsJson = recordHandler.readRecordList(baseUrl + type, authToken,
+				listFilter).responseText;
 
 		List<DataRecord> convertedRecords = convertToRecords();
 		DataHolder.setRecordList(convertedRecords);

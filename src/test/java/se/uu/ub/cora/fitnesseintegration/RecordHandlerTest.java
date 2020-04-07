@@ -75,7 +75,7 @@ public class RecordHandlerTest {
 
 	@Test
 	public void testReadRecordListHttpHandlerSetUpCorrectly() throws UnsupportedEncodingException {
-		recordHandler.readRecordList(url, filterAsJson, authToken);
+		recordHandler.readRecordList(url, authToken, filterAsJson);
 		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestMetod, "GET");
 
 		assertEquals(httpHandlerFactorySpy.urlString,
@@ -89,7 +89,7 @@ public class RecordHandlerTest {
 	public void testReadRecordListWithFilter() throws UnsupportedEncodingException {
 		filterAsJson = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":[{\"name\":\"key\",\"value\":\"idFromLogin\"},{\"name\":\"value\",\"value\":\"someId\"}],\"repeatId\":\"0\"}]}";
 
-		recordHandler.readRecordList(url, filterAsJson, authToken);
+		recordHandler.readRecordList(url, authToken, filterAsJson);
 		String encodedJson = URLEncoder.encode(filterAsJson, "UTF-8");
 		assertEquals(httpHandlerFactorySpy.urlString,
 				"http://localhost:8080/therest/rest/record/someType?filter=" + encodedJson);
@@ -98,7 +98,7 @@ public class RecordHandlerTest {
 
 	@Test
 	public void testReadRecordListOk() throws UnsupportedEncodingException {
-		ReadResponse readResponse = recordHandler.readRecordList(url, filterAsJson, authToken);
+		ReadResponse readResponse = recordHandler.readRecordList(url, authToken, filterAsJson);
 
 		assertTrue(readResponse.statusType.getStatusCode() == 200);
 		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
@@ -108,9 +108,47 @@ public class RecordHandlerTest {
 	@Test
 	public void testReadRecordListNotOk() throws UnsupportedEncodingException {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		ReadResponse readResponse = recordHandler.readRecordList(url, filterAsJson, authToken);
+		ReadResponse readResponse = recordHandler.readRecordList(url, authToken, filterAsJson);
 
 		HttpHandlerInvalidSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerInvalidSpy;
+		assertEquals(readResponse.responseText, httpHandlerSpy.returnedErrorText);
+	}
+
+	@Test
+	public void testSearchRecordHttpHandlerSetUpCorrectly() throws UnsupportedEncodingException {
+		url = "http://localhost:8080/therest/rest/record/searchResult/aSearchId";
+		String json = "{\"name\":\"search\",\"children\":[{\"name\":\"include\",\"children\":["
+				+ "{\"name\":\"includePart\",\"children\":[{\"name\":\"text\",\"value\":\"\"}]}]}]}";
+
+		recordHandler.searchRecord(url, authToken, json);
+
+		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		assertEquals(httpHandlerSpy.requestMetod, "GET");
+		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), authToken);
+		assertEquals(httpHandlerSpy.requestProperties.size(), 1);
+
+		String encodedJson = URLEncoder.encode(json, "UTF-8");
+		assertEquals(httpHandlerFactorySpy.urlString,
+				"http://localhost:8080/therest/rest/record/searchResult/aSearchId?" + "searchData="
+						+ encodedJson);
+	}
+
+	@Test
+	public void testSearchRecordOk() throws UnsupportedEncodingException {
+		ReadResponse readResponse = recordHandler.searchRecord(url, authToken, "some json");
+
+		assertTrue(readResponse.statusType.getStatusCode() == 200);
+		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		assertEquals(readResponse.responseText, httpHandlerSpy.responseText);
+	}
+
+	@Test
+	public void testSearchRecordNotOk() throws UnsupportedEncodingException {
+		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
+		ReadResponse readResponse = recordHandler.searchRecord(url, authToken, "some json");
+
+		HttpHandlerInvalidSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerInvalidSpy;
+		assertTrue(readResponse.statusType.getStatusCode() != 200);
 		assertEquals(readResponse.responseText, httpHandlerSpy.returnedErrorText);
 	}
 }

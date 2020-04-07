@@ -30,7 +30,6 @@ import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 
 public class RecordHandlerImp implements RecordHandler {
 
-	protected StatusType statusType;
 	private HttpHandlerFactory httpHandlerFactory;
 
 	public RecordHandlerImp(HttpHandlerFactory httpHandlerFactory) {
@@ -38,7 +37,7 @@ public class RecordHandlerImp implements RecordHandler {
 	}
 
 	@Override
-	public ReadResponse readRecordList(String url, String filterAsJson, String authToken)
+	public ReadResponse readRecordList(String url, String authToken, String filterAsJson)
 			throws UnsupportedEncodingException {
 		if (filterAsJson != null) {
 			url += "?filter=" + URLEncoder.encode(filterAsJson, StandardCharsets.UTF_8.name());
@@ -50,13 +49,13 @@ public class RecordHandlerImp implements RecordHandler {
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
 		httpHandler.setRequestMethod("GET");
 
-		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		String responseText = responseIsOk() ? httpHandler.getResponseText()
+		StatusType statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
+		String responseText = responseIsOk(statusType) ? httpHandler.getResponseText()
 				: httpHandler.getErrorText();
 		return new ReadResponse(statusType, responseText);
 	}
 
-	protected boolean responseIsOk() {
+	protected boolean responseIsOk(StatusType statusType) {
 		return statusType.equals(Response.Status.OK);
 	}
 
@@ -71,20 +70,33 @@ public class RecordHandlerImp implements RecordHandler {
 		httpHandler.setRequestProperty("authToken", authToken);
 	}
 
-	public HttpHandlerFactory getHttpHandlerFactory() {
-		// needed for test
-		return httpHandlerFactory;
+	@Override
+	public ReadResponse readRecord(String url, String authToken) {
+		return getResponseTextOrErrorTextFromUrl(url, authToken);
 	}
 
 	@Override
-	public ReadResponse readRecord(String url, String authToken) {
+	public ReadResponse searchRecord(String url, String authToken, String json)
+			throws UnsupportedEncodingException {
+		url += "?searchData=" + URLEncoder.encode(json, StandardCharsets.UTF_8.name());
+		HttpHandler httpHandler = setupHttpHandlerForSearch(url, authToken);
+
+		StatusType statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
+
+		String responseText = responseIsOk(statusType) ? httpHandler.getResponseText()
+				: httpHandler.getErrorText();
+		return new ReadResponse(statusType, responseText);
+	}
+
+	private HttpHandler setupHttpHandlerForSearch(String url, String authToken) {
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
 		httpHandler.setRequestMethod("GET");
+		return httpHandler;
+	}
 
-		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		String responseText = responseIsOk() ? httpHandler.getResponseText()
-				: httpHandler.getErrorText();
-		return new ReadResponse(Response.Status.OK, responseText);
+	public HttpHandlerFactory getHttpHandlerFactory() {
+		// needed for test
+		return httpHandlerFactory;
 	}
 
 }
