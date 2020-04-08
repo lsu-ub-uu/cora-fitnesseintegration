@@ -47,6 +47,8 @@ public class ComparerFixture {
 	private String authToken;
 	private String listFilter;
 	private String id;
+	private String searchId;
+	private String json;
 
 	public ComparerFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
@@ -57,15 +59,19 @@ public class ComparerFixture {
 	}
 
 	public void testReadAndStoreRecord() {
-		String baseUrl = SystemUrl.getUrl() + "rest/record/";
+		String baseUrl = createBaseUrl();
 		ReadResponse readResponse = recordHandler.readRecord(baseUrl + type + "/" + id, authToken);
 		JsonObject recordJsonObject = jsonHandler.parseStringAsObject(readResponse.responseText);
 		DataRecord record = jsonToDataRecordConverter.toInstance(recordJsonObject);
 		DataHolder.setRecord(record);
 	}
 
+	private String createBaseUrl() {
+		return SystemUrl.getUrl() + "rest/record/";
+	}
+
 	public void testReadRecordListAndStoreRecords() throws UnsupportedEncodingException {
-		String baseUrl = SystemUrl.getUrl() + "rest/record/";
+		String baseUrl = createBaseUrl();
 		storedListAsJson = recordHandler.readRecordList(baseUrl + type, authToken,
 				listFilter).responseText;
 
@@ -159,6 +165,15 @@ public class ComparerFixture {
 		}
 	}
 
+	public void testSearchAndStoreRecords() throws UnsupportedEncodingException {
+		String baseUrl = createBaseUrl();
+		String url = baseUrl + "searchResult" + "/" + searchId;
+		storedListAsJson = recordHandler.searchRecord(url, authToken, json).responseText;
+
+		List<DataRecord> convertedRecords = convertToRecords();
+		DataHolder.setRecordList(convertedRecords);
+	}
+
 	private int getListIndexToCompareTo() {
 		return indexToCompareTo;
 	}
@@ -232,6 +247,16 @@ public class ComparerFixture {
 
 	public String getStoredListAsJson() {
 		return storedListAsJson;
+	}
+
+	public void setSearchId(String searchId) {
+		this.searchId = searchId;
+
+	}
+
+	public void setJson(String json) {
+		this.json = json;
+
 	}
 
 }

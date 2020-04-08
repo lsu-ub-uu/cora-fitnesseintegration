@@ -21,11 +21,13 @@ package se.uu.ub.cora.fitnesseintegration;
 public class RecordHandlerSpy implements RecordHandler {
 
 	public boolean readRecordListWasCalled = false;
+	public boolean searchRecordWasCalled = false;
 	public String url;
 	public String filter;
 	public String authToken;
 	public String jsonToReturn;
 	public boolean readRecordWasCalled = false;
+	public String json;
 
 	@Override
 	public ReadResponse readRecordList(String url, String authToken, String filter) {
@@ -49,8 +51,12 @@ public class RecordHandlerSpy implements RecordHandler {
 
 	@Override
 	public ReadResponse searchRecord(String url, String authToken, String json) {
-		// TODO Auto-generated method stub
-		return null;
+		searchRecordWasCalled = true;
+		this.url = url;
+		this.authToken = authToken;
+		this.json = json;
+		jsonToReturn = "some search json returned from spy";
+		return new ReadResponse(new StatusTypeSpy(), jsonToReturn);
 	}
 
 }
