@@ -30,4 +30,6 @@ public interface RecordHandler {
 	ReadResponse searchRecord(String url, String authToken, String json)
 			throws UnsupportedEncodingException;
 
+	ReadResponse createRecord(String url, String authToken, String json);
+
 }

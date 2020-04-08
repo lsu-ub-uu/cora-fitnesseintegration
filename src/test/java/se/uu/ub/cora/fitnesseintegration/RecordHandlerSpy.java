@@ -25,9 +25,10 @@ public class RecordHandlerSpy implements RecordHandler {
 	public String url;
 	public String filter;
 	public String authToken;
-	public String jsonToReturn;
+	public String jsonToReturn = "some json returned from spy";
 	public boolean readRecordWasCalled = false;
 	public String json;
+	public StatusTypeSpy statusTypeReturned;
 
 	@Override
 	public ReadResponse readRecordList(String url, String authToken, String filter) {
@@ -36,8 +37,8 @@ public class RecordHandlerSpy implements RecordHandler {
 		this.filter = filter;
 		this.authToken = authToken;
 
-		jsonToReturn = "some json returned from spy";
-		return new ReadResponse(new StatusTypeSpy(), jsonToReturn);
+		statusTypeReturned = new StatusTypeSpy();
+		return new ReadResponse(statusTypeReturned, jsonToReturn);
 	}
 
 	@Override
@@ -45,8 +46,8 @@ public class RecordHandlerSpy implements RecordHandler {
 		this.url = url;
 		this.authToken = authToken;
 		readRecordWasCalled = true;
-		jsonToReturn = "some json returned from read record in spy";
-		return new ReadResponse(new StatusTypeSpy(), jsonToReturn);
+		statusTypeReturned = new StatusTypeSpy();
+		return new ReadResponse(statusTypeReturned, jsonToReturn);
 	}
 
 	@Override
@@ -55,8 +56,14 @@ public class RecordHandlerSpy implements RecordHandler {
 		this.url = url;
 		this.authToken = authToken;
 		this.json = json;
-		jsonToReturn = "some search json returned from spy";
-		return new ReadResponse(new StatusTypeSpy(), jsonToReturn);
+		statusTypeReturned = new StatusTypeSpy();
+		return new ReadResponse(statusTypeReturned, jsonToReturn);
+	}
+
+	@Override
+	public ReadResponse createRecord(String url, String authToken, String json) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

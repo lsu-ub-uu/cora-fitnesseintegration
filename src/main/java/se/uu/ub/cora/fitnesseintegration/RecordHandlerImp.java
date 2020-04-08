@@ -49,6 +49,10 @@ public class RecordHandlerImp implements RecordHandler {
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
 		httpHandler.setRequestMethod("GET");
 
+		return createReadResponseFromHttpHandler(httpHandler);
+	}
+
+	private ReadResponse createReadResponseFromHttpHandler(HttpHandler httpHandler) {
 		StatusType statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
 		String responseText = responseIsOk(statusType) ? httpHandler.getResponseText()
 				: httpHandler.getErrorText();
@@ -61,13 +65,8 @@ public class RecordHandlerImp implements RecordHandler {
 
 	private HttpHandler createHttpHandlerWithAuthTokenAndUrl(String url, String authToken) {
 		HttpHandler httpHandler = httpHandlerFactory.factor(url);
-		setAuthTokenInHeaderAsAuthTokenOrAdminAuthToken(httpHandler, authToken);
-		return httpHandler;
-	}
-
-	private void setAuthTokenInHeaderAsAuthTokenOrAdminAuthToken(HttpHandler httpHandler,
-			String authToken) {
 		httpHandler.setRequestProperty("authToken", authToken);
+		return httpHandler;
 	}
 
 	@Override
@@ -81,11 +80,7 @@ public class RecordHandlerImp implements RecordHandler {
 		url += "?searchData=" + URLEncoder.encode(json, StandardCharsets.UTF_8.name());
 		HttpHandler httpHandler = setupHttpHandlerForSearch(url, authToken);
 
-		StatusType statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-
-		String responseText = responseIsOk(statusType) ? httpHandler.getResponseText()
-				: httpHandler.getErrorText();
-		return new ReadResponse(statusType, responseText);
+		return createReadResponseFromHttpHandler(httpHandler);
 	}
 
 	private HttpHandler setupHttpHandlerForSearch(String url, String authToken) {
@@ -97,6 +92,12 @@ public class RecordHandlerImp implements RecordHandler {
 	public HttpHandlerFactory getHttpHandlerFactory() {
 		// needed for test
 		return httpHandlerFactory;
+	}
+
+	@Override
+	public ReadResponse createRecord(String url, String authToken, String json) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

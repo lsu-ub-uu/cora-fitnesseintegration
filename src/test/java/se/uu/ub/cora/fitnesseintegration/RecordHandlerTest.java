@@ -151,4 +151,10 @@ public class RecordHandlerTest {
 		assertTrue(readResponse.statusType.getStatusCode() != 200);
 		assertEquals(readResponse.responseText, httpHandlerSpy.returnedErrorText);
 	}
+
+	@Test
+	public void testCreateRecordHttpHandlerSetUpCorrectly() {
+		String json = "some json";
+		recordHandler.createRecord(url, authToken, json);
+	}
 }

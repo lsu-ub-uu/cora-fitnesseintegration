@@ -5,10 +5,12 @@ import javax.ws.rs.core.Response.StatusType;
 
 public class StatusTypeSpy implements StatusType {
 
+	public int statusCodeToReturn = 200;
+
 	@Override
 	public int getStatusCode() {
 		// TODO Auto-generated method stub
-		return 0;
+		return statusCodeToReturn;
 	}
 
 	@Override
