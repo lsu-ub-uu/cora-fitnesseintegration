@@ -67,8 +67,10 @@ public class RecordHandlerSpy implements RecordHandler {
 		this.url = url;
 		this.authToken = authToken;
 		this.json = json;
-		statusTypeReturned = new StatusTypeSpy();
-		statusTypeReturned.statusCodeToReturn = 201;
+		if (statusTypeReturned == null) {
+			statusTypeReturned = new StatusTypeSpy();
+			statusTypeReturned.statusCodeToReturn = 201;
+		}
 		ReadResponse readResponse = new ReadResponse(statusTypeReturned, jsonToReturn);
 
 		createdId = "someCreatedId";

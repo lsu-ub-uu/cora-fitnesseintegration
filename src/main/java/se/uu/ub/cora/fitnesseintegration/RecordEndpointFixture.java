@@ -42,7 +42,6 @@ import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public class RecordEndpointFixture {
 	private static final String AUTH_TOKEN = "authToken";
-	private static final int DISTANCE_TO_START_OF_TOKEN = 24;
 	private static final int DISTANCE_TO_START_OF_ID = 19;
 	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.uub.record+json";
 	private static final String ACCEPT = "Accept";
@@ -169,22 +168,22 @@ public class RecordEndpointFixture {
 	}
 
 	public String testCreateRecord() {
-		String url = baseUrl + type;
+		return createRecordAndSetValuesFromResponse();
+	}
 
+	private String createRecordAndSetValuesFromResponse() {
+		String url = baseUrl + type;
 		CreateResponse createResponse = recordHandler.createRecord(url,
 				getSetAuthTokenOrAdminAuthToken(), json);
 
-		statusType = createResponse.statusType;
-		String responseText = createResponse.responseText;
-		createdId = createResponse.createdId;
-		token = createResponse.token;
-
-		return responseText;
+		setValuesFromResponse(createResponse);
+		return createResponse.responseText;
 	}
 
-	private HttpHandler setUpHttpHandlerForCreate() {
-		String url = baseUrl + type;
-		return createHttpHandlerForPostWithUrlAndContentType(url, APPLICATION_UUB_RECORD_JSON);
+	private void setValuesFromResponse(CreateResponse createResponse) {
+		statusType = createResponse.statusType;
+		createdId = createResponse.createdId;
+		token = createResponse.token;
 	}
 
 	protected HttpHandler createHttpHandlerForPostWithUrlAndContentType(String url,
@@ -197,43 +196,19 @@ public class RecordEndpointFixture {
 		return httpHandler;
 	}
 
-	private String extractCreatedIdFromLocationHeader(String locationHeader) {
-		return locationHeader.substring(locationHeader.lastIndexOf('/') + 1);
-	}
-
-	private String tryToExtractCreatedTokenFromResponseText(String responseText) {
-		try {
-			return extractCreatedTokenFromResponseText(responseText);
-		} catch (Exception e) {
-			return "";
-		}
-	}
-
-	private String extractCreatedTokenFromResponseText(String responseText) {
-		int streamIdIndex = responseText.lastIndexOf("\"name\":\"token\"")
-				+ DISTANCE_TO_START_OF_TOKEN;
-		return responseText.substring(streamIdIndex, responseText.indexOf('"', streamIdIndex));
-	}
-
 	public String testCreateRecordCreatedType() {
-		HttpHandler httpHandler = setUpHttpHandlerForCreate();
 
-		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		if (statusType.equals(Response.Status.CREATED)) {
-			String responseText = httpHandler.getResponseText();
-			createdId = extractCreatedIdFromLocationHeader(httpHandler.getHeaderField("Location"));
-			token = tryToExtractCreatedTokenFromResponseText(responseText);
-
+		String responseText = createRecordAndSetValuesFromResponse();
+		if (statusType.getStatusCode() == Response.Status.CREATED.getStatusCode()) {
 			return getRecordTypeFromResponseText(responseText);
 		}
-		return httpHandler.getErrorText();
+		return responseText;
 
 	}
 
 	private String getRecordTypeFromResponseText(String responseText) {
 		JsonObject data = extractDataAsJsonObjectFromResponseText(responseText);
 		try {
-			recordHandler = new RecordHandlerImp(httpHandlerFactory);
 			return getRecordTypeFromData(data);
 		} catch (ChildNotFoundException e) {
 			return "";
