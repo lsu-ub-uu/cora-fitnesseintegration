@@ -31,6 +31,8 @@ import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 public class RecordHandlerImp implements RecordHandler {
 
 	private HttpHandlerFactory httpHandlerFactory;
+	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.uub.record+json";
+	private static final int DISTANCE_TO_START_OF_TOKEN = 24;
 
 	public RecordHandlerImp(HttpHandlerFactory httpHandlerFactory) {
 		this.httpHandlerFactory = httpHandlerFactory;
@@ -89,15 +91,72 @@ public class RecordHandlerImp implements RecordHandler {
 		return httpHandler;
 	}
 
+	@Override
+	public CreateResponse createRecord(String url, String authToken, String json) {
+		HttpHandler httpHandler = createHttpHandlerForPostWithUrlAndContentType(url, authToken,
+				json);
+		StatusType statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
+
+		ReadResponse readResponse = createReadResponseForCreated(httpHandler, statusType);
+		return statusCreated(statusType) ? createCreateResponse(httpHandler, readResponse)
+				: createCreateResponseForErrorResponse(readResponse);
+	}
+
+	protected HttpHandler createHttpHandlerForPostWithUrlAndContentType(String url,
+			String authToken, String json) {
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
+		httpHandler.setRequestMethod("POST");
+		httpHandler.setRequestProperty("Accept", APPLICATION_UUB_RECORD_JSON);
+		httpHandler.setRequestProperty("Content-Type", APPLICATION_UUB_RECORD_JSON);
+		httpHandler.setOutput(json);
+		return httpHandler;
+	}
+
+	private ReadResponse createReadResponseForCreated(HttpHandler httpHandler,
+			StatusType statusType) {
+		String responseText = statusCreated(statusType) ? httpHandler.getResponseText()
+				: httpHandler.getErrorText();
+		return new ReadResponse(statusType, responseText);
+	}
+
+	protected boolean statusCreated(StatusType statusType) {
+		return statusType.equals(Response.Status.CREATED);
+	}
+
+	private CreateResponse createCreateResponse(HttpHandler httpHandler,
+			ReadResponse readResponse) {
+		String responseText = readResponse.responseText;
+		String createdId = extractCreatedIdFromLocationHeader(
+				httpHandler.getHeaderField("Location"));
+		String token = tryToExtractCreatedTokenFromResponseText(responseText);
+		return new CreateResponse(readResponse, createdId, token);
+	}
+
+	private String extractCreatedIdFromLocationHeader(String locationHeader) {
+		return locationHeader.substring(locationHeader.lastIndexOf('/') + 1);
+	}
+
+	private String tryToExtractCreatedTokenFromResponseText(String responseText) {
+		try {
+			return extractCreatedTokenFromResponseText(responseText);
+		} catch (Exception e) {
+			return "";
+		}
+	}
+
+	private String extractCreatedTokenFromResponseText(String responseText) {
+		int tokenIdIndex = responseText.lastIndexOf("\"name\":\"token\"")
+				+ DISTANCE_TO_START_OF_TOKEN;
+		return responseText.substring(tokenIdIndex, responseText.indexOf('"', tokenIdIndex));
+	}
+
+	private CreateResponse createCreateResponseForErrorResponse(ReadResponse readResponse) {
+		return new CreateResponse(readResponse, "", "");
+	}
+
 	public HttpHandlerFactory getHttpHandlerFactory() {
 		// needed for test
 		return httpHandlerFactory;
-	}
-
-	@Override
-	public ReadResponse createRecord(String url, String authToken, String json) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

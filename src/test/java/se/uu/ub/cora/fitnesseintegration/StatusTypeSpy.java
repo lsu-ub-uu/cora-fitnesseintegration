@@ -9,7 +9,6 @@ public class StatusTypeSpy implements StatusType {
 
 	@Override
 	public int getStatusCode() {
-		// TODO Auto-generated method stub
 		return statusCodeToReturn;
 	}
 

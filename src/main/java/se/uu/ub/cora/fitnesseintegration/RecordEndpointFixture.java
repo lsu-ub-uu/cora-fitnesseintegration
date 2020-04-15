@@ -169,17 +169,17 @@ public class RecordEndpointFixture {
 	}
 
 	public String testCreateRecord() {
-		HttpHandler httpHandler = setUpHttpHandlerForCreate();
+		String url = baseUrl + type;
 
-		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		if (statusType.equals(Response.Status.CREATED)) {
-			String responseText = httpHandler.getResponseText();
-			createdId = extractCreatedIdFromLocationHeader(httpHandler.getHeaderField("Location"));
-			token = tryToExtractCreatedTokenFromResponseText(responseText);
+		CreateResponse createResponse = recordHandler.createRecord(url,
+				getSetAuthTokenOrAdminAuthToken(), json);
 
-			return responseText;
-		}
-		return httpHandler.getErrorText();
+		statusType = createResponse.statusType;
+		String responseText = createResponse.responseText;
+		createdId = createResponse.createdId;
+		token = createResponse.token;
+
+		return responseText;
 	}
 
 	private HttpHandler setUpHttpHandlerForCreate() {

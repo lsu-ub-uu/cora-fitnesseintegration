@@ -29,6 +29,8 @@ public class RecordHandlerSpy implements RecordHandler {
 	public boolean readRecordWasCalled = false;
 	public String json;
 	public StatusTypeSpy statusTypeReturned;
+	public String createdId;
+	public String token;
 
 	@Override
 	public ReadResponse readRecordList(String url, String authToken, String filter) {
@@ -61,9 +63,17 @@ public class RecordHandlerSpy implements RecordHandler {
 	}
 
 	@Override
-	public ReadResponse createRecord(String url, String authToken, String json) {
-		// TODO Auto-generated method stub
-		return null;
+	public CreateResponse createRecord(String url, String authToken, String json) {
+		this.url = url;
+		this.authToken = authToken;
+		this.json = json;
+		statusTypeReturned = new StatusTypeSpy();
+		statusTypeReturned.statusCodeToReturn = 201;
+		ReadResponse readResponse = new ReadResponse(statusTypeReturned, jsonToReturn);
+
+		createdId = "someCreatedId";
+		token = "someToken";
+		return new CreateResponse(readResponse, createdId, token);
 	}
 
 }

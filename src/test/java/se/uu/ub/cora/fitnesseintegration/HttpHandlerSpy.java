@@ -41,6 +41,7 @@ public class HttpHandlerSpy implements HttpHandler {
 	public String validForNoSeconds = "600";
 	public String deleteUrlJsEscaped = "http:\\/\\/localhost:8180\\/apptokenverifier\\/rest\\/apptoken\\/141414";
 	public String mainSystemDomain;
+	public String returnedHeaderField;
 
 	private HttpHandlerSpy(HttpURLConnection httpUrlConnection) {
 		this.httpUrlConnection = httpUrlConnection;
@@ -172,7 +173,8 @@ public class HttpHandlerSpy implements HttpHandler {
 			return "form-data; name=\"file\"; filename=\"adele.png\"\n";
 		}
 		if ("Location".equals(name)) {
-			return "http://epc.ub.uu.se/therest/rest/record/someRecordType/someRecordType:35824453170224822";
+			returnedHeaderField = "http://epc.ub.uu.se/therest/rest/record/someRecordType/someRecordType:35824453170224822";
+			return returnedHeaderField;
 		}
 		return null;
 	}
