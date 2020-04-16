@@ -25,15 +25,21 @@ import javax.ws.rs.core.Response.StatusType;
 
 import org.testng.annotations.Test;
 
-public class ReadResponseTest {
+public class CreateResponseTest {
 
 	@Test
-	public void testReadResponse() {
+	public void testCreateResponse() {
 		StatusType statusType = Response.Status.fromStatusCode(200);
 		String responseText = "some response text";
 		ReadResponse readResponse = new ReadResponse(statusType, responseText);
-		assertSame(readResponse.statusType, statusType);
-		assertSame(readResponse.responseText, responseText);
+		String createdId = "someCreatedId";
+		String token = "someToken";
+		CreateResponse createReseponse = new CreateResponse(readResponse, createdId, token);
+
+		assertSame(createReseponse.statusType, statusType);
+		assertSame(createReseponse.responseText, responseText);
+		assertSame(createReseponse.createdId, createdId);
+		assertSame(createReseponse.token, token);
 
 	}
 }

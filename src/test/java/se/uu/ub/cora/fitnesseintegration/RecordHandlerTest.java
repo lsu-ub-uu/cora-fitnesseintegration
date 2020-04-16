@@ -75,7 +75,7 @@ public class RecordHandlerTest {
 
 	@Test
 	public void testReadRecordListHttpHandlerSetUpCorrectly() throws UnsupportedEncodingException {
-		recordHandler.readRecordList(url, filterAsJson, authToken);
+		recordHandler.readRecordList(url, authToken, filterAsJson);
 		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestMetod, "GET");
 
 		assertEquals(httpHandlerFactorySpy.urlString,
@@ -89,7 +89,7 @@ public class RecordHandlerTest {
 	public void testReadRecordListWithFilter() throws UnsupportedEncodingException {
 		filterAsJson = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":[{\"name\":\"key\",\"value\":\"idFromLogin\"},{\"name\":\"value\",\"value\":\"someId\"}],\"repeatId\":\"0\"}]}";
 
-		recordHandler.readRecordList(url, filterAsJson, authToken);
+		recordHandler.readRecordList(url, authToken, filterAsJson);
 		String encodedJson = URLEncoder.encode(filterAsJson, "UTF-8");
 		assertEquals(httpHandlerFactorySpy.urlString,
 				"http://localhost:8080/therest/rest/record/someType?filter=" + encodedJson);
@@ -98,7 +98,7 @@ public class RecordHandlerTest {
 
 	@Test
 	public void testReadRecordListOk() throws UnsupportedEncodingException {
-		ReadResponse readResponse = recordHandler.readRecordList(url, filterAsJson, authToken);
+		ReadResponse readResponse = recordHandler.readRecordList(url, authToken, filterAsJson);
 
 		assertTrue(readResponse.statusType.getStatusCode() == 200);
 		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
@@ -108,9 +108,104 @@ public class RecordHandlerTest {
 	@Test
 	public void testReadRecordListNotOk() throws UnsupportedEncodingException {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		ReadResponse readResponse = recordHandler.readRecordList(url, filterAsJson, authToken);
+		ReadResponse readResponse = recordHandler.readRecordList(url, authToken, filterAsJson);
 
 		HttpHandlerInvalidSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerInvalidSpy;
 		assertEquals(readResponse.responseText, httpHandlerSpy.returnedErrorText);
 	}
+
+	@Test
+	public void testSearchRecordHttpHandlerSetUpCorrectly() throws UnsupportedEncodingException {
+		String apptokenUrl = "http://localhost:8080/therest/rest/record/searchResult/aSearchId";
+		String json = "{\"name\":\"search\",\"children\":[{\"name\":\"include\",\"children\":["
+				+ "{\"name\":\"includePart\",\"children\":[{\"name\":\"text\",\"value\":\"\"}]}]}]}";
+
+		recordHandler.searchRecord(apptokenUrl, authToken, json);
+
+		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		assertEquals(httpHandlerSpy.requestMetod, "GET");
+		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), authToken);
+		assertEquals(httpHandlerSpy.requestProperties.size(), 1);
+
+		String encodedJson = URLEncoder.encode(json, "UTF-8");
+		assertEquals(httpHandlerFactorySpy.urlString,
+				"http://localhost:8080/therest/rest/record/searchResult/aSearchId?" + "searchData="
+						+ encodedJson);
+	}
+
+	@Test
+	public void testSearchRecordOk() throws UnsupportedEncodingException {
+		ReadResponse readResponse = recordHandler.searchRecord(url, authToken, "some json");
+
+		assertTrue(readResponse.statusType.getStatusCode() == 200);
+		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		assertEquals(readResponse.responseText, httpHandlerSpy.responseText);
+	}
+
+	@Test
+	public void testSearchRecordNotOk() throws UnsupportedEncodingException {
+		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
+		ReadResponse readResponse = recordHandler.searchRecord(url, authToken, "some json");
+
+		HttpHandlerInvalidSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerInvalidSpy;
+		assertTrue(readResponse.statusType.getStatusCode() != 200);
+		assertEquals(readResponse.responseText, httpHandlerSpy.returnedErrorText);
+	}
+
+	@Test
+	public void testCreateRecordHttpHandlerSetUpCorrectly() {
+		String json = "{\"name\":\"value\"}";
+		recordHandler.createRecord(url, authToken, json);
+
+		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestMetod, "POST");
+		assertEquals(httpHandlerFactorySpy.urlString,
+				"http://localhost:8080/therest/rest/record/someType");
+		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), "someAuthToken");
+		assertEquals(httpHandlerSpy.requestProperties.get("Accept"),
+				"application/vnd.uub.record+json");
+		assertEquals(httpHandlerSpy.requestProperties.get("Content-Type"),
+				"application/vnd.uub.record+json");
+		assertEquals(httpHandlerSpy.requestProperties.size(), 3);
+
+		assertEquals(httpHandlerSpy.outputString, "{\"name\":\"value\"}");
+	}
+
+	@Test
+	public void testCreateRecordOk() {
+		httpHandlerFactorySpy.setResponseCode(201);
+		String json = "{\"name\":\"value\"}";
+		CreateResponse createResponse = recordHandler.createRecord(url, authToken, json);
+
+		assertEquals(createResponse.statusType.getStatusCode(), 201);
+		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		assertEquals(createResponse.responseText, httpHandlerSpy.responseText);
+	}
+
+	@Test
+	public void testCreateRecordOkWithCreatedIdAndToken() {
+		String apptokenUrl = "http://localhost:8080/therest/rest/record/appToken";
+		httpHandlerFactorySpy.setResponseCode(201);
+		String json = "{\"name\":\"value\"}";
+		CreateResponse createResponse = recordHandler.createRecord(apptokenUrl, authToken, json);
+
+		assertEquals(createResponse.statusType.getStatusCode(), 201);
+		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		String returnedHeaderFromSpy = httpHandlerSpy.returnedHeaderField;
+		assertEquals(createResponse.createdId,
+				returnedHeaderFromSpy.substring(returnedHeaderFromSpy.lastIndexOf('/') + 1));
+		assertEquals(createResponse.token, "ba064c86-bd7c-4283-a5f3-86ba1dade3f3");
+	}
+
+	@Test
+	public void testCreateRecordNotOk() {
+		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
+		String json = "{\"name\":\"value\"}";
+		CreateResponse createResponse = recordHandler.createRecord(url, authToken, json);
+
+		HttpHandlerInvalidSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerInvalidSpy;
+		assertNotNull(createResponse.responseText);
+		assertEquals(createResponse.responseText, httpHandlerSpy.returnedErrorText);
+	}
+
 }

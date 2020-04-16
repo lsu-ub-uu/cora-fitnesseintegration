@@ -18,22 +18,20 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
-import static org.testng.Assert.assertSame;
-
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
 
-import org.testng.annotations.Test;
+public class CreateResponse {
 
-public class ReadResponseTest {
+	public final StatusType statusType;
+	public final String responseText;
+	public final String createdId;
+	public final String token;
 
-	@Test
-	public void testReadResponse() {
-		StatusType statusType = Response.Status.fromStatusCode(200);
-		String responseText = "some response text";
-		ReadResponse readResponse = new ReadResponse(statusType, responseText);
-		assertSame(readResponse.statusType, statusType);
-		assertSame(readResponse.responseText, responseText);
-
+	public CreateResponse(ReadResponse readResponse, String createdId, String token) {
+		statusType = readResponse.statusType;
+		responseText = readResponse.responseText;
+		this.createdId = createdId;
+		this.token = token;
 	}
+
 }
