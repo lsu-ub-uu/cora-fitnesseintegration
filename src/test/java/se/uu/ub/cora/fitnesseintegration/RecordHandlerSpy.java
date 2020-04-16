@@ -21,21 +21,26 @@ package se.uu.ub.cora.fitnesseintegration;
 public class RecordHandlerSpy implements RecordHandler {
 
 	public boolean readRecordListWasCalled = false;
+	public boolean searchRecordWasCalled = false;
 	public String url;
 	public String filter;
 	public String authToken;
-	public String jsonToReturn;
+	public String jsonToReturn = "some json returned from spy";
 	public boolean readRecordWasCalled = false;
+	public String json;
+	public StatusTypeSpy statusTypeReturned;
+	public String createdId;
+	public String token;
 
 	@Override
-	public ReadResponse readRecordList(String url, String filter, String authToken) {
+	public ReadResponse readRecordList(String url, String authToken, String filter) {
 		readRecordListWasCalled = true;
 		this.url = url;
 		this.filter = filter;
 		this.authToken = authToken;
 
-		jsonToReturn = "some json returned from spy";
-		return new ReadResponse(new StatusTypeSpy(), jsonToReturn);
+		statusTypeReturned = new StatusTypeSpy();
+		return new ReadResponse(statusTypeReturned, jsonToReturn);
 	}
 
 	@Override
@@ -43,8 +48,34 @@ public class RecordHandlerSpy implements RecordHandler {
 		this.url = url;
 		this.authToken = authToken;
 		readRecordWasCalled = true;
-		jsonToReturn = "some json returned from read record in spy";
-		return new ReadResponse(new StatusTypeSpy(), jsonToReturn);
+		statusTypeReturned = new StatusTypeSpy();
+		return new ReadResponse(statusTypeReturned, jsonToReturn);
+	}
+
+	@Override
+	public ReadResponse searchRecord(String url, String authToken, String json) {
+		searchRecordWasCalled = true;
+		this.url = url;
+		this.authToken = authToken;
+		this.json = json;
+		statusTypeReturned = new StatusTypeSpy();
+		return new ReadResponse(statusTypeReturned, jsonToReturn);
+	}
+
+	@Override
+	public CreateResponse createRecord(String url, String authToken, String json) {
+		this.url = url;
+		this.authToken = authToken;
+		this.json = json;
+		if (statusTypeReturned == null) {
+			statusTypeReturned = new StatusTypeSpy();
+			statusTypeReturned.statusCodeToReturn = 201;
+		}
+		ReadResponse readResponse = new ReadResponse(statusTypeReturned, jsonToReturn);
+
+		createdId = "someCreatedId";
+		token = "someToken";
+		return new CreateResponse(readResponse, createdId, token);
 	}
 
 }

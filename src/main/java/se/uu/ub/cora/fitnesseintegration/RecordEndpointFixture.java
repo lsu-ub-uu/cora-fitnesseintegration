@@ -23,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 import javax.ws.rs.core.Response;
@@ -32,7 +31,6 @@ import javax.ws.rs.core.Response.StatusType;
 import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpMultiPartUploader;
@@ -44,7 +42,6 @@ import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public class RecordEndpointFixture {
 	private static final String AUTH_TOKEN = "authToken";
-	private static final int DISTANCE_TO_START_OF_TOKEN = 24;
 	private static final int DISTANCE_TO_START_OF_ID = 19;
 	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.uub.record+json";
 	private static final String ACCEPT = "Accept";
@@ -67,6 +64,7 @@ public class RecordEndpointFixture {
 	private JsonHandler jsonHandler;
 	private JsonToDataRecordConverter jsonToDataRecordConverter;
 	private ChildComparer childComparer;
+	private RecordHandler recordHandler;
 
 	public RecordEndpointFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
@@ -74,6 +72,7 @@ public class RecordEndpointFixture {
 		childComparer = DependencyProvider.getChildComparer();
 		jsonToDataRecordConverter = DependencyProvider.getJsonToDataRecordConverter();
 		jsonHandler = DependencyProvider.getJsonHandler();
+		recordHandler = new RecordHandlerImp(httpHandlerFactory);
 	}
 
 	public void setType(String type) {
@@ -126,8 +125,16 @@ public class RecordEndpointFixture {
 
 	public String testReadRecord() {
 		String url = baseUrl + type + "/" + id;
+		String readAuthToken = getSetAuthTokenOrAdminAuthToken();
 
-		return getResponseTextOrErrorTextFromUrl(url);
+		ReadResponse readResponse = recordHandler.readRecord(url, readAuthToken);
+		statusType = readResponse.statusType;
+		return readResponse.responseText;
+
+	}
+
+	private String getSetAuthTokenOrAdminAuthToken() {
+		return authToken != null ? authToken : AuthTokenHolder.getAdminAuthToken();
 	}
 
 	private String getResponseTextOrErrorTextFromUrl(String url) {
@@ -143,16 +150,8 @@ public class RecordEndpointFixture {
 
 	private HttpHandler createHttpHandlerWithAuthTokenAndUrl(String url) {
 		HttpHandler httpHandler = httpHandlerFactory.factor(url);
-		setAuthTokenInHeaderAsAuthTokenOrAdminAuthToken(httpHandler);
+		httpHandler.setRequestProperty(AUTH_TOKEN, getSetAuthTokenOrAdminAuthToken());
 		return httpHandler;
-	}
-
-	private void setAuthTokenInHeaderAsAuthTokenOrAdminAuthToken(HttpHandler httpHandler) {
-		if (null != authToken) {
-			httpHandler.setRequestProperty(AUTH_TOKEN, authToken);
-		} else {
-			httpHandler.setRequestProperty(AUTH_TOKEN, AuthTokenHolder.getAdminAuthToken());
-		}
 	}
 
 	public String testReadIncomingLinks() {
@@ -162,29 +161,29 @@ public class RecordEndpointFixture {
 
 	public String testReadRecordList() throws UnsupportedEncodingException {
 		String url = baseUrl + type;
-		if (json != null) {
-			url += "?filter=" + URLEncoder.encode(json, StandardCharsets.UTF_8.name());
-		}
-		return getResponseTextOrErrorTextFromUrl(url);
+		ReadResponse readResponse = recordHandler.readRecordList(url,
+				getSetAuthTokenOrAdminAuthToken(), json);
+		statusType = readResponse.statusType;
+		return readResponse.responseText;
 	}
 
 	public String testCreateRecord() {
-		HttpHandler httpHandler = setUpHttpHandlerForCreate();
-
-		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		if (statusType.equals(Response.Status.CREATED)) {
-			String responseText = httpHandler.getResponseText();
-			createdId = extractCreatedIdFromLocationHeader(httpHandler.getHeaderField("Location"));
-			token = tryToExtractCreatedTokenFromResponseText(responseText);
-
-			return responseText;
-		}
-		return httpHandler.getErrorText();
+		return createRecordAndSetValuesFromResponse();
 	}
 
-	private HttpHandler setUpHttpHandlerForCreate() {
+	private String createRecordAndSetValuesFromResponse() {
 		String url = baseUrl + type;
-		return createHttpHandlerForPostWithUrlAndContentType(url, APPLICATION_UUB_RECORD_JSON);
+		CreateResponse createResponse = recordHandler.createRecord(url,
+				getSetAuthTokenOrAdminAuthToken(), json);
+
+		setValuesFromResponse(createResponse);
+		return createResponse.responseText;
+	}
+
+	private void setValuesFromResponse(CreateResponse createResponse) {
+		statusType = createResponse.statusType;
+		createdId = createResponse.createdId;
+		token = createResponse.token;
 	}
 
 	protected HttpHandler createHttpHandlerForPostWithUrlAndContentType(String url,
@@ -197,36 +196,13 @@ public class RecordEndpointFixture {
 		return httpHandler;
 	}
 
-	private String extractCreatedIdFromLocationHeader(String locationHeader) {
-		return locationHeader.substring(locationHeader.lastIndexOf('/') + 1);
-	}
-
-	private String tryToExtractCreatedTokenFromResponseText(String responseText) {
-		try {
-			return extractCreatedTokenFromResponseText(responseText);
-		} catch (Exception e) {
-			return "";
-		}
-	}
-
-	private String extractCreatedTokenFromResponseText(String responseText) {
-		int streamIdIndex = responseText.lastIndexOf("\"name\":\"token\"")
-				+ DISTANCE_TO_START_OF_TOKEN;
-		return responseText.substring(streamIdIndex, responseText.indexOf('"', streamIdIndex));
-	}
-
 	public String testCreateRecordCreatedType() {
-		HttpHandler httpHandler = setUpHttpHandlerForCreate();
 
-		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		if (statusType.equals(Response.Status.CREATED)) {
-			String responseText = httpHandler.getResponseText();
-			createdId = extractCreatedIdFromLocationHeader(httpHandler.getHeaderField("Location"));
-			token = tryToExtractCreatedTokenFromResponseText(responseText);
-
+		String responseText = createRecordAndSetValuesFromResponse();
+		if (statusType.getStatusCode() == Response.Status.CREATED.getStatusCode()) {
 			return getRecordTypeFromResponseText(responseText);
 		}
-		return httpHandler.getErrorText();
+		return responseText;
 
 	}
 
@@ -376,21 +352,11 @@ public class RecordEndpointFixture {
 	}
 
 	public String testSearchRecord() throws UnsupportedEncodingException {
-		HttpHandler httpHandler = setupHttpHandlerForSearch();
-
-		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		if (responseIsOk()) {
-			return httpHandler.getResponseText();
-		}
-		return httpHandler.getErrorText();
-	}
-
-	private HttpHandler setupHttpHandlerForSearch() throws UnsupportedEncodingException {
-		String url = baseUrl + "searchResult" + "/" + searchId + "/";
-		url += "?searchData=" + URLEncoder.encode(json, StandardCharsets.UTF_8.name());
-		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
-		httpHandler.setRequestMethod("GET");
-		return httpHandler;
+		String url = baseUrl + "searchResult" + "/" + searchId;
+		ReadResponse readResponse = recordHandler.searchRecord(url,
+				getSetAuthTokenOrAdminAuthToken(), json);
+		statusType = readResponse.statusType;
+		return readResponse.responseText;
 	}
 
 	public void testReadRecordAndStoreJson() {
@@ -401,11 +367,8 @@ public class RecordEndpointFixture {
 	}
 
 	protected DataRecord convertJsonToClientDataRecord(String responseText) {
-		JsonObject recordJsonObject = createJsonObjectFromResponseText(responseText);
-
-		JsonToDataRecordConverter converter = JsonToDataRecordConverterImp
-				.usingConverterFactory(jsonToDataConverterFactory);
-		return converter.toInstance(recordJsonObject);
+		JsonObject recordJsonObject = jsonHandler.parseStringAsObject(responseText);
+		return jsonToDataRecordConverter.toInstance(recordJsonObject);
 	}
 
 	public HttpHandlerFactory getHttpHandlerFactory() {
@@ -426,8 +389,27 @@ public class RecordEndpointFixture {
 		return jsonToDataRecordConverter;
 	}
 
+	void setJsonToDataRecordConverter(JsonToDataRecordConverter jsonToDataRecordConverter) {
+		// needed for test
+		this.jsonToDataRecordConverter = jsonToDataRecordConverter;
+	}
+
 	public JsonHandler getJsonHandler() {
 		// needed for test
 		return jsonHandler;
+	}
+
+	void setJsonHandler(JsonHandler jsonHandler) {
+		this.jsonHandler = jsonHandler;
+	}
+
+	public RecordHandler getRecordHandler() {
+		return recordHandler;
+	}
+
+	public void setRecordHandler(RecordHandler recordHandler) {
+		// needed for test
+		this.recordHandler = recordHandler;
+
 	}
 }

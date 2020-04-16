@@ -399,4 +399,37 @@ public class CompararerFixtureTest {
 		assertEquals(fixture.testCheckContainWithValues(), childComparer.errorMessage);
 	}
 
+	@Test
+	public void testSearchAndStoreRecords() throws UnsupportedEncodingException {
+		String authToken = "someAuthToken";
+		fixture.setAuthToken(authToken);
+		fixture.setSearchId("someSearch");
+		String json = "{\"name\":\"value\"}";
+		fixture.setJson(json);
+		fixture.testSearchAndStoreRecords();
+		assertTrue(recordHandler.searchRecordWasCalled);
+
+		String expectedUrl = SystemUrl.getUrl() + "rest/record/searchResult/someSearch";
+		assertEquals(recordHandler.url, expectedUrl);
+		assertEquals(recordHandler.authToken, authToken);
+		assertEquals(recordHandler.json, json);
+	}
+
+	@Test
+	public void testSearchAndStoreCorrectRecordsInDataHolder() throws UnsupportedEncodingException {
+		fixture.testSearchAndStoreRecords();
+
+		String jsonListFromRecordHandler = recordHandler.jsonToReturn;
+		String jsonListSentToParser = jsonParser.jsonStringsSentToParser.get(0);
+		assertEquals(jsonListSentToParser, jsonListFromRecordHandler);
+
+		JsonObjectSpy listObjectFromSpy = assertObjectForKeyDataListIsExtracted();
+
+		JsonObjectSpy dataList = assertObjectForKeyDataIsExtracted(listObjectFromSpy);
+
+		assertAllRecordsInDataAreConverted(dataList);
+
+		assertConvertedRecordsAreAddedToRecordHolder();
+	}
+
 }

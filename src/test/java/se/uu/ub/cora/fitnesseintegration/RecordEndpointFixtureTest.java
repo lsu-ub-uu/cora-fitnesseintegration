@@ -19,28 +19,22 @@
 package se.uu.ub.cora.fitnesseintegration;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
-import javax.ws.rs.core.Response;
 
 import org.apache.http.client.ClientProtocolException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
 
 public class RecordEndpointFixtureTest {
 	private RecordEndpointFixture fixture;
 	private HttpHandlerFactorySpy httpHandlerFactorySpy;
-	private JsonHandler jsonHandler;
-	private JsonParserSpy jsonParser;
-	private JsonToDataRecordConverterSpy jsonToDataConverter;
+	private RecordHandlerSpy recordHandler;
 
 	@BeforeMethod
 	public void setUp() {
@@ -53,21 +47,23 @@ public class RecordEndpointFixtureTest {
 		DependencyProvider
 				.setChildComparerClassName("se.uu.ub.cora.fitnesseintegration.ChildComparerSpy");
 		httpHandlerFactorySpy = (HttpHandlerFactorySpy) DependencyProvider.getHttpHandlerFactory();
-		jsonParser = new JsonParserSpy();
-		jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
 
+		recordHandler = new RecordHandlerSpy();
 		fixture = new RecordEndpointFixture();
+		fixture.setRecordHandler(recordHandler);
 	}
 
 	@Test
 	public void testInit() {
+		fixture = new RecordEndpointFixture();
 		assertTrue(
 				fixture.getJsonToDataConverterFactory() instanceof JsonToDataConverterFactorySpy);
 		assertTrue(fixture.getHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
 		assertTrue(fixture.getChildComparer() instanceof ChildComparerSpy);
 		assertTrue(fixture.getJsonToDataRecordConverter() instanceof JsonToDataRecordConverterImp);
 		assertTrue(fixture.getJsonHandler() instanceof JsonHandlerImp);
-
+		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.getRecordHandler();
+		assertSame(recordHandler.getHttpHandlerFactory(), fixture.getHttpHandlerFactory());
 	}
 
 	@Test
@@ -75,24 +71,25 @@ public class RecordEndpointFixtureTest {
 		fixture.setType("someType");
 		fixture.setId("someId");
 		fixture.setAuthToken("someToken");
+		String responseText = fixture.testReadRecord();
+
+		String expectedUrl = SystemUrl.getUrl() + "rest/record/someType/someId";
+		assertEquals(recordHandler.url, expectedUrl);
+		assertEquals(recordHandler.authToken, "someToken");
+		assertEquals(responseText, recordHandler.jsonToReturn);
+
+	}
+
+	@Test
+	public void testReadRecordStatusTypeFromRecordHandlerUsed() {
+		assertEquals(fixture.testReadRecord(), "some json returned from spy");
+		assertEquals(fixture.getStatusType(), recordHandler.statusTypeReturned);
+	}
+
+	@Test
+	public void testReadRecordAdminAuthTokenUsedWhenNoAuthTokenSet() {
 		fixture.testReadRecord();
-		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestMetod, "GET");
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/therest/rest/record/someType/someId");
-		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestProperties.get("authToken"),
-				"someToken");
-	}
-
-	@Test
-	public void testReadRecordOk() {
-		assertEquals(fixture.testReadRecord(), "Everything ok");
-		assertEquals(fixture.getStatusType(), Response.Status.OK);
-	}
-
-	@Test
-	public void testReadRecordNotOk() {
-		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		assertEquals(fixture.testReadRecord(), "bad things happend");
+		assertEquals(recordHandler.authToken, AuthTokenHolder.getAdminAuthToken());
 	}
 
 	@Test
@@ -120,119 +117,96 @@ public class RecordEndpointFixtureTest {
 	}
 
 	@Test
-	public void testReadRecordListDataForFactoryIsOk() throws UnsupportedEncodingException {
+	public void testReadRecordListDataForRecordHandlerIsOk() throws UnsupportedEncodingException {
 		fixture.setType("someType");
 		fixture.setAuthToken("someToken");
-
-		fixture.testReadRecordList();
-		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestMetod, "GET");
-
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/therest/rest/record/someType");
-		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestProperties.get("authToken"),
-				"someToken");
-	}
-
-	@Test
-	public void testReadRecordListNoFilterOk() throws UnsupportedEncodingException {
-		assertEquals(fixture.testReadRecordList(), "Everything ok");
-	}
-
-	@Test
-	public void testReadRecordListWithAddedFilterOk() throws UnsupportedEncodingException {
-		fixture.setType("someType");
-		fixture.setAuthToken("someToken");
-		String json = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":[{\"name\":\"key\",\"value\":\"idFromLogin\"},{\"name\":\"value\",\"value\":\"someId\"}],\"repeatId\":\"0\"}]}";
-
+		String json = "some filter";
 		fixture.setJson(json);
-		String encodedJson = URLEncoder.encode(json, "UTF-8");
-		assertEquals(fixture.testReadRecordList(), "Everything ok");
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/therest/rest/record/someType?filter=" + encodedJson);
-		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestProperties.get("authToken"),
-				"someToken");
+
+		String responseText = fixture.testReadRecordList();
+		String expectedUrl = SystemUrl.getUrl() + "rest/record/someType";
+		assertEquals(recordHandler.url, expectedUrl);
+		assertEquals(recordHandler.authToken, "someToken");
+		assertEquals(recordHandler.filter, json);
+		assertEquals(responseText, recordHandler.jsonToReturn);
+
 	}
 
 	@Test
-	public void testReadRecordListNotOk() throws UnsupportedEncodingException {
-		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		assertEquals(fixture.testReadRecordList(), "bad things happend");
+	public void testReadRecordListStatusTypeFromRecordHandlerUsed()
+			throws UnsupportedEncodingException {
+		fixture.testReadRecordList();
+		assertEquals(fixture.getStatusType(), recordHandler.statusTypeReturned);
 	}
 
 	@Test
-	public void testCreateRecordDataForFactoryIsOk() {
-		httpHandlerFactorySpy.setResponseCode(201);
+	public void testReadRecordListAdminAuthTokenUsedWhenNoAuthTokenSet()
+			throws UnsupportedEncodingException {
+		fixture.testReadRecordList();
+		assertEquals(recordHandler.authToken, AuthTokenHolder.getAdminAuthToken());
+	}
+
+	@Test
+	public void testCreateRecordDataForRecordHandlerIsOk() {
 		fixture.setType("autogeneratedIdType");
 		fixture.setAuthToken("someToken");
-		fixture.setJson("{\"name\":\"value\"}");
+		String json = "{\"name\":\"value\"}";
+		fixture.setJson(json);
 		fixture.testCreateRecord();
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		assertEquals(httpHandlerSpy.requestMetod, "POST");
-		assertEquals(httpHandlerSpy.outputString, "{\"name\":\"value\"}");
-		assertEquals(httpHandlerSpy.requestProperties.get("Accept"),
-				"application/vnd.uub.record+json");
-		assertEquals(httpHandlerSpy.requestProperties.get("Content-Type"),
-				"application/vnd.uub.record+json");
-		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), "someToken");
-		assertEquals(httpHandlerSpy.requestProperties.size(), 3);
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/therest/rest/record/autogeneratedIdType");
-		assertEquals(fixture.getCreatedId(), "someRecordType:35824453170224822");
+
+		String expectedUrl = SystemUrl.getUrl() + "rest/record/autogeneratedIdType";
+		assertEquals(recordHandler.url, expectedUrl);
+		assertEquals(recordHandler.authToken, "someToken");
+		assertEquals(recordHandler.json, json);
+		assertEquals(fixture.getCreatedId(), recordHandler.createdId);
+		assertEquals(fixture.getToken(), recordHandler.token);
 	}
 
 	@Test
-	public void testCreateAppTokenDataForFactoryIsOk() {
-		httpHandlerFactorySpy.setResponseCode(201);
-		fixture.setType("appToken");
-		fixture.setAuthToken("someToken");
-		fixture.setJson("{\"name\":\"value\"}");
+	public void testCreateRecordReturnedResponseTextSameAsInRecordHandler() {
+		String responseText = fixture.testCreateRecord();
+		assertEquals(responseText, recordHandler.jsonToReturn);
+	}
+
+	@Test
+	public void testCreateRecordAdminAuthTokenUsedWhenNoAuthTokenSet()
+			throws UnsupportedEncodingException {
 		fixture.testCreateRecord();
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		assertEquals(httpHandlerSpy.requestMetod, "POST");
-		assertEquals(httpHandlerSpy.outputString, "{\"name\":\"value\"}");
-		assertEquals(httpHandlerSpy.requestProperties.get("Accept"),
-				"application/vnd.uub.record+json");
-		assertEquals(httpHandlerSpy.requestProperties.get("Content-Type"),
-				"application/vnd.uub.record+json");
-		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), "someToken");
-		assertEquals(httpHandlerSpy.requestProperties.size(), 3);
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/therest/rest/record/appToken");
-		assertEquals(fixture.getCreatedId(), "someRecordType:35824453170224822");
-		assertEquals(fixture.getToken(), "ba064c86-bd7c-4283-a5f3-86ba1dade3f3");
-	}
-
-	@Test
-	public void testCreateRecordOk() {
-		httpHandlerFactorySpy.setResponseCode(201);
-		assertEquals(fixture.testCreateRecord(), "Everything ok");
-	}
-
-	@Test
-	public void testCreateRecordNotOk() {
-		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		assertEquals(fixture.testCreateRecord(), "bad things happend");
+		assertEquals(recordHandler.authToken, AuthTokenHolder.getAdminAuthToken());
 	}
 
 	@Test
 	public void testCreateRecordCreatedType() {
-		httpHandlerFactorySpy.setResponseCode(201);
 		fixture.setType("someRecordType");
+		fixture.setAuthToken("someToken");
+		String json = "{\"name\":\"value\"}";
+		fixture.setJson(json);
+		recordHandler.jsonToReturn = "{\"record\":{\"data\":{\"children\":[{\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"system\"},{\"name\":\"linkedRecordId\",\"value\":\"cora\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/system/cora\",\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"dataDivider\"},{\"name\":\"id\",\"value\":\"someId\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"someRecordType\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/recordType/someRecordType\",\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"type\"},{\"name\":\"createdBy\",\"value\":\"131313\"}],\"name\":\"recordInfo\"}],\"name\":\"binary\",\"attributes\":{\"type\":\"someRecordTypeAttribute\"}},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\",\"accept\":\"application/vnd.uub.record+json\"},\"update\":{\"requestMethod\":\"POST\",\"rel\":\"update\",\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\",\"accept\":\"application/vnd.uub.record+json\"},\"delete\":{\"requestMethod\":\"DELETE\",\"rel\":\"delete\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\"}}}}";
+
 		String createdType = fixture.testCreateRecordCreatedType();
+		String expectedUrl = SystemUrl.getUrl() + "rest/record/someRecordType";
+		assertEquals(recordHandler.url, expectedUrl);
 		assertEquals(createdType, "someRecordType");
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), "someAdminToken");
+
+		assertEquals(recordHandler.authToken, "someToken");
+		assertEquals(recordHandler.json, json);
+		assertEquals(fixture.getCreatedId(), recordHandler.createdId);
+		assertEquals(fixture.getToken(), recordHandler.token);
 	}
 
 	@Test
 	public void testCreateRecordCreatedTypeNotOk() {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		assertEquals(fixture.testCreateRecordCreatedType(), "bad things happend");
+		StatusTypeSpy statusTypeSpy = new StatusTypeSpy();
+		statusTypeSpy.statusCodeToReturn = 401;
+		recordHandler.statusTypeReturned = statusTypeSpy;
+
+		assertEquals(fixture.testCreateRecordCreatedType(), recordHandler.jsonToReturn);
 	}
 
 	@Test
 	public void testCreateRecordCreatedTypeNotFoundInJson() {
-		httpHandlerFactorySpy.setResponseCode(201);
+		recordHandler.jsonToReturn = "{\"record\":{\"data\":{\"children\":[{\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"system\"},{\"name\":\"linkedRecordId\",\"value\":\"cora\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/system/cora\",\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"dataDivider\"},{\"name\":\"id\",\"value\":\"someId\"},{\"name\":\"createdBy\",\"value\":\"131313\"}],\"name\":\"recordInfo\"}],\"name\":\"binary\",\"attributes\":{\"type\":\"someRecordTypeAttribute\"}},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\",\"accept\":\"application/vnd.uub.record+json\"},\"update\":{\"requestMethod\":\"POST\",\"rel\":\"update\",\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\",\"accept\":\"application/vnd.uub.record+json\"},\"delete\":{\"requestMethod\":\"DELETE\",\"rel\":\"delete\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\"}}}}";
 		fixture.setType("someWrongRecordTypeWrongJson");
 		String createdType = fixture.testCreateRecordCreatedType();
 		assertEquals(createdType, "");
@@ -379,48 +353,35 @@ public class RecordEndpointFixtureTest {
 	}
 
 	@Test
-	public void testSearchRecordFactoryIsOk() throws UnsupportedEncodingException {
+	public void testSearchRecordDataForRecordHandlerIsOk() throws UnsupportedEncodingException {
 		fixture.setAuthToken("someToken");
 		fixture.setSearchId("aSearchId");
 
 		String json = "{\"name\":\"search\",\"children\":[{\"name\":\"include\",\"children\":["
 				+ "{\"name\":\"includePart\",\"children\":[{\"name\":\"text\",\"value\":\"\"}]}]}]}";
 		fixture.setJson(json);
-		fixture.testSearchRecord();
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		assertEquals(httpHandlerSpy.requestMetod, "GET");
-		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), "someToken");
-		assertEquals(httpHandlerSpy.requestProperties.size(), 1);
+		String responseText = fixture.testSearchRecord();
+		String expectedUrl = SystemUrl.getUrl() + "rest/record/searchResult/aSearchId";
+		assertEquals(recordHandler.url, expectedUrl);
+		assertEquals(recordHandler.authToken, "someToken");
+		assertEquals(recordHandler.json, json);
 
-		String encodedJson = URLEncoder.encode(json, "UTF-8");
+		assertEquals(responseText, recordHandler.jsonToReturn);
 
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/therest/rest/record/searchResult/aSearchId/?" + "searchData="
-						+ encodedJson);
 	}
 
 	@Test
-	public void testSearchRecordOk() throws UnsupportedEncodingException {
-		fixture.setAuthToken("someToken");
-		fixture.setSearchId("aSearchId");
-
-		String json = "{\"name\":\"search\",\"children\":[{\"name\":\"include\",\"children\":["
-				+ "{\"name\":\"includePart\",\"children\":[{\"name\":\"text\",\"value\":\"\"}]}]}]}";
-		fixture.setJson(json);
-		assertEquals(fixture.testSearchRecord(), "Everything ok");
+	public void testSearchRecordStatusTypeFromRecordHandlerUsed()
+			throws UnsupportedEncodingException {
+		fixture.testSearchRecord();
+		assertEquals(fixture.getStatusType(), recordHandler.statusTypeReturned);
 	}
 
 	@Test
-	public void testSearchRecordNotOk() throws UnsupportedEncodingException {
-		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		fixture.setAuthToken("someToken");
-		fixture.setSearchId("aSearchId");
-
-		String json = "{\"name\":\"search\",\"children\":[{\"name\":\"include\",\"children\":["
-				+ "{\"name\":\"includePart\",\"children\":[{\"name\":\"text\",\"value\":\"\"}]}]}]}";
-		fixture.setJson(json);
+	public void testSearchRecordAdminAuthTokenUsedWhenNoAuthTokenSet()
+			throws UnsupportedEncodingException {
 		fixture.testSearchRecord();
-		assertEquals(fixture.testReadRecordList(), "bad things happend");
+		assertEquals(recordHandler.authToken, AuthTokenHolder.getAdminAuthToken());
 	}
 
 	@Test
@@ -428,10 +389,18 @@ public class RecordEndpointFixtureTest {
 		fixture.setType("metadataGroup");
 		fixture.setId("someMetadataGroupId");
 		fixture.setAuthToken("someToken");
+		JsonToDataRecordConverterSpy jsonToDataRecordConverterSpy = new JsonToDataRecordConverterSpy();
+		fixture.setJsonToDataRecordConverter(jsonToDataRecordConverterSpy);
+		JsonParserSpy jsonParser = new JsonParserSpy();
+		JsonHandler jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
+		fixture.setJsonHandler(jsonHandler);
 		fixture.testReadRecordAndStoreJson();
 
-		assertNotEquals(DataHolder.getRecord(), null);
-		assertTrue(DataHolder.getRecord() instanceof ClientDataRecord);
+		assertEquals(jsonParser.jsonStringSentToParser, recordHandler.json);
+		assertEquals(jsonToDataRecordConverterSpy.jsonObjects.get(0),
+				jsonParser.jsonObjectSpies.get(0));
+
+		assertSame(DataHolder.getRecord(), jsonToDataRecordConverterSpy.clientDataRecordSpy);
 	}
 
 }

@@ -29,5 +29,4 @@ public class ReadResponse {
 		this.statusType = statusType;
 		this.responseText = responseText;
 	}
-
 }
