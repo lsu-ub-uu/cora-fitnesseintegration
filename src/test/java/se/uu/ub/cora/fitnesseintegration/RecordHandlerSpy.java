@@ -31,6 +31,7 @@ public class RecordHandlerSpy implements RecordHandler {
 	public StatusTypeSpy statusTypeReturned;
 	public String createdId;
 	public String token;
+	public boolean createRecordWasCalled = false;
 
 	@Override
 	public ReadResponse readRecordList(String url, String authToken, String filter) {
@@ -64,6 +65,7 @@ public class RecordHandlerSpy implements RecordHandler {
 
 	@Override
 	public CreateResponse createRecord(String url, String authToken, String json) {
+		createRecordWasCalled = true;
 		this.url = url;
 		this.authToken = authToken;
 		this.json = json;
