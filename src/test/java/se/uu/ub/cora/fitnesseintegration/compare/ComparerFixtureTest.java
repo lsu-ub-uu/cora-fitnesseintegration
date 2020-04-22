@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.compare;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
@@ -33,8 +33,23 @@ import org.testng.annotations.Test;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
+import se.uu.ub.cora.fitnesseintegration.ChildComparerSpy;
+import se.uu.ub.cora.fitnesseintegration.ClientDataRecordSpy;
+import se.uu.ub.cora.fitnesseintegration.DataHolder;
+import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
+import se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy;
+import se.uu.ub.cora.fitnesseintegration.IteratorSpy;
+import se.uu.ub.cora.fitnesseintegration.JsonArraySpy;
+import se.uu.ub.cora.fitnesseintegration.JsonHandlerImp;
+import se.uu.ub.cora.fitnesseintegration.JsonObjectSpy;
+import se.uu.ub.cora.fitnesseintegration.JsonParserSpy;
+import se.uu.ub.cora.fitnesseintegration.JsonToDataRecordConverterSpy;
+import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
+import se.uu.ub.cora.fitnesseintegration.RecordHandlerSpy;
+import se.uu.ub.cora.fitnesseintegration.SystemUrl;
+import se.uu.ub.cora.fitnesseintegration.compare.ComparerFixture;
 
-public class CompararerFixtureTest {
+public class ComparerFixtureTest {
 
 	private ComparerFixture fixture;
 	private RecordHandlerSpy recordHandler;
@@ -46,7 +61,7 @@ public class CompararerFixtureTest {
 	public void setUp() {
 		SystemUrl.setUrl("http://localhost:8080/therest/");
 		DependencyProvider
-				.setChildComparerClassName("se.uu.ub.cora.fitnesseintegration.ChildComparerSpy");
+				.setChildComparerUsingClassName("se.uu.ub.cora.fitnesseintegration.ChildComparerSpy");
 		DependencyProvider.setHttpHandlerFactoryClassName(
 				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy");
 

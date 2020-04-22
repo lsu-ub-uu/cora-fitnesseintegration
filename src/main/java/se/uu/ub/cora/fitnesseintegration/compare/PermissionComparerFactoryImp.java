@@ -16,20 +16,15 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration.fixture;
+package se.uu.ub.cora.fitnesseintegration.compare;
 
-import se.uu.ub.cora.fitnesseintegration.ComparerFixture;
+import se.uu.ub.cora.clientdata.DataRecord;
 
-public class PermissionComparerFixture extends ComparerFixture {
+public class PermissionComparerFactoryImp implements PermissionComparerFactory {
 
-	public void setPermissions(String permissions) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public String testCheckContainPermissions() {
-		// TODO Auto-generated method stub
-		return "OK";
+	@Override
+	public PermissionComparer factor(DataRecord dataRecord) {
+		return new PermissionComparerImp(dataRecord);
 	}
 
 }

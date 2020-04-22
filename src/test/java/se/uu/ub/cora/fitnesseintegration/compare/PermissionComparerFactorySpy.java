@@ -16,21 +16,21 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration.fixture;
+package se.uu.ub.cora.fitnesseintegration.compare;
 
-import static org.testng.Assert.assertEquals;
+import se.uu.ub.cora.clientdata.DataRecord;
 
-import org.testng.annotations.Test;
+public class PermissionComparerFactorySpy implements PermissionComparerFactory {
 
-public class PermissionComparerFixtureTest {
+	public PermissionComparerSpy factoredComparer;
+	public DataRecord dataRecord;
+	public int numberOfErrorsToReturn = 0;
 
-	@Test
-	public void testOnePermissionOk() {
-		PermissionComparerFixture comparerFixture = new PermissionComparerFixture();
-		String permissions = "{\"read\":[\"readPermissionOne\"]}";
-		comparerFixture.setPermissions(permissions);
-		String responseText = comparerFixture.testCheckContainPermissions();
-		assertEquals(responseText, "OK");
+	@Override
+	public PermissionComparer factor(DataRecord dataRecord) {
+		this.dataRecord = dataRecord;
+		factoredComparer = new PermissionComparerSpy();
+		factoredComparer.numberOfErrorsToReturn = numberOfErrorsToReturn;
+		return factoredComparer;
 	}
-
 }

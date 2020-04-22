@@ -16,31 +16,32 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration.permission;
+package se.uu.ub.cora.fitnesseintegration.compare;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.json.parser.JsonValue;
 
-/**
- * PermissionComparer compares the content in a JsonValue with the permissions in a
- * {@link ClientDataRecord}. The {@link ClientDataRecord} is expected to be provided at instance
- * creation.
- * 
- */
-public interface PermissionComparer {
+public class PermissionComparerSpy implements PermissionComparer {
 
-	/**
-	 * Checks whether the ClientDataRecord provided at object instantiation contains the permissions
-	 * specified in the provided JsonValue.
-	 * 
-	 * @param jsonValue
-	 *            The JsonValue that contains the permissions to look for
-	 * 
-	 * @return A List<String> containing messages for potential missing permissions
-	 * 
-	 */
-	List<String> checkDataRecordContainsPermissions(JsonValue jsonValue);
+	public JsonValue jsonValue;
+	public int numberOfErrorsToReturn = 0;
+	public List<String> listToReturn;
+
+	@Override
+	public List<String> checkDataRecordContainsPermissions(JsonValue jsonValue) {
+		this.jsonValue = jsonValue;
+		listToReturn = new ArrayList<>();
+		possiblyAddErrorMessages("is missing.");
+		return listToReturn;
+	}
+
+	private void possiblyAddErrorMessages(String extraMessage) {
+		for (int i = 0; i < numberOfErrorsToReturn; i++) {
+			String errorMessage = "From spy: Permission with number " + i + " " + extraMessage;
+			listToReturn.add(errorMessage);
+		}
+	}
 
 }

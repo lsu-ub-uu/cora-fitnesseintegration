@@ -16,33 +16,26 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.compare;
 
-import java.util.Set;
-
-import se.uu.ub.cora.clientdata.ClientData;
-import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.DataRecord;
 
-public class ClientDataRecordSpy implements DataRecord, ClientData {
+/**
+ * PermissionComparerFactory creates and returns a PermissionComparer
+ */
 
-	public ClientDataGroup clientDataGroup;
+public interface PermissionComparerFactory {
 
-	@Override
-	public ClientDataGroup getClientDataGroup() {
-		clientDataGroup = ClientDataGroup.withNameInData("clientDataGroupSpy");
-		return clientDataGroup;
-	}
+	/**
+	 * Creates and returns an instance of {@link PermissionComparer}. The provided
+	 * {@link DataRecord} MUST be set in the instantiated object, to later be used when comparing
+	 * permissions.
+	 * 
+	 * @param dataRecord
+	 *            The DataRecord to be set in the PermissionComparer
+	 * 
+	 * @return A PermissionComparer
+	 */
+	PermissionComparer factor(DataRecord dataRecord);
 
-	@Override
-	public Set<String> getReadPermissions() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Set<String> getWritePermissions() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

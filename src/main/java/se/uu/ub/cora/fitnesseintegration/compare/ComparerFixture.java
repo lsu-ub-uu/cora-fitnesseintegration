@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.compare;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -27,6 +27,14 @@ import java.util.StringJoiner;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
+import se.uu.ub.cora.fitnesseintegration.ChildComparer;
+import se.uu.ub.cora.fitnesseintegration.DataHolder;
+import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
+import se.uu.ub.cora.fitnesseintegration.JsonHandler;
+import se.uu.ub.cora.fitnesseintegration.ReadResponse;
+import se.uu.ub.cora.fitnesseintegration.RecordHandler;
+import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
+import se.uu.ub.cora.fitnesseintegration.SystemUrl;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
@@ -38,7 +46,7 @@ public class ComparerFixture {
 	private RecordHandler recordHandler;
 	private String type;
 	private String storedListAsJson;
-	private JsonHandler jsonHandler;
+	protected JsonHandler jsonHandler;
 	private JsonToDataRecordConverter jsonToDataRecordConverter;
 	private ChildComparer childComparer;
 	private String childrenToCompare;
@@ -118,7 +126,7 @@ public class ComparerFixture {
 		return errorMessages.isEmpty() ? "OK" : joinErrorMessages(errorMessages);
 	}
 
-	private String joinErrorMessages(List<String> errorMessages) {
+	protected String joinErrorMessages(List<String> errorMessages) {
 		StringJoiner compareError = new StringJoiner(" ");
 		for (String errorMessage : errorMessages) {
 			compareError.add(errorMessage);

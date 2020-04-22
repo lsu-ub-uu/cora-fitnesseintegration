@@ -27,6 +27,8 @@ import org.testng.annotations.Test;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
+import se.uu.ub.cora.fitnesseintegration.compare.PermissionComparerFactory;
+import se.uu.ub.cora.fitnesseintegration.compare.PermissionComparerFactoryImp;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
@@ -76,15 +78,15 @@ public class DependencyProviderTest {
 
 	@Test
 	public void testChildComparer() {
-		DependencyProvider
-				.setChildComparerClassName("se.uu.ub.cora.fitnesseintegration.ChildComparerImp");
+		DependencyProvider.setChildComparerUsingClassName(
+				"se.uu.ub.cora.fitnesseintegration.ChildComparerImp");
 		ChildComparer childComparer = DependencyProvider.getChildComparer();
 		assertTrue(childComparer instanceof ChildComparerImp);
 	}
 
 	@Test(expectedExceptions = RuntimeException.class)
 	public void testChildComparerNonExistingClassName() {
-		DependencyProvider.setChildComparerClassName("se.uu.ub.cora.fitnesse.DoesNotExistImp");
+		DependencyProvider.setChildComparerUsingClassName("se.uu.ub.cora.fitnesse.DoesNotExistImp");
 	}
 
 	@Test
@@ -99,5 +101,20 @@ public class DependencyProviderTest {
 	public void testGetJsonHandler() {
 		JsonHandlerImp jsonHandler = (JsonHandlerImp) DependencyProvider.getJsonHandler();
 		assertTrue(jsonHandler.getJsonParser() instanceof OrgJsonParser);
+	}
+
+	@Test
+	public void testPermissionComparerFactory() {
+		DependencyProvider.setPermissionComparerFactoryUsingClassName(
+				"se.uu.ub.cora.fitnesseintegration.compare.PermissionComparerFactoryImp");
+		PermissionComparerFactory permissionComparerFactory = DependencyProvider
+				.getPermissionsComparerFactory();
+		assertTrue(permissionComparerFactory instanceof PermissionComparerFactoryImp);
+	}
+
+	@Test(expectedExceptions = RuntimeException.class)
+	public void testPermissionComparerFacatoryNonExistingClassName() {
+		DependencyProvider.setPermissionComparerFactoryUsingClassName(
+				"se.uu.ub.cora.fitnesse.DoesNotExistImp");
 	}
 }

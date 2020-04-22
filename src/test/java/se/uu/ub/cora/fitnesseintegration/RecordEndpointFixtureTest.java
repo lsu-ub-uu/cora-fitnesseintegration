@@ -45,7 +45,7 @@ public class RecordEndpointFixtureTest {
 		DependencyProvider.setJsonToDataFactoryClassName(
 				"se.uu.ub.cora.fitnesseintegration.JsonToDataConverterFactorySpy");
 		DependencyProvider
-				.setChildComparerClassName("se.uu.ub.cora.fitnesseintegration.ChildComparerSpy");
+				.setChildComparerUsingClassName("se.uu.ub.cora.fitnesseintegration.ChildComparerSpy");
 		httpHandlerFactorySpy = (HttpHandlerFactorySpy) DependencyProvider.getHttpHandlerFactory();
 
 		recordHandler = new RecordHandlerSpy();

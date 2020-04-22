@@ -16,12 +16,12 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration.permission;
+package se.uu.ub.cora.fitnesseintegration.compare;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.json.parser.JsonString;
@@ -29,9 +29,9 @@ import se.uu.ub.cora.json.parser.JsonValue;
 
 public class PermissionComparerImp implements PermissionComparer {
 
-	private ClientDataRecord dataRecord;
+	private DataRecord dataRecord;
 
-	public PermissionComparerImp(ClientDataRecord dataRecord) {
+	public PermissionComparerImp(DataRecord dataRecord) {
 		this.dataRecord = dataRecord;
 	}
 
@@ -68,7 +68,7 @@ public class PermissionComparerImp implements PermissionComparer {
 	}
 
 	private boolean readPermissionIsMissing(String permission) {
-		return !dataRecord.getReadPermissions().contains(permission);
+		return !getDataRecord().getReadPermissions().contains(permission);
 	}
 
 	private void addMessagesIfMissingWritePermissions(List<String> errorMessages,
@@ -96,7 +96,12 @@ public class PermissionComparerImp implements PermissionComparer {
 	}
 
 	private boolean writePermissionIsMissing(String permission) {
-		return !dataRecord.getWritePermissions().contains(permission);
+		return !getDataRecord().getWritePermissions().contains(permission);
+	}
+
+	public DataRecord getDataRecord() {
+		// needed for test
+		return dataRecord;
 	}
 
 }
