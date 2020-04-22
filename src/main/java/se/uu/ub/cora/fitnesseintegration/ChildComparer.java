@@ -25,10 +25,45 @@ import se.uu.ub.cora.json.parser.JsonValue;
 
 public interface ChildComparer {
 
+	/**
+	 * Checks whether the provided ClientDataGroup contains the children specified in the provided
+	 * JsonValue.
+	 * 
+	 * @param dataGroup
+	 *            The ClientDataGroup that is checked
+	 * @param jsonValue
+	 *            The JsonValue that contains the children to look for
+	 * @return A boolean value, true if all values are found, false otherwise
+	 * 
+	 */
 	boolean dataGroupContainsChildren(ClientDataGroup dataGroup, JsonValue jsonValue);
 
+	/**
+	 * Checks whether the provided ClientDataGroup contains the children specified in the provided
+	 * JsonValue.
+	 * 
+	 * @param dataGroup
+	 *            The ClientDataGroup that is checked
+	 * @param jsonValue
+	 *            The JsonValue that contains the children to look for
+	 * @return A List<String> containing messages for potential missing children. Empty list is
+	 *         returned if all children are found.
+	 * 
+	 */
 	List<String> checkDataGroupContainsChildren(ClientDataGroup dataGroup, JsonValue jsonValue);
 
+	/**
+	 * Checks whether the provided ClientDataGroup contains the children, with correct values,
+	 * specified in the provided JsonValue.
+	 * 
+	 * @param dataGroup
+	 *            The ClientDataGroup that is checked
+	 * @param jsonValue
+	 *            The JsonValue that contains the children to look for
+	 * @return A List<String> containing messages for potential missing children or incorrect
+	 *         values. Empty list is returned if all children with correct values are found.
+	 * 
+	 */
 	List<String> checkDataGroupContainsChildrenWithCorrectValues(ClientDataGroup dataGroup,
 			JsonValue jsonValue);
 }

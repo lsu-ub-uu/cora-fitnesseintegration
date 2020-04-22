@@ -188,10 +188,15 @@ public class ChildComparerImp implements ChildComparer {
 			JsonObject childObject, String nameInData) {
 		JsonString value = (JsonString) childObject.getValue("value");
 		String atomicValue = dataGroup.getFirstAtomicValueWithNameInData(nameInData);
-		if (!atomicValue.equals(value.getStringValue())) {
+
+		if (valueInDataNotSameAsInJson(value, atomicValue)) {
 			String messagePrefix = getMessagePrefix(nameInData);
 			errorMessages.add(messagePrefix + " does not have the correct value.");
 		}
+	}
+
+	private boolean valueInDataNotSameAsInJson(JsonString value, String atomicValue) {
+		return !atomicValue.equals(value.getStringValue());
 	}
 
 	private String getMessagePrefix(String nameInData) {
