@@ -32,39 +32,40 @@ public class RecordHandlerSpy implements RecordHandler {
 	public String createdId;
 	public String token;
 	public boolean createRecordWasCalled = false;
+	public boolean updateRecordWasCalled = false;
 
 	@Override
-	public ReadResponse readRecordList(String url, String authToken, String filter) {
+	public CommonHttpResponse readRecordList(String url, String authToken, String filter) {
 		readRecordListWasCalled = true;
 		this.url = url;
 		this.filter = filter;
 		this.authToken = authToken;
 
 		statusTypeReturned = new StatusTypeSpy();
-		return new ReadResponse(statusTypeReturned, jsonToReturn);
+		return new CommonHttpResponse(statusTypeReturned, jsonToReturn);
 	}
 
 	@Override
-	public ReadResponse readRecord(String url, String authToken) {
+	public CommonHttpResponse readRecord(String url, String authToken) {
 		this.url = url;
 		this.authToken = authToken;
 		readRecordWasCalled = true;
 		statusTypeReturned = new StatusTypeSpy();
-		return new ReadResponse(statusTypeReturned, jsonToReturn);
+		return new CommonHttpResponse(statusTypeReturned, jsonToReturn);
 	}
 
 	@Override
-	public ReadResponse searchRecord(String url, String authToken, String json) {
+	public CommonHttpResponse searchRecord(String url, String authToken, String json) {
 		searchRecordWasCalled = true;
 		this.url = url;
 		this.authToken = authToken;
 		this.json = json;
 		statusTypeReturned = new StatusTypeSpy();
-		return new ReadResponse(statusTypeReturned, jsonToReturn);
+		return new CommonHttpResponse(statusTypeReturned, jsonToReturn);
 	}
 
 	@Override
-	public CreateResponse createRecord(String url, String authToken, String json) {
+	public CreateHttpResponse createRecord(String url, String authToken, String json) {
 		createRecordWasCalled = true;
 		this.url = url;
 		this.authToken = authToken;
@@ -73,11 +74,17 @@ public class RecordHandlerSpy implements RecordHandler {
 			statusTypeReturned = new StatusTypeSpy();
 			statusTypeReturned.statusCodeToReturn = 201;
 		}
-		ReadResponse readResponse = new ReadResponse(statusTypeReturned, jsonToReturn);
+		CommonHttpResponse readResponse = new CommonHttpResponse(statusTypeReturned, jsonToReturn);
 
 		createdId = "someCreatedId";
 		token = "someToken";
-		return new CreateResponse(readResponse, createdId, token);
+		return new CreateHttpResponse(readResponse, createdId, token);
+	}
+
+	@Override
+	public CommonHttpResponse updateRecord(String url, String authToken, String json) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -193,9 +193,7 @@ public class ComparerFixtureTest {
 		assertTrue(recordHandler.searchRecordWasCalled);
 
 		String expectedUrl = SystemUrl.getUrl() + "rest/record/searchResult/someSearch";
-		assertEquals(recordHandler.url, expectedUrl);
-		assertEquals(recordHandler.authToken, authToken);
-		assertEquals(recordHandler.json, json);
+		assertCorrectValuesSentToRecordHandler(authToken, json, expectedUrl);
 	}
 
 	@Test
@@ -215,6 +213,25 @@ public class ComparerFixtureTest {
 		assertConvertedRecordsAreAddedToRecordHolder();
 	}
 
+	// @Test
+	// public void testUpdateAndStoreRecord() throws UnsupportedEncodingException {
+	// String authToken = "someAuthToken";
+	// fixture.setAuthToken(authToken);
+	// String json = "{\"name\":\"value\"}";
+	// fixture.setJson(json);
+	// fixture.testUpdateAndStoreRecord();
+	// assertTrue(recordHandler.updateRecordWasCalled);
+	//
+	// String expectedUrl = SystemUrl.getUrl() + "rest/record/someRecordType";
+	// assertCorrectValuesSentToRecordHandler(authToken, json, expectedUrl);
+	//
+	// String jsonListFromRecordHandler = recordHandler.jsonToReturn;
+	// String jsonListSentToParser = jsonParser.jsonStringsSentToParser.get(0);
+	// assertEquals(jsonListSentToParser, jsonListFromRecordHandler);
+	// assertSame(jsonToDataConverter.jsonObjects.get(0), jsonParser.jsonObjectSpies.get(0));
+	// assertSame(DataHolder.getRecord(), jsonToDataConverter.returnedSpies.get(0));
+	// }
+
 	@Test
 	public void testCreateAndStoreRecord() throws UnsupportedEncodingException {
 		String authToken = "someAuthToken";
@@ -225,15 +242,20 @@ public class ComparerFixtureTest {
 		assertTrue(recordHandler.createRecordWasCalled);
 
 		String expectedUrl = SystemUrl.getUrl() + "rest/record/someRecordType";
-		assertEquals(recordHandler.url, expectedUrl);
-		assertEquals(recordHandler.authToken, authToken);
-		assertEquals(recordHandler.json, json);
+		assertCorrectValuesSentToRecordHandler(authToken, json, expectedUrl);
 
 		String jsonListFromRecordHandler = recordHandler.jsonToReturn;
 		String jsonListSentToParser = jsonParser.jsonStringsSentToParser.get(0);
 		assertEquals(jsonListSentToParser, jsonListFromRecordHandler);
 		assertSame(jsonToDataConverter.jsonObjects.get(0), jsonParser.jsonObjectSpies.get(0));
 		assertSame(DataHolder.getRecord(), jsonToDataConverter.returnedSpies.get(0));
+	}
+
+	private void assertCorrectValuesSentToRecordHandler(String authToken, String json,
+			String expectedUrl) {
+		assertEquals(recordHandler.url, expectedUrl);
+		assertEquals(recordHandler.authToken, authToken);
+		assertEquals(recordHandler.json, json);
 	}
 
 }

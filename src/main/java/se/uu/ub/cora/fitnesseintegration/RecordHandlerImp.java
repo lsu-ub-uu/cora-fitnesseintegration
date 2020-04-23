@@ -39,7 +39,7 @@ public class RecordHandlerImp implements RecordHandler {
 	}
 
 	@Override
-	public ReadResponse readRecordList(String url, String authToken, String filterAsJson)
+	public CommonHttpResponse readRecordList(String url, String authToken, String filterAsJson)
 			throws UnsupportedEncodingException {
 		if (filterAsJson != null) {
 			url += "?filter=" + URLEncoder.encode(filterAsJson, StandardCharsets.UTF_8.name());
@@ -47,18 +47,18 @@ public class RecordHandlerImp implements RecordHandler {
 		return getResponseTextOrErrorTextFromUrl(url, authToken);
 	}
 
-	private ReadResponse getResponseTextOrErrorTextFromUrl(String url, String authToken) {
+	private CommonHttpResponse getResponseTextOrErrorTextFromUrl(String url, String authToken) {
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
 		httpHandler.setRequestMethod("GET");
 
-		return createReadResponseFromHttpHandler(httpHandler);
+		return createCommonHttpResponseFromHttpHandler(httpHandler);
 	}
 
-	private ReadResponse createReadResponseFromHttpHandler(HttpHandler httpHandler) {
+	private CommonHttpResponse createCommonHttpResponseFromHttpHandler(HttpHandler httpHandler) {
 		StatusType statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
 		String responseText = responseIsOk(statusType) ? httpHandler.getResponseText()
 				: httpHandler.getErrorText();
-		return new ReadResponse(statusType, responseText);
+		return new CommonHttpResponse(statusType, responseText);
 	}
 
 	protected boolean responseIsOk(StatusType statusType) {
@@ -72,17 +72,17 @@ public class RecordHandlerImp implements RecordHandler {
 	}
 
 	@Override
-	public ReadResponse readRecord(String url, String authToken) {
+	public CommonHttpResponse readRecord(String url, String authToken) {
 		return getResponseTextOrErrorTextFromUrl(url, authToken);
 	}
 
 	@Override
-	public ReadResponse searchRecord(String url, String authToken, String json)
+	public CommonHttpResponse searchRecord(String url, String authToken, String json)
 			throws UnsupportedEncodingException {
 		url += "?searchData=" + URLEncoder.encode(json, StandardCharsets.UTF_8.name());
 		HttpHandler httpHandler = setupHttpHandlerForSearch(url, authToken);
 
-		return createReadResponseFromHttpHandler(httpHandler);
+		return createCommonHttpResponseFromHttpHandler(httpHandler);
 	}
 
 	private HttpHandler setupHttpHandlerForSearch(String url, String authToken) {
@@ -92,12 +92,12 @@ public class RecordHandlerImp implements RecordHandler {
 	}
 
 	@Override
-	public CreateResponse createRecord(String url, String authToken, String json) {
+	public CreateHttpResponse createRecord(String url, String authToken, String json) {
 		HttpHandler httpHandler = createHttpHandlerForPostWithUrlAndContentType(url, authToken,
 				json);
 		StatusType statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
 
-		ReadResponse readResponse = createReadResponseForCreated(httpHandler, statusType);
+		CommonHttpResponse readResponse = createReadResponseForCreated(httpHandler, statusType);
 		return statusCreated(statusType) ? createCreateResponse(httpHandler, readResponse)
 				: createCreateResponseForErrorResponse(readResponse);
 	}
@@ -112,24 +112,24 @@ public class RecordHandlerImp implements RecordHandler {
 		return httpHandler;
 	}
 
-	private ReadResponse createReadResponseForCreated(HttpHandler httpHandler,
+	private CommonHttpResponse createReadResponseForCreated(HttpHandler httpHandler,
 			StatusType statusType) {
 		String responseText = statusCreated(statusType) ? httpHandler.getResponseText()
 				: httpHandler.getErrorText();
-		return new ReadResponse(statusType, responseText);
+		return new CommonHttpResponse(statusType, responseText);
 	}
 
 	protected boolean statusCreated(StatusType statusType) {
 		return statusType.equals(Response.Status.CREATED);
 	}
 
-	private CreateResponse createCreateResponse(HttpHandler httpHandler,
-			ReadResponse readResponse) {
+	private CreateHttpResponse createCreateResponse(HttpHandler httpHandler,
+			CommonHttpResponse readResponse) {
 		String responseText = readResponse.responseText;
 		String createdId = extractCreatedIdFromLocationHeader(
 				httpHandler.getHeaderField("Location"));
 		String token = tryToExtractCreatedTokenFromResponseText(responseText);
-		return new CreateResponse(readResponse, createdId, token);
+		return new CreateHttpResponse(readResponse, createdId, token);
 	}
 
 	private String extractCreatedIdFromLocationHeader(String locationHeader) {
@@ -150,8 +150,16 @@ public class RecordHandlerImp implements RecordHandler {
 		return responseText.substring(tokenIdIndex, responseText.indexOf('"', tokenIdIndex));
 	}
 
-	private CreateResponse createCreateResponseForErrorResponse(ReadResponse readResponse) {
-		return new CreateResponse(readResponse, "", "");
+	private CreateHttpResponse createCreateResponseForErrorResponse(
+			CommonHttpResponse readResponse) {
+		return new CreateHttpResponse(readResponse, "", "");
+	}
+
+	@Override
+	public CommonHttpResponse updateRecord(String url, String authToken, String json) {
+		HttpHandler httpHandler = createHttpHandlerForPostWithUrlAndContentType(url, authToken,
+				json);
+		return createCommonHttpResponseFromHttpHandler(httpHandler);
 	}
 
 	public HttpHandlerFactory getHttpHandlerFactory() {

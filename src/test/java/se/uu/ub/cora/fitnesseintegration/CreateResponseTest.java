@@ -31,10 +31,10 @@ public class CreateResponseTest {
 	public void testCreateResponse() {
 		StatusType statusType = Response.Status.fromStatusCode(200);
 		String responseText = "some response text";
-		ReadResponse readResponse = new ReadResponse(statusType, responseText);
+		CommonHttpResponse readResponse = new CommonHttpResponse(statusType, responseText);
 		String createdId = "someCreatedId";
 		String token = "someToken";
-		CreateResponse createReseponse = new CreateResponse(readResponse, createdId, token);
+		CreateHttpResponse createReseponse = new CreateHttpResponse(readResponse, createdId, token);
 
 		assertSame(createReseponse.statusType, statusType);
 		assertSame(createReseponse.responseText, responseText);

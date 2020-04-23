@@ -20,14 +20,14 @@ package se.uu.ub.cora.fitnesseintegration;
 
 import javax.ws.rs.core.Response.StatusType;
 
-public class CreateResponse {
+public class CreateHttpResponse {
 
 	public final StatusType statusType;
 	public final String responseText;
 	public final String createdId;
 	public final String token;
 
-	public CreateResponse(ReadResponse readResponse, String createdId, String token) {
+	public CreateHttpResponse(CommonHttpResponse readResponse, String createdId, String token) {
 		statusType = readResponse.statusType;
 		responseText = readResponse.responseText;
 		this.createdId = createdId;

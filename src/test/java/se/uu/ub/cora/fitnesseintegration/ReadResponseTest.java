@@ -31,7 +31,7 @@ public class ReadResponseTest {
 	public void testReadResponse() {
 		StatusType statusType = Response.Status.fromStatusCode(200);
 		String responseText = "some response text";
-		ReadResponse readResponse = new ReadResponse(statusType, responseText);
+		CommonHttpResponse readResponse = new CommonHttpResponse(statusType, responseText);
 		assertSame(readResponse.statusType, statusType);
 		assertSame(readResponse.responseText, responseText);
 

@@ -20,12 +20,12 @@ package se.uu.ub.cora.fitnesseintegration;
 
 import javax.ws.rs.core.Response.StatusType;
 
-public class ReadResponse {
+public class CommonHttpResponse {
 
 	public final StatusType statusType;
 	public final String responseText;
 
-	public ReadResponse(StatusType statusType, String responseText) {
+	public CommonHttpResponse(StatusType statusType, String responseText) {
 		this.statusType = statusType;
 		this.responseText = responseText;
 	}
