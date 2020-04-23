@@ -22,16 +22,16 @@ import java.io.UnsupportedEncodingException;
 
 public interface RecordHandler {
 
-	CommonHttpResponse readRecordList(String url, String authToken, String filter)
+	BasicHttpResponse readRecordList(String url, String authToken, String filter)
 			throws UnsupportedEncodingException;
 
-	CommonHttpResponse readRecord(String url, String authToken);
+	BasicHttpResponse readRecord(String url, String authToken);
 
-	CommonHttpResponse searchRecord(String url, String authToken, String json)
+	BasicHttpResponse searchRecord(String url, String authToken, String json)
 			throws UnsupportedEncodingException;
 
-	CreateHttpResponse createRecord(String url, String authToken, String json);
+	ExtendedHttpResponse createRecord(String url, String authToken, String json);
 
-	CommonHttpResponse updateRecord(String url, String authToken, String json);
+	BasicHttpResponse updateRecord(String url, String authToken, String json);
 
 }

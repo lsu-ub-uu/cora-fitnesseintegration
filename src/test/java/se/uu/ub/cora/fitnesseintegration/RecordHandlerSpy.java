@@ -35,37 +35,37 @@ public class RecordHandlerSpy implements RecordHandler {
 	public boolean updateRecordWasCalled = false;
 
 	@Override
-	public CommonHttpResponse readRecordList(String url, String authToken, String filter) {
+	public BasicHttpResponse readRecordList(String url, String authToken, String filter) {
 		readRecordListWasCalled = true;
 		this.url = url;
 		this.filter = filter;
 		this.authToken = authToken;
 
 		statusTypeReturned = new StatusTypeSpy();
-		return new CommonHttpResponse(statusTypeReturned, jsonToReturn);
+		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
 	}
 
 	@Override
-	public CommonHttpResponse readRecord(String url, String authToken) {
+	public BasicHttpResponse readRecord(String url, String authToken) {
 		this.url = url;
 		this.authToken = authToken;
 		readRecordWasCalled = true;
 		statusTypeReturned = new StatusTypeSpy();
-		return new CommonHttpResponse(statusTypeReturned, jsonToReturn);
+		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
 	}
 
 	@Override
-	public CommonHttpResponse searchRecord(String url, String authToken, String json) {
+	public BasicHttpResponse searchRecord(String url, String authToken, String json) {
 		searchRecordWasCalled = true;
 		this.url = url;
 		this.authToken = authToken;
 		this.json = json;
 		statusTypeReturned = new StatusTypeSpy();
-		return new CommonHttpResponse(statusTypeReturned, jsonToReturn);
+		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
 	}
 
 	@Override
-	public CreateHttpResponse createRecord(String url, String authToken, String json) {
+	public ExtendedHttpResponse createRecord(String url, String authToken, String json) {
 		createRecordWasCalled = true;
 		this.url = url;
 		this.authToken = authToken;
@@ -74,21 +74,21 @@ public class RecordHandlerSpy implements RecordHandler {
 			statusTypeReturned = new StatusTypeSpy();
 			statusTypeReturned.statusCodeToReturn = 201;
 		}
-		CommonHttpResponse readResponse = new CommonHttpResponse(statusTypeReturned, jsonToReturn);
+		BasicHttpResponse readResponse = new BasicHttpResponse(statusTypeReturned, jsonToReturn);
 
 		createdId = "someCreatedId";
 		token = "someToken";
-		return new CreateHttpResponse(readResponse, createdId, token);
+		return new ExtendedHttpResponse(readResponse, createdId, token);
 	}
 
 	@Override
-	public CommonHttpResponse updateRecord(String url, String authToken, String json) {
+	public BasicHttpResponse updateRecord(String url, String authToken, String json) {
 		updateRecordWasCalled = true;
 		this.url = url;
 		this.authToken = authToken;
 		this.json = json;
 		statusTypeReturned = new StatusTypeSpy();
-		return new CommonHttpResponse(statusTypeReturned, jsonToReturn);
+		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
 	}
 
 }

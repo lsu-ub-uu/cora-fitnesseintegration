@@ -27,8 +27,8 @@ import java.util.StringJoiner;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
-import se.uu.ub.cora.fitnesseintegration.CommonHttpResponse;
-import se.uu.ub.cora.fitnesseintegration.CreateHttpResponse;
+import se.uu.ub.cora.fitnesseintegration.BasicHttpResponse;
+import se.uu.ub.cora.fitnesseintegration.ExtendedHttpResponse;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.JsonHandler;
@@ -64,7 +64,7 @@ public class ComparerFixture {
 	}
 
 	public String testReadAndStoreRecord() {
-		CommonHttpResponse readResponse = recordHandler.readRecord(baseUrl + type + "/" + id,
+		BasicHttpResponse readResponse = recordHandler.readRecord(baseUrl + type + "/" + id,
 				authToken);
 		JsonObject recordJsonObject = jsonHandler.parseStringAsObject(readResponse.responseText);
 		DataRecord record = jsonToDataRecordConverter.toInstance(recordJsonObject);
@@ -126,7 +126,7 @@ public class ComparerFixture {
 
 	public String testUpdateAndStoreRecord() {
 		String url = baseUrl + type + "/" + id;
-		CommonHttpResponse response = recordHandler.updateRecord(url, authToken, json);
+		BasicHttpResponse response = recordHandler.updateRecord(url, authToken, json);
 		DataRecord record = createRecordFromResponseText(response.responseText);
 		DataHolder.setRecord(record);
 		return response.responseText;
@@ -135,7 +135,7 @@ public class ComparerFixture {
 
 	public String testCreateAndStoreRecord() {
 		String url = baseUrl + type;
-		CreateHttpResponse createResponse = recordHandler.createRecord(url, authToken, json);
+		ExtendedHttpResponse createResponse = recordHandler.createRecord(url, authToken, json);
 		DataRecord record = createRecordFromResponseText(createResponse.responseText);
 		DataHolder.setRecord(record);
 		return createResponse.responseText;

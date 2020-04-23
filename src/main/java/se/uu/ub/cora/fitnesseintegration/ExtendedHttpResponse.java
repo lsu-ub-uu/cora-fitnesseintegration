@@ -20,13 +20,18 @@ package se.uu.ub.cora.fitnesseintegration;
 
 import javax.ws.rs.core.Response.StatusType;
 
-public class CommonHttpResponse {
+public class ExtendedHttpResponse {
 
 	public final StatusType statusType;
 	public final String responseText;
+	public final String createdId;
+	public final String token;
 
-	public CommonHttpResponse(StatusType statusType, String responseText) {
-		this.statusType = statusType;
-		this.responseText = responseText;
+	public ExtendedHttpResponse(BasicHttpResponse readResponse, String createdId, String token) {
+		statusType = readResponse.statusType;
+		responseText = readResponse.responseText;
+		this.createdId = createdId;
+		this.token = token;
 	}
+
 }

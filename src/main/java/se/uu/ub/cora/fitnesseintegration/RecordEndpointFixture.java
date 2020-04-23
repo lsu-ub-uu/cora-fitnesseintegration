@@ -127,7 +127,7 @@ public class RecordEndpointFixture {
 		String url = baseUrl + type + "/" + id;
 		String readAuthToken = getSetAuthTokenOrAdminAuthToken();
 
-		CommonHttpResponse readResponse = recordHandler.readRecord(url, readAuthToken);
+		BasicHttpResponse readResponse = recordHandler.readRecord(url, readAuthToken);
 		statusType = readResponse.statusType;
 		return readResponse.responseText;
 
@@ -161,7 +161,7 @@ public class RecordEndpointFixture {
 
 	public String testReadRecordList() throws UnsupportedEncodingException {
 		String url = baseUrl + type;
-		CommonHttpResponse readResponse = recordHandler.readRecordList(url,
+		BasicHttpResponse readResponse = recordHandler.readRecordList(url,
 				getSetAuthTokenOrAdminAuthToken(), json);
 		statusType = readResponse.statusType;
 		return readResponse.responseText;
@@ -173,14 +173,14 @@ public class RecordEndpointFixture {
 
 	private String createRecordAndSetValuesFromResponse() {
 		String url = baseUrl + type;
-		CreateHttpResponse createResponse = recordHandler.createRecord(url,
+		ExtendedHttpResponse createResponse = recordHandler.createRecord(url,
 				getSetAuthTokenOrAdminAuthToken(), json);
 
 		setValuesFromResponse(createResponse);
 		return createResponse.responseText;
 	}
 
-	private void setValuesFromResponse(CreateHttpResponse createResponse) {
+	private void setValuesFromResponse(ExtendedHttpResponse createResponse) {
 		statusType = createResponse.statusType;
 		createdId = createResponse.createdId;
 		token = createResponse.token;
@@ -353,7 +353,7 @@ public class RecordEndpointFixture {
 
 	public String testSearchRecord() throws UnsupportedEncodingException {
 		String url = baseUrl + "searchResult" + "/" + searchId;
-		CommonHttpResponse readResponse = recordHandler.searchRecord(url,
+		BasicHttpResponse readResponse = recordHandler.searchRecord(url,
 				getSetAuthTokenOrAdminAuthToken(), json);
 		statusType = readResponse.statusType;
 		return readResponse.responseText;

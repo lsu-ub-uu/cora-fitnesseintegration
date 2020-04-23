@@ -57,7 +57,7 @@ public class RecordHandlerTest {
 
 	@Test
 	public void testReadRecordOk() {
-		CommonHttpResponse readResponse = recordHandler.readRecord(url, authToken);
+		BasicHttpResponse readResponse = recordHandler.readRecord(url, authToken);
 		assertTrue(readResponse.statusType.getStatusCode() == 200);
 		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
 		assertEquals(readResponse.responseText, httpHandlerSpy.responseText);
@@ -66,7 +66,7 @@ public class RecordHandlerTest {
 	@Test
 	public void testReadRecordNotOk() throws UnsupportedEncodingException {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		CommonHttpResponse readResponse = recordHandler.readRecord(url, authToken);
+		BasicHttpResponse readResponse = recordHandler.readRecord(url, authToken);
 
 		HttpHandlerInvalidSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerInvalidSpy;
 		assertNotNull(readResponse.responseText);
@@ -98,7 +98,7 @@ public class RecordHandlerTest {
 
 	@Test
 	public void testReadRecordListOk() throws UnsupportedEncodingException {
-		CommonHttpResponse readResponse = recordHandler.readRecordList(url, authToken,
+		BasicHttpResponse readResponse = recordHandler.readRecordList(url, authToken,
 				filterAsJson);
 
 		assertTrue(readResponse.statusType.getStatusCode() == 200);
@@ -109,7 +109,7 @@ public class RecordHandlerTest {
 	@Test
 	public void testReadRecordListNotOk() throws UnsupportedEncodingException {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		CommonHttpResponse readResponse = recordHandler.readRecordList(url, authToken,
+		BasicHttpResponse readResponse = recordHandler.readRecordList(url, authToken,
 				filterAsJson);
 
 		HttpHandlerInvalidSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerInvalidSpy;
@@ -137,7 +137,7 @@ public class RecordHandlerTest {
 
 	@Test
 	public void testSearchRecordOk() throws UnsupportedEncodingException {
-		CommonHttpResponse readResponse = recordHandler.searchRecord(url, authToken, "some json");
+		BasicHttpResponse readResponse = recordHandler.searchRecord(url, authToken, "some json");
 
 		assertTrue(readResponse.statusType.getStatusCode() == 200);
 		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
@@ -147,7 +147,7 @@ public class RecordHandlerTest {
 	@Test
 	public void testSearchRecordNotOk() throws UnsupportedEncodingException {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		CommonHttpResponse readResponse = recordHandler.searchRecord(url, authToken, "some json");
+		BasicHttpResponse readResponse = recordHandler.searchRecord(url, authToken, "some json");
 
 		HttpHandlerInvalidSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerInvalidSpy;
 		assertTrue(readResponse.statusType.getStatusCode() != 200);
@@ -181,7 +181,7 @@ public class RecordHandlerTest {
 	public void testCreateRecordOk() {
 		httpHandlerFactorySpy.setResponseCode(201);
 		String json = "{\"name\":\"value\"}";
-		CreateHttpResponse createResponse = recordHandler.createRecord(url, authToken, json);
+		ExtendedHttpResponse createResponse = recordHandler.createRecord(url, authToken, json);
 
 		assertEquals(createResponse.statusType.getStatusCode(), 201);
 		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
@@ -193,7 +193,7 @@ public class RecordHandlerTest {
 		String apptokenUrl = "http://localhost:8080/therest/rest/record/appToken";
 		httpHandlerFactorySpy.setResponseCode(201);
 		String json = "{\"name\":\"value\"}";
-		CreateHttpResponse createResponse = recordHandler.createRecord(apptokenUrl, authToken,
+		ExtendedHttpResponse createResponse = recordHandler.createRecord(apptokenUrl, authToken,
 				json);
 
 		assertEquals(createResponse.statusType.getStatusCode(), 201);
@@ -208,7 +208,7 @@ public class RecordHandlerTest {
 	public void testCreateRecordNotOk() {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
 		String json = "{\"name\":\"value\"}";
-		CreateHttpResponse createResponse = recordHandler.createRecord(url, authToken, json);
+		ExtendedHttpResponse createResponse = recordHandler.createRecord(url, authToken, json);
 
 		HttpHandlerInvalidSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerInvalidSpy;
 		assertNotNull(createResponse.responseText);
@@ -229,7 +229,7 @@ public class RecordHandlerTest {
 		httpHandlerFactorySpy.setResponseCode(200);
 		String json = "{\"name\":\"value\"}";
 		String updateUrl = url + "/someId";
-		CommonHttpResponse updateResponse = recordHandler.updateRecord(updateUrl, authToken, json);
+		BasicHttpResponse updateResponse = recordHandler.updateRecord(updateUrl, authToken, json);
 
 		assertEquals(updateResponse.statusType.getStatusCode(), 200);
 		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
@@ -241,7 +241,7 @@ public class RecordHandlerTest {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
 		String json = "{\"name\":\"value\"}";
 		String updateUrl = url + "/someId";
-		CommonHttpResponse createResponse = recordHandler.updateRecord(updateUrl, authToken, json);
+		BasicHttpResponse createResponse = recordHandler.updateRecord(updateUrl, authToken, json);
 
 		HttpHandlerInvalidSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerInvalidSpy;
 		assertNotNull(createResponse.responseText);
