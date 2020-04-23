@@ -24,6 +24,7 @@ import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
 import se.uu.ub.cora.json.parser.JsonObject;
+import se.uu.ub.cora.json.parser.JsonParseException;
 
 public class PermissionComparerFixture extends ComparerFixture {
 
@@ -51,6 +52,22 @@ public class PermissionComparerFixture extends ComparerFixture {
 
 	PermissionComparerFactory getPermissionComparerFactory() {
 		return permissionComparerFactory;
+	}
+
+	public String testReadFromListCheckPermissions() {
+		try {
+			DataRecord dataRecord = DataHolder.getRecordList().get(indexToCompareTo);
+			return comparePermissionUsingDataRecord(dataRecord);
+		} catch (JsonParseException exception) {
+			return exception.getMessage();
+		}
+	}
+
+	private String comparePermissionUsingDataRecord(DataRecord dataRecord) {
+		JsonObject permissionObject = jsonHandler.parseStringAsObject(permissions);
+		PermissionComparer comparer = permissionComparerFactory.factor(dataRecord);
+		List<String> errorMessages = comparer.checkDataRecordContainsPermissions(permissionObject);
+		return errorMessages.isEmpty() ? "OK" : joinErrorMessages(errorMessages);
 	}
 
 }

@@ -22,9 +22,13 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
 import se.uu.ub.cora.fitnesseintegration.ClientDataRecordSpy;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
@@ -110,8 +114,7 @@ public class PermissionComparerFixtureTest {
 	}
 
 	@Test
-	public void testCheckContainPermissionNotOk() {
-
+	public void testCheckPermissionNotOk() {
 		String permissions = "{\"read\":[\"readPermissionOne\"]}";
 		fixture.setPermissions(permissions);
 
@@ -123,6 +126,86 @@ public class PermissionComparerFixtureTest {
 				"From spy: Permission with number 0 is missing. "
 						+ "From spy: Permission with number 1 is missing. "
 						+ "From spy: Permission with number 2 is missing.");
+	}
+
+	@Test
+	public void testReadFromListCheckPermissionsWithValuesOK() {
+		fixture.setListIndexToCompareTo(0);
+		String result = fixture.testReadFromListCheckPermissions();
+
+		assertEquals(result, "OK");
+	}
+
+	@Test
+	public void testReadFromListCheckPermissionResultNotOK() {
+		addRecordsToDataHolder();
+		String permissions = "{\"read\":[\"readPermissionOne\"]}";
+		fixture.setPermissions(permissions);
+		fixture.setListIndexToCompareTo(0);
+
+		PermissionComparerFactorySpy permissionComparerFactory = (PermissionComparerFactorySpy) fixture
+				.getPermissionComparerFactory();
+		permissionComparerFactory.numberOfErrorsToReturn = 3;
+
+		assertEquals(fixture.testReadFromListCheckPermissions(),
+				"From spy: Permission with number 0 is missing. "
+						+ "From spy: Permission with number 1 is missing. "
+						+ "From spy: Permission with number 2 is missing.");
+	}
+
+	private void addRecordsToDataHolder() {
+		List<DataRecord> dataRecords = new ArrayList<>();
+		dataRecords.add(new ClientDataRecordSpy());
+		dataRecords.add(new ClientDataRecordSpy());
+		DataHolder.setRecordList(dataRecords);
+	}
+
+	@Test
+	public void testReadListCheckPermissionComparesCorrectDataTwoComparisons() {
+		addRecordsToDataHolder();
+		String permissions = "{\"read\":[\"readPermissionOne\"]}";
+		fixture.setPermissions(permissions);
+
+		fixture.setListIndexToCompareTo(0);
+		fixture.testReadFromListCheckPermissions();
+
+		PermissionComparerFactorySpy permissionComparerFactory = (PermissionComparerFactorySpy) fixture
+				.getPermissionComparerFactory();
+
+		ClientDataRecordSpy recordSpy = (ClientDataRecordSpy) DataHolder.getRecordList().get(0);
+		assertSame(permissionComparerFactory.dataRecords.get(0), recordSpy);
+
+		PermissionComparerSpy factoredComparer = permissionComparerFactory.factoredComparers.get(0);
+		assertSame(factoredComparer.jsonValue, jsonParser.jsonObjectSpies.get(0));
+		assertEquals(jsonParser.jsonStringsSentToParser.get(0), permissions);
+
+		fixture.setListIndexToCompareTo(1);
+		fixture.testReadFromListCheckPermissions();
+		PermissionComparerSpy factoredComparer2 = permissionComparerFactory.factoredComparers
+				.get(1);
+		ClientDataRecordSpy recordSpy2 = (ClientDataRecordSpy) DataHolder.getRecordList().get(1);
+		assertSame(permissionComparerFactory.dataRecords.get(1), recordSpy2);
+		assertSame(factoredComparer2.jsonValue, jsonParser.jsonObjectSpies.get(1));
+		assertEquals(jsonParser.jsonStringsSentToParser.get(1), permissions);
+
+	}
+
+	@Test
+	public void testReadListCheckPermissionComparerThrowsError() {
+		addRecordsToDataHolder();
+		String permissions = "{\"read\":[\"readPermissionOne\"]}";
+		fixture.setPermissions(permissions);
+		fixture.setListIndexToCompareTo(0);
+
+		PermissionComparerFactorySpy permissionComparerFactory = (PermissionComparerFactorySpy) fixture
+				.getPermissionComparerFactory();
+		permissionComparerFactory.spyShouldThrowError = true;
+
+		String responseText = fixture.testReadFromListCheckPermissions();
+
+		PermissionComparerSpy factoredComparer = permissionComparerFactory.factoredComparers.get(0);
+
+		assertEquals(responseText, factoredComparer.errorMessage);
 	}
 
 }

@@ -21,6 +21,7 @@ package se.uu.ub.cora.fitnesseintegration.compare;
 import java.util.ArrayList;
 import java.util.List;
 
+import se.uu.ub.cora.json.parser.JsonParseException;
 import se.uu.ub.cora.json.parser.JsonValue;
 
 public class PermissionComparerSpy implements PermissionComparer {
@@ -28,10 +29,13 @@ public class PermissionComparerSpy implements PermissionComparer {
 	public JsonValue jsonValue;
 	public int numberOfErrorsToReturn = 0;
 	public List<String> listToReturn;
+	public boolean spyShouldThrowError = false;
+	public String errorMessage;
 
 	@Override
 	public List<String> checkDataRecordContainsPermissions(JsonValue jsonValue) {
 		this.jsonValue = jsonValue;
+		possiblyThrowError();
 		listToReturn = new ArrayList<>();
 		possiblyAddErrorMessages("is missing.");
 		return listToReturn;
@@ -41,6 +45,13 @@ public class PermissionComparerSpy implements PermissionComparer {
 		for (int i = 0; i < numberOfErrorsToReturn; i++) {
 			String errorMessage = "From spy: Permission with number " + i + " " + extraMessage;
 			listToReturn.add(errorMessage);
+		}
+	}
+
+	private void possiblyThrowError() {
+		if (spyShouldThrowError) {
+			errorMessage = "error from spy";
+			throw new JsonParseException(errorMessage);
 		}
 	}
 

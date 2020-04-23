@@ -18,18 +18,28 @@
  */
 package se.uu.ub.cora.fitnesseintegration.compare;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import se.uu.ub.cora.clientdata.DataRecord;
 
 public class PermissionComparerFactorySpy implements PermissionComparerFactory {
 
 	public PermissionComparerSpy factoredComparer;
+	public List<PermissionComparerSpy> factoredComparers = new ArrayList<>();
 	public DataRecord dataRecord;
+	public List<DataRecord> dataRecords = new ArrayList<>();
 	public int numberOfErrorsToReturn = 0;
+	public boolean spyShouldThrowError = false;
 
 	@Override
 	public PermissionComparer factor(DataRecord dataRecord) {
 		this.dataRecord = dataRecord;
+		dataRecords.add(dataRecord);
 		factoredComparer = new PermissionComparerSpy();
+		factoredComparer.spyShouldThrowError = spyShouldThrowError;
+		factoredComparers.add(factoredComparer);
+
 		factoredComparer.numberOfErrorsToReturn = numberOfErrorsToReturn;
 		return factoredComparer;
 	}

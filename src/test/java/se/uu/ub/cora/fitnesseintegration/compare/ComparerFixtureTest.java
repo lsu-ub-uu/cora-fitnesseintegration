@@ -168,18 +168,16 @@ public class ComparerFixtureTest {
 		String authToken = "someAuthToken";
 		fixture.setAuthToken(authToken);
 		fixture.setId("someId");
-		fixture.testReadAndStoreRecord();
+
+		String responseText = fixture.testReadAndStoreRecord();
 		assertTrue(recordHandler.readRecordWasCalled);
 
 		String expectedUrl = SystemUrl.getUrl() + "rest/record/someRecordType/someId";
 		assertEquals(recordHandler.url, expectedUrl);
 		assertEquals(recordHandler.authToken, authToken);
 
-		String jsonListFromRecordHandler = recordHandler.jsonToReturn;
-		String jsonListSentToParser = jsonParser.jsonStringsSentToParser.get(0);
-		assertEquals(jsonListSentToParser, jsonListFromRecordHandler);
-		assertSame(jsonToDataConverter.jsonObjects.get(0), jsonParser.jsonObjectSpies.get(0));
-		assertSame(DataHolder.getRecord(), jsonToDataConverter.returnedSpies.get(0));
+		assertCorrectDataPassedFromHandlerToConverter();
+		assertEquals(responseText, recordHandler.jsonToReturn);
 	}
 
 	@Test
@@ -213,24 +211,31 @@ public class ComparerFixtureTest {
 		assertConvertedRecordsAreAddedToRecordHolder();
 	}
 
-	// @Test
-	// public void testUpdateAndStoreRecord() throws UnsupportedEncodingException {
-	// String authToken = "someAuthToken";
-	// fixture.setAuthToken(authToken);
-	// String json = "{\"name\":\"value\"}";
-	// fixture.setJson(json);
-	// fixture.testUpdateAndStoreRecord();
-	// assertTrue(recordHandler.updateRecordWasCalled);
-	//
-	// String expectedUrl = SystemUrl.getUrl() + "rest/record/someRecordType";
-	// assertCorrectValuesSentToRecordHandler(authToken, json, expectedUrl);
-	//
-	// String jsonListFromRecordHandler = recordHandler.jsonToReturn;
-	// String jsonListSentToParser = jsonParser.jsonStringsSentToParser.get(0);
-	// assertEquals(jsonListSentToParser, jsonListFromRecordHandler);
-	// assertSame(jsonToDataConverter.jsonObjects.get(0), jsonParser.jsonObjectSpies.get(0));
-	// assertSame(DataHolder.getRecord(), jsonToDataConverter.returnedSpies.get(0));
-	// }
+	@Test
+	public void testUpdateAndStoreRecord() throws UnsupportedEncodingException {
+		String authToken = "someAuthToken";
+		fixture.setAuthToken(authToken);
+		String json = "{\"name\":\"value\"}";
+		fixture.setId("someId");
+		fixture.setJson(json);
+		String responseText = fixture.testUpdateAndStoreRecord();
+		assertTrue(recordHandler.updateRecordWasCalled);
+
+		String expectedUrl = SystemUrl.getUrl() + "rest/record/someRecordType/someId";
+		assertCorrectValuesSentToRecordHandler(authToken, json, expectedUrl);
+
+		assertCorrectDataPassedFromHandlerToConverter();
+		assertCorrectValuesSentToRecordHandler(authToken, json, expectedUrl);
+		assertEquals(responseText, recordHandler.jsonToReturn);
+	}
+
+	private void assertCorrectDataPassedFromHandlerToConverter() {
+		String jsonFromRecordHandler = recordHandler.jsonToReturn;
+		String jsonListSentToParser = jsonParser.jsonStringsSentToParser.get(0);
+		assertEquals(jsonListSentToParser, jsonFromRecordHandler);
+		assertSame(jsonToDataConverter.jsonObjects.get(0), jsonParser.jsonObjectSpies.get(0));
+		assertSame(DataHolder.getRecord(), jsonToDataConverter.returnedSpies.get(0));
+	}
 
 	@Test
 	public void testCreateAndStoreRecord() throws UnsupportedEncodingException {
@@ -238,17 +243,14 @@ public class ComparerFixtureTest {
 		fixture.setAuthToken(authToken);
 		String json = "{\"name\":\"value\"}";
 		fixture.setJson(json);
-		fixture.testCreateAndStoreRecord();
+		String responseText = fixture.testCreateAndStoreRecord();
 		assertTrue(recordHandler.createRecordWasCalled);
 
 		String expectedUrl = SystemUrl.getUrl() + "rest/record/someRecordType";
 		assertCorrectValuesSentToRecordHandler(authToken, json, expectedUrl);
 
-		String jsonListFromRecordHandler = recordHandler.jsonToReturn;
-		String jsonListSentToParser = jsonParser.jsonStringsSentToParser.get(0);
-		assertEquals(jsonListSentToParser, jsonListFromRecordHandler);
-		assertSame(jsonToDataConverter.jsonObjects.get(0), jsonParser.jsonObjectSpies.get(0));
-		assertSame(DataHolder.getRecord(), jsonToDataConverter.returnedSpies.get(0));
+		assertCorrectDataPassedFromHandlerToConverter();
+		assertEquals(responseText, recordHandler.jsonToReturn);
 	}
 
 	private void assertCorrectValuesSentToRecordHandler(String authToken, String json,

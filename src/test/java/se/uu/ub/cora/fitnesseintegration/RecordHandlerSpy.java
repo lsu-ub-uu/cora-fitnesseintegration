@@ -83,8 +83,12 @@ public class RecordHandlerSpy implements RecordHandler {
 
 	@Override
 	public CommonHttpResponse updateRecord(String url, String authToken, String json) {
-		// TODO Auto-generated method stub
-		return null;
+		updateRecordWasCalled = true;
+		this.url = url;
+		this.authToken = authToken;
+		this.json = json;
+		statusTypeReturned = new StatusTypeSpy();
+		return new CommonHttpResponse(statusTypeReturned, jsonToReturn);
 	}
 
 }

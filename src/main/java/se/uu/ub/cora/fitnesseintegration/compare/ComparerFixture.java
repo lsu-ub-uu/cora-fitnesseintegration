@@ -27,11 +27,11 @@ import java.util.StringJoiner;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
+import se.uu.ub.cora.fitnesseintegration.CommonHttpResponse;
 import se.uu.ub.cora.fitnesseintegration.CreateHttpResponse;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.JsonHandler;
-import se.uu.ub.cora.fitnesseintegration.CommonHttpResponse;
 import se.uu.ub.cora.fitnesseintegration.RecordHandler;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.SystemUrl;
@@ -47,13 +47,14 @@ public class ComparerFixture {
 	private String storedListAsJson;
 	protected JsonHandler jsonHandler;
 	private JsonToDataRecordConverter jsonToDataRecordConverter;
-	private int indexToCompareTo;
+	protected int indexToCompareTo;
 	private HttpHandlerFactory httpHandlerFactory;
 	private String authToken;
 	private String listFilter;
 	private String id;
 	private String searchId;
 	private String json;
+	protected String baseUrl = SystemUrl.getUrl() + "rest/record/";
 
 	public ComparerFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
@@ -63,21 +64,15 @@ public class ComparerFixture {
 	}
 
 	public String testReadAndStoreRecord() {
-		String baseUrl = createBaseUrl();
-		CommonHttpResponse readResponse = recordHandler.readRecord(baseUrl + type + "/" + id, authToken);
+		CommonHttpResponse readResponse = recordHandler.readRecord(baseUrl + type + "/" + id,
+				authToken);
 		JsonObject recordJsonObject = jsonHandler.parseStringAsObject(readResponse.responseText);
 		DataRecord record = jsonToDataRecordConverter.toInstance(recordJsonObject);
 		DataHolder.setRecord(record);
-		// TODO: inte testat
 		return readResponse.responseText;
 	}
 
-	private String createBaseUrl() {
-		return SystemUrl.getUrl() + "rest/record/";
-	}
-
 	public void testReadRecordListAndStoreRecords() throws UnsupportedEncodingException {
-		String baseUrl = createBaseUrl();
 		storedListAsJson = recordHandler.readRecordList(baseUrl + type, authToken,
 				listFilter).responseText;
 
@@ -122,7 +117,6 @@ public class ComparerFixture {
 	}
 
 	public void testSearchAndStoreRecords() throws UnsupportedEncodingException {
-		String baseUrl = createBaseUrl();
 		String url = baseUrl + "searchResult" + "/" + searchId;
 		storedListAsJson = recordHandler.searchRecord(url, authToken, json).responseText;
 
@@ -130,23 +124,29 @@ public class ComparerFixture {
 		DataHolder.setRecordList(convertedRecords);
 	}
 
-	public void testUpdateAndStoreRecord() {
-		// TODO Auto-generated method stub
+	public String testUpdateAndStoreRecord() {
+		String url = baseUrl + type + "/" + id;
+		CommonHttpResponse response = recordHandler.updateRecord(url, authToken, json);
+		DataRecord record = createRecordFromResponseText(response.responseText);
+		DataHolder.setRecord(record);
+		return response.responseText;
 
 	}
 
 	public String testCreateAndStoreRecord() {
-		String baseUrl = createBaseUrl();
 		String url = baseUrl + type;
 		CreateHttpResponse createResponse = recordHandler.createRecord(url, authToken, json);
-		JsonObject recordJsonObject = jsonHandler.parseStringAsObject(createResponse.responseText);
-		DataRecord record = jsonToDataRecordConverter.toInstance(recordJsonObject);
+		DataRecord record = createRecordFromResponseText(createResponse.responseText);
 		DataHolder.setRecord(record);
-		// TODO: inte testat
 		return createResponse.responseText;
 	}
 
-	private int getListIndexToCompareTo() {
+	private DataRecord createRecordFromResponseText(String responseText) {
+		JsonObject recordJsonObject = jsonHandler.parseStringAsObject(responseText);
+		return jsonToDataRecordConverter.toInstance(recordJsonObject);
+	}
+
+	protected int getListIndexToCompareTo() {
 		return indexToCompareTo;
 	}
 
