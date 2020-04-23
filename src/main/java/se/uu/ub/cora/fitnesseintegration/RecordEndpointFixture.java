@@ -255,14 +255,10 @@ public class RecordEndpointFixture {
 
 	public String testUpdateRecord() {
 		String url = baseUrl + type + "/" + id;
-		HttpHandler httpHandler = createHttpHandlerForPostWithUrlAndContentType(url,
-				APPLICATION_UUB_RECORD_JSON);
-		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-
-		if (responseIsOk()) {
-			return httpHandler.getResponseText();
-		}
-		return httpHandler.getErrorText();
+		BasicHttpResponse response = recordHandler.updateRecord(url,
+				getSetAuthTokenOrAdminAuthToken(), json);
+		statusType = response.statusType;
+		return response.responseText;
 	}
 
 	public String testDeleteRecord() {
