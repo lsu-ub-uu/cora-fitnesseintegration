@@ -43,12 +43,12 @@ import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 public class RecordEndpointFixture {
 	private static final String AUTH_TOKEN = "authToken";
 	private static final int DISTANCE_TO_START_OF_ID = 19;
-	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.uub.record+json";
-	private static final String ACCEPT = "Accept";
+	protected static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.uub.record+json";
+	protected static final String ACCEPT = "Accept";
 	private String id;
 	private String searchId;
 	private String type;
-	private String json;
+	protected String json;
 	protected StatusType statusType;
 	private String createdId;
 	private String fileName;
@@ -133,7 +133,7 @@ public class RecordEndpointFixture {
 
 	}
 
-	private String getSetAuthTokenOrAdminAuthToken() {
+	protected String getSetAuthTokenOrAdminAuthToken() {
 		return authToken != null ? authToken : AuthTokenHolder.getAdminAuthToken();
 	}
 
@@ -148,7 +148,7 @@ public class RecordEndpointFixture {
 		return httpHandler.getErrorText();
 	}
 
-	private HttpHandler createHttpHandlerWithAuthTokenAndUrl(String url) {
+	protected HttpHandler createHttpHandlerWithAuthTokenAndUrl(String url) {
 		HttpHandler httpHandler = httpHandlerFactory.factor(url);
 		httpHandler.setRequestProperty(AUTH_TOKEN, getSetAuthTokenOrAdminAuthToken());
 		return httpHandler;
@@ -186,24 +186,17 @@ public class RecordEndpointFixture {
 		token = createResponse.token;
 	}
 
-	protected HttpHandler createHttpHandlerForPostWithUrlAndContentType(String url,
-			String contentType) {
-		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
-		httpHandler.setRequestMethod("POST");
-		httpHandler.setRequestProperty(ACCEPT, APPLICATION_UUB_RECORD_JSON);
-		httpHandler.setRequestProperty("Content-Type", contentType);
-		httpHandler.setOutput(json);
-		return httpHandler;
-	}
-
 	public String testCreateRecordCreatedType() {
 
 		String responseText = createRecordAndSetValuesFromResponse();
-		if (statusType.getStatusCode() == Response.Status.CREATED.getStatusCode()) {
+		if (statusIsCreated()) {
 			return getRecordTypeFromResponseText(responseText);
 		}
 		return responseText;
+	}
 
+	private boolean statusIsCreated() {
+		return statusType.getStatusCode() == Response.Status.CREATED.getStatusCode();
 	}
 
 	private String getRecordTypeFromResponseText(String responseText) {
@@ -298,7 +291,7 @@ public class RecordEndpointFixture {
 	}
 
 	protected boolean responseIsOk() {
-		return statusType.equals(Response.Status.OK);
+		return statusType.getStatusCode() == Response.Status.OK.getStatusCode();
 	}
 
 	private String addAuthTokenToUrl(String urlIn) {

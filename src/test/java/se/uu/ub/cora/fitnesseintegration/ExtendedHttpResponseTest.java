@@ -25,7 +25,7 @@ import javax.ws.rs.core.Response.StatusType;
 
 import org.testng.annotations.Test;
 
-public class ExtededHttpResponseTest {
+public class ExtendedHttpResponseTest {
 
 	@Test
 	public void testCreateResponse() {
@@ -40,6 +40,20 @@ public class ExtededHttpResponseTest {
 		assertSame(reseponse.responseText, responseText);
 		assertSame(reseponse.createdId, createdId);
 		assertSame(reseponse.token, token);
+
+	}
+
+	@Test
+	public void testCreateResponseCreatedWithOnlyReadResponse() {
+		StatusType statusType = Response.Status.fromStatusCode(200);
+		String responseText = "some response text";
+		BasicHttpResponse basicResponse = new BasicHttpResponse(statusType, responseText);
+		ExtendedHttpResponse reseponse = new ExtendedHttpResponse(basicResponse);
+
+		assertSame(reseponse.statusType, statusType);
+		assertSame(reseponse.responseText, responseText);
+		assertSame(reseponse.createdId, "");
+		assertSame(reseponse.token, "");
 
 	}
 }

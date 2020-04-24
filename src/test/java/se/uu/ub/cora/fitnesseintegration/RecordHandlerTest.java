@@ -98,8 +98,7 @@ public class RecordHandlerTest {
 
 	@Test
 	public void testReadRecordListOk() throws UnsupportedEncodingException {
-		BasicHttpResponse readResponse = recordHandler.readRecordList(url, authToken,
-				filterAsJson);
+		BasicHttpResponse readResponse = recordHandler.readRecordList(url, authToken, filterAsJson);
 
 		assertTrue(readResponse.statusType.getStatusCode() == 200);
 		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
@@ -109,8 +108,7 @@ public class RecordHandlerTest {
 	@Test
 	public void testReadRecordListNotOk() throws UnsupportedEncodingException {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		BasicHttpResponse readResponse = recordHandler.readRecordList(url, authToken,
-				filterAsJson);
+		BasicHttpResponse readResponse = recordHandler.readRecordList(url, authToken, filterAsJson);
 
 		HttpHandlerInvalidSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerInvalidSpy;
 		assertEquals(readResponse.responseText, httpHandlerSpy.returnedErrorText);
@@ -159,10 +157,12 @@ public class RecordHandlerTest {
 		String json = "{\"name\":\"value\"}";
 		recordHandler.createRecord(url, authToken, json);
 		String expectedUrl = "http://localhost:8080/therest/rest/record/someType";
-		assertCorrectHttpHandlerForPost(json, expectedUrl);
+		String contentType = "application/vnd.uub.record+json";
+		assertCorrectHttpHandlerForPost(json, expectedUrl, contentType);
 	}
 
-	private void assertCorrectHttpHandlerForPost(String json, String expectedUrl) {
+	private void assertCorrectHttpHandlerForPost(String json, String expectedUrl,
+			String contentType) {
 		assertEquals(httpHandlerFactorySpy.urlString, expectedUrl);
 
 		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
@@ -170,8 +170,7 @@ public class RecordHandlerTest {
 		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), "someAuthToken");
 		assertEquals(httpHandlerSpy.requestProperties.get("Accept"),
 				"application/vnd.uub.record+json");
-		assertEquals(httpHandlerSpy.requestProperties.get("Content-Type"),
-				"application/vnd.uub.record+json");
+		assertEquals(httpHandlerSpy.requestProperties.get("Content-Type"), contentType);
 		assertEquals(httpHandlerSpy.requestProperties.size(), 3);
 
 		assertEquals(httpHandlerSpy.outputString, json);
@@ -216,12 +215,46 @@ public class RecordHandlerTest {
 	}
 
 	@Test
+	public void testValidateRecordHttpHandlerSetUpCorrectly() {
+		httpHandlerFactorySpy.setResponseCode(200);
+		String json = "{\"name\":\"value\"}";
+		String contentType = "application/vnd.uub.workorder+json";
+		recordHandler.validateRecord(url, authToken, json, contentType);
+		String expectedUrl = "http://localhost:8080/therest/rest/record/someType";
+		assertCorrectHttpHandlerForPost(json, expectedUrl, contentType);
+	}
+
+	@Test
+	public void testValidateRecordOk() {
+		httpHandlerFactorySpy.setResponseCode(200);
+		String json = "{\"name\":\"value\"}";
+		BasicHttpResponse response = recordHandler.validateRecord(url, authToken, json,
+				"application/vnd.uub.workorder+json");
+
+		assertEquals(response.statusType.getStatusCode(), 200);
+		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		assertEquals(response.responseText, httpHandlerSpy.responseText);
+	}
+
+	@Test
+	public void testValidateRecordNotOk() {
+		httpHandlerFactorySpy.setResponseCode(401);
+		String json = "{\"name\":\"value\"}";
+		BasicHttpResponse response = recordHandler.validateRecord(url, authToken, json,
+				"application/vnd.uub.workorder+json");
+
+		assertEquals(response.statusType.getStatusCode(), 401);
+		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		assertEquals(response.responseText, httpHandlerSpy.errorText);
+	}
+
+	@Test
 	public void testUpdateRecordHttpHandlerSetUpCorrectly() {
 		String json = "{\"name\":\"value\"}";
 		String updateUrl = url + "/someId";
 		recordHandler.updateRecord(updateUrl, authToken, json);
 
-		assertCorrectHttpHandlerForPost(json, updateUrl);
+		assertCorrectHttpHandlerForPost(json, updateUrl, "application/vnd.uub.record+json");
 	}
 
 	@Test

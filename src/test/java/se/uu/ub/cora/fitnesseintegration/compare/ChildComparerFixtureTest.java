@@ -47,7 +47,7 @@ public class ChildComparerFixtureTest {
 
 	private ChildComparerFixture fixture;
 	private RecordHandlerSpy recordHandler;
-	private JsonToDataRecordConverterSpy jsonToDataConverter;
+	private JsonToDataRecordConverterSpy jsonToDataRecordConverter;
 	private JsonParserSpy jsonParser;
 	private JsonHandlerImp jsonHandler;
 
@@ -67,12 +67,12 @@ public class ChildComparerFixtureTest {
 		recordHandler = new RecordHandlerSpy();
 		jsonParser = new JsonParserSpy();
 		jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
-		jsonToDataConverter = new JsonToDataRecordConverterSpy();
+		jsonToDataRecordConverter = new JsonToDataRecordConverterSpy();
 
 		fixture.setType("someRecordType");
 		fixture.setRecordHandler(recordHandler);
 		fixture.setJsonHandler(jsonHandler);
-		fixture.setJsonToDataRecordConverter(jsonToDataConverter);
+		fixture.setJsonToDataRecordConverter(jsonToDataRecordConverter);
 	}
 
 	@Test

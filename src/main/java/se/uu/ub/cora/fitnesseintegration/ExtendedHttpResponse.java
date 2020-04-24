@@ -20,6 +20,9 @@ package se.uu.ub.cora.fitnesseintegration;
 
 import javax.ws.rs.core.Response.StatusType;
 
+/**
+ * ExtendedHttpResponse isused to store information from a HttpResponse.
+ */
 public class ExtendedHttpResponse {
 
 	public final StatusType statusType;
@@ -27,11 +30,37 @@ public class ExtendedHttpResponse {
 	public final String createdId;
 	public final String token;
 
-	public ExtendedHttpResponse(BasicHttpResponse readResponse, String createdId, String token) {
-		statusType = readResponse.statusType;
-		responseText = readResponse.responseText;
+	/**
+	 * Stores status type, response text, created id and token.
+	 * 
+	 * @param basicResponse
+	 *            A {@link BasicHttpResponse} which contains the StatusType and the reseponse text
+	 * 
+	 * @param createdId,
+	 *            A string representing the id of a created record
+	 * 
+	 * @param token
+	 *            A String representing a created token
+	 */
+	public ExtendedHttpResponse(BasicHttpResponse basicResponse, String createdId, String token) {
+		statusType = basicResponse.statusType;
+		responseText = basicResponse.responseText;
 		this.createdId = createdId;
 		this.token = token;
+	}
+
+	/**
+	 * Stores status type, response text and empty created id and token. This constructor is
+	 * supposed to be used if the reseponse was not ok, and there is no created id and token.
+	 * 
+	 * @param basicResponse
+	 *            A {@link BasicHttpResponse} which contains the StatusType and the reseponse text
+	 */
+	public ExtendedHttpResponse(BasicHttpResponse basicResponse) {
+		statusType = basicResponse.statusType;
+		responseText = basicResponse.responseText;
+		this.createdId = "";
+		this.token = "";
 	}
 
 }

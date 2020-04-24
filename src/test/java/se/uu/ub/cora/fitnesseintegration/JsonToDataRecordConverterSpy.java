@@ -36,7 +36,9 @@ public class JsonToDataRecordConverterSpy implements JsonToDataRecordConverter {
 	public DataRecord toInstance(JsonObject jsonObject) {
 		this.jsonObject = jsonObject;
 		jsonObjects.add(jsonObject);
-		clientDataRecordSpy = new ClientDataRecordSpy();
+		if (clientDataRecordSpy == null) {
+			clientDataRecordSpy = new ClientDataRecordSpy();
+		}
 		returnedSpies.add(clientDataRecordSpy);
 		return clientDataRecordSpy;
 	}

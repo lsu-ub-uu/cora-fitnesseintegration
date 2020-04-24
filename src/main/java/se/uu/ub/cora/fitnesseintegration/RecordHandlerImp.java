@@ -56,12 +56,12 @@ public class RecordHandlerImp implements RecordHandler {
 
 	private BasicHttpResponse createCommonHttpResponseFromHttpHandler(HttpHandler httpHandler) {
 		StatusType statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		String responseText = responseIsOk(statusType) ? httpHandler.getResponseText()
+		String responseText = statusIsOk(statusType) ? httpHandler.getResponseText()
 				: httpHandler.getErrorText();
 		return new BasicHttpResponse(statusType, responseText);
 	}
 
-	protected boolean responseIsOk(StatusType statusType) {
+	protected boolean statusIsOk(StatusType statusType) {
 		return statusType.equals(Response.Status.OK);
 	}
 
@@ -93,23 +93,26 @@ public class RecordHandlerImp implements RecordHandler {
 
 	@Override
 	public ExtendedHttpResponse createRecord(String url, String authToken, String json) {
-		HttpHandler httpHandler = createHttpHandlerForPostWithUrlAndContentType(url, authToken,
-				json);
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
+		addPropertiesToHttpHandler(httpHandler, json, APPLICATION_UUB_RECORD_JSON);
+		return executeCreate(httpHandler);
+	}
+
+	protected HttpHandler addPropertiesToHttpHandler(HttpHandler httpHandler, String json,
+			String contentType) {
+		httpHandler.setRequestMethod("POST");
+		httpHandler.setRequestProperty("Accept", APPLICATION_UUB_RECORD_JSON);
+		httpHandler.setRequestProperty("Content-Type", contentType);
+		httpHandler.setOutput(json);
+		return httpHandler;
+	}
+
+	private ExtendedHttpResponse executeCreate(HttpHandler httpHandler) {
 		StatusType statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
 
 		BasicHttpResponse readResponse = createReadResponseForCreated(httpHandler, statusType);
 		return statusCreated(statusType) ? createCreateResponse(httpHandler, readResponse)
-				: createCreateResponseForErrorResponse(readResponse);
-	}
-
-	protected HttpHandler createHttpHandlerForPostWithUrlAndContentType(String url,
-			String authToken, String json) {
-		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
-		httpHandler.setRequestMethod("POST");
-		httpHandler.setRequestProperty("Accept", APPLICATION_UUB_RECORD_JSON);
-		httpHandler.setRequestProperty("Content-Type", APPLICATION_UUB_RECORD_JSON);
-		httpHandler.setOutput(json);
-		return httpHandler;
+				: new ExtendedHttpResponse(readResponse);
 	}
 
 	private BasicHttpResponse createReadResponseForCreated(HttpHandler httpHandler,
@@ -132,6 +135,14 @@ public class RecordHandlerImp implements RecordHandler {
 		return new ExtendedHttpResponse(readResponse, createdId, token);
 	}
 
+	@Override
+	public BasicHttpResponse validateRecord(String url, String authToken, String json,
+			String contentType) {
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
+		addPropertiesToHttpHandler(httpHandler, json, contentType);
+		return createCommonHttpResponseFromHttpHandler(httpHandler);
+	}
+
 	private String extractCreatedIdFromLocationHeader(String locationHeader) {
 		return locationHeader.substring(locationHeader.lastIndexOf('/') + 1);
 	}
@@ -150,15 +161,10 @@ public class RecordHandlerImp implements RecordHandler {
 		return responseText.substring(tokenIdIndex, responseText.indexOf('"', tokenIdIndex));
 	}
 
-	private ExtendedHttpResponse createCreateResponseForErrorResponse(
-			BasicHttpResponse readResponse) {
-		return new ExtendedHttpResponse(readResponse, "", "");
-	}
-
 	@Override
 	public BasicHttpResponse updateRecord(String url, String authToken, String json) {
-		HttpHandler httpHandler = createHttpHandlerForPostWithUrlAndContentType(url, authToken,
-				json);
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
+		addPropertiesToHttpHandler(httpHandler, json, APPLICATION_UUB_RECORD_JSON);
 		return createCommonHttpResponseFromHttpHandler(httpHandler);
 	}
 

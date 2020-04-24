@@ -33,6 +33,8 @@ public class RecordHandlerSpy implements RecordHandler {
 	public String token;
 	public boolean createRecordWasCalled = false;
 	public boolean updateRecordWasCalled = false;
+	public boolean validateWasCalled = false;
+	public String contentType;
 
 	@Override
 	public BasicHttpResponse readRecordList(String url, String authToken, String filter) {
@@ -88,6 +90,23 @@ public class RecordHandlerSpy implements RecordHandler {
 		this.authToken = authToken;
 		this.json = json;
 		statusTypeReturned = new StatusTypeSpy();
+		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
+	}
+
+	@Override
+	public BasicHttpResponse validateRecord(String url, String authToken, String json,
+			String contentType) {
+		validateWasCalled = true;
+		this.url = url;
+		this.authToken = authToken;
+		this.json = json;
+		this.contentType = contentType;
+		if (statusTypeReturned == null) {
+			statusTypeReturned = new StatusTypeSpy();
+			statusTypeReturned.statusCodeToReturn = 200;
+		}
+		createdId = "someCreatedId";
+		token = "someToken";
 		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
 	}
 

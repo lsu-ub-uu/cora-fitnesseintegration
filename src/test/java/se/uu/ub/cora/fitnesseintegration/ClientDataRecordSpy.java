@@ -30,7 +30,9 @@ public class ClientDataRecordSpy implements DataRecord, ClientData {
 
 	@Override
 	public ClientDataGroup getClientDataGroup() {
-		clientDataGroup = ClientDataGroup.withNameInData("clientDataGroupSpy");
+		if (clientDataGroup == null) {
+			clientDataGroup = ClientDataGroup.withNameInData("clientDataGroupSpy");
+		}
 		return clientDataGroup;
 	}
 
