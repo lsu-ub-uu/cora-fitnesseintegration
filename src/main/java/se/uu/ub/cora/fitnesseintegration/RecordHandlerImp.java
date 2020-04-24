@@ -98,13 +98,12 @@ public class RecordHandlerImp implements RecordHandler {
 		return executeCreate(httpHandler);
 	}
 
-	protected HttpHandler addPropertiesToHttpHandler(HttpHandler httpHandler, String json,
+	protected void addPropertiesToHttpHandler(HttpHandler httpHandler, String json,
 			String contentType) {
 		httpHandler.setRequestMethod("POST");
 		httpHandler.setRequestProperty("Accept", APPLICATION_UUB_RECORD_JSON);
 		httpHandler.setRequestProperty("Content-Type", contentType);
 		httpHandler.setOutput(json);
-		return httpHandler;
 	}
 
 	private ExtendedHttpResponse executeCreate(HttpHandler httpHandler) {
