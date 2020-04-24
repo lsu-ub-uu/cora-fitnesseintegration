@@ -16,17 +16,26 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.compare;
 
-import javax.ws.rs.core.Response.StatusType;
+import se.uu.ub.cora.clientdata.DataRecord;
 
-public class ReadResponse {
+/**
+ * PermissionComparerFactory creates and returns a PermissionComparer
+ */
 
-	public final StatusType statusType;
-	public final String responseText;
+public interface PermissionComparerFactory {
 
-	public ReadResponse(StatusType statusType, String responseText) {
-		this.statusType = statusType;
-		this.responseText = responseText;
-	}
+	/**
+	 * Creates and returns an instance of {@link PermissionComparer}. The provided
+	 * {@link DataRecord} MUST be set in the instantiated object, to later be used when comparing
+	 * permissions.
+	 * 
+	 * @param dataRecord
+	 *            The DataRecord to be set in the PermissionComparer
+	 * 
+	 * @return A PermissionComparer
+	 */
+	PermissionComparer factor(DataRecord dataRecord);
+
 }

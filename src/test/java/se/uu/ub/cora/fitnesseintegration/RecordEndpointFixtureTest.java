@@ -44,8 +44,8 @@ public class RecordEndpointFixtureTest {
 				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy");
 		DependencyProvider.setJsonToDataFactoryClassName(
 				"se.uu.ub.cora.fitnesseintegration.JsonToDataConverterFactorySpy");
-		DependencyProvider
-				.setChildComparerClassName("se.uu.ub.cora.fitnesseintegration.ChildComparerSpy");
+		DependencyProvider.setChildComparerUsingClassName(
+				"se.uu.ub.cora.fitnesseintegration.ChildComparerSpy");
 		httpHandlerFactorySpy = (HttpHandlerFactorySpy) DependencyProvider.getHttpHandlerFactory();
 
 		recordHandler = new RecordHandlerSpy();
@@ -213,34 +213,39 @@ public class RecordEndpointFixtureTest {
 	}
 
 	@Test
-	public void testUpdateRecordDataForFactoryIsOk() {
+	public void testUpdateRecordDataForRecordHandlerIsOk() {
 		fixture.setType("someType");
 		fixture.setId("someId");
 		fixture.setAuthToken("someToken");
-		fixture.setJson("{\"name\":\"value\"}");
+		String json = "{\"name\":\"value\"}";
+		fixture.setJson(json);
 		fixture.testUpdateRecord();
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		assertEquals(httpHandlerSpy.requestMetod, "POST");
-		assertEquals(httpHandlerSpy.outputString, "{\"name\":\"value\"}");
-		assertEquals(httpHandlerSpy.requestProperties.get("Accept"),
-				"application/vnd.uub.record+json");
-		assertEquals(httpHandlerSpy.requestProperties.get("Content-Type"),
-				"application/vnd.uub.record+json");
-		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), "someToken");
-		assertEquals(httpHandlerSpy.requestProperties.size(), 3);
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/therest/rest/record/someType/someId");
+
+		assertTrue(recordHandler.updateRecordWasCalled);
+		String expectedUrl = SystemUrl.getUrl() + "rest/record/someType/someId";
+
+		assertEquals(recordHandler.url, expectedUrl);
+		assertEquals(recordHandler.authToken, "someToken");
+		assertEquals(recordHandler.json, json);
+
 	}
 
 	@Test
-	public void testUpdateRecordOk() {
-		assertEquals(fixture.testUpdateRecord(), "Everything ok");
+	public void testUpdateRecordReturnedResponseTextSameAsInRecordHandler() {
+		String responseText = fixture.testUpdateRecord();
+		assertEquals(responseText, recordHandler.jsonToReturn);
 	}
 
 	@Test
-	public void testUpdateRecordNotOk() {
-		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		assertEquals(fixture.testUpdateRecord(), "bad things happend");
+	public void testUpdateRecordSetsStatusType() {
+		fixture.testUpdateRecord();
+		assertSame(fixture.getStatusType(), recordHandler.statusTypeReturned);
+	}
+
+	@Test
+	public void testUpdateRecordAdminAuthTokenUsedWhenNoAuthTokenSet() {
+		fixture.testUpdateRecord();
+		assertEquals(recordHandler.authToken, AuthTokenHolder.getAdminAuthToken());
 	}
 
 	@Test

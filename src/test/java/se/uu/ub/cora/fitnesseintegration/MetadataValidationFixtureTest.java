@@ -1,16 +1,23 @@
 package se.uu.ub.cora.fitnesseintegration;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.clientdata.ClientDataAtomic;
+import se.uu.ub.cora.clientdata.ClientDataGroup;
+
 public class MetadataValidationFixtureTest {
 
-	private HttpHandlerFactorySpy httpHandlerFactorySpy;
-	private JsonToDataConverterFactorySpy jsonToDataConverterFactory;
 	private MetadataValidationFixture fixture;
+	private RecordHandlerSpy recordHandler;
+	private JsonParserSpy jsonParser;
+	private JsonHandlerImp jsonHandler;
+	private JsonToDataRecordConverterSpy jsonToDataRecordConverter;
+	private ClientDataRecordSpy clientDataRecordSpy;
 
 	@BeforeMethod
 	public void setUp() {
@@ -20,15 +27,33 @@ public class MetadataValidationFixtureTest {
 				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy");
 		DependencyProvider.setJsonToDataFactoryClassName(
 				"se.uu.ub.cora.fitnesseintegration.JsonToDataConverterFactorySpy");
-		httpHandlerFactorySpy = (HttpHandlerFactorySpy) DependencyProvider.getHttpHandlerFactory();
-		jsonToDataConverterFactory = (JsonToDataConverterFactorySpy) DependencyProvider
-				.getJsonToDataConverterFactory();
 		fixture = new MetadataValidationFixture();
+		setUpFixture();
+	}
+
+	private void setUpFixture() {
+		fixture.setType("someType");
+		fixture.setAuthToken("someToken");
+		recordHandler = new RecordHandlerSpy();
+		jsonParser = new JsonParserSpy();
+		jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
+		createToDataRecordConverterWithDefaultReturnRecord();
+
+		fixture.setRecordHandler(recordHandler);
+		fixture.setJsonHandler(jsonHandler);
+		fixture.setJsonToDataRecordConverter(jsonToDataRecordConverter);
+	}
+
+	private void createToDataRecordConverterWithDefaultReturnRecord() {
+		jsonToDataRecordConverter = new JsonToDataRecordConverterSpy();
+		clientDataRecordSpy = createDataRecordSpyUsingValidValue("true");
+		jsonToDataRecordConverter.clientDataRecordSpy = clientDataRecordSpy;
 	}
 
 	@Test
 	public void init() {
 		assertTrue(fixture.getHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
+		assertTrue(fixture.getJsonHandler() instanceof JsonHandlerImp);
 	}
 
 	@Test
@@ -45,57 +70,64 @@ public class MetadataValidationFixtureTest {
 
 	@Test
 	public void testValidateRecordDataForFactoryIsOk() {
-		jsonToDataConverterFactory.typeToFactor = "validatorSpy";
-		fixture.setType("someType");
 		fixture.setId("someId");
-		fixture.setAuthToken("someToken");
-		fixture.setJson("{\"name\":\"value\"}");
-		fixture.testValidateRecord();
-		assertCorrectHttpHandlerForValidate();
+		String json = "{\"name\":\"value\"}";
+		fixture.setJson(json);
+		String responseText = fixture.testValidateRecord();
 
-		JsonToDataConverterForValidationSpy converterSpy = (JsonToDataConverterForValidationSpy) jsonToDataConverterFactory.factored;
+		String expectedUrl = SystemUrl.getUrl() + "rest/record/workOrder";
 
-		assertTrue(converterSpy.toInstanceWasCalled);
+		assertTrue(recordHandler.validateWasCalled);
+		assertEquals(recordHandler.url, expectedUrl);
+		assertEquals(recordHandler.authToken, "someToken");
+		assertEquals(recordHandler.json, json);
+		assertEquals(recordHandler.contentType, "application/vnd.uub.workorder+json");
+		assertEquals(responseText, recordHandler.jsonToReturn);
 
 	}
 
-	private void assertCorrectHttpHandlerForValidate() {
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		assertEquals(httpHandlerSpy.requestMetod, "POST");
-		assertEquals(httpHandlerSpy.outputString, "{\"name\":\"value\"}");
-		assertEquals(httpHandlerSpy.requestProperties.get("Accept"),
-				"application/vnd.uub.record+json");
-		assertEquals(httpHandlerSpy.requestProperties.get("Content-Type"),
-				"application/vnd.uub.workorder+json");
-		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), "someToken");
-		assertEquals(httpHandlerSpy.requestProperties.size(), 3);
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/therest/rest/record/workOrder");
+	private ClientDataRecordSpy createDataRecordSpyUsingValidValue(String valid) {
+		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
+		ClientDataGroup clientDataGroup = ClientDataGroup.withNameInData("workOrder");
+		clientDataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("valid", valid));
+		clientDataRecordSpy.clientDataGroup = clientDataGroup;
+		return clientDataRecordSpy;
+	}
+
+	@Test
+	public void testValidateRecordStatusTypeSetFromResponse() {
+		fixture.testValidateRecord();
+		assertSame(fixture.getStatusType(), recordHandler.statusTypeReturned);
 	}
 
 	@Test
 	public void testValidateRecordOk() {
-		jsonToDataConverterFactory.typeToFactor = "validatorSpy";
-		assertEquals(fixture.testValidateRecord(),
-				httpHandlerFactorySpy.httpHandlerSpy.responseText);
+		String responseText = fixture.testValidateRecord();
+
+		assertEquals(jsonParser.jsonStringsSentToParser.get(0), recordHandler.jsonToReturn);
+		assertEquals(jsonToDataRecordConverter.jsonObject, jsonParser.jsonObjectSpies.get(0));
+		assertEquals(jsonToDataRecordConverter.returnedSpies.get(0), clientDataRecordSpy);
+
 		assertEquals(fixture.getValid(), "true");
+		assertEquals(responseText, recordHandler.jsonToReturn);
 	}
 
 	@Test
 	public void testValidateRecordNotOk() {
-		jsonToDataConverterFactory.isValid = "false";
-		jsonToDataConverterFactory.typeToFactor = "validatorSpy";
-		assertEquals(fixture.testValidateRecord(),
-				httpHandlerFactorySpy.httpHandlerSpy.responseText);
+		ClientDataRecordSpy clientDataRecordSpy = createDataRecordSpyUsingValidValue("false");
+		jsonToDataRecordConverter.clientDataRecordSpy = clientDataRecordSpy;
+		String responseText = fixture.testValidateRecord();
 		assertEquals(fixture.getValid(), "false");
+		assertEquals(responseText, recordHandler.jsonToReturn);
 	}
 
 	@Test
 	public void testValidateRecordIncorrectValidationOrder() {
-		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		jsonToDataConverterFactory.isValid = "false";
-		jsonToDataConverterFactory.typeToFactor = "validatorSpy";
-		assertEquals(fixture.testValidateRecord(), "bad things happend");
+		StatusTypeSpy statusTypeSpy = new StatusTypeSpy();
+		statusTypeSpy.statusCodeToReturn = 401;
+		recordHandler.statusTypeReturned = statusTypeSpy;
+		String responseText = fixture.testValidateRecord();
+		assertEquals(responseText, recordHandler.jsonToReturn);
 	}
 
 }

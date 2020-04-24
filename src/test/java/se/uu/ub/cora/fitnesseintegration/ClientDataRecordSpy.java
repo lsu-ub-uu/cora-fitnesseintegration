@@ -18,6 +18,8 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
+import java.util.Set;
+
 import se.uu.ub.cora.clientdata.ClientData;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.DataRecord;
@@ -28,7 +30,21 @@ public class ClientDataRecordSpy implements DataRecord, ClientData {
 
 	@Override
 	public ClientDataGroup getClientDataGroup() {
-		clientDataGroup = ClientDataGroup.withNameInData("clientDataGroupSpy");
+		if (clientDataGroup == null) {
+			clientDataGroup = ClientDataGroup.withNameInData("clientDataGroupSpy");
+		}
 		return clientDataGroup;
+	}
+
+	@Override
+	public Set<String> getReadPermissions() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<String> getWritePermissions() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

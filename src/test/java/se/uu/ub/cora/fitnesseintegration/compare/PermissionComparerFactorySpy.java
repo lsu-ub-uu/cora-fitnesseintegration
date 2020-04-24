@@ -16,31 +16,31 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.compare;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import se.uu.ub.cora.clientdata.DataRecord;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
-import se.uu.ub.cora.json.parser.JsonObject;
 
-public class JsonToDataRecordConverterSpy implements JsonToDataRecordConverter {
+public class PermissionComparerFactorySpy implements PermissionComparerFactory {
 
-	public JsonObject jsonObject;
-	public List<JsonObject> jsonObjects = new ArrayList<>();
-	public ClientDataRecordSpy clientDataRecordSpy;
-	public List<ClientDataRecordSpy> returnedSpies = new ArrayList<>();
+	public PermissionComparerSpy factoredComparer;
+	public List<PermissionComparerSpy> factoredComparers = new ArrayList<>();
+	public DataRecord dataRecord;
+	public List<DataRecord> dataRecords = new ArrayList<>();
+	public int numberOfErrorsToReturn = 0;
+	public boolean spyShouldThrowError = false;
 
 	@Override
-	public DataRecord toInstance(JsonObject jsonObject) {
-		this.jsonObject = jsonObject;
-		jsonObjects.add(jsonObject);
-		if (clientDataRecordSpy == null) {
-			clientDataRecordSpy = new ClientDataRecordSpy();
-		}
-		returnedSpies.add(clientDataRecordSpy);
-		return clientDataRecordSpy;
-	}
+	public PermissionComparer factor(DataRecord dataRecord) {
+		this.dataRecord = dataRecord;
+		dataRecords.add(dataRecord);
+		factoredComparer = new PermissionComparerSpy();
+		factoredComparer.spyShouldThrowError = spyShouldThrowError;
+		factoredComparers.add(factoredComparer);
 
+		factoredComparer.numberOfErrorsToReturn = numberOfErrorsToReturn;
+		return factoredComparer;
+	}
 }

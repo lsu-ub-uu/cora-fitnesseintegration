@@ -16,24 +16,15 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.compare;
 
-import static org.testng.Assert.assertSame;
+import se.uu.ub.cora.clientdata.DataRecord;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.StatusType;
+public class PermissionComparerFactoryImp implements PermissionComparerFactory {
 
-import org.testng.annotations.Test;
-
-public class ReadResponseTest {
-
-	@Test
-	public void testReadResponse() {
-		StatusType statusType = Response.Status.fromStatusCode(200);
-		String responseText = "some response text";
-		ReadResponse readResponse = new ReadResponse(statusType, responseText);
-		assertSame(readResponse.statusType, statusType);
-		assertSame(readResponse.responseText, responseText);
-
+	@Override
+	public PermissionComparer factor(DataRecord dataRecord) {
+		return new PermissionComparerImp(dataRecord);
 	}
+
 }

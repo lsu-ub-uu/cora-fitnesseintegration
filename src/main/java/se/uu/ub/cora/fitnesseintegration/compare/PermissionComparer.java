@@ -16,31 +16,30 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.compare;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import se.uu.ub.cora.clientdata.DataRecord;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
-import se.uu.ub.cora.json.parser.JsonObject;
+import se.uu.ub.cora.json.parser.JsonValue;
 
-public class JsonToDataRecordConverterSpy implements JsonToDataRecordConverter {
+/**
+ * PermissionComparer compares the content in a JsonValue with the permissions in a
+ * {@link DataRecord}. The {@link DataRecord} is expected to be provided at instance creation.
+ * 
+ */
+public interface PermissionComparer {
 
-	public JsonObject jsonObject;
-	public List<JsonObject> jsonObjects = new ArrayList<>();
-	public ClientDataRecordSpy clientDataRecordSpy;
-	public List<ClientDataRecordSpy> returnedSpies = new ArrayList<>();
-
-	@Override
-	public DataRecord toInstance(JsonObject jsonObject) {
-		this.jsonObject = jsonObject;
-		jsonObjects.add(jsonObject);
-		if (clientDataRecordSpy == null) {
-			clientDataRecordSpy = new ClientDataRecordSpy();
-		}
-		returnedSpies.add(clientDataRecordSpy);
-		return clientDataRecordSpy;
-	}
+	/**
+	 * Checks whether the DataRecord provided at object instantiation contains the permissions
+	 * specified in the provided JsonValue.
+	 * 
+	 * @param jsonValue
+	 *            The JsonValue that contains the permissions to look for
+	 * 
+	 * @return A List<String> containing messages for potential missing permissions
+	 * 
+	 */
+	List<String> checkDataRecordContainsPermissions(JsonValue jsonValue);
 
 }

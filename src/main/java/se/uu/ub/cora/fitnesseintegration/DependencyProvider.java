@@ -24,6 +24,7 @@ import java.lang.reflect.Constructor;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
+import se.uu.ub.cora.fitnesseintegration.compare.PermissionComparerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
@@ -32,6 +33,7 @@ public final class DependencyProvider {
 	private static HttpHandlerFactory httpHandlerFactory;
 	private static JsonToDataConverterFactory jsonToDataConverterFactory;
 	private static ChildComparer childComparer;
+	private static PermissionComparerFactory permissionComparerFactory;
 
 	public DependencyProvider() {
 		// needs a public constructor for fitnesse to work
@@ -69,7 +71,7 @@ public final class DependencyProvider {
 		return jsonToDataConverterFactory;
 	}
 
-	public static synchronized void setChildComparerClassName(String childComparerClassName) {
+	public static synchronized void setChildComparerUsingClassName(String childComparerClassName) {
 		Constructor<?> constructor;
 		try {
 			constructor = Class.forName(childComparerClassName).getConstructor();
@@ -91,5 +93,20 @@ public final class DependencyProvider {
 	public static JsonHandler getJsonHandler() {
 		OrgJsonParser jsonParser = new OrgJsonParser();
 		return JsonHandlerImp.usingJsonParser(jsonParser);
+	}
+
+	public static void setPermissionComparerFactoryUsingClassName(String className) {
+		Constructor<?> constructor;
+		try {
+			constructor = Class.forName(className).getConstructor();
+			permissionComparerFactory = (PermissionComparerFactory) constructor.newInstance();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+	}
+
+	public static PermissionComparerFactory getPermissionsComparerFactory() {
+		return permissionComparerFactory;
 	}
 }

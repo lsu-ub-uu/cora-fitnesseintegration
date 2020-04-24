@@ -39,7 +39,7 @@ public class RecordHandlerImp implements RecordHandler {
 	}
 
 	@Override
-	public ReadResponse readRecordList(String url, String authToken, String filterAsJson)
+	public BasicHttpResponse readRecordList(String url, String authToken, String filterAsJson)
 			throws UnsupportedEncodingException {
 		if (filterAsJson != null) {
 			url += "?filter=" + URLEncoder.encode(filterAsJson, StandardCharsets.UTF_8.name());
@@ -47,21 +47,21 @@ public class RecordHandlerImp implements RecordHandler {
 		return getResponseTextOrErrorTextFromUrl(url, authToken);
 	}
 
-	private ReadResponse getResponseTextOrErrorTextFromUrl(String url, String authToken) {
+	private BasicHttpResponse getResponseTextOrErrorTextFromUrl(String url, String authToken) {
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
 		httpHandler.setRequestMethod("GET");
 
-		return createReadResponseFromHttpHandler(httpHandler);
+		return createCommonHttpResponseFromHttpHandler(httpHandler);
 	}
 
-	private ReadResponse createReadResponseFromHttpHandler(HttpHandler httpHandler) {
+	private BasicHttpResponse createCommonHttpResponseFromHttpHandler(HttpHandler httpHandler) {
 		StatusType statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		String responseText = responseIsOk(statusType) ? httpHandler.getResponseText()
+		String responseText = statusIsOk(statusType) ? httpHandler.getResponseText()
 				: httpHandler.getErrorText();
-		return new ReadResponse(statusType, responseText);
+		return new BasicHttpResponse(statusType, responseText);
 	}
 
-	protected boolean responseIsOk(StatusType statusType) {
+	protected boolean statusIsOk(StatusType statusType) {
 		return statusType.equals(Response.Status.OK);
 	}
 
@@ -72,17 +72,17 @@ public class RecordHandlerImp implements RecordHandler {
 	}
 
 	@Override
-	public ReadResponse readRecord(String url, String authToken) {
+	public BasicHttpResponse readRecord(String url, String authToken) {
 		return getResponseTextOrErrorTextFromUrl(url, authToken);
 	}
 
 	@Override
-	public ReadResponse searchRecord(String url, String authToken, String json)
+	public BasicHttpResponse searchRecord(String url, String authToken, String json)
 			throws UnsupportedEncodingException {
 		url += "?searchData=" + URLEncoder.encode(json, StandardCharsets.UTF_8.name());
 		HttpHandler httpHandler = setupHttpHandlerForSearch(url, authToken);
 
-		return createReadResponseFromHttpHandler(httpHandler);
+		return createCommonHttpResponseFromHttpHandler(httpHandler);
 	}
 
 	private HttpHandler setupHttpHandlerForSearch(String url, String authToken) {
@@ -92,44 +92,55 @@ public class RecordHandlerImp implements RecordHandler {
 	}
 
 	@Override
-	public CreateResponse createRecord(String url, String authToken, String json) {
-		HttpHandler httpHandler = createHttpHandlerForPostWithUrlAndContentType(url, authToken,
-				json);
-		StatusType statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-
-		ReadResponse readResponse = createReadResponseForCreated(httpHandler, statusType);
-		return statusCreated(statusType) ? createCreateResponse(httpHandler, readResponse)
-				: createCreateResponseForErrorResponse(readResponse);
+	public ExtendedHttpResponse createRecord(String url, String authToken, String json) {
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
+		addPropertiesToHttpHandler(httpHandler, json, APPLICATION_UUB_RECORD_JSON);
+		return executeCreate(httpHandler);
 	}
 
-	protected HttpHandler createHttpHandlerForPostWithUrlAndContentType(String url,
-			String authToken, String json) {
-		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
+	protected HttpHandler addPropertiesToHttpHandler(HttpHandler httpHandler, String json,
+			String contentType) {
 		httpHandler.setRequestMethod("POST");
 		httpHandler.setRequestProperty("Accept", APPLICATION_UUB_RECORD_JSON);
-		httpHandler.setRequestProperty("Content-Type", APPLICATION_UUB_RECORD_JSON);
+		httpHandler.setRequestProperty("Content-Type", contentType);
 		httpHandler.setOutput(json);
 		return httpHandler;
 	}
 
-	private ReadResponse createReadResponseForCreated(HttpHandler httpHandler,
+	private ExtendedHttpResponse executeCreate(HttpHandler httpHandler) {
+		StatusType statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
+
+		BasicHttpResponse readResponse = createReadResponseForCreated(httpHandler, statusType);
+		return statusCreated(statusType) ? createCreateResponse(httpHandler, readResponse)
+				: new ExtendedHttpResponse(readResponse);
+	}
+
+	private BasicHttpResponse createReadResponseForCreated(HttpHandler httpHandler,
 			StatusType statusType) {
 		String responseText = statusCreated(statusType) ? httpHandler.getResponseText()
 				: httpHandler.getErrorText();
-		return new ReadResponse(statusType, responseText);
+		return new BasicHttpResponse(statusType, responseText);
 	}
 
 	protected boolean statusCreated(StatusType statusType) {
 		return statusType.equals(Response.Status.CREATED);
 	}
 
-	private CreateResponse createCreateResponse(HttpHandler httpHandler,
-			ReadResponse readResponse) {
+	private ExtendedHttpResponse createCreateResponse(HttpHandler httpHandler,
+			BasicHttpResponse readResponse) {
 		String responseText = readResponse.responseText;
 		String createdId = extractCreatedIdFromLocationHeader(
 				httpHandler.getHeaderField("Location"));
 		String token = tryToExtractCreatedTokenFromResponseText(responseText);
-		return new CreateResponse(readResponse, createdId, token);
+		return new ExtendedHttpResponse(readResponse, createdId, token);
+	}
+
+	@Override
+	public BasicHttpResponse validateRecord(String url, String authToken, String json,
+			String contentType) {
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
+		addPropertiesToHttpHandler(httpHandler, json, contentType);
+		return createCommonHttpResponseFromHttpHandler(httpHandler);
 	}
 
 	private String extractCreatedIdFromLocationHeader(String locationHeader) {
@@ -150,8 +161,11 @@ public class RecordHandlerImp implements RecordHandler {
 		return responseText.substring(tokenIdIndex, responseText.indexOf('"', tokenIdIndex));
 	}
 
-	private CreateResponse createCreateResponseForErrorResponse(ReadResponse readResponse) {
-		return new CreateResponse(readResponse, "", "");
+	@Override
+	public BasicHttpResponse updateRecord(String url, String authToken, String json) {
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
+		addPropertiesToHttpHandler(httpHandler, json, APPLICATION_UUB_RECORD_JSON);
+		return createCommonHttpResponseFromHttpHandler(httpHandler);
 	}
 
 	public HttpHandlerFactory getHttpHandlerFactory() {

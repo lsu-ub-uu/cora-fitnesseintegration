@@ -6,4 +6,5 @@ module se.uu.ub.cora.fitnesseintegration {
 	requires se.uu.ub.cora.json;
 
 	exports se.uu.ub.cora.fitnesseintegration;
+	exports se.uu.ub.cora.fitnesseintegration.compare;
 }

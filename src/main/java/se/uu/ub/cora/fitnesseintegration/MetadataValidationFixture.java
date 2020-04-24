@@ -1,13 +1,10 @@
 package se.uu.ub.cora.fitnesseintegration;
 
-import javax.ws.rs.core.Response;
-
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverter;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactoryImp;
-import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.json.builder.JsonBuilderFactory;
 import se.uu.ub.cora.json.builder.org.OrgJsonBuilderFactoryAdapter;
@@ -79,22 +76,22 @@ public class MetadataValidationFixture extends RecordEndpointFixture {
 	}
 
 	public String testValidateRecord() {
-		HttpHandler httpHandler = createHttpHandlerForPostWithUrlAndContentType(
-				baseUrl + "workOrder", "application/vnd.uub.workorder+json");
-		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-
-		return getResponseTextFromHttpHandler(httpHandler);
+		RecordHandler recordHandler = getRecordHandler();
+		BasicHttpResponse response = recordHandler.validateRecord(baseUrl + "workOrder",
+				getSetAuthTokenOrAdminAuthToken(), json, "application/vnd.uub.workorder+json");
+		statusType = response.statusType;
+		return getResponseTextFromHttpHandler(response);
 	}
 
-	private String getResponseTextFromHttpHandler(HttpHandler httpHandler) {
+	private String getResponseTextFromHttpHandler(BasicHttpResponse response) {
 		if (responseIsOk()) {
-			return getValidationResponseText(httpHandler);
+			return getValidationResponseText(response);
 		}
-		return httpHandler.getErrorText();
+		return response.responseText;
 	}
 
-	private String getValidationResponseText(HttpHandler httpHandler) {
-		String responseText = httpHandler.getResponseText();
+	private String getValidationResponseText(BasicHttpResponse response) {
+		String responseText = response.responseText;
 		extractAndSetValidValue(responseText);
 		return responseText;
 	}

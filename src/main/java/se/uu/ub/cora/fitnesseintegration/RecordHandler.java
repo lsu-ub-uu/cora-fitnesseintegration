@@ -22,14 +22,97 @@ import java.io.UnsupportedEncodingException;
 
 public interface RecordHandler {
 
-	ReadResponse readRecordList(String url, String authToken, String filter)
+	/**
+	 * Reads a list of records using url, authToken and possibly a filter. The result is returned as
+	 * a responseText in the {@link BasicHttpResponse}
+	 * 
+	 * @param url
+	 *            A String used as url to make a http request
+	 * @param authToken
+	 *            A String authToken to use in the http request
+	 * @param filter
+	 *            A String used to filter the result
+	 * @return A {@link BasicHttpResponse} containing the response text and StatusType
+	 */
+	BasicHttpResponse readRecordList(String url, String authToken, String filter)
 			throws UnsupportedEncodingException;
 
-	ReadResponse readRecord(String url, String authToken);
+	/**
+	 * Reads a record using url and authToken. The result is returned as a responseText in the
+	 * {@link BasicHttpResponse}
+	 * 
+	 * @param url
+	 *            A String used as url to make a http request
+	 * @param authToken
+	 *            A String authToken to use in the http request
+	 * @return A {@link BasicHttpResponse} containing the response text and StatusType
+	 */
+	BasicHttpResponse readRecord(String url, String authToken);
 
-	ReadResponse searchRecord(String url, String authToken, String json)
+	/**
+	 * Searches for records using url, authToken and a string to define the search. The result is
+	 * returned as a responseText in the {@link BasicHttpResponse}
+	 * 
+	 * @param url
+	 *            A String used as url to make a http request
+	 * @param authToken
+	 *            A String authToken to use in the http request
+	 * @param json
+	 *            A String used to define the search
+	 * 
+	 * @return A {@link BasicHttpResponse} containing the response text and StatusType
+	 */
+	BasicHttpResponse searchRecord(String url, String authToken, String json)
 			throws UnsupportedEncodingException;
 
-	CreateResponse createRecord(String url, String authToken, String json);
+	/**
+	 * Creates a record using url and authToken and a string to set as output in the httpRequest.
+	 * The result is returned as a responseText in the {@link ExtendedHttpResponse}
+	 * 
+	 * @param url
+	 *            A String used as url to make a http request * @param authToken A String authToken
+	 *            to use in the http request
+	 * @param authToken
+	 *            A String authToken to use in the http request
+	 * @param json
+	 *            A String used to use as output in the http request
+	 * 
+	 * @return A {@link ExtendedHttpResponse} containing the response text and StatusType
+	 */
+	ExtendedHttpResponse createRecord(String url, String authToken, String json);
+
+	/**
+	 * Updates a record using url and authToken and a string to set as output in the httpRequest.
+	 * The result is returned as a responseText in the {@link BasicHttpResponse}
+	 * 
+	 * @param url
+	 *            A String used as url to make a http request * @param authToken A String authToken
+	 *            to use in the http request
+	 * @param authToken
+	 *            A String authToken to use in the http request
+	 * @param json
+	 *            A String used to use as output in the http request
+	 * 
+	 * @return A {@link BasicHttpResponse} containing the response text and StatusType
+	 */
+	BasicHttpResponse updateRecord(String url, String authToken, String json);
+
+	/**
+	 * Validates a record using url and authToken, a string to set as output and contentType to set
+	 * in the httpRequest. The result is returned as a responseText in the {@link BasicHttpResponse}
+	 * 
+	 * @param url
+	 *            A String used as url to make a http request * @param authToken A String authToken
+	 *            to use in the http request
+	 * @param authToken
+	 *            A String authToken to use in the http request
+	 * @param json
+	 *            A String used to use as output in the http request
+	 * @param contenType
+	 *            A String to set as contentType in the http request
+	 * 
+	 * @return A {@link BasicHttpResponse} containing the response text and StatusType
+	 */
+	BasicHttpResponse validateRecord(String url, String authToken, String json, String contentType);
 
 }

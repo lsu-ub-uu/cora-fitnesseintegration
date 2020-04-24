@@ -42,6 +42,7 @@ public class HttpHandlerSpy implements HttpHandler {
 	public String deleteUrlJsEscaped = "http:\\/\\/localhost:8180\\/apptokenverifier\\/rest\\/apptoken\\/141414";
 	public String mainSystemDomain;
 	public String returnedHeaderField;
+	public String errorText = "";
 
 	private HttpHandlerSpy(HttpURLConnection httpUrlConnection) {
 		this.httpUrlConnection = httpUrlConnection;
@@ -155,8 +156,8 @@ public class HttpHandlerSpy implements HttpHandler {
 
 	@Override
 	public String getErrorText() {
-		// TODO Auto-generated method stub
-		return null;
+		errorText = "errorText from spy";
+		return errorText;
 	}
 
 	@Override
