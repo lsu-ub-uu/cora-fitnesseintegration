@@ -67,7 +67,7 @@ public class RecordEndpointFixtureTest {
 	}
 
 	@Test
-	public void testReadRecordDataForFactoryIsOk() {
+	public void testReadRecordDataRecordHandlerIsOk() {
 		fixture.setType("someType");
 		fixture.setId("someId");
 		fixture.setAuthToken("someToken");
@@ -117,7 +117,7 @@ public class RecordEndpointFixtureTest {
 	}
 
 	@Test
-	public void testReadRecordListDataForRecordHandlerIsOk() throws UnsupportedEncodingException {
+	public void testReadRecordListDataRecordHandlerIsOk() throws UnsupportedEncodingException {
 		fixture.setType("someType");
 		fixture.setAuthToken("someToken");
 		String json = "some filter";
@@ -249,28 +249,30 @@ public class RecordEndpointFixtureTest {
 	}
 
 	@Test
-	public void testDeleteRecordDataForFactoryIsOk() {
+	public void testDeleteRecordDataRecordHandlerIsOk() {
 		fixture.setType("someType");
 		fixture.setId("someId");
 		fixture.setAuthToken("someToken");
+		String responseText = fixture.testDeleteRecord();
+
+		assertTrue(recordHandler.deleteRecordWasCalled);
+		String expectedUrl = SystemUrl.getUrl() + "rest/record/someType/someId";
+		assertEquals(recordHandler.url, expectedUrl);
+		assertEquals(recordHandler.authToken, "someToken");
+		assertEquals(responseText, recordHandler.jsonToReturn);
+
+	}
+
+	@Test
+	public void testDeleteRecordStatusTypeFromRecordHandlerUsed() {
 		fixture.testDeleteRecord();
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		assertEquals(httpHandlerSpy.requestMetod, "DELETE");
-		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), "someToken");
-		assertEquals(httpHandlerSpy.requestProperties.size(), 1);
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/therest/rest/record/someType/someId");
+		assertEquals(fixture.getStatusType(), recordHandler.statusTypeReturned);
 	}
 
 	@Test
-	public void testDeleteRecordOk() {
-		assertEquals(fixture.testDeleteRecord(), "Everything ok");
-	}
-
-	@Test
-	public void testDeleteRecordNotOk() {
-		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		assertEquals(fixture.testDeleteRecord(), "bad things happend");
+	public void testDeleteRecordAdminAuthTokenUsedWhenNoAuthTokenSet() {
+		fixture.testDeleteRecord();
+		assertEquals(recordHandler.authToken, AuthTokenHolder.getAdminAuthToken());
 	}
 
 	@Test

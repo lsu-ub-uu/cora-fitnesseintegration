@@ -34,6 +34,7 @@ public class RecordHandlerSpy implements RecordHandler {
 	public boolean createRecordWasCalled = false;
 	public boolean updateRecordWasCalled = false;
 	public boolean validateWasCalled = false;
+	public boolean deleteRecordWasCalled = false;
 	public String contentType;
 
 	@Override
@@ -107,6 +108,16 @@ public class RecordHandlerSpy implements RecordHandler {
 		}
 		createdId = "someCreatedId";
 		token = "someToken";
+		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
+	}
+
+	@Override
+	public BasicHttpResponse deleteRecord(String url, String authToken) {
+		deleteRecordWasCalled = true;
+		this.url = url;
+		this.authToken = authToken;
+
+		statusTypeReturned = new StatusTypeSpy();
 		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
 	}
 

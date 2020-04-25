@@ -115,4 +115,16 @@ public interface RecordHandler {
 	 */
 	BasicHttpResponse validateRecord(String url, String authToken, String json, String contentType);
 
+	/**
+	 * Delete a record using url and authToken.
+	 * 
+	 * @param url
+	 *            A String used as url to make a http request * @param authToken A String authToken
+	 *            to use in the http request
+	 * @param authToken
+	 *            A String authToken to use in the http request
+	 * @return A {@link BasicHttpResponse} containing the response text and StatusType
+	 */
+	BasicHttpResponse deleteRecord(String url, String authToken);
+
 }

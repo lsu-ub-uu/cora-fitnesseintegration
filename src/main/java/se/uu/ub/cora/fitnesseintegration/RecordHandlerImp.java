@@ -172,4 +172,11 @@ public class RecordHandlerImp implements RecordHandler {
 		return httpHandlerFactory;
 	}
 
+	@Override
+	public BasicHttpResponse deleteRecord(String url, String authToken) {
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
+		httpHandler.setRequestMethod("DELETE");
+		return createCommonHttpResponseFromHttpHandler(httpHandler);
+	}
+
 }

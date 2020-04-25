@@ -281,4 +281,37 @@ public class RecordHandlerTest {
 		assertEquals(createResponse.responseText, httpHandlerSpy.returnedErrorText);
 	}
 
+	@Test
+	public void testDeleteRecordHttpHandlerSetUpCorrectly() {
+		String urlForDelete = url + "/someId";
+		recordHandler.deleteRecord(urlForDelete, authToken);
+
+		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		assertEquals(httpHandlerSpy.requestMetod, "DELETE");
+		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), "someAuthToken");
+		assertEquals(httpHandlerSpy.requestProperties.size(), 1);
+		assertEquals(httpHandlerFactorySpy.urlString, urlForDelete);
+
+	}
+
+	@Test
+	public void testDeleteRecordOk() {
+		String urlForDelete = url + "/someId";
+		BasicHttpResponse response = recordHandler.deleteRecord(urlForDelete, authToken);
+		assertTrue(response.statusType.getStatusCode() == 200);
+		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		assertEquals(response.responseText, httpHandlerSpy.responseText);
+	}
+
+	@Test
+	public void testDeleteRecordNotOk() throws UnsupportedEncodingException {
+		String urlForDelete = url + "/someId";
+		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
+		BasicHttpResponse response = recordHandler.deleteRecord(urlForDelete, authToken);
+
+		HttpHandlerInvalidSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerInvalidSpy;
+		assertNotNull(response.responseText);
+		assertEquals(response.responseText, httpHandlerSpy.returnedErrorText);
+	}
+
 }

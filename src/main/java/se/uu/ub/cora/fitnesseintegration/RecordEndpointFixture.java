@@ -256,14 +256,10 @@ public class RecordEndpointFixture {
 
 	public String testDeleteRecord() {
 		String url = baseUrl + type + "/" + id;
-		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
-		httpHandler.setRequestMethod("DELETE");
-
-		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		if (responseIsOk()) {
-			return httpHandler.getResponseText();
-		}
-		return httpHandler.getErrorText();
+		BasicHttpResponse response = recordHandler.deleteRecord(url,
+				getSetAuthTokenOrAdminAuthToken());
+		statusType = response.statusType;
+		return response.responseText;
 	}
 
 	public String testUpload() throws IOException {
