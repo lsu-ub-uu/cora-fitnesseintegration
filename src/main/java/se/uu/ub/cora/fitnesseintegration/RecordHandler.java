@@ -127,4 +127,19 @@ public interface RecordHandler {
 	 */
 	BasicHttpResponse deleteRecord(String url, String authToken);
 
+	/**
+	 * Downloads data using url and authToken. The result is returned in the
+	 * {@link MultipartHttpResponse}
+	 * 
+	 * @param url
+	 *            A String used as url to make a http request * @param authToken A String authToken
+	 *            to use in the http request
+	 * @param authToken
+	 *            A String authToken to use in the http request
+	 * 
+	 * @return A {@link MultipartHttpResponse} containing the response text, StatusType, content
+	 *         length and content disposition
+	 */
+	MultipartHttpResponse downloadRecord(String url, String authToken);
+
 }

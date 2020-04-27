@@ -43,6 +43,8 @@ public class HttpHandlerSpy implements HttpHandler {
 	public String mainSystemDomain;
 	public String returnedHeaderField;
 	public String errorText = "";
+	public String returnedContentLength;
+	public String returnedContentDisposition;
 
 	private HttpHandlerSpy(HttpURLConnection httpUrlConnection) {
 		this.httpUrlConnection = httpUrlConnection;
@@ -168,10 +170,12 @@ public class HttpHandlerSpy implements HttpHandler {
 	@Override
 	public String getHeaderField(String name) {
 		if ("Content-Length".equals(name)) {
-			return "9999";
+			returnedContentLength = "9999";
+			return returnedContentLength;
 		}
 		if ("Content-Disposition".equals(name)) {
-			return "form-data; name=\"file\"; filename=\"adele.png\"\n";
+			returnedContentDisposition = "form-data; name=\"file\"; filename=\"adele.png\"\n";
+			return returnedContentDisposition;
 		}
 		if ("Location".equals(name)) {
 			returnedHeaderField = "http://epc.ub.uu.se/therest/rest/record/someRecordType/someRecordType:35824453170224822";

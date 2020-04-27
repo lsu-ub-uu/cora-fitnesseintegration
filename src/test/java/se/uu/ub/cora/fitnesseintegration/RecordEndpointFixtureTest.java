@@ -329,34 +329,33 @@ public class RecordEndpointFixtureTest {
 	}
 
 	@Test
-	public void testDownloadDataForFactoryIsOk() {
+	public void testDownloadDataForRecordHandlerIsOk() {
 		fixture.setType("someType");
 		fixture.setId("someId");
 		fixture.setAuthToken("someToken");
 		fixture.setResourceName("someResourceName");
 		fixture.testDownload();
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		assertEquals(httpHandlerSpy.requestMetod, "GET");
-		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), "someToken");
-		assertEquals(httpHandlerSpy.requestProperties.size(), 1);
 
-		assertEquals(fixture.getContentLength(), "9999");
-		assertEquals(fixture.getContentDisposition(),
-				"form-data; name=\"file\"; filename=\"adele.png\"\n");
-
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/therest/rest/record/someType/someId/someResourceName");
+		String expectedUrl = SystemUrl.getUrl() + "rest/record/someType/someId/someResourceName";
+		assertEquals(recordHandler.url, expectedUrl);
+		assertEquals(recordHandler.authToken, "someToken");
 	}
 
 	@Test
-	public void testDownloadOk() {
-		assertEquals(fixture.testDownload(), "Everything ok");
+	public void testDownloadOkSetsValuesInFixture() {
+		String responseText = fixture.testDownload();
+		assertEquals(responseText, recordHandler.jsonToReturn);
+
+		assertEquals(fixture.getContentLength(), recordHandler.contentLength);
+		assertEquals(fixture.getContentDisposition(), recordHandler.contentDisposition);
+		assertEquals(fixture.getStatusType(), recordHandler.statusTypeReturned);
 	}
 
 	@Test
-	public void testDownloadNotOk() {
-		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		assertEquals(fixture.testDownload(), "bad things happend");
+	public void testDownloadAdminAuthTokenUsedWhenNoAuthTokenSet()
+			throws UnsupportedEncodingException {
+		fixture.testDownload();
+		assertEquals(recordHandler.authToken, AuthTokenHolder.getAdminAuthToken());
 	}
 
 	@Test

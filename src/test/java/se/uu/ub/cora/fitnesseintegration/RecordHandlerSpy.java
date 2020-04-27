@@ -22,20 +22,22 @@ public class RecordHandlerSpy implements RecordHandler {
 
 	public boolean readRecordListWasCalled = false;
 	public boolean searchRecordWasCalled = false;
-	public String url;
-	public String filter;
-	public String authToken;
-	public String jsonToReturn = "some json returned from spy";
 	public boolean readRecordWasCalled = false;
-	public String json;
-	public StatusTypeSpy statusTypeReturned;
-	public String createdId;
-	public String token;
 	public boolean createRecordWasCalled = false;
 	public boolean updateRecordWasCalled = false;
 	public boolean validateWasCalled = false;
 	public boolean deleteRecordWasCalled = false;
+	public String url;
+	public String filter;
+	public String authToken;
+	public String jsonToReturn = "some json returned from spy";
+	public String json;
+	public StatusTypeSpy statusTypeReturned;
+	public String createdId;
+	public String token;
 	public String contentType;
+	public String contentLength;
+	public String contentDisposition;
 
 	@Override
 	public BasicHttpResponse readRecordList(String url, String authToken, String filter) {
@@ -119,6 +121,18 @@ public class RecordHandlerSpy implements RecordHandler {
 
 		statusTypeReturned = new StatusTypeSpy();
 		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
+	}
+
+	@Override
+	public MultipartHttpResponse downloadRecord(String url, String authToken) {
+		this.url = url;
+		this.authToken = authToken;
+		statusTypeReturned = new StatusTypeSpy();
+		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(statusTypeReturned,
+				jsonToReturn);
+		contentLength = "8987988";
+		contentDisposition = "form-data; name=\"file\"; filename=\"adelee.png\"\n";
+		return new MultipartHttpResponse(basicHttpResponse, contentLength, contentDisposition);
 	}
 
 }

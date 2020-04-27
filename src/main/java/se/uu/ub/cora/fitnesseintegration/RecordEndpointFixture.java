@@ -176,11 +176,11 @@ public class RecordEndpointFixture {
 		ExtendedHttpResponse createResponse = recordHandler.createRecord(url,
 				getSetAuthTokenOrAdminAuthToken(), json);
 
-		setValuesFromResponse(createResponse);
+		setValuesFromCreateResponse(createResponse);
 		return createResponse.responseText;
 	}
 
-	private void setValuesFromResponse(ExtendedHttpResponse createResponse) {
+	private void setValuesFromCreateResponse(ExtendedHttpResponse createResponse) {
 		statusType = createResponse.statusType;
 		createdId = createResponse.createdId;
 		token = createResponse.token;
@@ -309,27 +309,17 @@ public class RecordEndpointFixture {
 	}
 
 	public String testDownload() {
-		HttpHandler httpHandler = setupHttpHandlerForDownload();
-		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		if (responseIsOk()) {
-			return getDownloadResponseText(httpHandler);
-		}
-		return httpHandler.getErrorText();
-	}
-
-	private HttpHandler setupHttpHandlerForDownload() {
 		String url = baseUrl + type + "/" + id + "/" + resourceName;
-		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
-		httpHandler.setRequestMethod("GET");
-		return httpHandler;
+		MultipartHttpResponse response = recordHandler.downloadRecord(url,
+				getSetAuthTokenOrAdminAuthToken());
+		setValuesFromDownloadResponse(response);
+		return response.responseText;
 	}
 
-	private String getDownloadResponseText(HttpHandler httpHandler) {
-		String responseText = httpHandler.getResponseText();
-		contentLenght = httpHandler.getHeaderField("Content-Length");
-		contentDisposition = httpHandler.getHeaderField("Content-Disposition");
-		streamId = tryToFindStreamId(responseText);
-		return responseText;
+	private void setValuesFromDownloadResponse(MultipartHttpResponse response) {
+		contentLenght = response.contentLength;
+		contentDisposition = response.contentDisposition;
+		statusType = response.statusType;
 	}
 
 	public String getToken() {

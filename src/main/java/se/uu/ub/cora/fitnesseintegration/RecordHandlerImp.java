@@ -109,12 +109,12 @@ public class RecordHandlerImp implements RecordHandler {
 	private ExtendedHttpResponse executeCreate(HttpHandler httpHandler) {
 		StatusType statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
 
-		BasicHttpResponse readResponse = createReadResponseForCreated(httpHandler, statusType);
+		BasicHttpResponse readResponse = createReadResponseForCreate(httpHandler, statusType);
 		return statusCreated(statusType) ? createCreateResponse(httpHandler, readResponse)
 				: new ExtendedHttpResponse(readResponse);
 	}
 
-	private BasicHttpResponse createReadResponseForCreated(HttpHandler httpHandler,
+	private BasicHttpResponse createReadResponseForCreate(HttpHandler httpHandler,
 			StatusType statusType) {
 		String responseText = statusCreated(statusType) ? httpHandler.getResponseText()
 				: httpHandler.getErrorText();
@@ -177,6 +177,28 @@ public class RecordHandlerImp implements RecordHandler {
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
 		httpHandler.setRequestMethod("DELETE");
 		return createCommonHttpResponseFromHttpHandler(httpHandler);
+	}
+
+	@Override
+	public MultipartHttpResponse downloadRecord(String url, String authToken) {
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
+		httpHandler.setRequestMethod("GET");
+		return executeDownload(httpHandler);
+	}
+
+	private MultipartHttpResponse executeDownload(HttpHandler httpHandler) {
+		StatusType statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
+		BasicHttpResponse basicResponse = createCommonHttpResponseFromHttpHandler(httpHandler);
+
+		return statusIsOk(statusType) ? createDownloadResponse(httpHandler, basicResponse)
+				: new MultipartHttpResponse(basicResponse);
+	}
+
+	private MultipartHttpResponse createDownloadResponse(HttpHandler httpHandler,
+			BasicHttpResponse basicResponse) {
+		String contentLength = httpHandler.getHeaderField("Content-Length");
+		String contentDisposition = httpHandler.getHeaderField("Content-Disposition");
+		return new MultipartHttpResponse(basicResponse, contentLength, contentDisposition);
 	}
 
 }

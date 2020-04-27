@@ -212,6 +212,8 @@ public class RecordHandlerTest {
 		HttpHandlerInvalidSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerInvalidSpy;
 		assertNotNull(createResponse.responseText);
 		assertEquals(createResponse.responseText, httpHandlerSpy.returnedErrorText);
+		assertEquals(createResponse.createdId, "");
+		assertEquals(createResponse.token, "");
 	}
 
 	@Test
@@ -312,6 +314,53 @@ public class RecordHandlerTest {
 		HttpHandlerInvalidSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerInvalidSpy;
 		assertNotNull(response.responseText);
 		assertEquals(response.responseText, httpHandlerSpy.returnedErrorText);
+	}
+
+	@Test
+	public void testDownloadHttpHandlerSetUpCorrectly() {
+		String urlForDownload = url + "/someId/someResourceName";
+		recordHandler.downloadRecord(urlForDownload, authToken);
+
+		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		assertEquals(httpHandlerSpy.requestMetod, "GET");
+		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), "someAuthToken");
+		assertEquals(httpHandlerSpy.requestProperties.size(), 1);
+		assertEquals(httpHandlerFactorySpy.urlString, urlForDownload);
+	}
+
+	@Test
+	public void testDownloadRecordOk() {
+		String urlForDownload = url + "/someId/someResourceName";
+		MultipartHttpResponse response = recordHandler.downloadRecord(urlForDownload, authToken);
+		assertTrue(response.statusType.getStatusCode() == 200);
+		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		assertEquals(response.responseText, httpHandlerSpy.responseText);
+	}
+
+	@Test
+	public void testDownloadRecordOkSetsValues() {
+		String urlForDownload = url + "/someId/someResourceName";
+		MultipartHttpResponse response = recordHandler.downloadRecord(urlForDownload, authToken);
+		assertTrue(response.statusType.getStatusCode() == 200);
+
+		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		String responseText = httpHandlerSpy.responseText;
+		assertEquals(response.responseText, responseText);
+		assertEquals(response.contentLength, httpHandlerSpy.returnedContentLength);
+		assertEquals(response.contentDisposition, httpHandlerSpy.returnedContentDisposition);
+	}
+
+	@Test
+	public void testDownloadRecordNotOk() {
+		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
+		String urlForDownload = url + "/someId/someResourceName";
+		MultipartHttpResponse response = recordHandler.downloadRecord(urlForDownload, authToken);
+
+		HttpHandlerInvalidSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerInvalidSpy;
+		assertNotNull(response.responseText);
+		assertEquals(response.responseText, httpHandlerSpy.returnedErrorText);
+		assertEquals(response.contentLength, "");
+		assertEquals(response.contentDisposition, "");
 	}
 
 }
