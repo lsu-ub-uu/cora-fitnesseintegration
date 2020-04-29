@@ -20,6 +20,7 @@ package se.uu.ub.cora.fitnesseintegration;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 import java.io.UnsupportedEncodingException;
@@ -35,83 +36,88 @@ public class RecordHandlerTest {
 	private String authToken = "someAuthToken";
 	private HttpHandlerFactorySpy httpHandlerFactorySpy;
 	private RecordHandlerImp recordHandler;
+	private RestClientFactorySpy restClientFactory;
+	String recordType = "someType";
+	String recordId = "someId";
 
 	@BeforeMethod
 	public void setUp() {
+		restClientFactory = new RestClientFactorySpy();
 		httpHandlerFactorySpy = new HttpHandlerFactorySpy();
-		recordHandler = new RecordHandlerImp(httpHandlerFactorySpy);
+		recordHandler = new RecordHandlerImp(httpHandlerFactorySpy, restClientFactory);
 
 	}
 
 	@Test
-	public void testReadRecordHttpHandlerSetUpCorrectly() throws UnsupportedEncodingException {
-		recordHandler.readRecord(url + "/someId", authToken);
-		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestMetod, "GET");
+	public void testReadRecordRestClientSetUpCorrectly() throws UnsupportedEncodingException {
+		recordHandler.readRecord(authToken, recordType, recordId);
 
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/therest/rest/record/someType/someId");
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), "someAuthToken");
-
+		assertEquals(restClientFactory.authToken, authToken);
+		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		assertTrue(restClient.readWasCalled);
+		assertEquals(restClient.recordType, recordType);
+		assertEquals(restClient.recordId, recordId);
 	}
 
 	@Test
 	public void testReadRecordOk() {
-		BasicHttpResponse readResponse = recordHandler.readRecord(url, authToken);
+		BasicHttpResponse readResponse = recordHandler.readRecord(authToken, recordType, recordId);
 		assertTrue(readResponse.statusType.getStatusCode() == 200);
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		assertEquals(readResponse.responseText, httpHandlerSpy.responseText);
+		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		assertEquals(readResponse.responseText, restClient.returnedJson);
 	}
 
 	@Test
 	public void testReadRecordNotOk() throws UnsupportedEncodingException {
-		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		BasicHttpResponse readResponse = recordHandler.readRecord(url, authToken);
+		restClientFactory.factorInvalidRestClient = true;
+		BasicHttpResponse readResponse = recordHandler.readRecord(authToken, recordType, recordId);
 
-		HttpHandlerInvalidSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerInvalidSpy;
+		RestClientInvalidSpy restClient = (RestClientInvalidSpy) restClientFactory.returnedRestClient;
 		assertNotNull(readResponse.responseText);
-		assertEquals(readResponse.responseText, httpHandlerSpy.returnedErrorText);
+		assertTrue(readResponse.statusType.getStatusCode() == 500);
+		assertEquals(readResponse.responseText, restClient.returnedErrorMessage);
 	}
 
 	@Test
-	public void testReadRecordListHttpHandlerSetUpCorrectly() throws UnsupportedEncodingException {
-		recordHandler.readRecordList(url, authToken, filterAsJson);
-		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestMetod, "GET");
+	public void testReadRecordListRestClientSetUpCorrectly() throws UnsupportedEncodingException {
+		recordHandler.readRecordList(url, authToken, recordType, filterAsJson);
 
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/therest/rest/record/someType");
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), "someAuthToken");
-
-	}
-
-	@Test
-	public void testReadRecordListWithFilter() throws UnsupportedEncodingException {
-		filterAsJson = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":[{\"name\":\"key\",\"value\":\"idFromLogin\"},{\"name\":\"value\",\"value\":\"someId\"}],\"repeatId\":\"0\"}]}";
-
-		recordHandler.readRecordList(url, authToken, filterAsJson);
-		String encodedJson = URLEncoder.encode(filterAsJson, "UTF-8");
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/therest/rest/record/someType?filter=" + encodedJson);
-
+		assertEquals(restClientFactory.authToken, authToken);
+		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		assertEquals(restClient.recordType, recordType);
 	}
 
 	@Test
 	public void testReadRecordListOk() throws UnsupportedEncodingException {
-		BasicHttpResponse readResponse = recordHandler.readRecordList(url, authToken, filterAsJson);
-
+		BasicHttpResponse readResponse = recordHandler.readRecordList(url, authToken, null,
+				filterAsJson);
 		assertTrue(readResponse.statusType.getStatusCode() == 200);
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		assertEquals(readResponse.responseText, httpHandlerSpy.responseText);
+		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		assertEquals(readResponse.responseText, restClient.returnedJson);
+		assertNull(restClient.filter);
+	}
+
+	@Test
+	public void testReadRecordListWithFilterOk() throws UnsupportedEncodingException {
+		filterAsJson = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":[{\"name\":\"key\",\"value\":\"idFromLogin\"},{\"name\":\"value\",\"value\":\"someId\"}],\"repeatId\":\"0\"}]}";
+
+		BasicHttpResponse readResponse = recordHandler.readRecordList(url, authToken, recordType,
+				filterAsJson);
+		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		assertEquals(readResponse.responseText, restClient.returnedJson);
+		assertEquals(restClient.filter, filterAsJson);
 	}
 
 	@Test
 	public void testReadRecordListNotOk() throws UnsupportedEncodingException {
-		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		BasicHttpResponse readResponse = recordHandler.readRecordList(url, authToken, filterAsJson);
+		restClientFactory.factorInvalidRestClient = true;
+		BasicHttpResponse readResponse = recordHandler.readRecordList(url, authToken, null,
+				filterAsJson);
 
-		HttpHandlerInvalidSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerInvalidSpy;
-		assertEquals(readResponse.responseText, httpHandlerSpy.returnedErrorText);
+		RestClientInvalidSpy restClient = (RestClientInvalidSpy) restClientFactory.returnedRestClient;
+		assertNotNull(readResponse.responseText);
+		assertTrue(readResponse.statusType.getStatusCode() == 500);
+		assertEquals(readResponse.responseText, restClient.returnedErrorMessage);
 	}
 
 	@Test
@@ -153,12 +159,14 @@ public class RecordHandlerTest {
 	}
 
 	@Test
-	public void testCreateRecordHttpHandlerSetUpCorrectly() {
+	public void testCreateRecordRestClientSetUpCorrectly() {
 		String json = "{\"name\":\"value\"}";
-		recordHandler.createRecord(url, authToken, json);
-		String expectedUrl = "http://localhost:8080/therest/rest/record/someType";
-		String contentType = "application/vnd.uub.record+json";
-		assertCorrectHttpHandlerForPost(json, expectedUrl, contentType);
+		recordHandler.createRecord(authToken, recordType, json);
+
+		assertEquals(restClientFactory.authToken, authToken);
+
+		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		assertEquals(restClient.recordType, recordType);
 	}
 
 	private void assertCorrectHttpHandlerForPost(String json, String expectedUrl,
@@ -180,38 +188,40 @@ public class RecordHandlerTest {
 	public void testCreateRecordOk() {
 		httpHandlerFactorySpy.setResponseCode(201);
 		String json = "{\"name\":\"value\"}";
-		ExtendedHttpResponse createResponse = recordHandler.createRecord(url, authToken, json);
+		ExtendedHttpResponse createResponse = recordHandler.createRecord(authToken, recordType, json);
+
+		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		assertEquals(createResponse.responseText, restClient.returnedJson);
 
 		assertEquals(createResponse.statusType.getStatusCode(), 201);
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		assertEquals(createResponse.responseText, httpHandlerSpy.responseText);
 	}
 
 	@Test
 	public void testCreateRecordOkWithCreatedIdAndToken() {
 		String apptokenUrl = "http://localhost:8080/therest/rest/record/appToken";
 		httpHandlerFactorySpy.setResponseCode(201);
+		restClientFactory.jsonToReturn = "{\"record\":{\"data\":{\"children\":[{\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"system\"},{\"name\":\"linkedRecordId\",\"value\":\"cora\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/system/cora\",\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"dataDivider\"},{\"name\":\"id\",\"value\":\"appToken:7053734211763\"},{\"name\":\"type\",\"value\":\"appToken\"},{\"name\":\"createdBy\",\"value\":\"131313\"}],\"name\":\"recordInfo\"},{\"name\":\"note\",\"value\":\"My  device\"},{\"name\":\"token\",\"value\":\"ba064c86-bd7c-4283-a5f3-86ba1dade3f3\"}],\"name\":\"appToken\"},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/appToken/appToken:7053734211763\",\"accept\":\"application/vnd.uub.record+json\"},\"read_incoming_links\":{\"requestMethod\":\"GET\",\"rel\":\"read_incoming_links\",\"url\":\"http://localhost:8080/therest/rest/record/appToken/appToken:7053734211763/incomingLinks\",\"accept\":\"application/vnd.uub.recordList+json\"},\"update\":{\"requestMethod\":\"POST\",\"rel\":\"update\",\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"http://localhost:8080/therest/rest/record/appToken/appToken:7053734211763\",\"accept\":\"application/vnd.uub.record+json\"}}}}";
 		String json = "{\"name\":\"value\"}";
-		ExtendedHttpResponse createResponse = recordHandler.createRecord(apptokenUrl, authToken,
+		ExtendedHttpResponse createResponse = recordHandler.createRecord(authToken, null,
 				json);
 
+		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+
 		assertEquals(createResponse.statusType.getStatusCode(), 201);
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		String returnedHeaderFromSpy = httpHandlerSpy.returnedHeaderField;
-		assertEquals(createResponse.createdId,
-				returnedHeaderFromSpy.substring(returnedHeaderFromSpy.lastIndexOf('/') + 1));
+		assertEquals(createResponse.createdId, restClient.createdId);
 		assertEquals(createResponse.token, "ba064c86-bd7c-4283-a5f3-86ba1dade3f3");
 	}
 
 	@Test
 	public void testCreateRecordNotOk() {
-		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
+		restClientFactory.factorInvalidRestClient = true;
 		String json = "{\"name\":\"value\"}";
-		ExtendedHttpResponse createResponse = recordHandler.createRecord(url, authToken, json);
+		ExtendedHttpResponse createResponse = recordHandler.createRecord(authToken, recordType, json);
 
-		HttpHandlerInvalidSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerInvalidSpy;
+		RestClientInvalidSpy restClient = (RestClientInvalidSpy) restClientFactory.returnedRestClient;
 		assertNotNull(createResponse.responseText);
-		assertEquals(createResponse.responseText, httpHandlerSpy.returnedErrorText);
+		assertTrue(createResponse.statusType.getStatusCode() == 500);
+		assertEquals(createResponse.responseText, restClient.returnedErrorMessage);
 	}
 
 	@Test

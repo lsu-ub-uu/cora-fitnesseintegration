@@ -34,6 +34,7 @@
 		<json.version>2.0.1</json.version>
 		<httphandler.version>2.0.0</httphandler.version>
 		<cora-clientdata.version>3.4-SNAPSHOT</cora-clientdata.version>
+		<javaclient.version>1.6-SNAPSHOT</javaclient.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 		<fitnesse.version>20200205</fitnesse.version>
 		<jaxb-api.version>2.3.0</jaxb-api.version>
@@ -75,6 +76,12 @@
 			<groupId>se.uu.ub.cora</groupId>
 			<artifactId>cora-clientdata</artifactId>
 			<version>${cora-clientdata.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>se.uu.ub.cora</groupId>
+			<artifactId>javaclient</artifactId>
+			<version>${javaclient.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>

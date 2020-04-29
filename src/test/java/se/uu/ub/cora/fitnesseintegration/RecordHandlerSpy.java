@@ -36,9 +36,12 @@ public class RecordHandlerSpy implements RecordHandler {
 	public boolean validateWasCalled = false;
 	public boolean deleteRecordWasCalled = false;
 	public String contentType;
+	public String recordType;
+	public String recordId;
 
 	@Override
-	public BasicHttpResponse readRecordList(String url, String authToken, String filter) {
+	public BasicHttpResponse readRecordList(String url, String authToken, String recordType,
+			String filter) {
 		readRecordListWasCalled = true;
 		this.url = url;
 		this.filter = filter;
@@ -49,9 +52,10 @@ public class RecordHandlerSpy implements RecordHandler {
 	}
 
 	@Override
-	public BasicHttpResponse readRecord(String url, String authToken) {
-		this.url = url;
+	public BasicHttpResponse readRecord(String authToken, String recordType, String recordId) {
 		this.authToken = authToken;
+		this.recordType = recordType;
+		this.recordId = recordId;
 		readRecordWasCalled = true;
 		statusTypeReturned = new StatusTypeSpy();
 		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
@@ -68,11 +72,11 @@ public class RecordHandlerSpy implements RecordHandler {
 	}
 
 	@Override
-	public ExtendedHttpResponse createRecord(String url, String authToken, String json) {
+	public ExtendedHttpResponse createRecord(String authToken, String recordType, String json) {
 		createRecordWasCalled = true;
-		this.url = url;
 		this.authToken = authToken;
 		this.json = json;
+		this.recordType = recordType;
 		if (statusTypeReturned == null) {
 			statusTypeReturned = new StatusTypeSpy();
 			statusTypeReturned.statusCodeToReturn = 201;

@@ -28,14 +28,15 @@ import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
 import se.uu.ub.cora.fitnesseintegration.BasicHttpResponse;
-import se.uu.ub.cora.fitnesseintegration.ExtendedHttpResponse;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
+import se.uu.ub.cora.fitnesseintegration.ExtendedHttpResponse;
 import se.uu.ub.cora.fitnesseintegration.JsonHandler;
 import se.uu.ub.cora.fitnesseintegration.RecordHandler;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.SystemUrl;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
+import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.json.parser.JsonValue;
@@ -54,18 +55,19 @@ public class ComparerFixture {
 	private String id;
 	private String searchId;
 	private String json;
-	protected String baseUrl = SystemUrl.getUrl() + "rest/record/";
+	protected String baseUrl = SystemUrl.getUrl() + "rest/";
+	protected String baseRecordUrl = baseUrl + "record/";
 
 	public ComparerFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
-		recordHandler = new RecordHandlerImp(httpHandlerFactory);
+		RestClientFactoryImp restClientFactory = new RestClientFactoryImp(baseUrl);
+		recordHandler = new RecordHandlerImp(httpHandlerFactory, restClientFactory);
 		jsonHandler = DependencyProvider.getJsonHandler();
 		jsonToDataRecordConverter = DependencyProvider.getJsonToDataRecordConverter();
 	}
 
 	public String testReadAndStoreRecord() {
-		BasicHttpResponse readResponse = recordHandler.readRecord(baseUrl + type + "/" + id,
-				authToken);
+		BasicHttpResponse readResponse = recordHandler.readRecord(authToken, type, id);
 		JsonObject recordJsonObject = jsonHandler.parseStringAsObject(readResponse.responseText);
 		DataRecord record = jsonToDataRecordConverter.toInstance(recordJsonObject);
 		DataHolder.setRecord(record);
@@ -73,8 +75,8 @@ public class ComparerFixture {
 	}
 
 	public void testReadRecordListAndStoreRecords() throws UnsupportedEncodingException {
-		storedListAsJson = recordHandler.readRecordList(baseUrl + type, authToken,
-				listFilter).responseText;
+		storedListAsJson = recordHandler.readRecordList(baseRecordUrl + type, authToken,
+				null, listFilter).responseText;
 
 		List<DataRecord> convertedRecords = convertToRecords();
 		DataHolder.setRecordList(convertedRecords);
@@ -117,7 +119,7 @@ public class ComparerFixture {
 	}
 
 	public void testSearchAndStoreRecords() throws UnsupportedEncodingException {
-		String url = baseUrl + "searchResult" + "/" + searchId;
+		String url = baseRecordUrl + "searchResult" + "/" + searchId;
 		storedListAsJson = recordHandler.searchRecord(url, authToken, json).responseText;
 
 		List<DataRecord> convertedRecords = convertToRecords();
@@ -125,7 +127,7 @@ public class ComparerFixture {
 	}
 
 	public String testUpdateAndStoreRecord() {
-		String url = baseUrl + type + "/" + id;
+		String url = baseRecordUrl + type + "/" + id;
 		BasicHttpResponse response = recordHandler.updateRecord(url, authToken, json);
 		DataRecord record = createRecordFromResponseText(response.responseText);
 		DataHolder.setRecord(record);
@@ -134,8 +136,8 @@ public class ComparerFixture {
 	}
 
 	public String testCreateAndStoreRecord() {
-		String url = baseUrl + type;
-		ExtendedHttpResponse createResponse = recordHandler.createRecord(url, authToken, json);
+		String url = baseRecordUrl + type;
+		ExtendedHttpResponse createResponse = recordHandler.createRecord(authToken, null, json);
 		DataRecord record = createRecordFromResponseText(createResponse.responseText);
 		DataHolder.setRecord(record);
 		return createResponse.responseText;

@@ -77,7 +77,7 @@ public class MetadataValidationFixture extends RecordEndpointFixture {
 
 	public String testValidateRecord() {
 		RecordHandler recordHandler = getRecordHandler();
-		BasicHttpResponse response = recordHandler.validateRecord(baseUrl + "workOrder",
+		BasicHttpResponse response = recordHandler.validateRecord(baseRecordUrl + "workOrder",
 				getSetAuthTokenOrAdminAuthToken(), json, "application/vnd.uub.workorder+json");
 		statusType = response.statusType;
 		return getResponseTextFromHttpHandler(response);

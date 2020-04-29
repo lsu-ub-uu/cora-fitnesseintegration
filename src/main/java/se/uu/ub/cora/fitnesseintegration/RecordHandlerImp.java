@@ -27,31 +27,39 @@ import javax.ws.rs.core.Response.StatusType;
 
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
+import se.uu.ub.cora.javaclient.rest.ExtendedRestResponse;
+import se.uu.ub.cora.javaclient.rest.RestClient;
+import se.uu.ub.cora.javaclient.rest.RestClientFactory;
+import se.uu.ub.cora.javaclient.rest.RestResponse;
 
 public class RecordHandlerImp implements RecordHandler {
 
 	private HttpHandlerFactory httpHandlerFactory;
 	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.uub.record+json";
 	private static final int DISTANCE_TO_START_OF_TOKEN = 24;
+	private RestClientFactory restClientFactory;
 
-	public RecordHandlerImp(HttpHandlerFactory httpHandlerFactory) {
+	public RecordHandlerImp(HttpHandlerFactory httpHandlerFactory,
+			RestClientFactory restClientFactory) {
 		this.httpHandlerFactory = httpHandlerFactory;
+		this.restClientFactory = restClientFactory;
 	}
 
 	@Override
-	public BasicHttpResponse readRecordList(String url, String authToken, String filterAsJson)
-			throws UnsupportedEncodingException {
-		if (filterAsJson != null) {
-			url += "?filter=" + URLEncoder.encode(filterAsJson, StandardCharsets.UTF_8.name());
-		}
-		return getResponseTextOrErrorTextFromUrl(url, authToken);
+	public BasicHttpResponse readRecordList(String url, String authToken, String recordType,
+			String filterAsJson) throws UnsupportedEncodingException {
+		RestClient restClient = restClientFactory.factorUsingAuthToken(authToken);
+		RestResponse response = getRecordListResponse(restClient, recordType, filterAsJson);
+		StatusType statusType = Response.Status.fromStatusCode(response.statusCode);
+		return new BasicHttpResponse(statusType, response.responseText);
 	}
 
-	private BasicHttpResponse getResponseTextOrErrorTextFromUrl(String url, String authToken) {
-		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
-		httpHandler.setRequestMethod("GET");
-
-		return createCommonHttpResponseFromHttpHandler(httpHandler);
+	private RestResponse getRecordListResponse(RestClient restClient, String recordType,
+			String filterAsJson) throws UnsupportedEncodingException {
+		if (filterAsJson != null) {
+			return restClient.readRecordListWithFilterAsJson(recordType, filterAsJson);
+		}
+		return restClient.readRecordListAsJson(recordType);
 	}
 
 	private BasicHttpResponse createCommonHttpResponseFromHttpHandler(HttpHandler httpHandler) {
@@ -72,11 +80,20 @@ public class RecordHandlerImp implements RecordHandler {
 	}
 
 	@Override
-	public BasicHttpResponse readRecord(String url, String authToken) {
-		return getResponseTextOrErrorTextFromUrl(url, authToken);
+	public BasicHttpResponse readRecord(String authToken, String recordType, String recordId) {
+		RestClient restClient = restClientFactory.factorUsingAuthToken(authToken);
+		RestResponse response = restClient.readRecordAsJson(recordType, recordId);
+		return createBasicHttpResponseFromRestResponse(response);
+	}
+
+	private BasicHttpResponse createBasicHttpResponseFromRestResponse(RestResponse response) {
+		String json = response.responseText;
+		StatusType statusType = Response.Status.fromStatusCode(response.statusCode);
+		return new BasicHttpResponse(statusType, json);
 	}
 
 	@Override
+
 	public BasicHttpResponse searchRecord(String url, String authToken, String json)
 			throws UnsupportedEncodingException {
 		url += "?searchData=" + URLEncoder.encode(json, StandardCharsets.UTF_8.name());
@@ -92,10 +109,17 @@ public class RecordHandlerImp implements RecordHandler {
 	}
 
 	@Override
-	public ExtendedHttpResponse createRecord(String url, String authToken, String json) {
-		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
-		addPropertiesToHttpHandler(httpHandler, json, APPLICATION_UUB_RECORD_JSON);
-		return executeCreate(httpHandler);
+	public ExtendedHttpResponse createRecord(String authToken, String recordType, String json) {
+		RestClient restClient = restClientFactory.factorUsingAuthToken(authToken);
+		ExtendedRestResponse response = restClient.createRecordFromJson(recordType, json);
+
+		StatusType statusType = Response.Status.fromStatusCode(response.statusCode);
+		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(statusType,
+				response.responseText);
+
+		return response.statusCode == 201 ? createCreateResponse(response, basicHttpResponse)
+				: new ExtendedHttpResponse(basicHttpResponse);
+
 	}
 
 	protected void addPropertiesToHttpHandler(HttpHandler httpHandler, String json,
@@ -106,30 +130,14 @@ public class RecordHandlerImp implements RecordHandler {
 		httpHandler.setOutput(json);
 	}
 
-	private ExtendedHttpResponse executeCreate(HttpHandler httpHandler) {
-		StatusType statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-
-		BasicHttpResponse readResponse = createReadResponseForCreated(httpHandler, statusType);
-		return statusCreated(statusType) ? createCreateResponse(httpHandler, readResponse)
-				: new ExtendedHttpResponse(readResponse);
-	}
-
-	private BasicHttpResponse createReadResponseForCreated(HttpHandler httpHandler,
-			StatusType statusType) {
-		String responseText = statusCreated(statusType) ? httpHandler.getResponseText()
-				: httpHandler.getErrorText();
-		return new BasicHttpResponse(statusType, responseText);
-	}
-
 	protected boolean statusCreated(StatusType statusType) {
 		return statusType.equals(Response.Status.CREATED);
 	}
 
-	private ExtendedHttpResponse createCreateResponse(HttpHandler httpHandler,
+	private ExtendedHttpResponse createCreateResponse(ExtendedRestResponse response,
 			BasicHttpResponse readResponse) {
 		String responseText = readResponse.responseText;
-		String createdId = extractCreatedIdFromLocationHeader(
-				httpHandler.getHeaderField("Location"));
+		String createdId = response.createdId;
 		String token = tryToExtractCreatedTokenFromResponseText(responseText);
 		return new ExtendedHttpResponse(readResponse, createdId, token);
 	}
@@ -140,10 +148,6 @@ public class RecordHandlerImp implements RecordHandler {
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
 		addPropertiesToHttpHandler(httpHandler, json, contentType);
 		return createCommonHttpResponseFromHttpHandler(httpHandler);
-	}
-
-	private String extractCreatedIdFromLocationHeader(String locationHeader) {
-		return locationHeader.substring(locationHeader.lastIndexOf('/') + 1);
 	}
 
 	private String tryToExtractCreatedTokenFromResponseText(String responseText) {
@@ -177,6 +181,11 @@ public class RecordHandlerImp implements RecordHandler {
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
 		httpHandler.setRequestMethod("DELETE");
 		return createCommonHttpResponseFromHttpHandler(httpHandler);
+	}
+
+	public RestClientFactory getRestClientFactory() {
+		// needed for test
+		return restClientFactory;
 	}
 
 }

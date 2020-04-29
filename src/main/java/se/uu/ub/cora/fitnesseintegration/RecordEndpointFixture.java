@@ -34,6 +34,7 @@ import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpMultiPartUploader;
+import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.json.parser.JsonParser;
@@ -57,8 +58,9 @@ public class RecordEndpointFixture {
 	private String contentLenght;
 	private String contentDisposition;
 	private String authToken;
-	protected String baseUrl = SystemUrl.getUrl() + "rest/record/";
 	private HttpHandlerFactory httpHandlerFactory;
+	protected String baseUrl = SystemUrl.getUrl() + "rest/";
+	protected String baseRecordUrl = baseUrl + "record/";
 	private String token;
 	private JsonToDataConverterFactory jsonToDataConverterFactory;
 	private JsonHandler jsonHandler;
@@ -72,7 +74,8 @@ public class RecordEndpointFixture {
 		childComparer = DependencyProvider.getChildComparer();
 		jsonToDataRecordConverter = DependencyProvider.getJsonToDataRecordConverter();
 		jsonHandler = DependencyProvider.getJsonHandler();
-		recordHandler = new RecordHandlerImp(httpHandlerFactory);
+		RestClientFactoryImp restClientFactory = new RestClientFactoryImp(baseUrl);
+		recordHandler = new RecordHandlerImp(httpHandlerFactory, restClientFactory);
 	}
 
 	public void setType(String type) {
@@ -124,10 +127,9 @@ public class RecordEndpointFixture {
 	}
 
 	public String testReadRecord() {
-		String url = baseUrl + type + "/" + id;
 		String readAuthToken = getSetAuthTokenOrAdminAuthToken();
 
-		BasicHttpResponse readResponse = recordHandler.readRecord(url, readAuthToken);
+		BasicHttpResponse readResponse = recordHandler.readRecord(readAuthToken, type, id);
 		statusType = readResponse.statusType;
 		return readResponse.responseText;
 
@@ -155,14 +157,14 @@ public class RecordEndpointFixture {
 	}
 
 	public String testReadIncomingLinks() {
-		String url = baseUrl + type + "/" + id + "/incomingLinks";
+		String url = baseRecordUrl + type + "/" + id + "/incomingLinks";
 		return getResponseTextOrErrorTextFromUrl(url);
 	}
 
 	public String testReadRecordList() throws UnsupportedEncodingException {
-		String url = baseUrl + type;
+		String url = baseRecordUrl + type;
 		BasicHttpResponse readResponse = recordHandler.readRecordList(url,
-				getSetAuthTokenOrAdminAuthToken(), json);
+				getSetAuthTokenOrAdminAuthToken(), null, json);
 		statusType = readResponse.statusType;
 		return readResponse.responseText;
 	}
@@ -172,9 +174,9 @@ public class RecordEndpointFixture {
 	}
 
 	private String createRecordAndSetValuesFromResponse() {
-		String url = baseUrl + type;
-		ExtendedHttpResponse createResponse = recordHandler.createRecord(url,
-				getSetAuthTokenOrAdminAuthToken(), json);
+		// String url = baseRecordUrl + type;
+		ExtendedHttpResponse createResponse = recordHandler
+				.createRecord(getSetAuthTokenOrAdminAuthToken(), type, json);
 
 		setValuesFromResponse(createResponse);
 		return createResponse.responseText;
@@ -247,7 +249,7 @@ public class RecordEndpointFixture {
 	}
 
 	public String testUpdateRecord() {
-		String url = baseUrl + type + "/" + id;
+		String url = baseRecordUrl + type + "/" + id;
 		BasicHttpResponse response = recordHandler.updateRecord(url,
 				getSetAuthTokenOrAdminAuthToken(), json);
 		statusType = response.statusType;
@@ -255,7 +257,7 @@ public class RecordEndpointFixture {
 	}
 
 	public String testDeleteRecord() {
-		String url = baseUrl + type + "/" + id;
+		String url = baseRecordUrl + type + "/" + id;
 		BasicHttpResponse response = recordHandler.deleteRecord(url,
 				getSetAuthTokenOrAdminAuthToken());
 		statusType = response.statusType;
@@ -263,7 +265,7 @@ public class RecordEndpointFixture {
 	}
 
 	public String testUpload() throws IOException {
-		String url = baseUrl + type + "/" + id + "/master";
+		String url = baseRecordUrl + type + "/" + id + "/master";
 		url = addAuthTokenToUrl(url);
 
 		HttpMultiPartUploader httpHandler = httpHandlerFactory.factorHttpMultiPartUploader(url);
@@ -318,7 +320,7 @@ public class RecordEndpointFixture {
 	}
 
 	private HttpHandler setupHttpHandlerForDownload() {
-		String url = baseUrl + type + "/" + id + "/" + resourceName;
+		String url = baseRecordUrl + type + "/" + id + "/" + resourceName;
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("GET");
 		return httpHandler;
@@ -337,7 +339,7 @@ public class RecordEndpointFixture {
 	}
 
 	public String testSearchRecord() throws UnsupportedEncodingException {
-		String url = baseUrl + "searchResult" + "/" + searchId;
+		String url = baseRecordUrl + "searchResult" + "/" + searchId;
 		BasicHttpResponse readResponse = recordHandler.searchRecord(url,
 				getSetAuthTokenOrAdminAuthToken(), json);
 		statusType = readResponse.statusType;

@@ -43,6 +43,7 @@ import se.uu.ub.cora.fitnesseintegration.JsonToDataRecordConverterSpy;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerSpy;
 import se.uu.ub.cora.fitnesseintegration.SystemUrl;
+import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 
 public class ComparerFixtureTest {
 
@@ -51,6 +52,7 @@ public class ComparerFixtureTest {
 	private JsonToDataRecordConverterSpy jsonToDataConverter;
 	private JsonParserSpy jsonParser;
 	private JsonHandlerImp jsonHandler;
+	private String type;
 
 	@BeforeMethod
 	public void setUp() {
@@ -70,7 +72,8 @@ public class ComparerFixtureTest {
 		jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
 		jsonToDataConverter = new JsonToDataRecordConverterSpy();
 
-		fixture.setType("someRecordType");
+		type = "someRecordType";
+		fixture.setType(type);
 		fixture.setRecordHandler(recordHandler);
 		fixture.setJsonHandler(jsonHandler);
 		fixture.setJsonToDataRecordConverter(jsonToDataConverter);
@@ -85,6 +88,9 @@ public class ComparerFixtureTest {
 
 		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.getRecordHandler();
 		assertSame(recordHandler.getHttpHandlerFactory(), fixture.getHttpHandlerFactory());
+		RestClientFactoryImp clientFactory = (RestClientFactoryImp) recordHandler
+				.getRestClientFactory();
+		assertEquals(clientFactory.getBaseUrl(), fixture.baseUrl);
 	}
 
 	@Test
@@ -167,13 +173,14 @@ public class ComparerFixtureTest {
 	public void testReadRecordAndStoreJson() throws UnsupportedEncodingException {
 		String authToken = "someAuthToken";
 		fixture.setAuthToken(authToken);
-		fixture.setId("someId");
+		String id = "someId";
+		fixture.setId(id);
 
 		String responseText = fixture.testReadAndStoreRecord();
 		assertTrue(recordHandler.readRecordWasCalled);
 
-		String expectedUrl = SystemUrl.getUrl() + "rest/record/someRecordType/someId";
-		assertEquals(recordHandler.url, expectedUrl);
+		assertEquals(recordHandler.recordType, type);
+		assertEquals(recordHandler.recordId, id);
 		assertEquals(recordHandler.authToken, authToken);
 
 		assertCorrectDataPassedFromHandlerToConverter();

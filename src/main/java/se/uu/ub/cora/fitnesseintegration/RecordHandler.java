@@ -30,24 +30,23 @@ public interface RecordHandler {
 	 *            A String used as url to make a http request
 	 * @param authToken
 	 *            A String authToken to use in the http request
+	 * @param recordType TODO
 	 * @param filter
 	 *            A String used to filter the result
 	 * @return A {@link BasicHttpResponse} containing the response text and StatusType
 	 */
-	BasicHttpResponse readRecordList(String url, String authToken, String filter)
+	BasicHttpResponse readRecordList(String url, String authToken, String recordType, String filter)
 			throws UnsupportedEncodingException;
 
 	/**
 	 * Reads a record using url and authToken. The result is returned as a responseText in the
 	 * {@link BasicHttpResponse}
-	 * 
-	 * @param url
-	 *            A String used as url to make a http request
 	 * @param authToken
 	 *            A String authToken to use in the http request
+	 * 
 	 * @return A {@link BasicHttpResponse} containing the response text and StatusType
 	 */
-	BasicHttpResponse readRecord(String url, String authToken);
+	BasicHttpResponse readRecord(String authToken, String recordType, String recordId);
 
 	/**
 	 * Searches for records using url, authToken and a string to define the search. The result is
@@ -68,18 +67,15 @@ public interface RecordHandler {
 	/**
 	 * Creates a record using url and authToken and a string to set as output in the httpRequest.
 	 * The result is returned as a responseText in the {@link ExtendedHttpResponse}
-	 * 
-	 * @param url
-	 *            A String used as url to make a http request * @param authToken A String authToken
-	 *            to use in the http request
 	 * @param authToken
 	 *            A String authToken to use in the http request
+	 * @param recordType TODO
 	 * @param json
 	 *            A String used to use as output in the http request
 	 * 
 	 * @return A {@link ExtendedHttpResponse} containing the response text and StatusType
 	 */
-	ExtendedHttpResponse createRecord(String url, String authToken, String json);
+	ExtendedHttpResponse createRecord(String authToken, String recordType, String json);
 
 	/**
 	 * Updates a record using url and authToken and a string to set as output in the httpRequest.
