@@ -18,15 +18,13 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
-import javax.ws.rs.core.Response.StatusType;
-
 public class BasicHttpResponse {
 
-	public final StatusType statusType;
+	public final int statusCode;
 	public final String responseText;
 
-	public BasicHttpResponse(StatusType statusType, String responseText) {
-		this.statusType = statusType;
+	public BasicHttpResponse(int statusCode, String responseText) {
+		this.statusCode = statusCode;
 		this.responseText = responseText;
 	}
 }

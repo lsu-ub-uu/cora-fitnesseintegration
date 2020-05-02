@@ -42,4 +42,10 @@ public class RestClientFactorySpy implements RestClientFactory {
 		return returnedRestClient;
 	}
 
+	@Override
+	public String getBaseUrl() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -38,7 +38,6 @@ public class RestClientSpy implements RestClient {
 		readWasCalled = true;
 		returnedJson = "some json returned from RestClientSpy";
 		return new RestResponse(200, returnedJson);
-		// return returnedJson;
 	}
 
 	@Override
@@ -50,29 +49,34 @@ public class RestClientSpy implements RestClient {
 	}
 
 	@Override
-	public String updateRecordFromJson(String recordType, String recordId, String json) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String deleteRecord(String recordType, String recordId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public RestResponse readRecordListAsJson(String recordType) {
+	public RestResponse updateRecordFromJson(String recordType, String recordId, String json) {
 		this.recordType = recordType;
-		// TODO Auto-generated method stub
+		this.recordId = recordId;
 		returnedJson = "some json returned from RestClientSpy";
 		return new RestResponse(200, returnedJson);
 	}
 
 	@Override
-	public String readIncomingLinksAsJson(String recordType, String recordId) {
-		// TODO Auto-generated method stub
-		return null;
+	public RestResponse deleteRecord(String recordType, String recordId) {
+		this.recordType = recordType;
+		this.recordId = recordId;
+		returnedJson = "some json returned from RestClientSpy";
+		return new RestResponse(200, returnedJson);
+	}
+
+	@Override
+	public RestResponse readRecordListAsJson(String recordType) {
+		this.recordType = recordType;
+		returnedJson = "some json returned from RestClientSpy";
+		return new RestResponse(200, returnedJson);
+	}
+
+	@Override
+	public RestResponse readIncomingLinksAsJson(String recordType, String recordId) {
+		this.recordType = recordType;
+		this.recordId = recordId;
+		returnedJson = "some json returned from RestClientSpy";
+		return new RestResponse(200, returnedJson);
 	}
 
 	@Override

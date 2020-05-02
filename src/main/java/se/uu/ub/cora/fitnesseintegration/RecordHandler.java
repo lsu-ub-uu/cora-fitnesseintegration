@@ -23,28 +23,32 @@ import java.io.UnsupportedEncodingException;
 public interface RecordHandler {
 
 	/**
-	 * Reads a list of records using url, authToken and possibly a filter. The result is returned as
-	 * a responseText in the {@link BasicHttpResponse}
+	 * Reads a list of records using authToken, recordType and possibly a filter. The result is
+	 * returned as a responseText in the {@link BasicHttpResponse}
 	 * 
-	 * @param url
-	 *            A String used as url to make a http request
 	 * @param authToken
 	 *            A String authToken to use in the http request
-	 * @param recordType TODO
+	 * @param recordType
+	 *            A String recordType representing the type of record that is to be read
 	 * @param filter
 	 *            A String used to filter the result
-	 * @return A {@link BasicHttpResponse} containing the response text and StatusType
+	 * 
+	 * @return A {@link BasicHttpResponse} containing the response
 	 */
-	BasicHttpResponse readRecordList(String url, String authToken, String recordType, String filter)
+	BasicHttpResponse readRecordList(String authToken, String recordType, String filter)
 			throws UnsupportedEncodingException;
 
 	/**
-	 * Reads a record using url and authToken. The result is returned as a responseText in the
-	 * {@link BasicHttpResponse}
+	 * Reads a record using authToken, recordType and recordId. The result is returned as a
+	 * responseText in the {@link BasicHttpResponse}
+	 * 
 	 * @param authToken
 	 *            A String authToken to use in the http request
-	 * 
-	 * @return A {@link BasicHttpResponse} containing the response text and StatusType
+	 * @param recordType
+	 *            A String recordType representing the type of record that is to be read
+	 * @param recordId
+	 *            A String recordId, the id of the record that is to be read
+	 * @return A {@link BasicHttpResponse} containing the response
 	 */
 	BasicHttpResponse readRecord(String authToken, String recordType, String recordId);
 
@@ -59,21 +63,23 @@ public interface RecordHandler {
 	 * @param json
 	 *            A String used to define the search
 	 * 
-	 * @return A {@link BasicHttpResponse} containing the response text and StatusType
+	 * @return A {@link BasicHttpResponse} containing the response
 	 */
 	BasicHttpResponse searchRecord(String url, String authToken, String json)
 			throws UnsupportedEncodingException;
 
 	/**
-	 * Creates a record using url and authToken and a string to set as output in the httpRequest.
-	 * The result is returned as a responseText in the {@link ExtendedHttpResponse}
+	 * Creates a record using authToken, recordType and a string to set as output in the
+	 * httpRequest. The result is returned as a responseText in the {@link ExtendedHttpResponse}
+	 * 
 	 * @param authToken
 	 *            A String authToken to use in the http request
-	 * @param recordType TODO
+	 * @param recordType
+	 *            A String recordType representing the type of record that is to be created
 	 * @param json
 	 *            A String used to use as output in the http request
 	 * 
-	 * @return A {@link ExtendedHttpResponse} containing the response text and StatusType
+	 * @return A {@link ExtendedHttpResponse} containing the response
 	 */
 	ExtendedHttpResponse createRecord(String authToken, String recordType, String json);
 
@@ -81,17 +87,19 @@ public interface RecordHandler {
 	 * Updates a record using url and authToken and a string to set as output in the httpRequest.
 	 * The result is returned as a responseText in the {@link BasicHttpResponse}
 	 * 
-	 * @param url
-	 *            A String used as url to make a http request * @param authToken A String authToken
-	 *            to use in the http request
 	 * @param authToken
 	 *            A String authToken to use in the http request
+	 * @param recordType
+	 *            A String recordType representing the type of record that is to be updated
+	 * @param recordId
+	 *            A String recordId, the id of the record that is to be updated
 	 * @param json
 	 *            A String used to use as output in the http request
 	 * 
-	 * @return A {@link BasicHttpResponse} containing the response text and StatusType
+	 * @return A {@link BasicHttpResponse} containing the response
 	 */
-	BasicHttpResponse updateRecord(String url, String authToken, String json);
+	BasicHttpResponse updateRecord(String authToken, String recordType, String recordId,
+			String json);
 
 	/**
 	 * Validates a record using url and authToken, a string to set as output and contentType to set
@@ -107,20 +115,36 @@ public interface RecordHandler {
 	 * @param contenType
 	 *            A String to set as contentType in the http request
 	 * 
-	 * @return A {@link BasicHttpResponse} containing the response text and StatusType
+	 * @return A {@link BasicHttpResponse} containing the response
 	 */
 	BasicHttpResponse validateRecord(String url, String authToken, String json, String contentType);
 
 	/**
-	 * Delete a record using url and authToken.
+	 * Deletes a record using authToken, recordType and recordId.
 	 * 
-	 * @param url
-	 *            A String used as url to make a http request * @param authToken A String authToken
-	 *            to use in the http request
 	 * @param authToken
 	 *            A String authToken to use in the http request
-	 * @return A {@link BasicHttpResponse} containing the response text and StatusType
+	 * @param recordType
+	 *            A String recordType representing the type of record that is to be deleted
+	 * @param recordId
+	 *            A String recordId, the id of the record that is to be deleted
+	 * 
+	 * @return A {@link BasicHttpResponse} containing the response
 	 */
-	BasicHttpResponse deleteRecord(String url, String authToken);
+	BasicHttpResponse deleteRecord(String authToken, String recordType, String recordId);
+
+	/**
+	 * Reads incoming links for a record using authToken, recordType and recordId.
+	 * 
+	 * @param authToken
+	 *            A String authToken to use in the http request
+	 * @param recordType
+	 *            A String recordType representing the type of record to read incoming links for
+	 * @param recordId
+	 *            A String recordId, the id of the record to read incoming links for
+	 * 
+	 * @return A {@link BasicHttpResponse} containing the response
+	 */
+	BasicHttpResponse readIncomingLinks(String authToken, String recordType, String recordId);
 
 }

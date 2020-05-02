@@ -18,10 +18,8 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
-
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.StatusType;
 
 import org.testng.annotations.Test;
 
@@ -29,14 +27,14 @@ public class ExtendedHttpResponseTest {
 
 	@Test
 	public void testCreateResponse() {
-		StatusType statusType = Response.Status.fromStatusCode(200);
+		int statusCode = 200;
 		String responseText = "some response text";
-		BasicHttpResponse basicResponse = new BasicHttpResponse(statusType, responseText);
+		BasicHttpResponse basicResponse = new BasicHttpResponse(statusCode, responseText);
 		String createdId = "someCreatedId";
 		String token = "someToken";
 		ExtendedHttpResponse reseponse = new ExtendedHttpResponse(basicResponse, createdId, token);
 
-		assertSame(reseponse.statusType, statusType);
+		assertEquals(reseponse.statusCode, statusCode);
 		assertSame(reseponse.responseText, responseText);
 		assertSame(reseponse.createdId, createdId);
 		assertSame(reseponse.token, token);
@@ -45,12 +43,12 @@ public class ExtendedHttpResponseTest {
 
 	@Test
 	public void testCreateResponseCreatedWithOnlyReadResponse() {
-		StatusType statusType = Response.Status.fromStatusCode(200);
+		int statusType = 200;
 		String responseText = "some response text";
 		BasicHttpResponse basicResponse = new BasicHttpResponse(statusType, responseText);
 		ExtendedHttpResponse reseponse = new ExtendedHttpResponse(basicResponse);
 
-		assertSame(reseponse.statusType, statusType);
+		assertEquals(reseponse.statusCode, statusType);
 		assertSame(reseponse.responseText, responseText);
 		assertSame(reseponse.createdId, "");
 		assertSame(reseponse.token, "");

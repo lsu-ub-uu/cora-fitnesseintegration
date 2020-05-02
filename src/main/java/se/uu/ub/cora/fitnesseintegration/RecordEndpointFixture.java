@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2016, 2019 Uppsala University Library
+ * Copyright 2015, 2016, 2019, 2020 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -130,24 +130,13 @@ public class RecordEndpointFixture {
 		String readAuthToken = getSetAuthTokenOrAdminAuthToken();
 
 		BasicHttpResponse readResponse = recordHandler.readRecord(readAuthToken, type, id);
-		statusType = readResponse.statusType;
+		statusType = Response.Status.fromStatusCode(readResponse.statusCode);
 		return readResponse.responseText;
 
 	}
 
 	protected String getSetAuthTokenOrAdminAuthToken() {
 		return authToken != null ? authToken : AuthTokenHolder.getAdminAuthToken();
-	}
-
-	private String getResponseTextOrErrorTextFromUrl(String url) {
-		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
-		httpHandler.setRequestMethod("GET");
-
-		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		if (responseIsOk()) {
-			return httpHandler.getResponseText();
-		}
-		return httpHandler.getErrorText();
 	}
 
 	protected HttpHandler createHttpHandlerWithAuthTokenAndUrl(String url) {
@@ -157,15 +146,17 @@ public class RecordEndpointFixture {
 	}
 
 	public String testReadIncomingLinks() {
-		String url = baseRecordUrl + type + "/" + id + "/incomingLinks";
-		return getResponseTextOrErrorTextFromUrl(url);
+		String readAuthToken = getSetAuthTokenOrAdminAuthToken();
+
+		BasicHttpResponse readResponse = recordHandler.readIncomingLinks(readAuthToken, type, id);
+		statusType = Response.Status.fromStatusCode(readResponse.statusCode);
+		return readResponse.responseText;
 	}
 
 	public String testReadRecordList() throws UnsupportedEncodingException {
-		String url = baseRecordUrl + type;
-		BasicHttpResponse readResponse = recordHandler.readRecordList(url,
-				getSetAuthTokenOrAdminAuthToken(), null, json);
-		statusType = readResponse.statusType;
+		BasicHttpResponse readResponse = recordHandler
+				.readRecordList(getSetAuthTokenOrAdminAuthToken(), type, json);
+		statusType = Response.Status.fromStatusCode(readResponse.statusCode);
 		return readResponse.responseText;
 	}
 
@@ -174,7 +165,6 @@ public class RecordEndpointFixture {
 	}
 
 	private String createRecordAndSetValuesFromResponse() {
-		// String url = baseRecordUrl + type;
 		ExtendedHttpResponse createResponse = recordHandler
 				.createRecord(getSetAuthTokenOrAdminAuthToken(), type, json);
 
@@ -183,7 +173,7 @@ public class RecordEndpointFixture {
 	}
 
 	private void setValuesFromResponse(ExtendedHttpResponse createResponse) {
-		statusType = createResponse.statusType;
+		statusType = Response.Status.fromStatusCode(createResponse.statusCode);
 		createdId = createResponse.createdId;
 		token = createResponse.token;
 	}
@@ -249,18 +239,16 @@ public class RecordEndpointFixture {
 	}
 
 	public String testUpdateRecord() {
-		String url = baseRecordUrl + type + "/" + id;
-		BasicHttpResponse response = recordHandler.updateRecord(url,
-				getSetAuthTokenOrAdminAuthToken(), json);
-		statusType = response.statusType;
+		BasicHttpResponse response = recordHandler.updateRecord(getSetAuthTokenOrAdminAuthToken(),
+				type, id, json);
+		statusType = Response.Status.fromStatusCode(response.statusCode);
 		return response.responseText;
 	}
 
 	public String testDeleteRecord() {
-		String url = baseRecordUrl + type + "/" + id;
-		BasicHttpResponse response = recordHandler.deleteRecord(url,
-				getSetAuthTokenOrAdminAuthToken());
-		statusType = response.statusType;
+		BasicHttpResponse response = recordHandler.deleteRecord(getSetAuthTokenOrAdminAuthToken(),
+				type, id);
+		statusType = Response.Status.fromStatusCode(response.statusCode);
 		return response.responseText;
 	}
 
@@ -342,7 +330,7 @@ public class RecordEndpointFixture {
 		String url = baseRecordUrl + "searchResult" + "/" + searchId;
 		BasicHttpResponse readResponse = recordHandler.searchRecord(url,
 				getSetAuthTokenOrAdminAuthToken(), json);
-		statusType = readResponse.statusType;
+		statusType = Response.Status.fromStatusCode(readResponse.statusCode);
 		return readResponse.responseText;
 	}
 

@@ -1,5 +1,7 @@
 package se.uu.ub.cora.fitnesseintegration;
 
+import javax.ws.rs.core.Response;
+
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.DataRecord;
@@ -79,7 +81,7 @@ public class MetadataValidationFixture extends RecordEndpointFixture {
 		RecordHandler recordHandler = getRecordHandler();
 		BasicHttpResponse response = recordHandler.validateRecord(baseRecordUrl + "workOrder",
 				getSetAuthTokenOrAdminAuthToken(), json, "application/vnd.uub.workorder+json");
-		statusType = response.statusType;
+		statusType = Response.Status.fromStatusCode(response.statusCode);
 		return getResponseTextFromHttpHandler(response);
 	}
 

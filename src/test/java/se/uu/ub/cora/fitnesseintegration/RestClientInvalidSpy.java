@@ -30,10 +30,8 @@ public class RestClientInvalidSpy implements RestClient {
 
 	@Override
 	public RestResponse readRecordAsJson(String recordType, String recordId) {
-
 		returnedErrorMessage = "Error from spy: " + recordType + " and id: " + recordId;
 		return new RestResponse(500, returnedErrorMessage);
-		// throw new CoraClientException(returnedErrorMessage);
 	}
 
 	@Override
@@ -44,15 +42,15 @@ public class RestClientInvalidSpy implements RestClient {
 	}
 
 	@Override
-	public String updateRecordFromJson(String recordType, String recordId, String json) {
-		// TODO Auto-generated method stub
-		return null;
+	public RestResponse updateRecordFromJson(String recordType, String recordId, String json) {
+		returnedErrorMessage = "Error from spy: " + recordType + " and id: " + recordId;
+		return new RestResponse(500, returnedErrorMessage);
 	}
 
 	@Override
-	public String deleteRecord(String recordType, String recordId) {
-		// TODO Auto-generated method stub
-		return null;
+	public RestResponse deleteRecord(String recordType, String recordId) {
+		returnedErrorMessage = "Error from spy: " + recordType + " and id: " + recordId;
+		return new RestResponse(500, returnedErrorMessage);
 	}
 
 	@Override
@@ -62,16 +60,16 @@ public class RestClientInvalidSpy implements RestClient {
 	}
 
 	@Override
-	public String readIncomingLinksAsJson(String recordType, String recordId) {
-		// TODO Auto-generated method stub
-		return null;
+	public RestResponse readIncomingLinksAsJson(String recordType, String recordId) {
+		returnedErrorMessage = "Error from spy: " + recordType + " and id: " + recordId;
+		return new RestResponse(500, returnedErrorMessage);
 	}
 
 	@Override
 	public RestResponse readRecordListWithFilterAsJson(String recordType, String filter)
 			throws UnsupportedEncodingException {
-		// TODO Auto-generated method stub
-		return null;
+		returnedErrorMessage = "Error from spy: " + recordType;
+		return new RestResponse(500, returnedErrorMessage);
 	}
 
 }

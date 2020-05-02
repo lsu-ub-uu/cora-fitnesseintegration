@@ -100,8 +100,7 @@ public class ComparerFixtureTest {
 		fixture.testReadRecordListAndStoreRecords();
 		assertTrue(recordHandler.readRecordListWasCalled);
 
-		String expectedUrl = SystemUrl.getUrl() + "rest/record/someRecordType";
-		assertEquals(recordHandler.url, expectedUrl);
+		assertEquals(recordHandler.recordType, type);
 		assertEquals(fixture.getStoredListAsJson(), recordHandler.jsonToReturn);
 		assertEquals(recordHandler.authToken, authToken);
 		assertNull(recordHandler.filter);
@@ -116,8 +115,7 @@ public class ComparerFixtureTest {
 		fixture.testReadRecordListAndStoreRecords();
 		assertTrue(recordHandler.readRecordListWasCalled);
 
-		String expectedUrl = SystemUrl.getUrl() + "rest/record/someRecordType";
-		assertEquals(recordHandler.url, expectedUrl);
+		assertEquals(recordHandler.recordType, type);
 		assertEquals(fixture.getStoredListAsJson(), recordHandler.jsonToReturn);
 		assertEquals(recordHandler.authToken, authToken);
 		assertEquals(recordHandler.filter, listFilter);
@@ -198,7 +196,9 @@ public class ComparerFixtureTest {
 		assertTrue(recordHandler.searchRecordWasCalled);
 
 		String expectedUrl = SystemUrl.getUrl() + "rest/record/searchResult/someSearch";
-		assertCorrectValuesSentToRecordHandler(authToken, json, expectedUrl);
+		assertEquals(recordHandler.url, expectedUrl);
+		assertEquals(recordHandler.authToken, authToken);
+		assertEquals(recordHandler.json, json);
 	}
 
 	@Test
@@ -228,11 +228,10 @@ public class ComparerFixtureTest {
 		String responseText = fixture.testUpdateAndStoreRecord();
 		assertTrue(recordHandler.updateRecordWasCalled);
 
-		String expectedUrl = SystemUrl.getUrl() + "rest/record/someRecordType/someId";
-		assertCorrectValuesSentToRecordHandler(authToken, json, expectedUrl);
+		assertCorrectValuesSentToRecordHandler(authToken, json);
 
 		assertCorrectDataPassedFromHandlerToConverter();
-		assertCorrectValuesSentToRecordHandler(authToken, json, expectedUrl);
+		assertCorrectValuesSentToRecordHandler(authToken, json);
 		assertEquals(responseText, recordHandler.jsonToReturn);
 	}
 
@@ -253,16 +252,14 @@ public class ComparerFixtureTest {
 		String responseText = fixture.testCreateAndStoreRecord();
 		assertTrue(recordHandler.createRecordWasCalled);
 
-		String expectedUrl = SystemUrl.getUrl() + "rest/record/someRecordType";
-		assertCorrectValuesSentToRecordHandler(authToken, json, expectedUrl);
+		assertCorrectValuesSentToRecordHandler(authToken, json);
 
 		assertCorrectDataPassedFromHandlerToConverter();
 		assertEquals(responseText, recordHandler.jsonToReturn);
 	}
 
-	private void assertCorrectValuesSentToRecordHandler(String authToken, String json,
-			String expectedUrl) {
-		assertEquals(recordHandler.url, expectedUrl);
+	private void assertCorrectValuesSentToRecordHandler(String authToken, String json) {
+		assertEquals(recordHandler.recordType, type);
 		assertEquals(recordHandler.authToken, authToken);
 		assertEquals(recordHandler.json, json);
 	}

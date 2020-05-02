@@ -1,7 +1,6 @@
 package se.uu.ub.cora.fitnesseintegration;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.BeforeMethod;
@@ -97,7 +96,7 @@ public class MetadataValidationFixtureTest {
 	@Test
 	public void testValidateRecordStatusTypeSetFromResponse() {
 		fixture.testValidateRecord();
-		assertSame(fixture.getStatusType(), recordHandler.statusTypeReturned);
+		assertEquals(fixture.getStatusType().getStatusCode(), recordHandler.statusTypeReturned);
 	}
 
 	@Test
@@ -123,9 +122,7 @@ public class MetadataValidationFixtureTest {
 
 	@Test
 	public void testValidateRecordIncorrectValidationOrder() {
-		StatusTypeSpy statusTypeSpy = new StatusTypeSpy();
-		statusTypeSpy.statusCodeToReturn = 401;
-		recordHandler.statusTypeReturned = statusTypeSpy;
+		recordHandler.statusTypeReturned = 401;
 		String responseText = fixture.testValidateRecord();
 		assertEquals(responseText, recordHandler.jsonToReturn);
 	}

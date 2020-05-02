@@ -75,8 +75,7 @@ public class ComparerFixture {
 	}
 
 	public void testReadRecordListAndStoreRecords() throws UnsupportedEncodingException {
-		storedListAsJson = recordHandler.readRecordList(baseRecordUrl + type, authToken,
-				null, listFilter).responseText;
+		storedListAsJson = recordHandler.readRecordList(authToken, type, listFilter).responseText;
 
 		List<DataRecord> convertedRecords = convertToRecords();
 		DataHolder.setRecordList(convertedRecords);
@@ -127,8 +126,7 @@ public class ComparerFixture {
 	}
 
 	public String testUpdateAndStoreRecord() {
-		String url = baseRecordUrl + type + "/" + id;
-		BasicHttpResponse response = recordHandler.updateRecord(url, authToken, json);
+		BasicHttpResponse response = recordHandler.updateRecord(authToken, type, id, json);
 		DataRecord record = createRecordFromResponseText(response.responseText);
 		DataHolder.setRecord(record);
 		return response.responseText;
@@ -136,8 +134,7 @@ public class ComparerFixture {
 	}
 
 	public String testCreateAndStoreRecord() {
-		String url = baseRecordUrl + type;
-		ExtendedHttpResponse createResponse = recordHandler.createRecord(authToken, null, json);
+		ExtendedHttpResponse createResponse = recordHandler.createRecord(authToken, type, json);
 		DataRecord record = createRecordFromResponseText(createResponse.responseText);
 		DataHolder.setRecord(record);
 		return createResponse.responseText;
