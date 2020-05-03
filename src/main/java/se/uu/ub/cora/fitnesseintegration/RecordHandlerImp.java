@@ -34,6 +34,7 @@ import se.uu.ub.cora.javaclient.rest.RestResponse;
 
 public class RecordHandlerImp implements RecordHandler {
 
+	private static final int CREATED = 201;
 	private HttpHandlerFactory httpHandlerFactory;
 	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.uub.record+json";
 	private static final int DISTANCE_TO_START_OF_TOKEN = 24;
@@ -113,7 +114,7 @@ public class RecordHandlerImp implements RecordHandler {
 		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(response.statusCode,
 				response.responseText);
 
-		return response.statusCode == 201 ? createCreateResponse(response, basicHttpResponse)
+		return response.statusCode == CREATED ? createCreateResponse(response, basicHttpResponse)
 				: new ExtendedHttpResponse(basicHttpResponse);
 
 	}
