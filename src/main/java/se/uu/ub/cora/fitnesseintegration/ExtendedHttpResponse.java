@@ -18,14 +18,12 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
-import javax.ws.rs.core.Response.StatusType;
-
 /**
- * ExtendedHttpResponse isused to store information from a HttpResponse.
+ * ExtendedHttpResponse is used to store information from a HttpResponse.
  */
 public class ExtendedHttpResponse {
 
-	public final StatusType statusType;
+	public final int statusCode;
 	public final String responseText;
 	public final String createdId;
 	public final String token;
@@ -43,7 +41,7 @@ public class ExtendedHttpResponse {
 	 *            A String representing a created token
 	 */
 	public ExtendedHttpResponse(BasicHttpResponse basicResponse, String createdId, String token) {
-		statusType = basicResponse.statusType;
+		statusCode = basicResponse.statusCode;
 		responseText = basicResponse.responseText;
 		this.createdId = createdId;
 		this.token = token;
@@ -57,7 +55,7 @@ public class ExtendedHttpResponse {
 	 *            A {@link BasicHttpResponse} which contains the StatusType and the reseponse text
 	 */
 	public ExtendedHttpResponse(BasicHttpResponse basicResponse) {
-		statusType = basicResponse.statusType;
+		statusCode = basicResponse.statusCode;
 		responseText = basicResponse.responseText;
 		this.createdId = "";
 		this.token = "";

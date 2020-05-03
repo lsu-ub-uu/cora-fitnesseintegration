@@ -28,7 +28,7 @@ public class RecordHandlerSpy implements RecordHandler {
 	public String jsonToReturn = "some json returned from spy";
 	public boolean readRecordWasCalled = false;
 	public String json;
-	public StatusTypeSpy statusTypeReturned;
+	public int statusTypeReturned = 200;
 	public String createdId;
 	public String token;
 	public boolean createRecordWasCalled = false;
@@ -36,24 +36,27 @@ public class RecordHandlerSpy implements RecordHandler {
 	public boolean validateWasCalled = false;
 	public boolean deleteRecordWasCalled = false;
 	public String contentType;
+	public String recordType;
+	public String recordId;
 
 	@Override
-	public BasicHttpResponse readRecordList(String url, String authToken, String filter) {
+	public BasicHttpResponse readRecordList(String authToken, String recordType, String filter) {
+		this.recordType = recordType;
 		readRecordListWasCalled = true;
-		this.url = url;
 		this.filter = filter;
 		this.authToken = authToken;
 
-		statusTypeReturned = new StatusTypeSpy();
+		// statusTypeReturned = new StatusTypeSpy();
 		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
 	}
 
 	@Override
-	public BasicHttpResponse readRecord(String url, String authToken) {
-		this.url = url;
+	public BasicHttpResponse readRecord(String authToken, String recordType, String recordId) {
 		this.authToken = authToken;
+		this.recordType = recordType;
+		this.recordId = recordId;
 		readRecordWasCalled = true;
-		statusTypeReturned = new StatusTypeSpy();
+		// statusTypeReturned = new StatusTypeSpy();
 		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
 	}
 
@@ -63,20 +66,23 @@ public class RecordHandlerSpy implements RecordHandler {
 		this.url = url;
 		this.authToken = authToken;
 		this.json = json;
-		statusTypeReturned = new StatusTypeSpy();
+		// statusTypeReturned = new StatusTypeSpy();
 		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
 	}
 
 	@Override
-	public ExtendedHttpResponse createRecord(String url, String authToken, String json) {
+	public ExtendedHttpResponse createRecord(String authToken, String recordType, String json) {
 		createRecordWasCalled = true;
-		this.url = url;
 		this.authToken = authToken;
 		this.json = json;
-		if (statusTypeReturned == null) {
-			statusTypeReturned = new StatusTypeSpy();
-			statusTypeReturned.statusCodeToReturn = 201;
+		this.recordType = recordType;
+		if (defaultStatusCodeUnchanged()) {
+			statusTypeReturned = 201;
 		}
+		// if (statusTypeReturned == null) {
+		// statusTypeReturned = new StatusTypeSpy();
+		// statusTypeReturned.statusCodeToReturn = 201;
+		// }
 		BasicHttpResponse readResponse = new BasicHttpResponse(statusTypeReturned, jsonToReturn);
 
 		createdId = "someCreatedId";
@@ -84,13 +90,19 @@ public class RecordHandlerSpy implements RecordHandler {
 		return new ExtendedHttpResponse(readResponse, createdId, token);
 	}
 
+	private boolean defaultStatusCodeUnchanged() {
+		return statusTypeReturned == 200;
+	}
+
 	@Override
-	public BasicHttpResponse updateRecord(String url, String authToken, String json) {
+	public BasicHttpResponse updateRecord(String authToken, String recordType, String recordId,
+			String json) {
 		updateRecordWasCalled = true;
-		this.url = url;
+		this.recordType = recordType;
+		this.recordId = recordId;
 		this.authToken = authToken;
 		this.json = json;
-		statusTypeReturned = new StatusTypeSpy();
+		// statusTypeReturned = new StatusTypeSpy();
 		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
 	}
 
@@ -102,22 +114,33 @@ public class RecordHandlerSpy implements RecordHandler {
 		this.authToken = authToken;
 		this.json = json;
 		this.contentType = contentType;
-		if (statusTypeReturned == null) {
-			statusTypeReturned = new StatusTypeSpy();
-			statusTypeReturned.statusCodeToReturn = 200;
-		}
+		// if (statusTypeReturned == null) {
+		// statusTypeReturned = new StatusTypeSpy();
+		// statusTypeReturned.statusCodeToReturn = 200;
+		// }
 		createdId = "someCreatedId";
 		token = "someToken";
 		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
 	}
 
 	@Override
-	public BasicHttpResponse deleteRecord(String url, String authToken) {
+	public BasicHttpResponse deleteRecord(String authToken, String recordType, String recordId) {
+		this.recordType = recordType;
+		this.recordId = recordId;
 		deleteRecordWasCalled = true;
-		this.url = url;
 		this.authToken = authToken;
 
-		statusTypeReturned = new StatusTypeSpy();
+		// statusTypeReturned = new StatusTypeSpy();
+		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
+	}
+
+	@Override
+	public BasicHttpResponse readIncomingLinks(String authToken, String recordType,
+			String recordId) {
+		this.authToken = authToken;
+		this.recordType = recordType;
+		this.recordId = recordId;
+		// statusTypeReturned = new StatusTypeSpy();
 		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
 	}
 

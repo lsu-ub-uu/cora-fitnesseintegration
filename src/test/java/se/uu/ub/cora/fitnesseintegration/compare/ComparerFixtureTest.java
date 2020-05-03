@@ -43,6 +43,7 @@ import se.uu.ub.cora.fitnesseintegration.JsonToDataRecordConverterSpy;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerSpy;
 import se.uu.ub.cora.fitnesseintegration.SystemUrl;
+import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 
 public class ComparerFixtureTest {
 
@@ -51,6 +52,7 @@ public class ComparerFixtureTest {
 	private JsonToDataRecordConverterSpy jsonToDataConverter;
 	private JsonParserSpy jsonParser;
 	private JsonHandlerImp jsonHandler;
+	private String type;
 
 	@BeforeMethod
 	public void setUp() {
@@ -70,7 +72,8 @@ public class ComparerFixtureTest {
 		jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
 		jsonToDataConverter = new JsonToDataRecordConverterSpy();
 
-		fixture.setType("someRecordType");
+		type = "someRecordType";
+		fixture.setType(type);
 		fixture.setRecordHandler(recordHandler);
 		fixture.setJsonHandler(jsonHandler);
 		fixture.setJsonToDataRecordConverter(jsonToDataConverter);
@@ -85,6 +88,9 @@ public class ComparerFixtureTest {
 
 		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.getRecordHandler();
 		assertSame(recordHandler.getHttpHandlerFactory(), fixture.getHttpHandlerFactory());
+		RestClientFactoryImp clientFactory = (RestClientFactoryImp) recordHandler
+				.getRestClientFactory();
+		assertEquals(clientFactory.getBaseUrl(), fixture.baseUrl);
 	}
 
 	@Test
@@ -94,8 +100,7 @@ public class ComparerFixtureTest {
 		fixture.testReadRecordListAndStoreRecords();
 		assertTrue(recordHandler.readRecordListWasCalled);
 
-		String expectedUrl = SystemUrl.getUrl() + "rest/record/someRecordType";
-		assertEquals(recordHandler.url, expectedUrl);
+		assertEquals(recordHandler.recordType, type);
 		assertEquals(fixture.getStoredListAsJson(), recordHandler.jsonToReturn);
 		assertEquals(recordHandler.authToken, authToken);
 		assertNull(recordHandler.filter);
@@ -110,8 +115,7 @@ public class ComparerFixtureTest {
 		fixture.testReadRecordListAndStoreRecords();
 		assertTrue(recordHandler.readRecordListWasCalled);
 
-		String expectedUrl = SystemUrl.getUrl() + "rest/record/someRecordType";
-		assertEquals(recordHandler.url, expectedUrl);
+		assertEquals(recordHandler.recordType, type);
 		assertEquals(fixture.getStoredListAsJson(), recordHandler.jsonToReturn);
 		assertEquals(recordHandler.authToken, authToken);
 		assertEquals(recordHandler.filter, listFilter);
@@ -167,13 +171,14 @@ public class ComparerFixtureTest {
 	public void testReadRecordAndStoreJson() throws UnsupportedEncodingException {
 		String authToken = "someAuthToken";
 		fixture.setAuthToken(authToken);
-		fixture.setId("someId");
+		String id = "someId";
+		fixture.setId(id);
 
 		String responseText = fixture.testReadAndStoreRecord();
 		assertTrue(recordHandler.readRecordWasCalled);
 
-		String expectedUrl = SystemUrl.getUrl() + "rest/record/someRecordType/someId";
-		assertEquals(recordHandler.url, expectedUrl);
+		assertEquals(recordHandler.recordType, type);
+		assertEquals(recordHandler.recordId, id);
 		assertEquals(recordHandler.authToken, authToken);
 
 		assertCorrectDataPassedFromHandlerToConverter();
@@ -191,7 +196,9 @@ public class ComparerFixtureTest {
 		assertTrue(recordHandler.searchRecordWasCalled);
 
 		String expectedUrl = SystemUrl.getUrl() + "rest/record/searchResult/someSearch";
-		assertCorrectValuesSentToRecordHandler(authToken, json, expectedUrl);
+		assertEquals(recordHandler.url, expectedUrl);
+		assertEquals(recordHandler.authToken, authToken);
+		assertEquals(recordHandler.json, json);
 	}
 
 	@Test
@@ -221,11 +228,10 @@ public class ComparerFixtureTest {
 		String responseText = fixture.testUpdateAndStoreRecord();
 		assertTrue(recordHandler.updateRecordWasCalled);
 
-		String expectedUrl = SystemUrl.getUrl() + "rest/record/someRecordType/someId";
-		assertCorrectValuesSentToRecordHandler(authToken, json, expectedUrl);
+		assertCorrectValuesSentToRecordHandler(authToken, json);
 
 		assertCorrectDataPassedFromHandlerToConverter();
-		assertCorrectValuesSentToRecordHandler(authToken, json, expectedUrl);
+		assertCorrectValuesSentToRecordHandler(authToken, json);
 		assertEquals(responseText, recordHandler.jsonToReturn);
 	}
 
@@ -246,16 +252,14 @@ public class ComparerFixtureTest {
 		String responseText = fixture.testCreateAndStoreRecord();
 		assertTrue(recordHandler.createRecordWasCalled);
 
-		String expectedUrl = SystemUrl.getUrl() + "rest/record/someRecordType";
-		assertCorrectValuesSentToRecordHandler(authToken, json, expectedUrl);
+		assertCorrectValuesSentToRecordHandler(authToken, json);
 
 		assertCorrectDataPassedFromHandlerToConverter();
 		assertEquals(responseText, recordHandler.jsonToReturn);
 	}
 
-	private void assertCorrectValuesSentToRecordHandler(String authToken, String json,
-			String expectedUrl) {
-		assertEquals(recordHandler.url, expectedUrl);
+	private void assertCorrectValuesSentToRecordHandler(String authToken, String json) {
+		assertEquals(recordHandler.recordType, type);
 		assertEquals(recordHandler.authToken, authToken);
 		assertEquals(recordHandler.json, json);
 	}
