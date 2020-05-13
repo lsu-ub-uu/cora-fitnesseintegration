@@ -26,6 +26,8 @@ import static org.testng.Assert.assertTrue;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import javax.ws.rs.core.Response.StatusType;
+
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -53,6 +55,8 @@ public class ComparerFixtureTest {
 	private JsonParserSpy jsonParser;
 	private JsonHandlerImp jsonHandler;
 	private String type;
+	private String authToken;
+	private String json;
 
 	@BeforeMethod
 	public void setUp() {
@@ -245,23 +249,71 @@ public class ComparerFixtureTest {
 
 	@Test
 	public void testCreateAndStoreRecord() throws UnsupportedEncodingException {
-		String authToken = "someAuthToken";
-		fixture.setAuthToken(authToken);
-		String json = "{\"name\":\"value\"}";
-		fixture.setJson(json);
+		setupForCreate();
+
 		String responseText = fixture.testCreateAndStoreRecord();
+
 		assertTrue(recordHandler.createRecordWasCalled);
-
 		assertCorrectValuesSentToRecordHandler(authToken, json);
-
 		assertCorrectDataPassedFromHandlerToConverter();
 		assertEquals(responseText, recordHandler.jsonToReturn);
+	}
+
+	private void setupForCreate() {
+		authToken = "someAuthToken";
+		fixture.setAuthToken(authToken);
+		json = "{\"name\":\"value\"}";
+		fixture.setJson(json);
 	}
 
 	private void assertCorrectValuesSentToRecordHandler(String authToken, String json) {
 		assertEquals(recordHandler.recordType, type);
 		assertEquals(recordHandler.authToken, authToken);
 		assertEquals(recordHandler.json, json);
+	}
+
+	@Test
+	public void testGetStatusTypeOnCreateStatusCREATED() throws Exception {
+		setupForCreate();
+		recordHandler.statusTypeReturned = 201;
+
+		fixture.testCreateAndStoreRecord();
+		StatusType statusType = fixture.getStatusType();
+
+		assertEquals(statusType.getStatusCode(), recordHandler.statusTypeReturned);
+	}
+
+	@Test
+	public void testGetStatusTypeOnCreateStatusBAD_REQUEST() throws Exception {
+		setupForCreate();
+		recordHandler.statusTypeReturned = 400;
+
+		fixture.testCreateAndStoreRecord();
+		StatusType statusType = fixture.getStatusType();
+
+		assertEquals(statusType.getStatusCode(), recordHandler.statusTypeReturned);
+	}
+
+	@Test
+	public void testGetStatusTypeOnUpdateStatusCREATED() throws Exception {
+		setupForCreate();
+		recordHandler.statusTypeReturned = 201;
+
+		fixture.testUpdateAndStoreRecord();
+		StatusType statusType = fixture.getStatusType();
+
+		assertEquals(statusType.getStatusCode(), recordHandler.statusTypeReturned);
+	}
+
+	@Test
+	public void testGetStatusTypeOnUpdateStatusBAD_REQUEST() throws Exception {
+		setupForCreate();
+		recordHandler.statusTypeReturned = 400;
+
+		fixture.testUpdateAndStoreRecord();
+		StatusType statusType = fixture.getStatusType();
+
+		assertEquals(statusType.getStatusCode(), recordHandler.statusTypeReturned);
 	}
 
 }

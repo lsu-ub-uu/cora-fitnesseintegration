@@ -28,6 +28,10 @@ public class RecordHandlerSpy implements RecordHandler {
 	public String jsonToReturn = "some json returned from spy";
 	public boolean readRecordWasCalled = false;
 	public String json;
+	/**
+	 * statusTypeReturned set 200 as default. This flag can be used to set the status code for the
+	 * response.
+	 */
 	public int statusTypeReturned = 200;
 	public String createdId;
 	public String token;

@@ -24,6 +24,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringJoiner;
 
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.StatusType;
+
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
@@ -57,6 +60,7 @@ public class ComparerFixture {
 	private String json;
 	protected String baseUrl = SystemUrl.getUrl() + "rest/";
 	protected String baseRecordUrl = baseUrl + "record/";
+	private StatusType statusType;
 
 	public ComparerFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
@@ -129,15 +133,17 @@ public class ComparerFixture {
 		BasicHttpResponse response = recordHandler.updateRecord(authToken, type, id, json);
 		DataRecord record = createRecordFromResponseText(response.responseText);
 		DataHolder.setRecord(record);
+		statusType = Response.Status.fromStatusCode(response.statusCode);
 		return response.responseText;
 
 	}
 
 	public String testCreateAndStoreRecord() {
-		ExtendedHttpResponse createResponse = recordHandler.createRecord(authToken, type, json);
-		DataRecord record = createRecordFromResponseText(createResponse.responseText);
+		ExtendedHttpResponse response = recordHandler.createRecord(authToken, type, json);
+		DataRecord record = createRecordFromResponseText(response.responseText);
 		DataHolder.setRecord(record);
-		return createResponse.responseText;
+		statusType = Response.Status.fromStatusCode(response.statusCode);
+		return response.responseText;
 	}
 
 	private DataRecord createRecordFromResponseText(String responseText) {
@@ -218,6 +224,10 @@ public class ComparerFixture {
 	public void setJson(String json) {
 		this.json = json;
 
+	}
+
+	public StatusType getStatusType() {
+		return statusType;
 	}
 
 }
