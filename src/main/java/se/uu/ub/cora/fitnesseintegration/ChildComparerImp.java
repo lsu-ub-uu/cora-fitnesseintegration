@@ -20,6 +20,7 @@ package se.uu.ub.cora.fitnesseintegration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.DataMissingException;
@@ -59,6 +60,15 @@ public class ChildComparerImp implements ChildComparer {
 			JsonObject childObject) {
 		JsonString name = getName(childObject);
 		String nameInData = name.getStringValue();
+		if (childObject.containsKey("attributes")) {
+			JsonObject attributes = childObject.getValueAsJsonObject("attributes");
+			for (Entry<String, JsonValue> entry : attributes.entrySet()) {
+				System.out.println(entry.getKey());
+				System.out.println(((JsonString) entry.getValue()).getStringValue());
+
+			}
+			dataGroup.getFirstGroupWithNameInDataAndAttributes(childNameInData, childDataAttributes)
+		}
 		addErrorMessageIfChildIsMissing(dataGroup, nameInData, errorMessages);
 	}
 

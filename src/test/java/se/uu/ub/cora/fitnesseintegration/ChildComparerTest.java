@@ -261,4 +261,38 @@ public class ChildComparerTest {
 			assertTrue(e.getCause() instanceof JsonParseException);
 		}
 	}
+
+	@Test
+	public void testCheckContainOKWhenOneChildWithOneAttribute() {
+		ClientDataGroup instructorName = ClientDataGroup.withNameInData("instructorName");
+		instructorName.addChild(ClientDataAtomic.withNameInDataAndValue("firstName", "Anna"));
+		instructorName.addAttributeByIdWithValue("type", "default");
+		dataGroup.addChild(instructorName);
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"type\":\"group\",\"name\":\"instructorName\",\"children\":[{\"type\":\"atomic\",\"name\":\"firstName\",\"value\":\"Anna\"},{\"type\":\"atomic\",\"name\":\"lastName\",\"value\":\"Ledare\"}],\"attributes\":{\"type\":\"default\"}}]}");
+		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
+				jsonValue);
+		assertTrue(errorMessages.isEmpty());
+		boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
+		assertTrue(containsChildren);
+	}
+
+	@Test
+	public void testCheckContainNOTOKWhenOneChildWithDifferentAttribute() {
+		ClientDataGroup instructorName = ClientDataGroup.withNameInData("instructorName");
+		instructorName.addChild(ClientDataAtomic.withNameInDataAndValue("firstName", "Anna"));
+		instructorName.addAttributeByIdWithValue("type", "NOTdefault");
+		dataGroup.addChild(instructorName);
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"type\":\"group\",\"name\":\"instructorName\",\"children\":[{\"type\":\"atomic\",\"name\":\"firstName\",\"value\":\"Anna\"},{\"type\":\"atomic\",\"name\":\"lastName\",\"value\":\"Ledare\"}],\"attributes\":{\"type\":\"default\",\"other\":\"alternative\"}}]}");
+		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
+				jsonValue);
+
+		assertEquals(errorMessages.size(), 1);
+		// assertEquals(errorMessages.get(0),
+		// "Child with nameInData firstName does not have the correct value.");
+		// assertTrue(errorMessages.isEmpty());
+		// boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
+		// assertTrue(containsChildren);
+	}
 }
