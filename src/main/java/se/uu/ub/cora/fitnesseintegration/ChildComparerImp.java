@@ -19,9 +19,11 @@
 package se.uu.ub.cora.fitnesseintegration;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 
+import se.uu.ub.cora.clientdata.ClientDataAttribute;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.DataMissingException;
 import se.uu.ub.cora.json.parser.JsonArray;
@@ -56,24 +58,52 @@ public class ChildComparerImp implements ChildComparer {
 		return errorMessages;
 	}
 
-	private void checkDataGroupContainsChild(ClientDataGroup dataGroup, List<String> errorMessages,
-			JsonObject childObject) {
-		JsonString name = getName(childObject);
-		String nameInData = name.getStringValue();
-		if (childObject.containsKey("attributes")) {
-			JsonObject attributes = childObject.getValueAsJsonObject("attributes");
-			for (Entry<String, JsonValue> entry : attributes.entrySet()) {
-				System.out.println(entry.getKey());
-				System.out.println(((JsonString) entry.getValue()).getStringValue());
-
-			}
-			dataGroup.getFirstGroupWithNameInDataAndAttributes(childNameInData, childDataAttributes)
-		}
-		addErrorMessageIfChildIsMissing(dataGroup, nameInData, errorMessages);
-	}
-
 	private JsonArray extractChildren(JsonObject jsonObject) {
 		return jsonObject.getValueAsJsonArray("children");
+	}
+
+	private void checkDataGroupContainsChild(ClientDataGroup dataGroup, List<String> errorMessages,
+			JsonObject childObject) {
+		if (childObject.containsKey("attributes")) {
+			addErrorMessageIfChildWithAttributeIsMissing(dataGroup, errorMessages, childObject);
+		} else {
+			String nameInData = extractNameInDataFromJsonObject(childObject);
+			addErrorMessageIfChildIsMissing(dataGroup, nameInData, errorMessages);
+		}
+	}
+
+	private void addErrorMessageIfChildWithAttributeIsMissing(ClientDataGroup dataGroup,
+			List<String> errorMessages, JsonObject childObject) {
+		String nameInData = extractNameInDataFromJsonObject(childObject);
+		JsonObject jsonAttributes = childObject.getValueAsJsonObject("attributes");
+
+		List<ClientDataAttribute> dataAttributes = getAttributesAsClientDataAttributes(
+				jsonAttributes);
+		Collection<ClientDataGroup> children = dataGroup.getAllGroupsWithNameInDataAndAttributes(
+				nameInData, dataAttributes.toArray(ClientDataAttribute[]::new));
+		if (children.isEmpty()) {
+			errorMessages.add(constructMissingMessage(nameInData));
+		}
+	}
+
+	private String extractNameInDataFromJsonObject(JsonObject childObject) {
+		JsonString name = getName(childObject);
+		return name.getStringValue();
+	}
+
+	private List<ClientDataAttribute> getAttributesAsClientDataAttributes(
+			JsonObject jsonAttributes) {
+		List<ClientDataAttribute> dataAttributes = new ArrayList<>();
+		for (Entry<String, JsonValue> entry : jsonAttributes.entrySet()) {
+			ClientDataAttribute attribute = getAttributeAsClientDataAttribute(entry);
+			dataAttributes.add(attribute);
+		}
+		return dataAttributes;
+	}
+
+	private ClientDataAttribute getAttributeAsClientDataAttribute(Entry<String, JsonValue> entry) {
+		String attributeValue = ((JsonString) entry.getValue()).getStringValue();
+		return ClientDataAttribute.withNameInDataAndValue(entry.getKey(), attributeValue);
 	}
 
 	private void addErrorMessageIfChildIsMissing(ClientDataGroup dataGroup, String nameInData,

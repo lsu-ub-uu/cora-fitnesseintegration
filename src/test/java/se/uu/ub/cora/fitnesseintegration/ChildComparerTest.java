@@ -289,8 +289,7 @@ public class ChildComparerTest {
 				jsonValue);
 
 		assertEquals(errorMessages.size(), 1);
-		// assertEquals(errorMessages.get(0),
-		// "Child with nameInData firstName does not have the correct value.");
+		assertEquals(errorMessages.get(0), "Child with nameInData instructorName is missing.");
 		// assertTrue(errorMessages.isEmpty());
 		// boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
 		// assertTrue(containsChildren);
