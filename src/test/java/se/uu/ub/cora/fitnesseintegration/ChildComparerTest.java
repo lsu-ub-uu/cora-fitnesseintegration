@@ -290,8 +290,10 @@ public class ChildComparerTest {
 
 		assertEquals(errorMessages.size(), 1);
 		assertEquals(errorMessages.get(0), "Child with nameInData instructorName is missing.");
-		// assertTrue(errorMessages.isEmpty());
-		// boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
-		// assertTrue(containsChildren);
+		boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
+		assertFalse(containsChildren);
 	}
+
+	// TODO: två attribut ok
+	// ett attribut ok, ett annnat som inte är det
 }
