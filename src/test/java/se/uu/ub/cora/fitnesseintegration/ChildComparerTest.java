@@ -269,7 +269,7 @@ public class ChildComparerTest {
 		instructorName.addAttributeByIdWithValue("type", "default");
 		dataGroup.addChild(instructorName);
 		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"type\":\"group\",\"name\":\"instructorName\",\"children\":[{\"type\":\"atomic\",\"name\":\"firstName\",\"value\":\"Anna\"},{\"type\":\"atomic\",\"name\":\"lastName\",\"value\":\"Ledare\"}],\"attributes\":{\"type\":\"default\"}}]}");
+				"{\"children\":[{\"type\":\"group\",\"name\":\"instructorName\",\"children\":[{\"type\":\"atomic\",\"name\":\"firstName\",\"value\":\"Anna\"}],\"attributes\":{\"type\":\"default\"}}]}");
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertTrue(errorMessages.isEmpty());
@@ -284,7 +284,7 @@ public class ChildComparerTest {
 		instructorName.addAttributeByIdWithValue("type", "NOTdefault");
 		dataGroup.addChild(instructorName);
 		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"type\":\"group\",\"name\":\"instructorName\",\"children\":[{\"type\":\"atomic\",\"name\":\"firstName\",\"value\":\"Anna\"},{\"type\":\"atomic\",\"name\":\"lastName\",\"value\":\"Ledare\"}],\"attributes\":{\"type\":\"default\",\"other\":\"alternative\"}}]}");
+				"{\"children\":[{\"type\":\"group\",\"name\":\"instructorName\",\"children\":[{\"type\":\"atomic\",\"name\":\"firstName\",\"value\":\"Anna\"}],\"attributes\":{\"type\":\"default\"}}]}");
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 
@@ -294,6 +294,37 @@ public class ChildComparerTest {
 		assertFalse(containsChildren);
 	}
 
-	// TODO: två attribut ok
-	// ett attribut ok, ett annnat som inte är det
+	@Test
+	public void testCheckContainOKWhenOneChildWithTwoAttributes() {
+		ClientDataGroup instructorName = ClientDataGroup.withNameInData("instructorName");
+		instructorName.addChild(ClientDataAtomic.withNameInDataAndValue("firstName", "Anna"));
+		instructorName.addAttributeByIdWithValue("type", "default");
+		instructorName.addAttributeByIdWithValue("other", "name");
+		dataGroup.addChild(instructorName);
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"type\":\"group\",\"name\":\"instructorName\",\"children\":[{\"type\":\"atomic\",\"name\":\"firstName\",\"value\":\"Anna\"},{\"type\":\"atomic\",\"name\":\"lastName\",\"value\":\"Ledare\"}],\"attributes\":{\"type\":\"default\",\"other\":\"name\"}}]}");
+		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
+				jsonValue);
+		assertTrue(errorMessages.isEmpty());
+		boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
+		assertTrue(containsChildren);
+	}
+
+	@Test
+	public void testCheckContainNOTOKWhenOneChildWithOneSameOneDifferentAttribute() {
+		ClientDataGroup instructorName = ClientDataGroup.withNameInData("instructorName");
+		instructorName.addChild(ClientDataAtomic.withNameInDataAndValue("firstName", "Anna"));
+		instructorName.addAttributeByIdWithValue("type", "default");
+		instructorName.addAttributeByIdWithValue("other", "NOTname");
+		dataGroup.addChild(instructorName);
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"type\":\"group\",\"name\":\"instructorName\",\"children\":[{\"type\":\"atomic\",\"name\":\"firstName\",\"value\":\"Anna\"},{\"type\":\"atomic\",\"name\":\"lastName\",\"value\":\"Ledare\"}],\"attributes\":{\"type\":\"default\",\"other\":\"name\"}}]}");
+		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
+				jsonValue);
+
+		assertEquals(errorMessages.size(), 1);
+		assertEquals(errorMessages.get(0), "Child with nameInData instructorName is missing.");
+		boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
+		assertFalse(containsChildren);
+	}
 }
