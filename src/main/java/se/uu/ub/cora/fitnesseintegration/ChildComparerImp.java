@@ -93,7 +93,7 @@ public class ChildComparerImp implements ChildComparer {
 
 	private List<ClientDataAttribute> getAttributesAsClientDataAttributes(
 			JsonObject jsonAttributes) {
-		List<ClientDataAttribute> dataAttributes = new ArrayList<>();
+		List<ClientDataAttribute> dataAttributes = new ArrayList<>(jsonAttributes.size());
 		for (Entry<String, JsonValue> entry : jsonAttributes.entrySet()) {
 			ClientDataAttribute attribute = getAttributeAsClientDataAttribute(entry);
 			dataAttributes.add(attribute);
