@@ -36,6 +36,7 @@ import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public class MetadataLinkFixture {
 
+	private static final String NOT_FOUND = "not found";
 	protected String linkedRecordType;
 	protected String linkedRecordId;
 	private List<ClientDataGroup> childReferenceList = new ArrayList<>();
@@ -150,7 +151,7 @@ public class MetadataLinkFixture {
 
 	private String getAtomicValueByNameInDataFromMatchingChild(String childNameInData) {
 		if (null == matchingChildReference) {
-			return "not found";
+			return NOT_FOUND;
 		}
 		return matchingChildReference.getFirstAtomicValueWithNameInData(childNameInData);
 	}
@@ -161,7 +162,7 @@ public class MetadataLinkFixture {
 
 	public String getNameInData() {
 		if (null == matchingChildReference) {
-			return "not found";
+			return NOT_FOUND;
 		}
 		return getNameInDataFromMatchingChildReference();
 
@@ -209,6 +210,16 @@ public class MetadataLinkFixture {
 
 	public JsonToDataRecordConverter getJsonToRecordDataConverter() {
 		return recordConverter;
+	}
+
+	public String getRecordPartConstraint() {
+		if (null == matchingChildReference) {
+			return NOT_FOUND;
+		}
+		if (!matchingChildReference.containsChildWithNameInData("recordPartConstraint")) {
+			return "none";
+		}
+		return matchingChildReference.getFirstAtomicValueWithNameInData("recordPartConstraint");
 	}
 
 }

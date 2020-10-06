@@ -141,7 +141,7 @@ public class MetadataLinkFixtureTest {
 	}
 
 	private void createAndAddSecondChild() {
-		DataRecord record = (DataRecord) DataHolder.getRecord();
+		DataRecord record = DataHolder.getRecord();
 		ClientDataGroup clientDataGroup = record.getClientDataGroup();
 		ClientDataGroup childReferences = clientDataGroup
 				.getFirstGroupWithNameInData("childReferences");
@@ -241,5 +241,62 @@ public class MetadataLinkFixtureTest {
 		fixture.setLinkedRecordId("NOTsomeOtherRecordId");
 		assertEquals(fixture.getRepeatMin(), "not found");
 		assertEquals(fixture.getRepeatMax(), "not found");
+	}
+
+	@Test
+	public void testRecordPartConstraintWithoutRecord() throws Exception {
+		DataHolder.setRecord(null);
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("someRecordId");
+		assertEquals(fixture.getRecordPartConstraint(), "not found");
+	}
+
+	@Test
+	public void testNoMatchingChildForRecordTypeRecordPartConstraint() {
+		fixture.setLinkedRecordType("NOTmetadataGroup");
+		fixture.setLinkedRecordId("someRecordId");
+		assertEquals(fixture.getRecordPartConstraint(), "not found");
+	}
+
+	@Test
+	public void testNoMatchingChildForRecordIdForRecordPartConstraint() {
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("NOTsomeRecordId");
+		assertEquals(fixture.getRecordPartConstraint(), "not found");
+	}
+
+	@Test
+	public void testRecordPartConstraintIsCorrectNoConstraint() {
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("someRecordId");
+		assertEquals(fixture.getRecordPartConstraint(), "none");
+	}
+
+	@Test
+	public void testRecordPartConstraintIsCorrectWriteConstraint() {
+		createAndAddChildWithConstraint("write");
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("childWithConstraintRecordId");
+		assertEquals(fixture.getRecordPartConstraint(), "write");
+	}
+
+	@Test
+	public void testRecordPartConstraintIsCorrectReadWriteConstraint() {
+		createAndAddChildWithConstraint("readWrite");
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("childWithConstraintRecordId");
+		assertEquals(fixture.getRecordPartConstraint(), "readWrite");
+	}
+
+	private void createAndAddChildWithConstraint(String constraint) {
+		DataRecord record = DataHolder.getRecord();
+		ClientDataGroup clientDataGroup = record.getClientDataGroup();
+		ClientDataGroup childReferences = clientDataGroup
+				.getFirstGroupWithNameInData("childReferences");
+		ClientDataGroup childReference = createChildReferenceWithRepeatIdRecordTypeAndRecordId("1",
+				"metadataGroup", "childWithConstraintRecordId", "1", "3");
+		childReference.addChild(
+				ClientDataAtomic.withNameInDataAndValue("recordPartConstraint", constraint));
+		childReferences.addChild(childReference);
 	}
 }
