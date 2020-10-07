@@ -269,7 +269,7 @@ public class MetadataLinkFixtureTest {
 	public void testRecordPartConstraintIsCorrectNoConstraint() {
 		fixture.setLinkedRecordType("metadataGroup");
 		fixture.setLinkedRecordId("someRecordId");
-		assertEquals(fixture.getRecordPartConstraint(), "none");
+		assertEquals(fixture.getRecordPartConstraint(), "noRestrictions");
 	}
 
 	@Test
