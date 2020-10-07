@@ -217,7 +217,7 @@ public class MetadataLinkFixture {
 			return NOT_FOUND;
 		}
 		if (!matchingChildReference.containsChildWithNameInData("recordPartConstraint")) {
-			return "none";
+			return "noRestrictions";
 		}
 		return matchingChildReference.getFirstAtomicValueWithNameInData("recordPartConstraint");
 	}
