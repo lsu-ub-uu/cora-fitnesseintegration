@@ -24,7 +24,7 @@ import java.lang.reflect.Constructor;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
-import se.uu.ub.cora.fitnesseintegration.compare.PermissionComparerFactory;
+import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
@@ -33,7 +33,7 @@ public final class DependencyProvider {
 	private static HttpHandlerFactory httpHandlerFactory;
 	private static JsonToDataConverterFactory jsonToDataConverterFactory;
 	private static ChildComparer childComparer;
-	private static PermissionComparerFactory permissionComparerFactory;
+	private static ComparerFactory permissionComparerFactory;
 
 	public DependencyProvider() {
 		// needs a public constructor for fitnesse to work
@@ -99,14 +99,14 @@ public final class DependencyProvider {
 		Constructor<?> constructor;
 		try {
 			constructor = Class.forName(className).getConstructor();
-			permissionComparerFactory = (PermissionComparerFactory) constructor.newInstance();
+			permissionComparerFactory = (ComparerFactory) constructor.newInstance();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 
 	}
 
-	public static PermissionComparerFactory getPermissionsComparerFactory() {
+	public static ComparerFactory getPermissionsComparerFactory() {
 		return permissionComparerFactory;
 	}
 }

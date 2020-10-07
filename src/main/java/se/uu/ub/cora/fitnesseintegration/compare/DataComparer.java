@@ -18,29 +18,28 @@
  */
 package se.uu.ub.cora.fitnesseintegration.compare;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import se.uu.ub.cora.clientdata.DataRecord;
+import se.uu.ub.cora.json.parser.JsonValue;
 
-public class PermissionComparerFactorySpy implements ComparerFactory {
+/**
+ * PermissionComparer compares the content in a JsonValue with the permissions in a
+ * {@link DataRecord}. The {@link DataRecord} is expected to be provided at instance creation.
+ * 
+ */
+public interface DataComparer {
 
-	public PermissionComparerSpy factoredComparer;
-	public List<PermissionComparerSpy> factoredComparers = new ArrayList<>();
-	public DataRecord dataRecord;
-	public List<DataRecord> dataRecords = new ArrayList<>();
-	public int numberOfErrorsToReturn = 0;
-	public boolean spyShouldThrowError = false;
+	/**
+	 * Checks whether the DataRecord provided at object instantiation contains the permissions
+	 * specified in the provided JsonValue.
+	 * 
+	 * @param jsonValue
+	 *            The JsonValue that contains the permissions to look for
+	 * 
+	 * @return A List<String> containing messages for potential missing permissions
+	 * 
+	 */
+	List<String> checkDataRecordContainsPermissions(JsonValue jsonValue);
 
-	@Override
-	public DataComparer factor(String type, DataRecord dataRecord) {
-		this.dataRecord = dataRecord;
-		dataRecords.add(dataRecord);
-		factoredComparer = new PermissionComparerSpy();
-		factoredComparer.spyShouldThrowError = spyShouldThrowError;
-		factoredComparers.add(factoredComparer);
-
-		factoredComparer.numberOfErrorsToReturn = numberOfErrorsToReturn;
-		return factoredComparer;
-	}
 }

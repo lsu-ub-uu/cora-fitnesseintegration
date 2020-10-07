@@ -27,8 +27,8 @@ import org.testng.annotations.Test;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
-import se.uu.ub.cora.fitnesseintegration.compare.PermissionComparerFactory;
-import se.uu.ub.cora.fitnesseintegration.compare.PermissionComparerFactoryImp;
+import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
+import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactoryImp;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
@@ -107,9 +107,9 @@ public class DependencyProviderTest {
 	public void testPermissionComparerFactory() {
 		DependencyProvider.setPermissionComparerFactoryUsingClassName(
 				"se.uu.ub.cora.fitnesseintegration.compare.PermissionComparerFactoryImp");
-		PermissionComparerFactory permissionComparerFactory = DependencyProvider
+		ComparerFactory permissionComparerFactory = DependencyProvider
 				.getPermissionsComparerFactory();
-		assertTrue(permissionComparerFactory instanceof PermissionComparerFactoryImp);
+		assertTrue(permissionComparerFactory instanceof ComparerFactoryImp);
 	}
 
 	@Test(expectedExceptions = RuntimeException.class)

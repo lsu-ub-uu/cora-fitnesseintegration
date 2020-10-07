@@ -18,29 +18,20 @@
  */
 package se.uu.ub.cora.fitnesseintegration.compare;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import se.uu.ub.cora.clientdata.DataRecord;
 
-public class PermissionComparerFactorySpy implements ComparerFactory {
-
-	public PermissionComparerSpy factoredComparer;
-	public List<PermissionComparerSpy> factoredComparers = new ArrayList<>();
-	public DataRecord dataRecord;
-	public List<DataRecord> dataRecords = new ArrayList<>();
-	public int numberOfErrorsToReturn = 0;
-	public boolean spyShouldThrowError = false;
+public class ComparerFactoryImp implements ComparerFactory {
 
 	@Override
 	public DataComparer factor(String type, DataRecord dataRecord) {
-		this.dataRecord = dataRecord;
-		dataRecords.add(dataRecord);
-		factoredComparer = new PermissionComparerSpy();
-		factoredComparer.spyShouldThrowError = spyShouldThrowError;
-		factoredComparers.add(factoredComparer);
+		if ("permission".equals(type)) {
+			return new PermissionComparer(dataRecord);
+		}
+		if ("action".equals(type)) {
+			return new ActionComparer(dataRecord);
+		}
 
-		factoredComparer.numberOfErrorsToReturn = numberOfErrorsToReturn;
-		return factoredComparer;
+		throw NotImplementedException.withMessage("No converter implemented for: " + type);
 	}
+
 }

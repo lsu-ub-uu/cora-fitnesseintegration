@@ -18,24 +18,6 @@
  */
 package se.uu.ub.cora.fitnesseintegration.compare;
 
-import se.uu.ub.cora.clientdata.DataRecord;
-
-/**
- * PermissionComparerFactory creates and returns a PermissionComparer
- */
-
-public interface PermissionComparerFactory {
-
-	/**
-	 * Creates and returns an instance of {@link PermissionComparer}. The provided
-	 * {@link DataRecord} MUST be set in the instantiated object, to later be used when comparing
-	 * permissions.
-	 * 
-	 * @param dataRecord
-	 *            The DataRecord to be set in the PermissionComparer
-	 * 
-	 * @return A PermissionComparer
-	 */
-	PermissionComparer factor(DataRecord dataRecord);
+public class ActionComparerFixture extends ComparerFixture {
 
 }

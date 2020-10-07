@@ -28,8 +28,8 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.fitnesseintegration.compare.DataComparer;
 import se.uu.ub.cora.fitnesseintegration.compare.PermissionComparer;
-import se.uu.ub.cora.fitnesseintegration.compare.PermissionComparerImp;
 import se.uu.ub.cora.json.parser.JsonParser;
 import se.uu.ub.cora.json.parser.JsonValue;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
@@ -37,14 +37,14 @@ import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 public class PermissionComparerTest {
 
 	private JsonParser jsonParser;
-	private PermissionComparer comparer;
+	private DataComparer comparer;
 	private ClientDataRecord dataRecord;
 
 	@BeforeMethod
 	public void setUp() {
 		ClientDataGroup dataGroup = ClientDataGroup.withNameInData("someDataGroup");
 		dataRecord = ClientDataRecord.withClientDataGroup(dataGroup);
-		comparer = new PermissionComparerImp(dataRecord);
+		comparer = new PermissionComparer(dataRecord);
 		jsonParser = new OrgJsonParser();
 	}
 
