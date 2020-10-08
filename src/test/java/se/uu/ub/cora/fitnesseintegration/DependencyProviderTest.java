@@ -105,16 +105,15 @@ public class DependencyProviderTest {
 
 	@Test
 	public void testPermissionComparerFactory() {
-		DependencyProvider.setPermissionComparerFactoryUsingClassName(
-				"se.uu.ub.cora.fitnesseintegration.compare.PermissionComparerFactoryImp");
-		ComparerFactory permissionComparerFactory = DependencyProvider
-				.getPermissionsComparerFactory();
+		DependencyProvider.setComparerFactoryUsingClassName(
+				"se.uu.ub.cora.fitnesseintegration.compare.ComparerFactoryImp");
+		ComparerFactory permissionComparerFactory = DependencyProvider.getComparerFactory();
 		assertTrue(permissionComparerFactory instanceof ComparerFactoryImp);
 	}
 
 	@Test(expectedExceptions = RuntimeException.class)
 	public void testPermissionComparerFacatoryNonExistingClassName() {
-		DependencyProvider.setPermissionComparerFactoryUsingClassName(
-				"se.uu.ub.cora.fitnesse.DoesNotExistImp");
+		DependencyProvider
+				.setComparerFactoryUsingClassName("se.uu.ub.cora.fitnesse.DoesNotExistImp");
 	}
 }

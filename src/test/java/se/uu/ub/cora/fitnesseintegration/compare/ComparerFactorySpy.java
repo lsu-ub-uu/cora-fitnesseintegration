@@ -23,23 +23,25 @@ import java.util.List;
 
 import se.uu.ub.cora.clientdata.DataRecord;
 
-public class PermissionComparerFactorySpy implements ComparerFactory {
+public class ComparerFactorySpy implements ComparerFactory {
 
-	public PermissionComparerSpy factoredComparer;
-	public List<PermissionComparerSpy> factoredComparers = new ArrayList<>();
+	public ComparerSpy factoredComparer;
+	public List<ComparerSpy> factoredComparers = new ArrayList<>();
 	public DataRecord dataRecord;
 	public List<DataRecord> dataRecords = new ArrayList<>();
 	public int numberOfErrorsToReturn = 0;
 	public boolean spyShouldThrowError = false;
+	public String type;
 
 	@Override
 	public DataComparer factor(String type, DataRecord dataRecord) {
+		this.type = type;
 		this.dataRecord = dataRecord;
 		dataRecords.add(dataRecord);
-		factoredComparer = new PermissionComparerSpy();
+		factoredComparer = new ComparerSpy();
+		factoredComparer.type = type;
 		factoredComparer.spyShouldThrowError = spyShouldThrowError;
 		factoredComparers.add(factoredComparer);
-
 		factoredComparer.numberOfErrorsToReturn = numberOfErrorsToReturn;
 		return factoredComparer;
 	}

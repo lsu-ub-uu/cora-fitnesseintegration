@@ -36,7 +36,7 @@ public class PermissionComparer implements DataComparer {
 	}
 
 	@Override
-	public List<String> checkDataRecordContainsPermissions(JsonValue jsonValue) {
+	public List<String> checkDataRecordContains(JsonValue jsonValue) {
 		JsonObject permissions = (JsonObject) jsonValue;
 		List<String> errorMessages = new ArrayList<>();
 		addMessagesIfMissingReadPermissions(errorMessages, permissions);

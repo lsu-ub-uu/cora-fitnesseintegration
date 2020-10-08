@@ -40,6 +40,6 @@ public interface DataComparer {
 	 * @return A List<String> containing messages for potential missing permissions
 	 * 
 	 */
-	List<String> checkDataRecordContainsPermissions(JsonValue jsonValue);
+	List<String> checkDataRecordContains(JsonValue jsonValue);
 
 }

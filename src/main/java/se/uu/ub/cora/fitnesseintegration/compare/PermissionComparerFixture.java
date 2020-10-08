@@ -28,20 +28,20 @@ import se.uu.ub.cora.json.parser.JsonParseException;
 
 public class PermissionComparerFixture extends ComparerFixture {
 
-	private ComparerFactory permissionComparerFactory;
+	private ComparerFactory comparerFactory;
 	private String permissions;
 
 	public PermissionComparerFixture() {
 		super();
-		permissionComparerFactory = DependencyProvider.getPermissionsComparerFactory();
+		comparerFactory = DependencyProvider.getComparerFactory();
 	}
 
 	public String testCheckPermissions() {
 		DataRecord dataRecord = DataHolder.getRecord();
-		DataComparer comparer = permissionComparerFactory.factor("", dataRecord);
+		DataComparer comparer = comparerFactory.factor("permission", dataRecord);
 
 		JsonObject permissionObject = jsonHandler.parseStringAsObject(permissions);
-		List<String> errorMessages = comparer.checkDataRecordContainsPermissions(permissionObject);
+		List<String> errorMessages = comparer.checkDataRecordContains(permissionObject);
 		return errorMessages.isEmpty() ? "OK" : joinErrorMessages(errorMessages);
 	}
 
@@ -50,8 +50,8 @@ public class PermissionComparerFixture extends ComparerFixture {
 
 	}
 
-	ComparerFactory getPermissionComparerFactory() {
-		return permissionComparerFactory;
+	ComparerFactory getComparerFactory() {
+		return comparerFactory;
 	}
 
 	public String testReadFromListCheckPermissions() {
@@ -65,8 +65,8 @@ public class PermissionComparerFixture extends ComparerFixture {
 
 	private String comparePermissionUsingDataRecord(DataRecord dataRecord) {
 		JsonObject permissionObject = jsonHandler.parseStringAsObject(permissions);
-		DataComparer comparer = permissionComparerFactory.factor("", dataRecord);
-		List<String> errorMessages = comparer.checkDataRecordContainsPermissions(permissionObject);
+		DataComparer comparer = comparerFactory.factor("permission", dataRecord);
+		List<String> errorMessages = comparer.checkDataRecordContains(permissionObject);
 		return errorMessages.isEmpty() ? "OK" : joinErrorMessages(errorMessages);
 	}
 

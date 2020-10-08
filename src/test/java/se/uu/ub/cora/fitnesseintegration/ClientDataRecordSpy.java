@@ -18,8 +18,10 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
+import java.util.Map;
 import java.util.Set;
 
+import se.uu.ub.cora.clientdata.ActionLink;
 import se.uu.ub.cora.clientdata.ClientData;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.DataRecord;
@@ -44,6 +46,12 @@ public class ClientDataRecordSpy implements DataRecord, ClientData {
 
 	@Override
 	public Set<String> getWritePermissions() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, ActionLink> getActionLinks() {
 		// TODO Auto-generated method stub
 		return null;
 	}

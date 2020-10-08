@@ -95,7 +95,7 @@ public final class DependencyProvider {
 		return JsonHandlerImp.usingJsonParser(jsonParser);
 	}
 
-	public static void setPermissionComparerFactoryUsingClassName(String className) {
+	public static void setComparerFactoryUsingClassName(String className) {
 		Constructor<?> constructor;
 		try {
 			constructor = Class.forName(className).getConstructor();
@@ -106,7 +106,7 @@ public final class DependencyProvider {
 
 	}
 
-	public static ComparerFactory getPermissionsComparerFactory() {
+	public static ComparerFactory getComparerFactory() {
 		return permissionComparerFactory;
 	}
 }
