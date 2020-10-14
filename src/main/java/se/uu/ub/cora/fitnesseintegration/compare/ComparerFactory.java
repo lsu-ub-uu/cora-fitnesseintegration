@@ -18,29 +18,26 @@
  */
 package se.uu.ub.cora.fitnesseintegration.compare;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import se.uu.ub.cora.clientdata.DataRecord;
 
-public class PermissionComparerFactorySpy implements PermissionComparerFactory {
+/**
+ * PermissionComparerFactory creates and returns a PermissionComparer
+ */
 
-	public PermissionComparerSpy factoredComparer;
-	public List<PermissionComparerSpy> factoredComparers = new ArrayList<>();
-	public DataRecord dataRecord;
-	public List<DataRecord> dataRecords = new ArrayList<>();
-	public int numberOfErrorsToReturn = 0;
-	public boolean spyShouldThrowError = false;
+public interface ComparerFactory {
 
-	@Override
-	public PermissionComparer factor(DataRecord dataRecord) {
-		this.dataRecord = dataRecord;
-		dataRecords.add(dataRecord);
-		factoredComparer = new PermissionComparerSpy();
-		factoredComparer.spyShouldThrowError = spyShouldThrowError;
-		factoredComparers.add(factoredComparer);
+	/**
+	 * Creates and returns an instance of {@link DataComparer}. The provided {@link DataRecord} MUST
+	 * be set in the instantiated object, to later be used when comparing permissions.
+	 * 
+	 * @param type
+	 *            the type to use to decide what Comparer to factor
+	 * 
+	 * @param dataRecord
+	 *            The DataRecord to be set in the DataComparer
+	 * 
+	 * @return A DataComparer
+	 */
+	DataComparer factor(String type, DataRecord dataRecord);
 
-		factoredComparer.numberOfErrorsToReturn = numberOfErrorsToReturn;
-		return factoredComparer;
-	}
 }

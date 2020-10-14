@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2018 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -18,13 +18,16 @@
  */
 package se.uu.ub.cora.fitnesseintegration.compare;
 
-import se.uu.ub.cora.clientdata.DataRecord;
+public final class NotImplementedException extends RuntimeException {
 
-public class PermissionComparerFactoryImp implements PermissionComparerFactory {
+	private static final long serialVersionUID = 1L;
 
-	@Override
-	public PermissionComparer factor(DataRecord dataRecord) {
-		return new PermissionComparerImp(dataRecord);
+	public static NotImplementedException withMessage(String message) {
+		return new NotImplementedException(message);
+	}
+
+	private NotImplementedException(String message) {
+		super(message);
 	}
 
 }

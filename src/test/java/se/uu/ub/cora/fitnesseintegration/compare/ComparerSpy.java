@@ -24,16 +24,17 @@ import java.util.List;
 import se.uu.ub.cora.json.parser.JsonParseException;
 import se.uu.ub.cora.json.parser.JsonValue;
 
-public class PermissionComparerSpy implements PermissionComparer {
+public class ComparerSpy implements DataComparer {
 
 	public JsonValue jsonValue;
 	public int numberOfErrorsToReturn = 0;
 	public List<String> listToReturn;
 	public boolean spyShouldThrowError = false;
 	public String errorMessage;
+	public String type = "";
 
 	@Override
-	public List<String> checkDataRecordContainsPermissions(JsonValue jsonValue) {
+	public List<String> checkDataRecordContains(JsonValue jsonValue) {
 		this.jsonValue = jsonValue;
 		possiblyThrowError();
 		listToReturn = new ArrayList<>();
@@ -43,7 +44,7 @@ public class PermissionComparerSpy implements PermissionComparer {
 
 	private void possiblyAddErrorMessages(String extraMessage) {
 		for (int i = 0; i < numberOfErrorsToReturn; i++) {
-			String errorMessage = "From spy: Permission with number " + i + " " + extraMessage;
+			String errorMessage = "From spy: " + type + " with number " + i + " " + extraMessage;
 			listToReturn.add(errorMessage);
 		}
 	}

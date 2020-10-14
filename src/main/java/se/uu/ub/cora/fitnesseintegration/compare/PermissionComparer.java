@@ -18,28 +18,90 @@
  */
 package se.uu.ub.cora.fitnesseintegration.compare;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import se.uu.ub.cora.clientdata.DataRecord;
+import se.uu.ub.cora.json.parser.JsonArray;
+import se.uu.ub.cora.json.parser.JsonObject;
+import se.uu.ub.cora.json.parser.JsonString;
 import se.uu.ub.cora.json.parser.JsonValue;
 
-/**
- * PermissionComparer compares the content in a JsonValue with the permissions in a
- * {@link DataRecord}. The {@link DataRecord} is expected to be provided at instance creation.
- * 
- */
-public interface PermissionComparer {
+public class PermissionComparer implements DataComparer {
 
-	/**
-	 * Checks whether the DataRecord provided at object instantiation contains the permissions
-	 * specified in the provided JsonValue.
-	 * 
-	 * @param jsonValue
-	 *            The JsonValue that contains the permissions to look for
-	 * 
-	 * @return A List<String> containing messages for potential missing permissions
-	 * 
-	 */
-	List<String> checkDataRecordContainsPermissions(JsonValue jsonValue);
+	private DataRecord dataRecord;
+
+	public PermissionComparer(DataRecord dataRecord) {
+		this.dataRecord = dataRecord;
+	}
+
+	@Override
+	public List<String> checkDataRecordContains(JsonValue jsonValue) {
+		JsonObject permissions = (JsonObject) jsonValue;
+		List<String> errorMessages = new ArrayList<>();
+		addMessagesIfMissingReadPermissions(errorMessages, permissions);
+		addMessagesIfMissingWritePermissions(errorMessages, permissions);
+		return errorMessages;
+	}
+
+	private void addMessagesIfMissingReadPermissions(List<String> errorMessages,
+			JsonObject permissions) {
+		if (permissions.containsKey("read")) {
+			checkReadPermissions(errorMessages, permissions);
+		}
+	}
+
+	private void checkReadPermissions(List<String> errorMessages, JsonObject permissions) {
+		JsonArray readPermissions = permissions.getValueAsJsonArray("read");
+
+		for (JsonValue readPermission : readPermissions) {
+			addMessageIfReadPermissionIsMissing(errorMessages, readPermission);
+		}
+	}
+
+	private void addMessageIfReadPermissionIsMissing(List<String> errorReadMessages,
+			JsonValue readPermission) {
+		String permission = ((JsonString) readPermission).getStringValue();
+		if (readPermissionIsMissing(permission)) {
+			errorReadMessages.add("Read permission " + permission + " is missing.");
+		}
+	}
+
+	private boolean readPermissionIsMissing(String permission) {
+		return !getDataRecord().getReadPermissions().contains(permission);
+	}
+
+	private void addMessagesIfMissingWritePermissions(List<String> errorMessages,
+			JsonObject permissions) {
+		if (permissions.containsKey("write")) {
+			checkWritePermissions(errorMessages, permissions);
+		}
+	}
+
+	private List<String> checkWritePermissions(List<String> errorMessages, JsonObject permissions) {
+		JsonArray writePermissions = permissions.getValueAsJsonArray("write");
+
+		for (JsonValue writePermission : writePermissions) {
+			addMessageIfWritePermissionIsMissing(errorMessages, writePermission);
+		}
+		return errorMessages;
+	}
+
+	private void addMessageIfWritePermissionIsMissing(List<String> errorWriteMessages,
+			JsonValue writePermission) {
+		String permission = ((JsonString) writePermission).getStringValue();
+		if (writePermissionIsMissing(permission)) {
+			errorWriteMessages.add("Write permission " + permission + " is missing.");
+		}
+	}
+
+	private boolean writePermissionIsMissing(String permission) {
+		return !getDataRecord().getWritePermissions().contains(permission);
+	}
+
+	public DataRecord getDataRecord() {
+		// needed for test
+		return dataRecord;
+	}
 
 }

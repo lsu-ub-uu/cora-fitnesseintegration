@@ -41,7 +41,7 @@ public class DataHolderTest {
 
 	}
 
-	private ClientDataRecord createRecordWithDataGroupUsingNameInData(String nameInData) {
+	private DataRecord createRecordWithDataGroupUsingNameInData(String nameInData) {
 		ClientDataGroup firstDataGroup = ClientDataGroup.withNameInData(nameInData);
 		return ClientDataRecord.withClientDataGroup(firstDataGroup);
 	}

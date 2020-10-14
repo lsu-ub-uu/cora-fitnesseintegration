@@ -27,8 +27,8 @@ import org.testng.annotations.Test;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
-import se.uu.ub.cora.fitnesseintegration.compare.PermissionComparerFactory;
-import se.uu.ub.cora.fitnesseintegration.compare.PermissionComparerFactoryImp;
+import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
+import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactoryImp;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
@@ -105,16 +105,15 @@ public class DependencyProviderTest {
 
 	@Test
 	public void testPermissionComparerFactory() {
-		DependencyProvider.setPermissionComparerFactoryUsingClassName(
-				"se.uu.ub.cora.fitnesseintegration.compare.PermissionComparerFactoryImp");
-		PermissionComparerFactory permissionComparerFactory = DependencyProvider
-				.getPermissionsComparerFactory();
-		assertTrue(permissionComparerFactory instanceof PermissionComparerFactoryImp);
+		DependencyProvider.setComparerFactoryUsingClassName(
+				"se.uu.ub.cora.fitnesseintegration.compare.ComparerFactoryImp");
+		ComparerFactory permissionComparerFactory = DependencyProvider.getComparerFactory();
+		assertTrue(permissionComparerFactory instanceof ComparerFactoryImp);
 	}
 
 	@Test(expectedExceptions = RuntimeException.class)
 	public void testPermissionComparerFacatoryNonExistingClassName() {
-		DependencyProvider.setPermissionComparerFactoryUsingClassName(
-				"se.uu.ub.cora.fitnesse.DoesNotExistImp");
+		DependencyProvider
+				.setComparerFactoryUsingClassName("se.uu.ub.cora.fitnesse.DoesNotExistImp");
 	}
 }

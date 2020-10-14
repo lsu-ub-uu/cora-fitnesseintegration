@@ -20,22 +20,18 @@ package se.uu.ub.cora.fitnesseintegration.compare;
 
 import se.uu.ub.cora.clientdata.DataRecord;
 
-/**
- * PermissionComparerFactory creates and returns a PermissionComparer
- */
+public class ComparerFactoryImp implements ComparerFactory {
 
-public interface PermissionComparerFactory {
+	@Override
+	public DataComparer factor(String type, DataRecord dataRecord) {
+		if ("permission".equals(type)) {
+			return new PermissionComparer(dataRecord);
+		}
+		if ("action".equals(type)) {
+			return new ActionComparer(dataRecord);
+		}
 
-	/**
-	 * Creates and returns an instance of {@link PermissionComparer}. The provided
-	 * {@link DataRecord} MUST be set in the instantiated object, to later be used when comparing
-	 * permissions.
-	 * 
-	 * @param dataRecord
-	 *            The DataRecord to be set in the PermissionComparer
-	 * 
-	 * @return A PermissionComparer
-	 */
-	PermissionComparer factor(DataRecord dataRecord);
+		throw NotImplementedException.withMessage("No converter implemented for: " + type);
+	}
 
 }

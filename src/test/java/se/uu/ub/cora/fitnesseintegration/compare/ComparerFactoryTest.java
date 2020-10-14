@@ -20,27 +20,43 @@ package se.uu.ub.cora.fitnesseintegration.compare;
 
 import static org.testng.Assert.assertSame;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.DataRecord;
-import se.uu.ub.cora.fitnesseintegration.compare.PermissionComparerFactory;
-import se.uu.ub.cora.fitnesseintegration.compare.PermissionComparerFactoryImp;
-import se.uu.ub.cora.fitnesseintegration.compare.PermissionComparerImp;
 
-public class PermissionComparerFactoryTest {
+public class ComparerFactoryTest {
+
+	private ComparerFactoryImp factory;
+	private DataRecord dataRecord;
+
+	@BeforeMethod
+	public void setUp() {
+		factory = new ComparerFactoryImp();
+		ClientDataGroup dataGroup = ClientDataGroup.withNameInData("someNameInData");
+		dataRecord = ClientDataRecord.withClientDataGroup(dataGroup);
+	}
 
 	@Test
-	public void testFactor() {
-		PermissionComparerFactory factory = new PermissionComparerFactoryImp();
-
-		ClientDataGroup dataGroup = ClientDataGroup.withNameInData("someNameInData");
-		DataRecord dataRecord = ClientDataRecord.withClientDataGroup(dataGroup);
-
-		PermissionComparerImp permissionComparer = (PermissionComparerImp) factory
-				.factor(dataRecord);
+	public void testFactorPermissionComparer() {
+		PermissionComparer permissionComparer = (PermissionComparer) factory.factor("permission",
+				dataRecord);
 		assertSame(permissionComparer.getDataRecord(), dataRecord);
+	}
+
+	@Test
+	public void testFactorActionComparer() {
+		ActionComparer actionComparer = (ActionComparer) factory.factor("action", dataRecord);
+		assertSame(actionComparer.getDataRecord(), dataRecord);
+	}
+
+	@Test(expectedExceptions = NotImplementedException.class, expectedExceptionsMessageRegExp = ""
+			+ "" + "No converter implemented for: someUnknownType")
+	public void testTypeNotImplemented() {
+		factory.factor("someUnknownType", dataRecord);
+
 	}
 
 }

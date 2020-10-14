@@ -24,50 +24,32 @@ import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
 import se.uu.ub.cora.json.parser.JsonObject;
-import se.uu.ub.cora.json.parser.JsonParseException;
 
-public class PermissionComparerFixture extends ComparerFixture {
+public class ActionComparerFixture extends ComparerFixture {
 
 	private ComparerFactory comparerFactory;
-	private String permissions;
+	private String actions;
 
-	public PermissionComparerFixture() {
+	public ActionComparerFixture() {
 		super();
 		comparerFactory = DependencyProvider.getComparerFactory();
 	}
 
-	public String testCheckPermissions() {
+	public String testCheckActions() {
 		DataRecord dataRecord = DataHolder.getRecord();
-		DataComparer comparer = comparerFactory.factor("permission", dataRecord);
+		DataComparer comparer = comparerFactory.factor("action", dataRecord);
 
-		JsonObject permissionObject = jsonHandler.parseStringAsObject(permissions);
+		JsonObject permissionObject = jsonHandler.parseStringAsObject(actions);
 		List<String> errorMessages = comparer.checkDataRecordContains(permissionObject);
 		return errorMessages.isEmpty() ? "OK" : joinErrorMessages(errorMessages);
 	}
 
-	public void setPermissions(String permissions) {
-		this.permissions = permissions;
-
+	public void setActions(String actions) {
+		this.actions = actions;
 	}
 
-	ComparerFactory getComparerFactory() {
+	public ComparerFactory getComparerFactory() {
 		return comparerFactory;
-	}
-
-	public String testReadFromListCheckPermissions() {
-		try {
-			DataRecord dataRecord = DataHolder.getRecordList().get(indexToCompareTo);
-			return comparePermissionUsingDataRecord(dataRecord);
-		} catch (JsonParseException exception) {
-			return exception.getMessage();
-		}
-	}
-
-	private String comparePermissionUsingDataRecord(DataRecord dataRecord) {
-		JsonObject permissionObject = jsonHandler.parseStringAsObject(permissions);
-		DataComparer comparer = comparerFactory.factor("permission", dataRecord);
-		List<String> errorMessages = comparer.checkDataRecordContains(permissionObject);
-		return errorMessages.isEmpty() ? "OK" : joinErrorMessages(errorMessages);
 	}
 
 }
