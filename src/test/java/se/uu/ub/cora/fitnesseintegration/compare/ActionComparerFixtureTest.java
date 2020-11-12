@@ -22,9 +22,12 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
+import java.util.List;
+
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
 import se.uu.ub.cora.fitnesseintegration.ClientDataRecordSpy;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
@@ -72,11 +75,10 @@ public class ActionComparerFixtureTest {
 	@Test
 	public void testCallsAreMadeCorrectly() {
 		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
+
 		DataHolder.setRecord(clientDataRecordSpy);
 		ComparerFactorySpy comparerFactory = (ComparerFactorySpy) fixture.getComparerFactory();
-
-		String actions = "{\"actions\":[ \"read\", \"delete\",\"update\"]}";
-		fixture.setActions(actions);
+		fixture.setActions("{\"actions\":[ \"read\", \"delete\",\"update\"]}");
 
 		fixture.testCheckActions();
 
@@ -84,7 +86,8 @@ public class ActionComparerFixtureTest {
 		assertSame(comparerFactory.dataRecord, clientDataRecordSpy);
 
 		ComparerSpy factoredComparer = comparerFactory.factoredComparer;
-		assertEquals(jsonParser.jsonStringsSentToParser.get(0), actions);
+		assertEquals(jsonParser.jsonStringsSentToParser.get(0),
+				"{\"actions\":[ \"read\", \"delete\",\"update\"]}");
 		assertSame(factoredComparer.jsonValue, jsonParser.jsonObjectSpy);
 
 	}
@@ -108,6 +111,49 @@ public class ActionComparerFixtureTest {
 				"From spy: action with number 0 is missing. "
 						+ "From spy: action with number 1 is missing. "
 						+ "From spy: action with number 2 is missing.");
+	}
+
+	@Test
+	public void testTestCheckActionsFromListPermissionsOK() {
+		DataRecord dataRecord = new DataRecordSpy();
+		List<DataRecord> dataRecordList = List.of(dataRecord);
+
+		ComparerFactorySpy comparerFactory = (ComparerFactorySpy) fixture.getComparerFactory();
+
+		DataHolder.setRecordList(dataRecordList);
+		fixture.setActions("{\"actions\":[ \"read\", \"delete\",\"update\"]}");
+		fixture.setListIndexToCompareTo(0);
+		String result = fixture.testCheckActionsFromList();
+
+		assertEquals(comparerFactory.type, "action");
+		assertSame(comparerFactory.dataRecord, dataRecord);
+
+		ComparerSpy factoredComparer = comparerFactory.factoredComparer;
+		assertEquals(jsonParser.jsonStringsSentToParser.get(0),
+				"{\"actions\":[ \"read\", \"delete\",\"update\"]}");
+		assertSame(factoredComparer.jsonValue, jsonParser.jsonObjectSpy);
+
+		assertEquals(result, "OK");
+	}
+
+	@Test
+	public void testTestCheckActionsFromListPermissionsNotOK() {
+		DataRecord dataRecord = new DataRecordSpy();
+		List<DataRecord> dataRecordList = List.of(dataRecord);
+
+		ComparerFactorySpy comparerFactory = (ComparerFactorySpy) fixture.getComparerFactory();
+		comparerFactory.numberOfErrorsToReturn = 3;
+
+		fixture.setActions("{\"actions\":[ \"read\", \"delete\"]}");
+		DataHolder.setRecordList(dataRecordList);
+		fixture.setListIndexToCompareTo(0);
+		String result = fixture.testCheckActionsFromList();
+
+		assertEquals(result,
+				"From spy: action with number 0 is missing. "
+						+ "From spy: action with number 1 is missing. "
+						+ "From spy: action with number 2 is missing.");
+
 	}
 
 }

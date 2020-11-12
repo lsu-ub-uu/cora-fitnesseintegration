@@ -37,8 +37,16 @@ public class ActionComparerFixture extends ComparerFixture {
 
 	public String testCheckActions() {
 		DataRecord dataRecord = DataHolder.getRecord();
-		DataComparer comparer = comparerFactory.factor("action", dataRecord);
+		return checkActions(dataRecord);
+	}
 
+	public String testCheckActionsFromList() {
+		DataRecord dataRecord = getDataRecordFromRecordHolderUsingIndex();
+		return checkActions(dataRecord);
+	}
+
+	private String checkActions(DataRecord dataRecord) {
+		DataComparer comparer = comparerFactory.factor("action", dataRecord);
 		JsonObject permissionObject = jsonHandler.parseStringAsObject(actions);
 		List<String> errorMessages = comparer.checkDataRecordContains(permissionObject);
 		return errorMessages.isEmpty() ? "OK" : joinErrorMessages(errorMessages);

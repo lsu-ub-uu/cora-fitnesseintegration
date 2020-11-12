@@ -121,6 +121,12 @@ public class ComparerFixture {
 		return DataHolder.getRecordList().get(index).getClientDataGroup();
 	}
 
+	// Spike
+	protected DataRecord getDataRecordFromRecordHolderUsingIndex() {
+		int index = getListIndexToCompareTo();
+		return DataHolder.getRecordList().get(index);
+	}
+
 	public void testSearchAndStoreRecords() throws UnsupportedEncodingException {
 		String url = baseRecordUrl + "searchResult" + "/" + searchId;
 		storedListAsJson = recordHandler.searchRecord(url, authToken, json).responseText;
