@@ -227,8 +227,9 @@ public class ComparerFixtureTest {
 		String authToken = "someAuthToken";
 		fixture.setAuthToken(authToken);
 		String json = "{\"name\":\"value\"}";
-		fixture.setId("someId");
 		fixture.setJson(json);
+
+		fixture.setId("someId");
 		String responseText = fixture.testUpdateAndStoreRecord();
 		assertTrue(recordHandler.updateRecordWasCalled);
 
@@ -245,6 +246,25 @@ public class ComparerFixtureTest {
 		assertEquals(jsonListSentToParser, jsonFromRecordHandler);
 		assertSame(jsonToDataConverter.jsonObjects.get(0), jsonParser.jsonObjectSpies.get(0));
 		assertSame(DataHolder.getRecord(), jsonToDataConverter.returnedSpies.get(0));
+	}
+
+	@Test
+	public void testUpdateAndStoreForbiddenRecord() throws UnsupportedEncodingException {
+		DataHolder.setRecord(new ClientDataRecordSpy());
+		String authToken = "someAuthToken";
+		fixture.setAuthToken(authToken);
+		String json = "Forbidden answer from server";
+		fixture.setJson(json);
+		recordHandler.statusTypeReturned = 403;
+		jsonParser.throwException = true;
+		fixture.setId("someId");
+
+		String responseText = fixture.testUpdateAndStoreRecord();
+
+		assertTrue(recordHandler.updateRecordWasCalled);
+		assertCorrectValuesSentToRecordHandler(authToken, json);
+		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertNull(DataHolder.getRecord());
 	}
 
 	@Test

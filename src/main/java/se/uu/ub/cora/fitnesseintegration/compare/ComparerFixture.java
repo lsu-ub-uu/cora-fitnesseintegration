@@ -42,6 +42,7 @@ import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
+import se.uu.ub.cora.json.parser.JsonParseException;
 import se.uu.ub.cora.json.parser.JsonValue;
 
 public class ComparerFixture {
@@ -121,7 +122,6 @@ public class ComparerFixture {
 		return DataHolder.getRecordList().get(index).getClientDataGroup();
 	}
 
-	// Spike
 	protected DataRecord getDataRecordFromRecordHolderUsingIndex() {
 		int index = getListIndexToCompareTo();
 		return DataHolder.getRecordList().get(index);
@@ -137,11 +137,22 @@ public class ComparerFixture {
 
 	public String testUpdateAndStoreRecord() {
 		BasicHttpResponse response = recordHandler.updateRecord(authToken, type, id, json);
-		DataRecord record = createRecordFromResponseText(response.responseText);
-		DataHolder.setRecord(record);
+		tryToCreateRecordFromResponseAndSetInDataHolder(response);
 		statusType = Response.Status.fromStatusCode(response.statusCode);
 		return response.responseText;
+	}
 
+	private void tryToCreateRecordFromResponseAndSetInDataHolder(BasicHttpResponse response) {
+		try {
+			createRecordFromResponseAndSetInDataHolder(response);
+		} catch (JsonParseException e) {
+			DataHolder.setRecord(null);
+		}
+	}
+
+	private void createRecordFromResponseAndSetInDataHolder(BasicHttpResponse response) {
+		DataRecord record = createRecordFromResponseText(response.responseText);
+		DataHolder.setRecord(record);
 	}
 
 	public String testCreateAndStoreRecord() {

@@ -23,6 +23,7 @@ import java.util.List;
 
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
+import se.uu.ub.cora.json.parser.JsonParseException;
 import se.uu.ub.cora.json.parser.JsonParser;
 import se.uu.ub.cora.json.parser.JsonValue;
 
@@ -34,16 +35,25 @@ public class JsonParserSpy implements JsonParser {
 	public List<JsonObjectSpy> jsonObjectSpies = new ArrayList<>();
 	public JsonArraySpy jsonArraySpy;
 	public List<String> jsonStringsSentToParser = new ArrayList<>();
+	public boolean throwException = false;
 
 	@Override
 	public JsonValue parseString(String jsonString) {
+		possiblyThrowException();
 		this.jsonStringSentToParser = jsonString;
 		jsonValueSpy = new JsonValueSpy();
 		return jsonValueSpy;
 	}
 
+	private void possiblyThrowException() {
+		if (throwException) {
+			throw new JsonParseException("exception from JsonParserSpy");
+		}
+	}
+
 	@Override
 	public JsonObject parseStringAsObject(String jsonString) {
+		possiblyThrowException();
 		jsonStringsSentToParser.add(jsonString);
 		jsonObjectSpy = new JsonObjectSpy();
 		jsonObjectSpies.add(jsonObjectSpy);
@@ -52,6 +62,7 @@ public class JsonParserSpy implements JsonParser {
 
 	@Override
 	public JsonArray parseStringAsArray(String jsonString) {
+		possiblyThrowException();
 		jsonStringSentToParser = jsonString;
 		jsonArraySpy = new JsonArraySpy();
 		return jsonArraySpy;

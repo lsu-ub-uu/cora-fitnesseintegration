@@ -220,6 +220,7 @@ public class ChildComparerImp implements ChildComparer {
 	}
 
 	private String getType(JsonObject childObject) {
+		// childObject.containsKey("type")
 		JsonString type = (JsonString) childObject.getValue("type");
 		return type.getStringValue();
 	}
