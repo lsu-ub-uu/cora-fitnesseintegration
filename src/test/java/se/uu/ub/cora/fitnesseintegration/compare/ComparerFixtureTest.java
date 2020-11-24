@@ -41,7 +41,6 @@ import se.uu.ub.cora.fitnesseintegration.JsonArraySpy;
 import se.uu.ub.cora.fitnesseintegration.JsonHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.JsonObjectSpy;
 import se.uu.ub.cora.fitnesseintegration.JsonParserSpy;
-import se.uu.ub.cora.fitnesseintegration.JsonToDataRecordConverterSpy;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerSpy;
 import se.uu.ub.cora.fitnesseintegration.SystemUrl;
@@ -51,7 +50,7 @@ public class ComparerFixtureTest {
 
 	private ComparerFixture fixture;
 	private RecordHandlerSpy recordHandler;
-	private JsonToDataRecordConverterSpy jsonToDataConverter;
+	private JsonToDataRecordConverterForComparerSpy jsonToDataConverter;
 	private JsonParserSpy jsonParser;
 	private JsonHandlerImp jsonHandler;
 	private String type;
@@ -74,7 +73,7 @@ public class ComparerFixtureTest {
 		recordHandler = new RecordHandlerSpy();
 		jsonParser = new JsonParserSpy();
 		jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
-		jsonToDataConverter = new JsonToDataRecordConverterSpy();
+		jsonToDataConverter = new JsonToDataRecordConverterForComparerSpy();
 
 		type = "someRecordType";
 		fixture.setType(type);
@@ -169,6 +168,27 @@ public class ComparerFixtureTest {
 		List<ClientDataRecordSpy> returnedSpies = jsonToDataConverter.returnedSpies;
 		assertSame(DataHolder.getRecordList().get(0), returnedSpies.get(0));
 		assertSame(DataHolder.getRecordList().get(1), returnedSpies.get(1));
+	}
+
+	@Test
+	public void testReadRecordListAndStoreRecordAsSpecifiedInIndex()
+			throws UnsupportedEncodingException {
+		String authToken = "someAuthToken";
+		fixture.setAuthToken(authToken);
+		fixture.setIndexToStore(2);
+		fixture.testReadRecordListAndStoreRecords();
+
+		assertSame(DataHolder.getRecord(), jsonToDataConverter.returnedSpies.get(2));
+	}
+
+	@Test
+	public void testReadRecordListAndStoreRecordWhenNoSpecifiedIndexUsingZeroAsDefault()
+			throws UnsupportedEncodingException {
+		String authToken = "someAuthToken";
+		fixture.setAuthToken(authToken);
+		fixture.testReadRecordListAndStoreRecords();
+
+		assertSame(DataHolder.getRecord(), jsonToDataConverter.returnedSpies.get(0));
 	}
 
 	@Test

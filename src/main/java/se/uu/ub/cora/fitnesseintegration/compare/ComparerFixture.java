@@ -62,6 +62,7 @@ public class ComparerFixture {
 	protected String baseUrl = SystemUrl.getUrl() + "rest/";
 	protected String baseRecordUrl = baseUrl + "record/";
 	private StatusType statusType;
+	private int indexToStore = 0;
 
 	public ComparerFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
@@ -83,6 +84,7 @@ public class ComparerFixture {
 		storedListAsJson = recordHandler.readRecordList(authToken, type, listFilter).responseText;
 
 		List<DataRecord> convertedRecords = convertToRecords();
+		DataHolder.setRecord(convertedRecords.get(indexToStore));
 		DataHolder.setRecordList(convertedRecords);
 	}
 
@@ -245,6 +247,10 @@ public class ComparerFixture {
 
 	public StatusType getStatusType() {
 		return statusType;
+	}
+
+	public void setIndexToStore(int indexToStore) {
+		this.indexToStore = indexToStore;
 	}
 
 }

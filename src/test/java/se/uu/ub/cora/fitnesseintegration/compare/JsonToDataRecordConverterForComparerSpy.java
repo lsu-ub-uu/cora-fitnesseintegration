@@ -16,35 +16,30 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.compare;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import se.uu.ub.cora.json.parser.JsonValue;
+import se.uu.ub.cora.clientdata.DataRecord;
+import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
+import se.uu.ub.cora.fitnesseintegration.ClientDataRecordSpy;
+import se.uu.ub.cora.json.parser.JsonObject;
 
-public class IteratorSpy implements Iterator<JsonValue> {
+public class JsonToDataRecordConverterForComparerSpy implements JsonToDataRecordConverter {
 
-	public boolean hasNextWasCalled = false;
-	public List<JsonObjectSpy> objectsReturnedFromNext = new ArrayList<>();
-	private int numNextCalled = 0;
-
-	@Override
-	public boolean hasNext() {
-		hasNextWasCalled = true;
-		if (numNextCalled < 4) {
-			numNextCalled++;
-			return true;
-		}
-		return false;
-	}
+	public JsonObject jsonObject;
+	public List<JsonObject> jsonObjects = new ArrayList<>();
+	public ClientDataRecordSpy clientDataRecordSpy;
+	public List<ClientDataRecordSpy> returnedSpies = new ArrayList<>();
 
 	@Override
-	public JsonValue next() {
-		JsonObjectSpy next = new JsonObjectSpy();
-		objectsReturnedFromNext.add(next);
-		return next;
+	public DataRecord toInstance(JsonObject jsonObject) {
+		this.jsonObject = jsonObject;
+		jsonObjects.add(jsonObject);
+		clientDataRecordSpy = new ClientDataRecordSpy();
+		returnedSpies.add(clientDataRecordSpy);
+		return clientDataRecordSpy;
 	}
 
 }
