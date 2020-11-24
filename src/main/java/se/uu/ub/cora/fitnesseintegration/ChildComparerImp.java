@@ -34,6 +34,9 @@ import se.uu.ub.cora.json.parser.JsonValue;
 
 public class ChildComparerImp implements ChildComparer {
 
+	private static final String CHILDREN = "children";
+	private static final String ATOMIC = "atomic";
+
 	@Override
 	public boolean dataGroupContainsChildren(ClientDataGroup dataGroup, JsonValue jsonValue) {
 		return checkDataGroupContainsChildren(dataGroup, jsonValue).isEmpty();
@@ -59,7 +62,7 @@ public class ChildComparerImp implements ChildComparer {
 	}
 
 	private JsonArray extractChildren(JsonObject jsonObject) {
-		return jsonObject.getValueAsJsonArray("children");
+		return jsonObject.getValueAsJsonArray(CHILDREN);
 	}
 
 	private void checkDataGroupContainsChild(ClientDataGroup dataGroup, List<String> errorMessages,
@@ -154,7 +157,7 @@ public class ChildComparerImp implements ChildComparer {
 
 	private void checkDataGroupContainsChildWithCorrectValue(ClientDataGroup dataGroup,
 			List<String> errorMessages, JsonObject childObject) {
-		String nameInData = getNameInData(childObject);
+		String nameInData = extractNameInDataFromJsonObject(childObject);
 		String type = getType(childObject);
 
 		if (noChildWithCorrectTypeExist(dataGroup, nameInData, type)) {
@@ -173,7 +176,7 @@ public class ChildComparerImp implements ChildComparer {
 	private boolean childHasIncorrectType(ClientDataGroup dataGroup, String nameInData,
 			String type) {
 		try {
-			if ("atomic".equals(type)) {
+			if (ATOMIC.equals(type)) {
 				dataGroup.getFirstAtomicValueWithNameInData(nameInData);
 			} else {
 				dataGroup.getFirstGroupWithNameInData(nameInData);
@@ -198,16 +201,11 @@ public class ChildComparerImp implements ChildComparer {
 		}
 	}
 
-	private String getNameInData(JsonObject childObject) {
-		JsonString name = getName(childObject);
-		return name.getStringValue();
-	}
-
 	private void checkDataGroup(List<String> errorMessages, ClientDataGroup dataGroup,
 			JsonObject groupObject, String nameInData) {
 		ClientDataGroup childGroup = dataGroup.getFirstGroupWithNameInData(nameInData);
 
-		JsonArray children = groupObject.getValueAsJsonArray("children");
+		JsonArray children = groupObject.getValueAsJsonArray(CHILDREN);
 		for (JsonValue childValue : children) {
 			JsonObject childObject = (JsonObject) childValue;
 			checkDataGroupContainsChildWithCorrectValue(childGroup, errorMessages, childObject);
@@ -216,13 +214,14 @@ public class ChildComparerImp implements ChildComparer {
 
 	private boolean isAtomicType(JsonObject childObject) {
 		String stringType = getType(childObject);
-		return "atomic".equals(stringType);
+		return ATOMIC.equals(stringType);
 	}
 
 	private String getType(JsonObject childObject) {
-		// childObject.containsKey("type")
-		JsonString type = (JsonString) childObject.getValue("type");
-		return type.getStringValue();
+		if (childObject.containsKey(CHILDREN)) {
+			return "group";
+		}
+		return ATOMIC;
 	}
 
 	private void checkAtomicChild(ClientDataGroup dataGroup, List<String> errorMessages,
@@ -243,5 +242,4 @@ public class ChildComparerImp implements ChildComparer {
 	private String getMessagePrefix(String nameInData) {
 		return "Child with nameInData " + nameInData;
 	}
-
 }
