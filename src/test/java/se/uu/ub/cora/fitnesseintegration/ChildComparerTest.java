@@ -36,7 +36,7 @@ import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public class ChildComparerTest {
 
-	private ChildComparer childComparer;
+	private ChildComparerImp childComparer;
 	private JsonParser jsonParser;
 	private ClientDataGroup dataGroup;
 
@@ -169,8 +169,18 @@ public class ChildComparerTest {
 
 	@Test
 	public void testCheckCorrectValuesOKWhenOneAtomicChild() {
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"type\":\"atomic\",\"name\":\"workoutName\",\"value\":\"cirkelfys\"}]}");
+		JsonValue jsonValue = jsonParser
+				.parseString("{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"}]}");
+		List<String> errorMessages = childComparer
+				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
+		assertTrue(errorMessages.isEmpty());
+
+	}
+
+	@Test
+	public void testCheckCorrectValuesOKWhenOneAtomicChild2() {
+		JsonValue jsonValue = jsonParser
+				.parseString("{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"}]}");
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertTrue(errorMessages.isEmpty());
@@ -180,7 +190,7 @@ public class ChildComparerTest {
 	@Test
 	public void testCheckCorrectValuesNotOKWhenChildValueDiffers() {
 		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"type\":\"atomic\",\"name\":\"workoutName\",\"value\":\"NOTcirkelfys\"}]}");
+				"{\"children\":[{\"name\":\"workoutName\",\"value\":\"NOTcirkelfys\"}]}");
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 1);
@@ -190,8 +200,8 @@ public class ChildComparerTest {
 
 	@Test
 	public void testCheckCorrectValuesNotOKWhenChildTypeDiffers() {
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"type\":\"group\",\"name\":\"workoutName\",\"value\":\"NOTcirkelfys\"}]}");
+		JsonValue jsonValue = jsonParser
+				.parseString("{\"children\":[{\"name\":\"workoutName\",\"children\":[]}]}");
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 1);
@@ -205,7 +215,7 @@ public class ChildComparerTest {
 		instructorName.addChild(ClientDataAtomic.withNameInDataAndValue("firstName", "Anna"));
 		dataGroup.addChild(instructorName);
 		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"type\":\"atomic\",\"name\":\"workoutName\",\"value\":\"cirkelfys\"},{\"type\":\"group\",\"name\":\"instructorName\",\"children\":[{\"type\":\"atomic\",\"name\":\"firstName\",\"value\":\"Anna\"}]}]}");
+				"{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"},{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"}]}]}");
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertTrue(errorMessages.isEmpty());
@@ -217,7 +227,7 @@ public class ChildComparerTest {
 		instructorName.addChild(ClientDataAtomic.withNameInDataAndValue("firstName", "Anna"));
 		dataGroup.addChild(instructorName);
 		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"type\":\"atomic\",\"name\":\"workoutName\",\"value\":\"cirkelfys\"},{\"type\":\"group\",\"name\":\"instructorName\",\"children\":[{\"type\":\"atomic\",\"name\":\"firstName\",\"value\":\"NOTAnna\"}]}]}");
+				"{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"},{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"NOTAnna\"}]}]}");
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 1);
@@ -232,7 +242,7 @@ public class ChildComparerTest {
 		instructorName.addChild(ClientDataAtomic.withNameInDataAndValue("lastName", "Ledare"));
 		dataGroup.addChild(instructorName);
 		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"type\":\"atomic\",\"name\":\"workoutName\",\"value\":\"cirkelfys\"},{\"type\":\"group\",\"name\":\"instructorName\",\"children\":[{\"type\":\"atomic\",\"name\":\"firstName\",\"value\":\"NOTAnna\"},{\"type\":\"atomic\",\"name\":\"NOTlastName\",\"value\":\"Ledare\"}]}]}");
+				"{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"},{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"NOTAnna\"},{\"name\":\"NOTlastName\",\"value\":\"Ledare\"}]}]}");
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 2);
@@ -269,7 +279,7 @@ public class ChildComparerTest {
 		instructorName.addAttributeByIdWithValue("type", "default");
 		dataGroup.addChild(instructorName);
 		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"type\":\"group\",\"name\":\"instructorName\",\"children\":[{\"type\":\"atomic\",\"name\":\"firstName\",\"value\":\"Anna\"}],\"attributes\":{\"type\":\"default\"}}]}");
+				"{\"children\":[{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"}],\"attributes\":{\"type\":\"default\"}}]}");
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertTrue(errorMessages.isEmpty());
@@ -284,7 +294,7 @@ public class ChildComparerTest {
 		instructorName.addAttributeByIdWithValue("type", "NOTdefault");
 		dataGroup.addChild(instructorName);
 		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"type\":\"group\",\"name\":\"instructorName\",\"children\":[{\"type\":\"atomic\",\"name\":\"firstName\",\"value\":\"Anna\"}],\"attributes\":{\"type\":\"default\"}}]}");
+				"{\"children\":[{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"}],\"attributes\":{\"type\":\"default\"}}]}");
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 
@@ -302,7 +312,7 @@ public class ChildComparerTest {
 		instructorName.addAttributeByIdWithValue("other", "name");
 		dataGroup.addChild(instructorName);
 		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"type\":\"group\",\"name\":\"instructorName\",\"children\":[{\"type\":\"atomic\",\"name\":\"firstName\",\"value\":\"Anna\"},{\"type\":\"atomic\",\"name\":\"lastName\",\"value\":\"Ledare\"}],\"attributes\":{\"type\":\"default\",\"other\":\"name\"}}]}");
+				"{\"children\":[{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"},{\"name\":\"lastName\",\"value\":\"Ledare\"}],\"attributes\":{\"type\":\"default\",\"other\":\"name\"}}]}");
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertTrue(errorMessages.isEmpty());
@@ -318,7 +328,7 @@ public class ChildComparerTest {
 		instructorName.addAttributeByIdWithValue("other", "NOTname");
 		dataGroup.addChild(instructorName);
 		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"type\":\"group\",\"name\":\"instructorName\",\"children\":[{\"type\":\"atomic\",\"name\":\"firstName\",\"value\":\"Anna\"},{\"type\":\"atomic\",\"name\":\"lastName\",\"value\":\"Ledare\"}],\"attributes\":{\"type\":\"default\",\"other\":\"name\"}}]}");
+				"{\"children\":[{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"},{\"name\":\"lastName\",\"value\":\"Ledare\"}],\"attributes\":{\"type\":\"default\",\"other\":\"name\"}}]}");
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 
