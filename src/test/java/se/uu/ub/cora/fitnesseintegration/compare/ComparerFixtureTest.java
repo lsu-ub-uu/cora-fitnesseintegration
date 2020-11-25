@@ -243,6 +243,26 @@ public class ComparerFixtureTest {
 	}
 
 	@Test
+	public void testSearchAndStoreRecordAsSpecifiedInIndex() throws UnsupportedEncodingException {
+		String authToken = "someAuthToken";
+		fixture.setAuthToken(authToken);
+		fixture.setIndexToStore(2);
+		fixture.testSearchAndStoreRecords();
+
+		assertSame(DataHolder.getRecord(), jsonToDataConverter.returnedSpies.get(2));
+	}
+
+	@Test
+	public void testSearchAndStoreRecordWhenNoSpecifiedIndexUsingZeroAsDefault()
+			throws UnsupportedEncodingException {
+		String authToken = "someAuthToken";
+		fixture.setAuthToken(authToken);
+		fixture.testSearchAndStoreRecords();
+
+		assertSame(DataHolder.getRecord(), jsonToDataConverter.returnedSpies.get(0));
+	}
+
+	@Test
 	public void testUpdateAndStoreRecord() throws UnsupportedEncodingException {
 		String authToken = "someAuthToken";
 		fixture.setAuthToken(authToken);

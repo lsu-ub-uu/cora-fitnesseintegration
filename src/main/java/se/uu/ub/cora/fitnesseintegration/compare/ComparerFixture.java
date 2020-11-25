@@ -134,6 +134,7 @@ public class ComparerFixture {
 		storedListAsJson = recordHandler.searchRecord(url, authToken, json).responseText;
 
 		List<DataRecord> convertedRecords = convertToRecords();
+		DataHolder.setRecord(convertedRecords.get(indexToStore));
 		DataHolder.setRecordList(convertedRecords);
 	}
 
