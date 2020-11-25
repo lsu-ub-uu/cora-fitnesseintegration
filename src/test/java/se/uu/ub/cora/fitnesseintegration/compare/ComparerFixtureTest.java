@@ -41,7 +41,6 @@ import se.uu.ub.cora.fitnesseintegration.JsonArraySpy;
 import se.uu.ub.cora.fitnesseintegration.JsonHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.JsonObjectSpy;
 import se.uu.ub.cora.fitnesseintegration.JsonParserSpy;
-import se.uu.ub.cora.fitnesseintegration.JsonToDataRecordConverterSpy;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerSpy;
 import se.uu.ub.cora.fitnesseintegration.SystemUrl;
@@ -51,7 +50,7 @@ public class ComparerFixtureTest {
 
 	private ComparerFixture fixture;
 	private RecordHandlerSpy recordHandler;
-	private JsonToDataRecordConverterSpy jsonToDataConverter;
+	private JsonToDataRecordConverterForComparerSpy jsonToDataConverter;
 	private JsonParserSpy jsonParser;
 	private JsonHandlerImp jsonHandler;
 	private String type;
@@ -74,7 +73,7 @@ public class ComparerFixtureTest {
 		recordHandler = new RecordHandlerSpy();
 		jsonParser = new JsonParserSpy();
 		jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
-		jsonToDataConverter = new JsonToDataRecordConverterSpy();
+		jsonToDataConverter = new JsonToDataRecordConverterForComparerSpy();
 
 		type = "someRecordType";
 		fixture.setType(type);
@@ -172,6 +171,27 @@ public class ComparerFixtureTest {
 	}
 
 	@Test
+	public void testReadRecordListAndStoreRecordAsSpecifiedInIndex()
+			throws UnsupportedEncodingException {
+		String authToken = "someAuthToken";
+		fixture.setAuthToken(authToken);
+		fixture.setIndexToStore(2);
+		fixture.testReadRecordListAndStoreRecords();
+
+		assertSame(DataHolder.getRecord(), jsonToDataConverter.returnedSpies.get(2));
+	}
+
+	@Test
+	public void testReadRecordListAndStoreRecordWhenNoSpecifiedIndexUsingZeroAsDefault()
+			throws UnsupportedEncodingException {
+		String authToken = "someAuthToken";
+		fixture.setAuthToken(authToken);
+		fixture.testReadRecordListAndStoreRecords();
+
+		assertSame(DataHolder.getRecord(), jsonToDataConverter.returnedSpies.get(0));
+	}
+
+	@Test
 	public void testReadRecordAndStoreJson() throws UnsupportedEncodingException {
 		String authToken = "someAuthToken";
 		fixture.setAuthToken(authToken);
@@ -220,6 +240,26 @@ public class ComparerFixtureTest {
 		assertAllRecordsInDataAreConverted(dataList);
 
 		assertConvertedRecordsAreAddedToRecordHolder();
+	}
+
+	@Test
+	public void testSearchAndStoreRecordAsSpecifiedInIndex() throws UnsupportedEncodingException {
+		String authToken = "someAuthToken";
+		fixture.setAuthToken(authToken);
+		fixture.setIndexToStore(2);
+		fixture.testSearchAndStoreRecords();
+
+		assertSame(DataHolder.getRecord(), jsonToDataConverter.returnedSpies.get(2));
+	}
+
+	@Test
+	public void testSearchAndStoreRecordWhenNoSpecifiedIndexUsingZeroAsDefault()
+			throws UnsupportedEncodingException {
+		String authToken = "someAuthToken";
+		fixture.setAuthToken(authToken);
+		fixture.testSearchAndStoreRecords();
+
+		assertSame(DataHolder.getRecord(), jsonToDataConverter.returnedSpies.get(0));
 	}
 
 	@Test
