@@ -63,6 +63,7 @@ public class ComparerFixture {
 	protected String baseRecordUrl = baseUrl + "record/";
 	private StatusType statusType;
 	private int indexToStore = 0;
+	private String idToStore;
 
 	public ComparerFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
@@ -105,11 +106,39 @@ public class ComparerFixture {
 		return (JsonArray) dataList.getValue("data");
 	}
 
+	public String testReadRecordListAndStoreRecordById() throws UnsupportedEncodingException {
+		storedListAsJson = recordHandler.readRecordList(authToken, type, listFilter).responseText;
+		// Spike
+		// DataRecord recordToStore = findAndConvertLoop();
+		// DataHolder.setRecord(recordToStore);
+		return storedListAsJson;
+	}
+
+	// private DataRecord findAndConvertLoop() {
+	// JsonArray data = extractListOfRecords();
+	// DataRecord record = null;
+	// Iterator<JsonValue> iterator = data.iterator();
+	// while (iterator.hasNext() || record == null) {
+	// JsonObject jsonRecord = (JsonObject) iterator.next();
+	// record = findAndConverRecord(jsonRecord);
+	// }
+	// return record;
+	// }
+
 	private void convertAndAddRecord(JsonObject recordJsonObject,
 			List<DataRecord> convertedRecords) {
 		DataRecord record = jsonToDataRecordConverter.toInstance(recordJsonObject);
 		convertedRecords.add(record);
 	}
+
+	// Spike
+	// private DataRecord findAndConverRecord(JsonObject recordJsonObject) {
+	// DataRecord record = jsonToDataRecordConverter.toInstance(recordJsonObject);
+	// String idValue = record.getClientDataGroup().getFirstAtomicValueWithNameInData("id");
+	// if (idValue.equals(idToStore))
+	// return record;
+	// return null;
+	// }
 
 	protected String joinErrorMessages(List<String> errorMessages) {
 		StringJoiner compareError = new StringJoiner(" ");
@@ -252,6 +281,10 @@ public class ComparerFixture {
 
 	public void setIndexToStore(int indexToStore) {
 		this.indexToStore = indexToStore;
+	}
+
+	public void setIdToStore(String idToStore) {
+		this.idToStore = idToStore;
 	}
 
 }

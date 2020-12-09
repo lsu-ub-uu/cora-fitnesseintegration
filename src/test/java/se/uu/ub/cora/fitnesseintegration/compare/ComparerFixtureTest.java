@@ -32,6 +32,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
+import se.uu.ub.cora.fitnesseintegration.BasicHttpResponse;
 import se.uu.ub.cora.fitnesseintegration.ClientDataRecordSpy;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
@@ -104,7 +105,7 @@ public class ComparerFixtureTest {
 		assertTrue(recordHandler.readRecordListWasCalled);
 
 		assertEquals(recordHandler.recordType, type);
-		assertEquals(fixture.getStoredListAsJson(), recordHandler.jsonToReturn);
+		assertEquals(fixture.getStoredListAsJson(), recordHandler.jsonToReturnDefault);
 		assertEquals(recordHandler.authToken, authToken);
 		assertNull(recordHandler.filter);
 	}
@@ -119,7 +120,7 @@ public class ComparerFixtureTest {
 		assertTrue(recordHandler.readRecordListWasCalled);
 
 		assertEquals(recordHandler.recordType, type);
-		assertEquals(fixture.getStoredListAsJson(), recordHandler.jsonToReturn);
+		assertEquals(fixture.getStoredListAsJson(), recordHandler.jsonToReturnDefault);
 		assertEquals(recordHandler.authToken, authToken);
 		assertEquals(recordHandler.filter, listFilter);
 	}
@@ -129,7 +130,7 @@ public class ComparerFixtureTest {
 			throws UnsupportedEncodingException {
 		fixture.testReadRecordListAndStoreRecords();
 
-		String jsonListFromRecordHandler = recordHandler.jsonToReturn;
+		String jsonListFromRecordHandler = recordHandler.jsonToReturnDefault;
 		String jsonListSentToParser = jsonParser.jsonStringsSentToParser.get(0);
 		assertEquals(jsonListSentToParser, jsonListFromRecordHandler);
 
@@ -192,6 +193,65 @@ public class ComparerFixtureTest {
 	}
 
 	@Test
+	public void testReadRecordListAndStoreRecordById() throws Exception {
+		String authToken = "someAuthToken";
+		String recordId = "1750";
+		//
+		// recordHandler.setJsonToreturn(
+		// "{\"dataList\":{\"fromNo\":\"0\",\"data\":[{\"record\":{\"data\":{\"children\":[{\"children\""
+		// + ":[{\"name\":\"id\",\"value\":\"1749\"},{\"children\":[{\"name\":\"linkedRecordType\","
+		// +
+		// "\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"rootOrganisation\"}],"
+		// + "\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":"
+		// + "\"http://localhost:8082/diva/rest/record/recordType/rootOrganisation\",\"accept\":"
+		// + "\"application/vnd.uub.record+json\"}},\"name\":\"type\"},{\"children\":[{\"name\":"
+		// + "\"linkedRecordType\",\"value\":\"system\"},{\"name\":\"linkedRecordId\",\"value\":"
+		// + "\"diva\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\","
+		// + "\"url\":\"http://localhost:8082/diva/rest/record/system/diva\",\"accept\":"
+		// + "\"application/vnd.uub.record+json\"}},\"name\":\"dataDivider\"},"
+		// + "{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"coraUser\"},{\"name\":"
+		// + "\"linkedRecordId\",\"value\":\"coraUser:4412982402853626\"}],\"name\":\"createdBy\"},"
+		// +
+		// "{\"name\":\"tsCreated\",\"value\":\"2017-01-01T00:00:00.000000Z\"},{\"repeatId\":\"0\","
+		// + "\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"coraUser\"},"
+		// + "{\"name\":\"linkedRecordId\",\"value\":\"coraUser:4412982402853626\"}],\"name\":"
+		// + "\"updatedBy\"},{\"name\":\"tsUpdated\",\"value\":\"2017-01-01T00:00:00.000000Z\"}],"
+		// +
+		// "\"name\":\"updated\"},{\"name\":\"selectable\",\"value\":\"yes\"}],\"name\":\"recordInfo\"}"
+		// + ",{\"name\":\"domain\",\"value\":\"kth\"},{\"children\":[{\"name\":\"name\",\"value\""
+		// + ":\"Root Kungliga
+		// tekniskahögskolan\"},{\"name\":\"language\",\"value\":\"sv\"}],\"name\":\"organisationName\"},{\"children\":[{\"name\":\"language\",\"value\":\"en\"},{\"name\":\"name\",\"value\":\"Root
+		// KTH\"}],\"name\":\"organisationAlternativeName\"}],\"name\":\"organisation\"},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8082/diva/rest/record/rootOrganisation/1749\",\"accept\":\"application/vnd.uub.record+json\"},\"update\":{\"requestMethod\":\"POST\",\"rel\":\"update\",\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"http://localhost:8082/diva/rest/record/rootOrganisation/1749\",\"accept\":\"application/vnd.uub.record+json\"},\"index\":{\"requestMethod\":\"POST\",\"rel\":\"index\",\"body\":{\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"rootOrganisation\"}],\"name\":\"recordType\"},{\"name\":\"recordId\",\"value\":\"1749\"},{\"name\":\"type\",\"value\":\"index\"}],\"name\":\"workOrder\"},\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"http://localhost:8082/diva/rest/record/workOrder/\",\"accept\":\"application/vnd.uub.record+json\"}}}},{\"record\":{\"data\":{\"children\":[{\"children\":[{\"name\":\"id\",\"value\":\"1748\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"rootOrganisation\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8082/diva/rest/record/recordType/rootOrganisation\",\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"type\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"system\"},{\"name\":\"linkedRecordId\",\"value\":\"diva\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8082/diva/rest/record/system/diva\",\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"dataDivider\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"coraUser\"},{\"name\":\"linkedRecordId\",\"value\":\"coraUser:4412982402853626\"}],\"name\":\"createdBy\"},{\"name\":\"tsCreated\",\"value\":\"2017-01-01T00:00:00.000000Z\"},{\"repeatId\":\"0\",\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"coraUser\"},{\"name\":\"linkedRecordId\",\"value\":\"coraUser:4412982402853626\"}],\"name\":\"updatedBy\"},{\"name\":\"tsUpdated\",\"value\":\"2017-01-01T00:00:00.000000Z\"}],\"name\":\"updated\"},{\"name\":\"selectable\",\"value\":\"yes\"}],\"name\":\"recordInfo\"},{\"name\":\"domain\",\"value\":\"uu\"},{\"children\":[{\"name\":\"name\",\"value\":\"RootUppsala
+		// universitet\"},{\"name\":\"language\",\"value\":\"sv\"}],\"name\":\"organisationName\"},{\"children\":[{\"name\":\"language\",\"value\":\"en\"},{\"name\":\"name\",\"value\":\"RootUppsala
+		// university\"}],\"name\":\"organisationAlternativeName\"}],\"name\":\"organisation\"},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8082/diva/rest/record/rootOrganisation/1748\",\"accept\":\"application/vnd.uub.record+json\"},\"update\":{\"requestMethod\":\"POST\",\"rel\":\"update\",\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"http://localhost:8082/diva/rest/record/rootOrganisation/1748\",\"accept\":\"application/vnd.uub.record+json\"},\"index\":{\"requestMethod\":\"POST\",\"rel\":\"index\",\"body\":{\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"rootOrganisation\"}],\"name\":\"recordType\"},{\"name\":\"recordId\",\"value\":\"1748\"},{\"name\":\"type\",\"value\":\"index\"}],\"name\":\"workOrder\"},\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"http://localhost:8082/diva/rest/record/workOrder/\",\"accept\":\"application/vnd.uub.record+json\"}}}}],\"totalNo\":\"0\",\"containDataOfType\":\"rootOrganisation\",\"toNo\":\"2\"}}");
+		fixture.setAuthToken(authToken);
+		fixture.setIdToStore(recordId);
+
+		String response = fixture.testReadRecordListAndStoreRecordById();
+
+		recordHandler.MCR.assertParameters("readRecordList", 0, authToken, type, null);
+
+		BasicHttpResponse returnValue = (BasicHttpResponse) (recordHandler.MCR
+				.getReturnValue("readRecordList", 0));
+		assertEquals(fixture.getStoredListAsJson(), returnValue.responseText);
+
+		assertEquals(response, fixture.getStoredListAsJson());
+
+		// String storedRecordIdValue = DataHolder.getRecord().getClientDataGroup()
+		// .getFirstAtomicValueWithNameInData("id");
+		//
+		// assertEquals(storedRecordIdValue, recordId);
+
+		// {id: 42}
+		// assertEquals(DataHolder.getRecord() , {id:42})
+
+		// Set id to store
+		// Vi måste se till att recordHandlern läser upp en record list som vi kontrollerar så att
+		// vi kan säkerställa att testReadRecordListAndStoreRecordById plockar ut rätt record
+
+	}
+
+	@Test
 	public void testReadRecordAndStoreJson() throws UnsupportedEncodingException {
 		String authToken = "someAuthToken";
 		fixture.setAuthToken(authToken);
@@ -206,7 +266,7 @@ public class ComparerFixtureTest {
 		assertEquals(recordHandler.authToken, authToken);
 
 		assertCorrectDataPassedFromHandlerToConverter();
-		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 	}
 
 	@Test
@@ -229,7 +289,7 @@ public class ComparerFixtureTest {
 	public void testSearchAndStoreCorrectRecordsInDataHolder() throws UnsupportedEncodingException {
 		fixture.testSearchAndStoreRecords();
 
-		String jsonListFromRecordHandler = recordHandler.jsonToReturn;
+		String jsonListFromRecordHandler = recordHandler.jsonToReturnDefault;
 		String jsonListSentToParser = jsonParser.jsonStringsSentToParser.get(0);
 		assertEquals(jsonListSentToParser, jsonListFromRecordHandler);
 
@@ -277,11 +337,11 @@ public class ComparerFixtureTest {
 
 		assertCorrectDataPassedFromHandlerToConverter();
 		assertCorrectValuesSentToRecordHandler(authToken, json);
-		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 	}
 
 	private void assertCorrectDataPassedFromHandlerToConverter() {
-		String jsonFromRecordHandler = recordHandler.jsonToReturn;
+		String jsonFromRecordHandler = recordHandler.jsonToReturnDefault;
 		String jsonListSentToParser = jsonParser.jsonStringsSentToParser.get(0);
 		assertEquals(jsonListSentToParser, jsonFromRecordHandler);
 		assertSame(jsonToDataConverter.jsonObjects.get(0), jsonParser.jsonObjectSpies.get(0));
@@ -303,7 +363,7 @@ public class ComparerFixtureTest {
 
 		assertTrue(recordHandler.updateRecordWasCalled);
 		assertCorrectValuesSentToRecordHandler(authToken, json);
-		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 		assertNull(DataHolder.getRecord());
 	}
 
@@ -316,7 +376,7 @@ public class ComparerFixtureTest {
 		assertTrue(recordHandler.createRecordWasCalled);
 		assertCorrectValuesSentToRecordHandler(authToken, json);
 		assertCorrectDataPassedFromHandlerToConverter();
-		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 	}
 
 	private void setupForCreate() {

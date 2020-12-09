@@ -18,6 +18,8 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
+import se.uu.ub.cora.fitnesseintegration.spy.MethodCallRecorder;
+
 public class RecordHandlerSpy implements RecordHandler {
 
 	public boolean readRecordListWasCalled = false;
@@ -25,7 +27,7 @@ public class RecordHandlerSpy implements RecordHandler {
 	public String url;
 	public String filter;
 	public String authToken;
-	public String jsonToReturn = "some json returned from spy";
+	public String jsonToReturnDefault = "some json returned from spy";
 	public boolean readRecordWasCalled = false;
 	public String json;
 	/**
@@ -43,35 +45,55 @@ public class RecordHandlerSpy implements RecordHandler {
 	public String recordType;
 	public String recordId;
 
+	public MethodCallRecorder MCR = new MethodCallRecorder();
+	private String jsonToReturn = null;
+
 	@Override
 	public BasicHttpResponse readRecordList(String authToken, String recordType, String filter) {
+		MCR.addCall("authToken", authToken, "recordType", recordType, "filter", filter);
 		this.recordType = recordType;
 		readRecordListWasCalled = true;
 		this.filter = filter;
 		this.authToken = authToken;
 
 		// statusTypeReturned = new StatusTypeSpy();
-		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
+
+		String jsonReturnForReadRecordList = jsonToReturnDefault;
+		if (jsonToReturn != null)
+			jsonReturnForReadRecordList = jsonToReturn;
+
+		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(statusTypeReturned,
+				jsonReturnForReadRecordList);
+		MCR.addReturned(basicHttpResponse);
+		return basicHttpResponse;
 	}
 
 	@Override
 	public BasicHttpResponse readRecord(String authToken, String recordType, String recordId) {
+		MCR.addCall("authToken", authToken, "recordType", recordType, "recordId", recordId);
 		this.authToken = authToken;
 		this.recordType = recordType;
 		this.recordId = recordId;
 		readRecordWasCalled = true;
 		// statusTypeReturned = new StatusTypeSpy();
-		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
+		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(statusTypeReturned,
+				jsonToReturnDefault);
+		MCR.addReturned(basicHttpResponse);
+		return basicHttpResponse;
 	}
 
 	@Override
 	public BasicHttpResponse searchRecord(String url, String authToken, String json) {
+		MCR.addCall("url", url, "authToken", authToken, "json", json);
 		searchRecordWasCalled = true;
 		this.url = url;
 		this.authToken = authToken;
 		this.json = json;
 		// statusTypeReturned = new StatusTypeSpy();
-		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
+		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(statusTypeReturned,
+				jsonToReturnDefault);
+		MCR.addReturned(basicHttpResponse);
+		return basicHttpResponse;
 	}
 
 	@Override
@@ -87,7 +109,8 @@ public class RecordHandlerSpy implements RecordHandler {
 		// statusTypeReturned = new StatusTypeSpy();
 		// statusTypeReturned.statusCodeToReturn = 201;
 		// }
-		BasicHttpResponse readResponse = new BasicHttpResponse(statusTypeReturned, jsonToReturn);
+		BasicHttpResponse readResponse = new BasicHttpResponse(statusTypeReturned,
+				jsonToReturnDefault);
 
 		createdId = "someCreatedId";
 		token = "someToken";
@@ -101,13 +124,17 @@ public class RecordHandlerSpy implements RecordHandler {
 	@Override
 	public BasicHttpResponse updateRecord(String authToken, String recordType, String recordId,
 			String json) {
+		MCR.addCall("recordType", recordType, "authToken", authToken, "recordId", recordId);
 		updateRecordWasCalled = true;
 		this.recordType = recordType;
 		this.recordId = recordId;
 		this.authToken = authToken;
 		this.json = json;
 		// statusTypeReturned = new StatusTypeSpy();
-		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
+		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(statusTypeReturned,
+				jsonToReturnDefault);
+		MCR.addReturned(basicHttpResponse);
+		return basicHttpResponse;
 	}
 
 	@Override
@@ -124,7 +151,10 @@ public class RecordHandlerSpy implements RecordHandler {
 		// }
 		createdId = "someCreatedId";
 		token = "someToken";
-		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
+		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(statusTypeReturned,
+				jsonToReturnDefault);
+		MCR.addReturned(basicHttpResponse);
+		return basicHttpResponse;
 	}
 
 	@Override
@@ -135,7 +165,10 @@ public class RecordHandlerSpy implements RecordHandler {
 		this.authToken = authToken;
 
 		// statusTypeReturned = new StatusTypeSpy();
-		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
+		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(statusTypeReturned,
+				jsonToReturnDefault);
+		MCR.addReturned(basicHttpResponse);
+		return basicHttpResponse;
 	}
 
 	@Override
@@ -145,7 +178,14 @@ public class RecordHandlerSpy implements RecordHandler {
 		this.recordType = recordType;
 		this.recordId = recordId;
 		// statusTypeReturned = new StatusTypeSpy();
-		return new BasicHttpResponse(statusTypeReturned, jsonToReturn);
+		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(statusTypeReturned,
+				jsonToReturnDefault);
+		MCR.addReturned(basicHttpResponse);
+		return basicHttpResponse;
+	}
+
+	public void setJsonToreturn(String jsonToReturn) {
+		this.jsonToReturn = jsonToReturn;
 	}
 
 }
