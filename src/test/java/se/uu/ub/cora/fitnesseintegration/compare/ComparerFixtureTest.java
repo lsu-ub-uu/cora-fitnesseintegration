@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response.StatusType;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
 import se.uu.ub.cora.fitnesseintegration.BasicHttpResponse;
 import se.uu.ub.cora.fitnesseintegration.ClientDataRecordSpy;
@@ -193,61 +194,127 @@ public class ComparerFixtureTest {
 	}
 
 	@Test
-	public void testReadRecordListAndStoreRecordById() throws Exception {
+	public void testReadRecordListAndStoreRecordByIdRecordNotFound() throws Exception {
+		JsonToDataRecordConverterSpy jsonConverterSpy = new JsonToDataRecordConverterSpy();
 		String authToken = "someAuthToken";
-		String recordId = "1750";
-		//
-		// recordHandler.setJsonToreturn(
-		// "{\"dataList\":{\"fromNo\":\"0\",\"data\":[{\"record\":{\"data\":{\"children\":[{\"children\""
-		// + ":[{\"name\":\"id\",\"value\":\"1749\"},{\"children\":[{\"name\":\"linkedRecordType\","
-		// +
-		// "\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"rootOrganisation\"}],"
-		// + "\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":"
-		// + "\"http://localhost:8082/diva/rest/record/recordType/rootOrganisation\",\"accept\":"
-		// + "\"application/vnd.uub.record+json\"}},\"name\":\"type\"},{\"children\":[{\"name\":"
-		// + "\"linkedRecordType\",\"value\":\"system\"},{\"name\":\"linkedRecordId\",\"value\":"
-		// + "\"diva\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\","
-		// + "\"url\":\"http://localhost:8082/diva/rest/record/system/diva\",\"accept\":"
-		// + "\"application/vnd.uub.record+json\"}},\"name\":\"dataDivider\"},"
-		// + "{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"coraUser\"},{\"name\":"
-		// + "\"linkedRecordId\",\"value\":\"coraUser:4412982402853626\"}],\"name\":\"createdBy\"},"
-		// +
-		// "{\"name\":\"tsCreated\",\"value\":\"2017-01-01T00:00:00.000000Z\"},{\"repeatId\":\"0\","
-		// + "\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"coraUser\"},"
-		// + "{\"name\":\"linkedRecordId\",\"value\":\"coraUser:4412982402853626\"}],\"name\":"
-		// + "\"updatedBy\"},{\"name\":\"tsUpdated\",\"value\":\"2017-01-01T00:00:00.000000Z\"}],"
-		// +
-		// "\"name\":\"updated\"},{\"name\":\"selectable\",\"value\":\"yes\"}],\"name\":\"recordInfo\"}"
-		// + ",{\"name\":\"domain\",\"value\":\"kth\"},{\"children\":[{\"name\":\"name\",\"value\""
-		// + ":\"Root Kungliga
-		// tekniskahögskolan\"},{\"name\":\"language\",\"value\":\"sv\"}],\"name\":\"organisationName\"},{\"children\":[{\"name\":\"language\",\"value\":\"en\"},{\"name\":\"name\",\"value\":\"Root
-		// KTH\"}],\"name\":\"organisationAlternativeName\"}],\"name\":\"organisation\"},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8082/diva/rest/record/rootOrganisation/1749\",\"accept\":\"application/vnd.uub.record+json\"},\"update\":{\"requestMethod\":\"POST\",\"rel\":\"update\",\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"http://localhost:8082/diva/rest/record/rootOrganisation/1749\",\"accept\":\"application/vnd.uub.record+json\"},\"index\":{\"requestMethod\":\"POST\",\"rel\":\"index\",\"body\":{\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"rootOrganisation\"}],\"name\":\"recordType\"},{\"name\":\"recordId\",\"value\":\"1749\"},{\"name\":\"type\",\"value\":\"index\"}],\"name\":\"workOrder\"},\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"http://localhost:8082/diva/rest/record/workOrder/\",\"accept\":\"application/vnd.uub.record+json\"}}}},{\"record\":{\"data\":{\"children\":[{\"children\":[{\"name\":\"id\",\"value\":\"1748\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"rootOrganisation\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8082/diva/rest/record/recordType/rootOrganisation\",\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"type\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"system\"},{\"name\":\"linkedRecordId\",\"value\":\"diva\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8082/diva/rest/record/system/diva\",\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"dataDivider\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"coraUser\"},{\"name\":\"linkedRecordId\",\"value\":\"coraUser:4412982402853626\"}],\"name\":\"createdBy\"},{\"name\":\"tsCreated\",\"value\":\"2017-01-01T00:00:00.000000Z\"},{\"repeatId\":\"0\",\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"coraUser\"},{\"name\":\"linkedRecordId\",\"value\":\"coraUser:4412982402853626\"}],\"name\":\"updatedBy\"},{\"name\":\"tsUpdated\",\"value\":\"2017-01-01T00:00:00.000000Z\"}],\"name\":\"updated\"},{\"name\":\"selectable\",\"value\":\"yes\"}],\"name\":\"recordInfo\"},{\"name\":\"domain\",\"value\":\"uu\"},{\"children\":[{\"name\":\"name\",\"value\":\"RootUppsala
-		// universitet\"},{\"name\":\"language\",\"value\":\"sv\"}],\"name\":\"organisationName\"},{\"children\":[{\"name\":\"language\",\"value\":\"en\"},{\"name\":\"name\",\"value\":\"RootUppsala
-		// university\"}],\"name\":\"organisationAlternativeName\"}],\"name\":\"organisation\"},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8082/diva/rest/record/rootOrganisation/1748\",\"accept\":\"application/vnd.uub.record+json\"},\"update\":{\"requestMethod\":\"POST\",\"rel\":\"update\",\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"http://localhost:8082/diva/rest/record/rootOrganisation/1748\",\"accept\":\"application/vnd.uub.record+json\"},\"index\":{\"requestMethod\":\"POST\",\"rel\":\"index\",\"body\":{\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"rootOrganisation\"}],\"name\":\"recordType\"},{\"name\":\"recordId\",\"value\":\"1748\"},{\"name\":\"type\",\"value\":\"index\"}],\"name\":\"workOrder\"},\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"http://localhost:8082/diva/rest/record/workOrder/\",\"accept\":\"application/vnd.uub.record+json\"}}}}],\"totalNo\":\"0\",\"containDataOfType\":\"rootOrganisation\",\"toNo\":\"2\"}}");
+
 		fixture.setAuthToken(authToken);
-		fixture.setIdToStore(recordId);
+		fixture.setJsonToDataRecordConverter(jsonConverterSpy);
+
+		DataHolder.setRecord(new ClientDataRecordSpy());
 
 		String response = fixture.testReadRecordListAndStoreRecordById();
 
 		recordHandler.MCR.assertParameters("readRecordList", 0, authToken, type, null);
 
-		BasicHttpResponse returnValue = (BasicHttpResponse) (recordHandler.MCR
-				.getReturnValue("readRecordList", 0));
-		assertEquals(fixture.getStoredListAsJson(), returnValue.responseText);
+		DataRecord record = DataHolder.getRecord();
 
-		assertEquals(response, fixture.getStoredListAsJson());
+		assertNull(record);
 
-		// String storedRecordIdValue = DataHolder.getRecord().getClientDataGroup()
-		// .getFirstAtomicValueWithNameInData("id");
-		//
-		// assertEquals(storedRecordIdValue, recordId);
+		assertReturnValueForReadRecordListAndStore(response);
+	}
 
-		// {id: 42}
-		// assertEquals(DataHolder.getRecord() , {id:42})
+	@Test
+	public void testReadRecordListAndStoreRecordById1750() throws Exception {
+		JsonToDataRecordConverterSpy jsonConverterSpy = new JsonToDataRecordConverterSpy();
+		String authToken = "someAuthToken";
+		String recordId = "1750";
 
-		// Set id to store
-		// Vi måste se till att recordHandlern läser upp en record list som vi kontrollerar så att
-		// vi kan säkerställa att testReadRecordListAndStoreRecordById plockar ut rätt record
+		fixture.setIdToStore(recordId);
+		fixture.setAuthToken(authToken);
+		fixture.setJsonToDataRecordConverter(jsonConverterSpy);
+
+		jsonConverterSpy.returnRecordWithID(recordId);
+
+		String response = fixture.testReadRecordListAndStoreRecordById();
+
+		recordHandler.MCR.assertParameters("readRecordList", 0, authToken, type, null);
+
+		DataRecord record = DataHolder.getRecord();
+
+		jsonConverterSpy.MCR.assertMethodWasCalled("toInstance");
+
+		String recordIdValue = record.getClientDataGroup().getFirstGroupWithNameInData("recordInfo")
+				.getFirstAtomicValueWithNameInData("id");
+
+		assertEquals(recordIdValue, recordId);
+
+		assertReturnValueForReadRecordListAndStore(response);
+	}
+
+	@Test
+	public void testReadRecordListAndStoreRecordById3333() throws Exception {
+		JsonToDataRecordConverterSpy jsonConverterSpy = new JsonToDataRecordConverterSpy();
+		String authToken = "someAuthToken";
+		String recordId = "3333";
+
+		fixture.setIdToStore(recordId);
+		fixture.setAuthToken(authToken);
+		fixture.setJsonToDataRecordConverter(jsonConverterSpy);
+
+		jsonConverterSpy.returnRecordWithID(recordId);
+
+		String response = fixture.testReadRecordListAndStoreRecordById();
+
+		recordHandler.MCR.assertParameters("readRecordList", 0, authToken, type, null);
+
+		DataRecord record = DataHolder.getRecord();
+
+		jsonConverterSpy.MCR.assertMethodWasCalled("toInstance");
+
+		String recordIdValue = record.getClientDataGroup().getFirstGroupWithNameInData("recordInfo")
+				.getFirstAtomicValueWithNameInData("id");
+
+		assertEquals(recordIdValue, recordId);
+
+		assertReturnValueForReadRecordListAndStore(response);
+	}
+
+	private void assertReturnValueForReadRecordListAndStore(String response) {
+		String jsonListString = ((BasicHttpResponse) (recordHandler.MCR
+				.getReturnValue("readRecordList", 0))).responseText;
+
+		assertEquals(response, jsonListString);
+	}
+
+	@Test
+	public void testReadRecordListAndStoreRecordByIdLoopList() throws Exception {
+		JsonToDataRecordConverterSpy jsonConverterSpy = new JsonToDataRecordConverterSpy();
+		JsonHandlerSpy jsonHandlerSpy = new JsonHandlerSpy();
+		String authToken = "someAuthToken";
+
+		fixture.setAuthToken(authToken);
+		fixture.setJsonToDataRecordConverter(jsonConverterSpy);
+		fixture.setJsonHandler(jsonHandlerSpy);
+
+		fixture.testReadRecordListAndStoreRecordById();
+
+		recordHandler.MCR.getReturnValue("readRecordList", 0);
+
+		String jsonListString = ((BasicHttpResponse) (recordHandler.MCR
+				.getReturnValue("readRecordList", 0))).responseText;
+
+		jsonHandlerSpy.MCR.assertMethodWasCalled("parseStringAsObject");
+		jsonHandlerSpy.MCR.assertParameters("parseStringAsObject", 0, jsonListString);
+
+		JsonObjectSpy jsonObject = (JsonObjectSpy) jsonHandlerSpy.MCR
+				.getReturnValue("parseStringAsObject", 0);
+		jsonObject.MCR.assertParameters("getValue", 0, "dataList");
+
+		JsonObjectSpy dataListSpy = (JsonObjectSpy) jsonObject.MCR.getReturnValue("getValue", 0);
+		dataListSpy.MCR.assertParameters("getValue", 0, "data");
+
+		JsonArraySpy dataArraySpy = (JsonArraySpy) dataListSpy.MCR.getReturnValue("getValue", 0);
+		dataArraySpy.MCR.assertMethodWasCalled("iterator");
+
+		jsonConverterSpy.MCR.assertNumberOfCallsToMethod("toInstance", 4);
+
+		IteratorSpy iteratorSpy = (IteratorSpy) dataArraySpy.MCR.getReturnValue("iterator", 0);
+
+		jsonConverterSpy.MCR.assertParameters("toInstance", 1,
+				iteratorSpy.MCR.getReturnValue("next", 1));
+		jsonConverterSpy.MCR.assertParameters("toInstance", 2,
+				iteratorSpy.MCR.getReturnValue("next", 2));
 
 	}
 

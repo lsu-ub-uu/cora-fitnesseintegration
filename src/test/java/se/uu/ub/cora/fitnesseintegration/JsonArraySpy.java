@@ -20,6 +20,7 @@ package se.uu.ub.cora.fitnesseintegration;
 
 import java.util.Iterator;
 
+import se.uu.ub.cora.fitnesseintegration.spy.MethodCallRecorder;
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.json.parser.JsonString;
@@ -27,6 +28,8 @@ import se.uu.ub.cora.json.parser.JsonValue;
 import se.uu.ub.cora.json.parser.JsonValueType;
 
 public class JsonArraySpy implements JsonArray {
+
+	public MethodCallRecorder MCR = new MethodCallRecorder();
 
 	public IteratorSpy returnedIterator = new IteratorSpy();
 
@@ -38,6 +41,8 @@ public class JsonArraySpy implements JsonArray {
 
 	@Override
 	public Iterator<JsonValue> iterator() {
+		MCR.addCall();
+		MCR.addReturned(returnedIterator);
 		return returnedIterator;
 	}
 

@@ -83,16 +83,14 @@ public class ComparerFixture {
 
 	public void testReadRecordListAndStoreRecords() throws UnsupportedEncodingException {
 		storedListAsJson = recordHandler.readRecordList(authToken, type, listFilter).responseText;
-
 		List<DataRecord> convertedRecords = convertToRecords();
 		DataHolder.setRecord(convertedRecords.get(indexToStore));
 		DataHolder.setRecordList(convertedRecords);
 	}
 
 	private List<DataRecord> convertToRecords() {
-		JsonArray data = extractListOfRecords();
+		Iterator<JsonValue> iterator = getIteratorFromListOfRecords();
 		List<DataRecord> convertedRecords = new ArrayList<>();
-		Iterator<JsonValue> iterator = data.iterator();
 		while (iterator.hasNext()) {
 			JsonObject record = (JsonObject) iterator.next();
 			convertAndAddRecord(record, convertedRecords);
@@ -107,38 +105,55 @@ public class ComparerFixture {
 	}
 
 	public String testReadRecordListAndStoreRecordById() throws UnsupportedEncodingException {
+		DataHolder.setRecord(null);
 		storedListAsJson = recordHandler.readRecordList(authToken, type, listFilter).responseText;
-		// Spike
-		// DataRecord recordToStore = findAndConvertLoop();
-		// DataHolder.setRecord(recordToStore);
+		findAndStoreRecord();
 		return storedListAsJson;
 	}
 
-	// private DataRecord findAndConvertLoop() {
-	// JsonArray data = extractListOfRecords();
-	// DataRecord record = null;
-	// Iterator<JsonValue> iterator = data.iterator();
-	// while (iterator.hasNext() || record == null) {
-	// JsonObject jsonRecord = (JsonObject) iterator.next();
-	// record = findAndConverRecord(jsonRecord);
-	// }
-	// return record;
-	// }
+	private void findAndStoreRecord() {
+		Iterator<JsonValue> iterator = getIteratorFromListOfRecords();
+		boolean recordFound = false;
+		while (!recordFound && iterator.hasNext()) {
+			recordFound = compareAndStoreIfFound(iterator, recordFound);
+		}
+	}
+
+	private Iterator<JsonValue> getIteratorFromListOfRecords() {
+		JsonArray dataArray = extractListOfRecords();
+		return dataArray.iterator();
+	}
+
+	private boolean compareAndStoreIfFound(Iterator<JsonValue> iterator, boolean recordFound) {
+		JsonObject jsonRecord = (JsonObject) iterator.next();
+		DataRecord recordToStore = jsonToDataRecordConverter.toInstance(jsonRecord);
+		recordFound = storeRecordIfFound(recordFound, recordToStore);
+		return recordFound;
+	}
+
+	private boolean storeRecordIfFound(boolean recordFound,
+			DataRecord recordToStore) {
+		if (idToStoreEqualsIdIn(recordToStore)) {
+			recordFound = true;
+			DataHolder.setRecord(recordToStore);
+		}
+		return recordFound;
+	}
+
+	private boolean idToStoreEqualsIdIn(DataRecord recordToStore) {
+		return getRecordIdValue(recordToStore).equals(idToStore);
+	}
+
+	private String getRecordIdValue(DataRecord recordToStore) {
+		return recordToStore.getClientDataGroup().getFirstGroupWithNameInData("recordInfo")
+				.getFirstAtomicValueWithNameInData("id");
+	}
 
 	private void convertAndAddRecord(JsonObject recordJsonObject,
 			List<DataRecord> convertedRecords) {
 		DataRecord record = jsonToDataRecordConverter.toInstance(recordJsonObject);
 		convertedRecords.add(record);
 	}
-
-	// Spike
-	// private DataRecord findAndConverRecord(JsonObject recordJsonObject) {
-	// DataRecord record = jsonToDataRecordConverter.toInstance(recordJsonObject);
-	// String idValue = record.getClientDataGroup().getFirstAtomicValueWithNameInData("id");
-	// if (idValue.equals(idToStore))
-	// return record;
-	// return null;
-	// }
 
 	protected String joinErrorMessages(List<String> errorMessages) {
 		StringJoiner compareError = new StringJoiner(" ");

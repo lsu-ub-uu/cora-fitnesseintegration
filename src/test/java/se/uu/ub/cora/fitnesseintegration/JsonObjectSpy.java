@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import se.uu.ub.cora.fitnesseintegration.spy.MethodCallRecorder;
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.json.parser.JsonString;
@@ -36,6 +37,8 @@ public class JsonObjectSpy implements JsonObject {
 	public List<JsonObjectSpy> getValueObjectsReturned = new ArrayList<>();
 	public List<JsonArraySpy> getValueArraysReturned = new ArrayList<>();
 
+	public MethodCallRecorder MCR = new MethodCallRecorder();
+
 	@Override
 	public JsonValueType getValueType() {
 		// TODO Auto-generated method stub
@@ -44,18 +47,23 @@ public class JsonObjectSpy implements JsonObject {
 
 	@Override
 	public JsonValue getValue(String key) {
+		MCR.addCall("key", key);
 		getValueKeys.add(key);
+
+		JsonValue returnJson = null;
+
 		if ("dataList".equals(key)) {
 			JsonObjectSpy valueObjectSpy = new JsonObjectSpy();
 			getValueObjectsReturned.add(valueObjectSpy);
-			return valueObjectSpy;
+			returnJson = valueObjectSpy;
 		}
 		if ("data".equals(key)) {
 			JsonArraySpy jsonArraySpy = new JsonArraySpy();
 			getValueArraysReturned.add(jsonArraySpy);
-			return jsonArraySpy;
+			returnJson = jsonArraySpy;
 		}
-		return null;
+		MCR.addReturned(returnJson);
+		return returnJson;
 	}
 
 	@Override
