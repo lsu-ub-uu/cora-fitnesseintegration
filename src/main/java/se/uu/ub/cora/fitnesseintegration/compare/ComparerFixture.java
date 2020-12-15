@@ -127,12 +127,10 @@ public class ComparerFixture {
 	private boolean compareAndStoreIfFound(Iterator<JsonValue> iterator, boolean recordFound) {
 		JsonObject jsonRecord = (JsonObject) iterator.next();
 		DataRecord recordToStore = jsonToDataRecordConverter.toInstance(jsonRecord);
-		recordFound = storeRecordIfFound(recordFound, recordToStore);
-		return recordFound;
+		return storeRecordIfFound(recordFound, recordToStore);
 	}
 
-	private boolean storeRecordIfFound(boolean recordFound,
-			DataRecord recordToStore) {
+	private boolean storeRecordIfFound(boolean recordFound, DataRecord recordToStore) {
 		if (idToStoreEqualsIdIn(recordToStore)) {
 			recordFound = true;
 			DataHolder.setRecord(recordToStore);
