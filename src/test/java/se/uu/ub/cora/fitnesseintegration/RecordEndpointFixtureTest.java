@@ -82,7 +82,7 @@ public class RecordEndpointFixtureTest {
 		assertEquals(recordHandler.recordType, type);
 		assertEquals(recordHandler.recordId, id);
 		assertEquals(recordHandler.authToken, "someToken");
-		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 
 	}
 
@@ -110,7 +110,7 @@ public class RecordEndpointFixtureTest {
 		assertEquals(recordHandler.recordType, type);
 		assertEquals(recordHandler.recordId, id);
 		assertEquals(recordHandler.authToken, "someToken");
-		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 	}
 
 	@Test
@@ -137,7 +137,7 @@ public class RecordEndpointFixtureTest {
 		assertEquals(recordHandler.recordType, type);
 		assertEquals(recordHandler.authToken, "someToken");
 		assertEquals(recordHandler.filter, json);
-		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 
 	}
 
@@ -174,7 +174,7 @@ public class RecordEndpointFixtureTest {
 	@Test
 	public void testCreateRecordReturnedResponseTextSameAsInRecordHandler() {
 		String responseText = fixture.testCreateRecord();
-		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 	}
 
 	@Test
@@ -190,7 +190,7 @@ public class RecordEndpointFixtureTest {
 		fixture.setAuthToken("someToken");
 		String json = "{\"name\":\"value\"}";
 		fixture.setJson(json);
-		recordHandler.jsonToReturn = "{\"record\":{\"data\":{\"children\":[{\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"system\"},{\"name\":\"linkedRecordId\",\"value\":\"cora\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/system/cora\",\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"dataDivider\"},{\"name\":\"id\",\"value\":\"someId\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"someRecordType\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/recordType/someRecordType\",\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"type\"},{\"name\":\"createdBy\",\"value\":\"131313\"}],\"name\":\"recordInfo\"}],\"name\":\"binary\",\"attributes\":{\"type\":\"someRecordTypeAttribute\"}},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\",\"accept\":\"application/vnd.uub.record+json\"},\"update\":{\"requestMethod\":\"POST\",\"rel\":\"update\",\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\",\"accept\":\"application/vnd.uub.record+json\"},\"delete\":{\"requestMethod\":\"DELETE\",\"rel\":\"delete\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\"}}}}";
+		recordHandler.jsonToReturnDefault = "{\"record\":{\"data\":{\"children\":[{\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"system\"},{\"name\":\"linkedRecordId\",\"value\":\"cora\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/system/cora\",\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"dataDivider\"},{\"name\":\"id\",\"value\":\"someId\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"someRecordType\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/recordType/someRecordType\",\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"type\"},{\"name\":\"createdBy\",\"value\":\"131313\"}],\"name\":\"recordInfo\"}],\"name\":\"binary\",\"attributes\":{\"type\":\"someRecordTypeAttribute\"}},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\",\"accept\":\"application/vnd.uub.record+json\"},\"update\":{\"requestMethod\":\"POST\",\"rel\":\"update\",\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\",\"accept\":\"application/vnd.uub.record+json\"},\"delete\":{\"requestMethod\":\"DELETE\",\"rel\":\"delete\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\"}}}}";
 
 		String createdType = fixture.testCreateRecordCreatedType();
 		assertEquals(createdType, "someRecordType");
@@ -206,12 +206,12 @@ public class RecordEndpointFixtureTest {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
 		recordHandler.statusTypeReturned = 401;
 
-		assertEquals(fixture.testCreateRecordCreatedType(), recordHandler.jsonToReturn);
+		assertEquals(fixture.testCreateRecordCreatedType(), recordHandler.jsonToReturnDefault);
 	}
 
 	@Test
 	public void testCreateRecordCreatedTypeNotFoundInJson() {
-		recordHandler.jsonToReturn = "{\"record\":{\"data\":{\"children\":[{\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"system\"},{\"name\":\"linkedRecordId\",\"value\":\"cora\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/system/cora\",\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"dataDivider\"},{\"name\":\"id\",\"value\":\"someId\"},{\"name\":\"createdBy\",\"value\":\"131313\"}],\"name\":\"recordInfo\"}],\"name\":\"binary\",\"attributes\":{\"type\":\"someRecordTypeAttribute\"}},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\",\"accept\":\"application/vnd.uub.record+json\"},\"update\":{\"requestMethod\":\"POST\",\"rel\":\"update\",\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\",\"accept\":\"application/vnd.uub.record+json\"},\"delete\":{\"requestMethod\":\"DELETE\",\"rel\":\"delete\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\"}}}}";
+		recordHandler.jsonToReturnDefault = "{\"record\":{\"data\":{\"children\":[{\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"system\"},{\"name\":\"linkedRecordId\",\"value\":\"cora\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/system/cora\",\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"dataDivider\"},{\"name\":\"id\",\"value\":\"someId\"},{\"name\":\"createdBy\",\"value\":\"131313\"}],\"name\":\"recordInfo\"}],\"name\":\"binary\",\"attributes\":{\"type\":\"someRecordTypeAttribute\"}},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\",\"accept\":\"application/vnd.uub.record+json\"},\"update\":{\"requestMethod\":\"POST\",\"rel\":\"update\",\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\",\"accept\":\"application/vnd.uub.record+json\"},\"delete\":{\"requestMethod\":\"DELETE\",\"rel\":\"delete\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\"}}}}";
 		fixture.setType("someWrongRecordTypeWrongJson");
 		String createdType = fixture.testCreateRecordCreatedType();
 		assertEquals(createdType, "");
@@ -241,7 +241,7 @@ public class RecordEndpointFixtureTest {
 	@Test
 	public void testUpdateRecordReturnedResponseTextSameAsInRecordHandler() {
 		String responseText = fixture.testUpdateRecord();
-		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 	}
 
 	@Test
@@ -269,7 +269,7 @@ public class RecordEndpointFixtureTest {
 		assertEquals(recordHandler.recordType, type);
 		assertEquals(recordHandler.recordId, id);
 		assertEquals(recordHandler.authToken, "someToken");
-		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 	}
 
 	@Test
@@ -382,7 +382,7 @@ public class RecordEndpointFixtureTest {
 		assertEquals(recordHandler.authToken, "someToken");
 		assertEquals(recordHandler.json, json);
 
-		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 
 	}
 

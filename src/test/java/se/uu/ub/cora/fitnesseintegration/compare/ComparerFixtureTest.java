@@ -31,7 +31,9 @@ import javax.ws.rs.core.Response.StatusType;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
+import se.uu.ub.cora.fitnesseintegration.BasicHttpResponse;
 import se.uu.ub.cora.fitnesseintegration.ClientDataRecordSpy;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
@@ -104,7 +106,7 @@ public class ComparerFixtureTest {
 		assertTrue(recordHandler.readRecordListWasCalled);
 
 		assertEquals(recordHandler.recordType, type);
-		assertEquals(fixture.getStoredListAsJson(), recordHandler.jsonToReturn);
+		assertEquals(fixture.getStoredListAsJson(), recordHandler.jsonToReturnDefault);
 		assertEquals(recordHandler.authToken, authToken);
 		assertNull(recordHandler.filter);
 	}
@@ -119,7 +121,7 @@ public class ComparerFixtureTest {
 		assertTrue(recordHandler.readRecordListWasCalled);
 
 		assertEquals(recordHandler.recordType, type);
-		assertEquals(fixture.getStoredListAsJson(), recordHandler.jsonToReturn);
+		assertEquals(fixture.getStoredListAsJson(), recordHandler.jsonToReturnDefault);
 		assertEquals(recordHandler.authToken, authToken);
 		assertEquals(recordHandler.filter, listFilter);
 	}
@@ -129,7 +131,7 @@ public class ComparerFixtureTest {
 			throws UnsupportedEncodingException {
 		fixture.testReadRecordListAndStoreRecords();
 
-		String jsonListFromRecordHandler = recordHandler.jsonToReturn;
+		String jsonListFromRecordHandler = recordHandler.jsonToReturnDefault;
 		String jsonListSentToParser = jsonParser.jsonStringsSentToParser.get(0);
 		assertEquals(jsonListSentToParser, jsonListFromRecordHandler);
 
@@ -192,6 +194,131 @@ public class ComparerFixtureTest {
 	}
 
 	@Test
+	public void testReadRecordListAndStoreRecordByIdRecordNotFound() throws Exception {
+		JsonToDataRecordConverterSpy jsonConverterSpy = new JsonToDataRecordConverterSpy();
+		String authToken = "someAuthToken";
+
+		fixture.setAuthToken(authToken);
+		fixture.setJsonToDataRecordConverter(jsonConverterSpy);
+
+		DataHolder.setRecord(new ClientDataRecordSpy());
+
+		String response = fixture.testReadRecordListAndStoreRecordById();
+
+		recordHandler.MCR.assertParameters("readRecordList", 0, authToken, type, null);
+
+		DataRecord record = DataHolder.getRecord();
+
+		assertNull(record);
+
+		assertReturnValueForReadRecordListAndStore(response);
+	}
+
+	@Test
+	public void testReadRecordListAndStoreRecordById1750() throws Exception {
+		JsonToDataRecordConverterSpy jsonConverterSpy = new JsonToDataRecordConverterSpy();
+		String authToken = "someAuthToken";
+		String recordId = "1750";
+
+		fixture.setIdToStore(recordId);
+		fixture.setAuthToken(authToken);
+		fixture.setJsonToDataRecordConverter(jsonConverterSpy);
+
+		jsonConverterSpy.returnRecordWithID(recordId);
+
+		String response = fixture.testReadRecordListAndStoreRecordById();
+
+		recordHandler.MCR.assertParameters("readRecordList", 0, authToken, type, null);
+
+		DataRecord record = DataHolder.getRecord();
+
+		jsonConverterSpy.MCR.assertMethodWasCalled("toInstance");
+
+		String recordIdValue = record.getClientDataGroup().getFirstGroupWithNameInData("recordInfo")
+				.getFirstAtomicValueWithNameInData("id");
+
+		assertEquals(recordIdValue, recordId);
+
+		assertReturnValueForReadRecordListAndStore(response);
+	}
+
+	@Test
+	public void testReadRecordListAndStoreRecordById3333() throws Exception {
+		JsonToDataRecordConverterSpy jsonConverterSpy = new JsonToDataRecordConverterSpy();
+		String authToken = "someAuthToken";
+		String recordId = "3333";
+
+		fixture.setIdToStore(recordId);
+		fixture.setAuthToken(authToken);
+		fixture.setJsonToDataRecordConverter(jsonConverterSpy);
+
+		jsonConverterSpy.returnRecordWithID(recordId);
+
+		String response = fixture.testReadRecordListAndStoreRecordById();
+
+		recordHandler.MCR.assertParameters("readRecordList", 0, authToken, type, null);
+
+		DataRecord record = DataHolder.getRecord();
+
+		jsonConverterSpy.MCR.assertMethodWasCalled("toInstance");
+
+		String recordIdValue = record.getClientDataGroup().getFirstGroupWithNameInData("recordInfo")
+				.getFirstAtomicValueWithNameInData("id");
+
+		assertEquals(recordIdValue, recordId);
+
+		assertReturnValueForReadRecordListAndStore(response);
+	}
+
+	private void assertReturnValueForReadRecordListAndStore(String response) {
+		String jsonListString = ((BasicHttpResponse) (recordHandler.MCR
+				.getReturnValue("readRecordList", 0))).responseText;
+
+		assertEquals(response, jsonListString);
+	}
+
+	@Test
+	public void testReadRecordListAndStoreRecordByIdLoopList() throws Exception {
+		JsonToDataRecordConverterSpy jsonConverterSpy = new JsonToDataRecordConverterSpy();
+		JsonHandlerSpy jsonHandlerSpy = new JsonHandlerSpy();
+		String authToken = "someAuthToken";
+
+		fixture.setAuthToken(authToken);
+		fixture.setJsonToDataRecordConverter(jsonConverterSpy);
+		fixture.setJsonHandler(jsonHandlerSpy);
+
+		fixture.testReadRecordListAndStoreRecordById();
+
+		recordHandler.MCR.getReturnValue("readRecordList", 0);
+
+		String jsonListString = ((BasicHttpResponse) (recordHandler.MCR
+				.getReturnValue("readRecordList", 0))).responseText;
+
+		jsonHandlerSpy.MCR.assertMethodWasCalled("parseStringAsObject");
+		jsonHandlerSpy.MCR.assertParameters("parseStringAsObject", 0, jsonListString);
+
+		JsonObjectSpy jsonObject = (JsonObjectSpy) jsonHandlerSpy.MCR
+				.getReturnValue("parseStringAsObject", 0);
+		jsonObject.MCR.assertParameters("getValue", 0, "dataList");
+
+		JsonObjectSpy dataListSpy = (JsonObjectSpy) jsonObject.MCR.getReturnValue("getValue", 0);
+		dataListSpy.MCR.assertParameters("getValue", 0, "data");
+
+		JsonArraySpy dataArraySpy = (JsonArraySpy) dataListSpy.MCR.getReturnValue("getValue", 0);
+		dataArraySpy.MCR.assertMethodWasCalled("iterator");
+
+		jsonConverterSpy.MCR.assertNumberOfCallsToMethod("toInstance", 4);
+
+		IteratorSpy iteratorSpy = (IteratorSpy) dataArraySpy.MCR.getReturnValue("iterator", 0);
+
+		jsonConverterSpy.MCR.assertParameters("toInstance", 1,
+				iteratorSpy.MCR.getReturnValue("next", 1));
+		jsonConverterSpy.MCR.assertParameters("toInstance", 2,
+				iteratorSpy.MCR.getReturnValue("next", 2));
+
+	}
+
+	@Test
 	public void testReadRecordAndStoreJson() throws UnsupportedEncodingException {
 		String authToken = "someAuthToken";
 		fixture.setAuthToken(authToken);
@@ -206,7 +333,7 @@ public class ComparerFixtureTest {
 		assertEquals(recordHandler.authToken, authToken);
 
 		assertCorrectDataPassedFromHandlerToConverter();
-		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 	}
 
 	@Test
@@ -229,7 +356,7 @@ public class ComparerFixtureTest {
 	public void testSearchAndStoreCorrectRecordsInDataHolder() throws UnsupportedEncodingException {
 		fixture.testSearchAndStoreRecords();
 
-		String jsonListFromRecordHandler = recordHandler.jsonToReturn;
+		String jsonListFromRecordHandler = recordHandler.jsonToReturnDefault;
 		String jsonListSentToParser = jsonParser.jsonStringsSentToParser.get(0);
 		assertEquals(jsonListSentToParser, jsonListFromRecordHandler);
 
@@ -277,11 +404,11 @@ public class ComparerFixtureTest {
 
 		assertCorrectDataPassedFromHandlerToConverter();
 		assertCorrectValuesSentToRecordHandler(authToken, json);
-		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 	}
 
 	private void assertCorrectDataPassedFromHandlerToConverter() {
-		String jsonFromRecordHandler = recordHandler.jsonToReturn;
+		String jsonFromRecordHandler = recordHandler.jsonToReturnDefault;
 		String jsonListSentToParser = jsonParser.jsonStringsSentToParser.get(0);
 		assertEquals(jsonListSentToParser, jsonFromRecordHandler);
 		assertSame(jsonToDataConverter.jsonObjects.get(0), jsonParser.jsonObjectSpies.get(0));
@@ -303,7 +430,7 @@ public class ComparerFixtureTest {
 
 		assertTrue(recordHandler.updateRecordWasCalled);
 		assertCorrectValuesSentToRecordHandler(authToken, json);
-		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 		assertNull(DataHolder.getRecord());
 	}
 
@@ -316,7 +443,7 @@ public class ComparerFixtureTest {
 		assertTrue(recordHandler.createRecordWasCalled);
 		assertCorrectValuesSentToRecordHandler(authToken, json);
 		assertCorrectDataPassedFromHandlerToConverter();
-		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 	}
 
 	private void setupForCreate() {

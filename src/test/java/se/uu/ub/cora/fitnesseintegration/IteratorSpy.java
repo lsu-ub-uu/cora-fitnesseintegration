@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import se.uu.ub.cora.fitnesseintegration.spy.MethodCallRecorder;
 import se.uu.ub.cora.json.parser.JsonValue;
 
 public class IteratorSpy implements Iterator<JsonValue> {
@@ -30,20 +31,27 @@ public class IteratorSpy implements Iterator<JsonValue> {
 	public List<JsonObjectSpy> objectsReturnedFromNext = new ArrayList<>();
 	private int numNextCalled = 0;
 
+	public MethodCallRecorder MCR = new MethodCallRecorder();
+
 	@Override
 	public boolean hasNext() {
+		MCR.addCall();
 		hasNextWasCalled = true;
 		if (numNextCalled < 4) {
 			numNextCalled++;
+			MCR.addReturned(true);
 			return true;
 		}
+		MCR.addReturned(false);
 		return false;
 	}
 
 	@Override
 	public JsonValue next() {
+		MCR.addCall();
 		JsonObjectSpy next = new JsonObjectSpy();
 		objectsReturnedFromNext.add(next);
+		MCR.addReturned(next);
 		return next;
 	}
 

@@ -81,7 +81,7 @@ public class MetadataValidationFixtureTest {
 		assertEquals(recordHandler.authToken, "someToken");
 		assertEquals(recordHandler.json, json);
 		assertEquals(recordHandler.contentType, "application/vnd.uub.workorder+json");
-		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 
 	}
 
@@ -103,12 +103,12 @@ public class MetadataValidationFixtureTest {
 	public void testValidateRecordOk() {
 		String responseText = fixture.testValidateRecord();
 
-		assertEquals(jsonParser.jsonStringsSentToParser.get(0), recordHandler.jsonToReturn);
+		assertEquals(jsonParser.jsonStringsSentToParser.get(0), recordHandler.jsonToReturnDefault);
 		assertEquals(jsonToDataRecordConverter.jsonObject, jsonParser.jsonObjectSpies.get(0));
 		assertEquals(jsonToDataRecordConverter.returnedSpies.get(0), clientDataRecordSpy);
 
 		assertEquals(fixture.getValid(), "true");
-		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 	}
 
 	@Test
@@ -117,14 +117,14 @@ public class MetadataValidationFixtureTest {
 		jsonToDataRecordConverter.clientDataRecordSpy = clientDataRecordSpy;
 		String responseText = fixture.testValidateRecord();
 		assertEquals(fixture.getValid(), "false");
-		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 	}
 
 	@Test
 	public void testValidateRecordIncorrectValidationOrder() {
 		recordHandler.statusTypeReturned = 401;
 		String responseText = fixture.testValidateRecord();
-		assertEquals(responseText, recordHandler.jsonToReturn);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 	}
 
 }
