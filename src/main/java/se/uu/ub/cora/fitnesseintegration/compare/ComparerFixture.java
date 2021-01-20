@@ -202,10 +202,23 @@ public class ComparerFixture {
 
 	public String testCreateAndStoreRecord() {
 		ExtendedHttpResponse response = recordHandler.createRecord(authToken, type, json);
-		DataRecord record = createRecordFromResponseText(response.responseText);
-		DataHolder.setRecord(record);
+		tryToCreateRecordFromExtendedResponseAndSetInDataHolder(response);
 		statusType = Response.Status.fromStatusCode(response.statusCode);
 		return response.responseText;
+	}
+
+	private void tryToCreateRecordFromExtendedResponseAndSetInDataHolder(
+			ExtendedHttpResponse response) {
+		try {
+			createRecordFromExtendedResponseAndSetInDataHolder(response);
+		} catch (JsonParseException e) {
+			DataHolder.setRecord(null);
+		}
+	}
+
+	private void createRecordFromExtendedResponseAndSetInDataHolder(ExtendedHttpResponse response) {
+		DataRecord record = createRecordFromResponseText(response.responseText);
+		DataHolder.setRecord(record);
 	}
 
 	private DataRecord createRecordFromResponseText(String responseText) {

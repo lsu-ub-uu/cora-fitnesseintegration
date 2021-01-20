@@ -482,6 +482,25 @@ public class ComparerFixtureTest {
 	}
 
 	@Test
+	public void testCreateAndStoreForbiddenRecord() throws UnsupportedEncodingException {
+		DataHolder.setRecord(new ClientDataRecordSpy());
+		String authToken = "someAuthToken";
+		fixture.setAuthToken(authToken);
+		String json = "Forbidden answer from server";
+		fixture.setJson(json);
+		recordHandler.statusTypeReturned = 403;
+		jsonParser.throwException = true;
+		fixture.setId("someId");
+
+		String responseText = fixture.testCreateAndStoreRecord();
+
+		assertTrue(recordHandler.createRecordWasCalled);
+		assertCorrectValuesSentToRecordHandler(authToken, json);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
+		assertNull(DataHolder.getRecord());
+	}
+
+	@Test
 	public void testGetStatusTypeOnUpdateStatusCREATED() throws Exception {
 		setupForCreate();
 		recordHandler.statusTypeReturned = 201;
