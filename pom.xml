@@ -36,7 +36,7 @@
 		<cora-clientdata.version>3.6.0</cora-clientdata.version>
 		<javaclient.version>1.7.0</javaclient.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
-		<fitnesse.version>20200501</fitnesse.version>
+		<fitnesse.version>20201213</fitnesse.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
 		<activation.version>1.1.1</activation.version>
 		<javax-activation.version>1.2.0</javax-activation.version>
