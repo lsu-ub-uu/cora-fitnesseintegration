@@ -195,7 +195,8 @@ public class ChildComparerTest {
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 1);
 		assertEquals(errorMessages.get(0),
-				"Child with nameInData workoutName does not have the correct value.");
+				"Child with nameInData workoutName does not have the correct value "
+						+ "(cirkelfys expected NOTcirkelfys).");
 	}
 
 	@Test
@@ -230,7 +231,8 @@ public class ChildComparerTest {
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 1);
 		assertEquals(errorMessages.get(0),
-				"Child with nameInData firstName does not have the correct value.");
+				"Child with nameInData firstName does not have the correct value "
+						+ "(Anna expected NOTAnna).");
 	}
 
 	@Test
@@ -244,7 +246,8 @@ public class ChildComparerTest {
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 2);
 		assertEquals(errorMessages.get(0),
-				"Child with nameInData firstName does not have the correct value.");
+				"Child with nameInData firstName does not have the correct value "
+						+ "(Anna expected NOTAnna).");
 		assertEquals(errorMessages.get(1),
 				"Child with nameInData NOTlastName and type atomic is missing.");
 	}

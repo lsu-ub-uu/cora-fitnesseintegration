@@ -215,7 +215,8 @@ public class ChildComparerImp implements ChildComparer {
 
 		if (valueInDataNotSameAsInJson(valueInJson, valueInData)) {
 			String messagePrefix = getMessagePrefix(nameInData);
-			errorMessages.add(messagePrefix + " does not have the correct value.");
+			errorMessages.add(messagePrefix + " does not have the correct value (" + valueInData
+					+ " expected " + valueInJson.getStringValue() + ").");
 		}
 	}
 
