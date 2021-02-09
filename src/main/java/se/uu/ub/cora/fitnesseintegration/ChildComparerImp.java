@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 
+import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataAttribute;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.DataMissingException;
@@ -194,11 +195,71 @@ public class ChildComparerImp implements ChildComparer {
 
 	private void checkChildValues(ClientDataGroup dataGroup, List<String> errorMessages,
 			JsonObject childObject, String nameInData) {
+
 		if (isAtomicType(childObject)) {
-			checkAtomicChild(dataGroup, errorMessages, childObject, nameInData);
+			checkValueAtomicChild(dataGroup, errorMessages, childObject, nameInData);
+			String repeatIdInData = extractRepeatIdFromAtomic(dataGroup, nameInData);
+			checkRepeatId(errorMessages, childObject, nameInData, repeatIdInData);
+
 		} else {
 			checkDataGroup(errorMessages, dataGroup, childObject, nameInData);
+			String repeatIdInData = extractRepeatIdFromDataGroup(dataGroup, nameInData);
+			checkRepeatId(errorMessages, childObject, nameInData, repeatIdInData);
 		}
+	}
+
+	private void checkValueAtomicChild(ClientDataGroup dataGroup, List<String> errorMessages,
+			JsonObject childObject, String nameInData) {
+		JsonString valueInJson = (JsonString) childObject.getValue("value");
+		String valueInData = dataGroup.getFirstAtomicValueWithNameInData(nameInData);
+
+		if (valueInDataNotSameAsInJson(valueInJson, valueInData)) {
+			String messagePrefix = getMessagePrefix(nameInData);
+			errorMessages.add(messagePrefix + " does not have the correct value (" + valueInData
+					+ " expected " + valueInJson.getStringValue() + ").");
+		}
+	}
+
+	private boolean valueInDataNotSameAsInJson(JsonString value, String atomicValue) {
+		return !atomicValue.equals(value.getStringValue());
+	}
+
+	private String extractRepeatIdFromAtomic(ClientDataGroup dataGroup, String nameInData) {
+		ClientDataAtomic childAtomic = (ClientDataAtomic) dataGroup
+				.getFirstChildWithNameInData(nameInData);
+		return childAtomic.getRepeatId();
+	}
+
+	private String extractRepeatIdFromDataGroup(ClientDataGroup dataGroup, String nameInData) {
+		ClientDataGroup childGroup = dataGroup.getFirstGroupWithNameInData(nameInData);
+		return childGroup.getRepeatId();
+	}
+
+	private void checkRepeatId(List<String> errorMessages, JsonObject childObject,
+			String nameInData, String repeatIdInData) {
+		String messagePrefix = getMessagePrefix(nameInData);
+		if (childObject.containsKey("repeatId")) {
+			checkRepeatIdInData(errorMessages, childObject, repeatIdInData, messagePrefix);
+		} else if (repeatIdInData != null) {
+			errorMessages.add(messagePrefix + " should NOT have repeatId.");
+		}
+	}
+
+	private void checkRepeatIdInData(List<String> errorMessages, JsonObject childObject,
+			String repeatIdInData, String messagePrefix) {
+		if (repeatIdInData == null) {
+			errorMessages.add(messagePrefix + " has NO repeatId.");
+		} else {
+			JsonString repeatIdInJson = (JsonString) childObject.getValue("repeatId");
+			if (differentRepeatIds(repeatIdInData, repeatIdInJson)) {
+				errorMessages.add(messagePrefix + " does not have correct repeatId ("
+						+ repeatIdInData + " expected " + repeatIdInJson.getStringValue() + ").");
+			}
+		}
+	}
+
+	private boolean differentRepeatIds(String repeatIdInData, JsonString repeatIdInJson) {
+		return !repeatIdInJson.getStringValue().equals(repeatIdInData);
 	}
 
 	private void checkDataGroup(List<String> errorMessages, ClientDataGroup dataGroup,
@@ -222,21 +283,6 @@ public class ChildComparerImp implements ChildComparer {
 			return "group";
 		}
 		return ATOMIC;
-	}
-
-	private void checkAtomicChild(ClientDataGroup dataGroup, List<String> errorMessages,
-			JsonObject childObject, String nameInData) {
-		JsonString value = (JsonString) childObject.getValue("value");
-		String atomicValue = dataGroup.getFirstAtomicValueWithNameInData(nameInData);
-
-		if (valueInDataNotSameAsInJson(value, atomicValue)) {
-			String messagePrefix = getMessagePrefix(nameInData);
-			errorMessages.add(messagePrefix + " does not have the correct value.");
-		}
-	}
-
-	private boolean valueInDataNotSameAsInJson(JsonString value, String atomicValue) {
-		return !atomicValue.equals(value.getStringValue());
 	}
 
 	private String getMessagePrefix(String nameInData) {
