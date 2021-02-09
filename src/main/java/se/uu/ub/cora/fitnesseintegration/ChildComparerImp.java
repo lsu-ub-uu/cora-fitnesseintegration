@@ -221,12 +221,14 @@ public class ChildComparerImp implements ChildComparer {
 			} else {
 				if (!repeatIdInJson.getStringValue().equals(repeatIdInData)) {
 					String messagePrefix = getMessagePrefix(nameInData);
-					errorMessages.add(messagePrefix + " does not have correct repeatId.");
+					errorMessages.add(
+							messagePrefix + " does not have correct repeatId (" + repeatIdInData
+									+ " expected " + repeatIdInJson.getStringValue() + ").");
 				}
 			}
 		} else if (repeatIdInData != null) {
 			String messagePrefix = getMessagePrefix(nameInData);
-			errorMessages.add(messagePrefix + " should have repeatId.");
+			errorMessages.add(messagePrefix + " should NOT have repeatId.");
 		}
 	}
 

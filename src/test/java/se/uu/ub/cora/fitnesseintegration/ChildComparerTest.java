@@ -374,7 +374,7 @@ public class ChildComparerTest {
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 1);
 		assertEquals(errorMessages.get(0),
-				"Child with nameInData instructorName should have repeatId.");
+				"Child with nameInData instructorName should NOT have repeatId.");
 	}
 
 	@Test
@@ -388,7 +388,7 @@ public class ChildComparerTest {
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 1);
 		assertEquals(errorMessages.get(0),
-				"Child with nameInData instructorName does not have correct repeatId.");
+				"Child with nameInData instructorName does not have correct repeatId (differentRepeatId expected 0).");
 	}
 
 	@Test
@@ -429,7 +429,8 @@ public class ChildComparerTest {
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 1);
-		assertEquals(errorMessages.get(0), "Child with nameInData firstName should have repeatId.");
+		assertEquals(errorMessages.get(0),
+				"Child with nameInData firstName should NOT have repeatId.");
 	}
 
 	@Test
@@ -444,6 +445,6 @@ public class ChildComparerTest {
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 1);
 		assertEquals(errorMessages.get(0),
-				"Child with nameInData firstName does not have correct repeatId.");
+				"Child with nameInData firstName does not have correct repeatId (differentRepeatId expected 0).");
 	}
 }
