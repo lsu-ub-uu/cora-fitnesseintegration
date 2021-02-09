@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 
+import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataAttribute;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.DataMissingException;
@@ -194,10 +195,38 @@ public class ChildComparerImp implements ChildComparer {
 
 	private void checkChildValues(ClientDataGroup dataGroup, List<String> errorMessages,
 			JsonObject childObject, String nameInData) {
+
 		if (isAtomicType(childObject)) {
-			checkAtomicChild(dataGroup, errorMessages, childObject, nameInData);
+			checkValueAtomicChild(dataGroup, errorMessages, childObject, nameInData);
+			ClientDataAtomic childAtomic = (ClientDataAtomic) dataGroup
+					.getFirstChildWithNameInData(nameInData);
+			String repeatIdInData = childAtomic.getRepeatId();
+			checkRepeatId(errorMessages, childObject, nameInData, repeatIdInData);
+
 		} else {
 			checkDataGroup(errorMessages, dataGroup, childObject, nameInData);
+			ClientDataGroup childGroup = dataGroup.getFirstGroupWithNameInData(nameInData);
+			String repeatIdInData = childGroup.getRepeatId();
+			checkRepeatId(errorMessages, childObject, nameInData, repeatIdInData);
+		}
+	}
+
+	private void checkRepeatId(List<String> errorMessages, JsonObject childObject,
+			String nameInData, String repeatIdInData) {
+		if (childObject.containsKey("repeatId")) {
+			JsonString repeatIdInJson = (JsonString) childObject.getValue("repeatId");
+			if (repeatIdInData == null) {
+				String messagePrefix = getMessagePrefix(nameInData);
+				errorMessages.add(messagePrefix + " has NO repeatId.");
+			} else {
+				if (!repeatIdInJson.getStringValue().equals(repeatIdInData)) {
+					String messagePrefix = getMessagePrefix(nameInData);
+					errorMessages.add(messagePrefix + " does not have correct repeatId.");
+				}
+			}
+		} else if (repeatIdInData != null) {
+			String messagePrefix = getMessagePrefix(nameInData);
+			errorMessages.add(messagePrefix + " should have repeatId.");
 		}
 	}
 
@@ -224,12 +253,12 @@ public class ChildComparerImp implements ChildComparer {
 		return ATOMIC;
 	}
 
-	private void checkAtomicChild(ClientDataGroup dataGroup, List<String> errorMessages,
+	private void checkValueAtomicChild(ClientDataGroup dataGroup, List<String> errorMessages,
 			JsonObject childObject, String nameInData) {
-		JsonString value = (JsonString) childObject.getValue("value");
-		String atomicValue = dataGroup.getFirstAtomicValueWithNameInData(nameInData);
+		JsonString valueInJson = (JsonString) childObject.getValue("value");
+		String valueInData = dataGroup.getFirstAtomicValueWithNameInData(nameInData);
 
-		if (valueInDataNotSameAsInJson(value, atomicValue)) {
+		if (valueInDataNotSameAsInJson(valueInJson, valueInData)) {
 			String messagePrefix = getMessagePrefix(nameInData);
 			errorMessages.add(messagePrefix + " does not have the correct value.");
 		}
