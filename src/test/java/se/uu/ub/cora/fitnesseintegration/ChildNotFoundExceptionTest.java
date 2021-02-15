@@ -22,8 +22,6 @@ package se.uu.ub.cora.fitnesseintegration;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.fitnesseintegration.ChildNotFoundException;
-
 public class ChildNotFoundExceptionTest {
 	@Test
 	public void testInit() {

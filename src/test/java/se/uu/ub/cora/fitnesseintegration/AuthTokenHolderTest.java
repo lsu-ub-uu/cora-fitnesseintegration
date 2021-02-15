@@ -19,12 +19,10 @@
 
 package se.uu.ub.cora.fitnesseintegration;
 
-import org.testng.annotations.Test;
-
-import se.uu.ub.cora.fitnesseintegration.AuthTokenHolder;
-
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+
+import org.testng.annotations.Test;
 
 public class AuthTokenHolderTest {
 
