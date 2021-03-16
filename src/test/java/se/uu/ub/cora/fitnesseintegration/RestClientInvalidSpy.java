@@ -72,4 +72,10 @@ public class RestClientInvalidSpy implements RestClient {
 		return new RestResponse(500, returnedErrorMessage);
 	}
 
+	@Override
+	public String getBaseUrl() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

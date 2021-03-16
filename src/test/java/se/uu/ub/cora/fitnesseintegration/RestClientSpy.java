@@ -87,4 +87,10 @@ public class RestClientSpy implements RestClient {
 		return new RestResponse(200, returnedJson);
 	}
 
+	@Override
+	public String getBaseUrl() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
