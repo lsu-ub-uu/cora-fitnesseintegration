@@ -28,6 +28,7 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
@@ -311,6 +312,37 @@ public class ChildComparerFixtureTest {
 		childComparer.spyShouldThrowError = true;
 
 		assertEquals(fixture.testCheckContainWithValues(), childComparer.errorMessage);
+	}
+
+	@Test
+	public void testCountChildrenOK() {
+		ClientDataGroup clientDataGroup = createDataGroupWithTwoChildren();
+		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
+		clientDataRecordSpy.clientDataGroup = clientDataGroup;
+		DataHolder.setRecord(clientDataRecordSpy);
+
+		fixture.setExpectedNumberOfChildren(2);
+		String result = fixture.testCheckNumberOfChildren();
+		assertEquals(result, "OK");
+	}
+
+	private ClientDataGroup createDataGroupWithTwoChildren() {
+		ClientDataGroup clientDataGroup = ClientDataGroup.withNameInData("clientDataGroupSpy");
+		clientDataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("someName", "someValue"));
+		clientDataGroup.addChild(ClientDataGroup.withNameInData("someChildGroup"));
+		return clientDataGroup;
+	}
+
+	@Test
+	public void testCountChildrenNotOK() {
+		ClientDataGroup clientDataGroup = createDataGroupWithTwoChildren();
+		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
+		clientDataRecordSpy.clientDataGroup = clientDataGroup;
+		DataHolder.setRecord(clientDataRecordSpy);
+
+		fixture.setExpectedNumberOfChildren(3);
+		String result = fixture.testCheckNumberOfChildren();
+		assertEquals(result, "Expected 3 but found 2");
 	}
 
 }

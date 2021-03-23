@@ -31,6 +31,7 @@ import se.uu.ub.cora.json.parser.JsonParseException;
 public class ChildComparerFixture extends ComparerFixture {
 	private ChildComparer childComparer;
 	private String childrenToCompare;
+	private int expectedNumberOfChildren;
 
 	public ChildComparerFixture() {
 		super();
@@ -87,8 +88,26 @@ public class ChildComparerFixture extends ComparerFixture {
 		}
 	}
 
+	public String testCheckNumberOfChildren() {
+		ClientDataGroup readDataGroup = DataHolder.getRecord().getClientDataGroup();
+		int numberOfChildren = readDataGroup.getChildren().size();
+		if (actualAndExpectedIsSameSize(numberOfChildren)) {
+			return "Expected " + expectedNumberOfChildren + " but found " + numberOfChildren;
+		}
+		return "OK";
+	}
+
+	private boolean actualAndExpectedIsSameSize(int numberOfChildren) {
+		return numberOfChildren != expectedNumberOfChildren;
+	}
+
 	public void setChildren(String children) {
 		childrenToCompare = children;
+
+	}
+
+	public void setExpectedNumberOfChildren(int expectedNumberOfChildren) {
+		this.expectedNumberOfChildren = expectedNumberOfChildren;
 
 	}
 
@@ -96,4 +115,5 @@ public class ChildComparerFixture extends ComparerFixture {
 		// needed for test
 		return childComparer;
 	}
+
 }
