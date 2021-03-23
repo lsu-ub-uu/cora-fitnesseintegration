@@ -89,12 +89,18 @@ public class ChildComparerFixture extends ComparerFixture {
 	}
 
 	public String testCheckNumberOfChildren() {
-		ClientDataGroup readDataGroup = DataHolder.getRecord().getClientDataGroup();
-		int numberOfChildren = readDataGroup.getChildren().size();
+		int numberOfChildren = getNumberOfChildReferences();
 		if (actualAndExpectedIsSameSize(numberOfChildren)) {
 			return "Expected " + expectedNumberOfChildren + " but found " + numberOfChildren;
 		}
 		return "OK";
+	}
+
+	private int getNumberOfChildReferences() {
+		ClientDataGroup readDataGroup = DataHolder.getRecord().getClientDataGroup();
+		ClientDataGroup childReferences = readDataGroup
+				.getFirstGroupWithNameInData("childReferences");
+		return childReferences.getAllGroupsWithNameInData("childReference").size();
 	}
 
 	private boolean actualAndExpectedIsSameSize(int numberOfChildren) {

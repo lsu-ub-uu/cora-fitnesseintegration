@@ -28,7 +28,6 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
@@ -316,7 +315,7 @@ public class ChildComparerFixtureTest {
 
 	@Test
 	public void testCountChildrenOK() {
-		ClientDataGroup clientDataGroup = createDataGroupWithTwoChildren();
+		ClientDataGroup clientDataGroup = createDataGroupWithTwoChildReferences();
 		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
 		clientDataRecordSpy.clientDataGroup = clientDataGroup;
 		DataHolder.setRecord(clientDataRecordSpy);
@@ -326,16 +325,24 @@ public class ChildComparerFixtureTest {
 		assertEquals(result, "OK");
 	}
 
-	private ClientDataGroup createDataGroupWithTwoChildren() {
+	private ClientDataGroup createDataGroupWithTwoChildReferences() {
 		ClientDataGroup clientDataGroup = ClientDataGroup.withNameInData("clientDataGroupSpy");
-		clientDataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("someName", "someValue"));
-		clientDataGroup.addChild(ClientDataGroup.withNameInData("someChildGroup"));
+		ClientDataGroup childReferences = ClientDataGroup.withNameInData("childReferences");
+		addChildRefWithRepeatId(childReferences, "0");
+		addChildRefWithRepeatId(childReferences, "1");
+		clientDataGroup.addChild(childReferences);
 		return clientDataGroup;
+	}
+
+	private void addChildRefWithRepeatId(ClientDataGroup childReferences, String repeatId) {
+		ClientDataGroup childRef1 = ClientDataGroup.withNameInData("childReference");
+		childRef1.setRepeatId(repeatId);
+		childReferences.addChild(childRef1);
 	}
 
 	@Test
 	public void testCountChildrenNotOK() {
-		ClientDataGroup clientDataGroup = createDataGroupWithTwoChildren();
+		ClientDataGroup clientDataGroup = createDataGroupWithTwoChildReferences();
 		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
 		clientDataRecordSpy.clientDataGroup = clientDataGroup;
 		DataHolder.setRecord(clientDataRecordSpy);
