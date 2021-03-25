@@ -475,9 +475,7 @@ public class ChildComparerTest {
 		atomicChild2.setRepeatId("1");
 		recordInfo.addChild(atomicChild2);
 
-		ClientDataAtomic atomicChild = ClientDataAtomic.withNameInDataAndValue("domain", "kth");
-		atomicChild.setRepeatId("0");
-		recordInfo.addChild(atomicChild);
+		addKthDomainPart(recordInfo);
 
 		dataGroup.addChild(recordInfo);
 
@@ -489,14 +487,68 @@ public class ChildComparerTest {
 	}
 
 	@Test
+	public void testCheckCorrectAtomicValuesRepeatableEmptyRepeatId() {
+		ClientDataGroup recordInfo = ClientDataGroup.withNameInData("recordInfo");
+		ClientDataAtomic atomicChild2 = ClientDataAtomic.withNameInDataAndValue("domain", "test");
+		atomicChild2.setRepeatId("");
+		recordInfo.addChild(atomicChild2);
+
+		addKthDomainPart(recordInfo);
+		dataGroup.addChild(recordInfo);
+
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"children\":[{\"repeatId\":\"0\",\"name\":\"domain\",\"value\":\"kth\"},{\"repeatId\":\"\",\"name\":\"domain\",\"value\":\"test\"}],\"name\":\"recordInfo\"}],\"name\":\"person\"}");
+		List<String> errorMessages = childComparer
+				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
+		assertEquals(errorMessages.size(), 0);
+	}
+
+	private void addKthDomainPart(ClientDataGroup recordInfo) {
+		ClientDataAtomic atomicChild = ClientDataAtomic.withNameInDataAndValue("domain", "kth");
+		atomicChild.setRepeatId("0");
+		recordInfo.addChild(atomicChild);
+	}
+
+	@Test
+	public void testCheckCorrectAtomicValuesRepeatableNoRepeatId() {
+		ClientDataGroup recordInfo = ClientDataGroup.withNameInData("recordInfo");
+		ClientDataAtomic atomicChild = ClientDataAtomic.withNameInDataAndValue("domain", "test");
+		recordInfo.addChild(atomicChild);
+
+		addKthDomainPart(recordInfo);
+		dataGroup.addChild(recordInfo);
+
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"children\":[{\"repeatId\":\"0\",\"name\":\"domain\",\"value\":\"kth\"},{\"name\":\"domain\",\"value\":\"test\"}],\"name\":\"recordInfo\"}],\"name\":\"person\"}");
+		List<String> errorMessages = childComparer
+				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
+		assertEquals(errorMessages.size(), 0);
+	}
+
+	@Test
+	public void testCheckCorrectAtomicValuesRepeatableEmptyRepeatIdInData() {
+		ClientDataGroup recordInfo = ClientDataGroup.withNameInData("recordInfo");
+		ClientDataAtomic atomicChild = ClientDataAtomic.withNameInDataAndValue("domain", "test");
+		atomicChild.setRepeatId("");
+		recordInfo.addChild(atomicChild);
+
+		addKthDomainPart(recordInfo);
+		dataGroup.addChild(recordInfo);
+
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"children\":[{\"repeatId\":\"0\",\"name\":\"domain\",\"value\":\"kth\"},{\"name\":\"domain\",\"value\":\"test\"}],\"name\":\"recordInfo\"}],\"name\":\"person\"}");
+		List<String> errorMessages = childComparer
+				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
+		assertEquals(errorMessages.size(), 1);
+	}
+
+	@Test
 	public void testCheckCorrectAtomicValuesRepeatableSameValueDifferentRepeatId() {
 		ClientDataGroup recordInfo = ClientDataGroup.withNameInData("recordInfo");
 		ClientDataAtomic atomicChild2 = ClientDataAtomic.withNameInDataAndValue("domain", "kth");
 		recordInfo.addChild(atomicChild2);
 
-		ClientDataAtomic atomicChild = ClientDataAtomic.withNameInDataAndValue("domain", "kth");
-		atomicChild.setRepeatId("0");
-		recordInfo.addChild(atomicChild);
+		addKthDomainPart(recordInfo);
 
 		ClientDataAtomic atomicChild3 = ClientDataAtomic.withNameInDataAndValue("domain", "uu");
 		atomicChild3.setRepeatId("2");
@@ -509,5 +561,34 @@ public class ChildComparerTest {
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 0);
+	}
+
+	@Test
+	public void testLinksRepeatId() {
+		createAndAddDomainPart("authority-person:106:kth", "0");
+		createAndAddDomainPart("authority-person:106:test", "1");
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"repeatId\":\"0\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"personDomainPart\"},{\"name\":\"linkedRecordId\",\"value\":\"authority-person:106:kth\"}],\"name\":\"personDomainPart\"},{\"repeatId\":\"1\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"personDomainPart\"},{\"name\":\"linkedRecordId\",\"value\":\"authority-person:106:test\"}],\"name\":\"personDomainPart\"}],\"name\":\"person\"}");
+		List<String> errorMessages = childComparer
+				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
+		assertEquals(errorMessages.size(), 0);
+	}
+
+	private void createAndAddDomainPart(String linkedRecordId, String repeatId) {
+		ClientDataGroup domainPart = ClientDataGroup.asLinkWithNameInDataAndTypeAndId(
+				"personDomainPart", "personDomainPart", linkedRecordId);
+		domainPart.setRepeatId(repeatId);
+		dataGroup.addChild(domainPart);
+	}
+
+	@Test
+	public void testLinksRepeatIdNoMatch() {
+		createAndAddDomainPart("authority-person:106:kth", "0");
+		createAndAddDomainPart("authority-person:106:test", "1");
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"repeatId\":\"0\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"personDomainPart\"},{\"name\":\"linkedRecordId\",\"value\":\"authority-person:106:kth\"}],\"name\":\"personDomainPart\"},{\"repeatId\":\"3\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"personDomainPart\"},{\"name\":\"linkedRecordId\",\"value\":\"authority-person:106:test\"}],\"name\":\"personDomainPart\"}],\"name\":\"person\"}");
+		List<String> errorMessages = childComparer
+				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
+		assertEquals(errorMessages.size(), 1);
 	}
 }

@@ -334,32 +334,26 @@ public class ChildComparerImp implements ChildComparer {
 	}
 
 	private void checkDataGroup(List<String> errorMessages, ClientDataGroup dataGroup,
-			JsonObject groupObject, String nameInData) {
+			JsonObject childGroupObject, String nameInData) {
 		List<ClientDataGroup> matchingChildGroups = dataGroup
 				.getAllGroupsWithNameInData(nameInData);
 
-		JsonArray children = groupObject.getValueAsJsonArray(CHILDREN);
+		String repeatId = getRepeatId(childGroupObject);
+		ClientDataGroup matchingGroup = null;
+		for (ClientDataGroup childGroup : matchingChildGroups) {
+			String repeatIdInData = childGroup.getRepeatId();
+			if (bothRepeatIdsAreEmpty(repeatId, repeatIdInData)
+					|| repeatId.equals(repeatIdInData)) {
+				matchingGroup = childGroup;
+			}
+
+		}
+
+		JsonArray children = childGroupObject.getValueAsJsonArray(CHILDREN);
 		for (JsonValue childValue : children) {
 			JsonObject childObject = (JsonObject) childValue;
-			for (ClientDataGroup childGroup : matchingChildGroups) {
-				String childNameInData = extractNameInDataFromJsonObject(childObject);
-				String type = getType(childObject);
-				String repeatId = getRepeatId(childObject);
+			checkDataGroupContainsChildWithCorrectValue(matchingGroup, errorMessages, childObject);
 
-				if (noChildWithCorrectTypeExist(childGroup, childNameInData, type, repeatId)) {
-					if (!"".equals(repeatId)) {
-						errorMessages.add(constructMissingMessageWithTypeAndRepeatId(
-								childNameInData, type, repeatId));
-					} else {
-						errorMessages.add(constructMissingMessageWithType(childNameInData, type));
-					}
-				} else {
-					checkChildValues(childGroup, errorMessages, childObject, childNameInData);
-				}
-				// checkDataGroupContainsChildWithCorrectValue(childGroup, errorMessages,
-				// childObject);
-
-			}
 		}
 	}
 
