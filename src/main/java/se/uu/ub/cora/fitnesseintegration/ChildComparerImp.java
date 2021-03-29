@@ -156,6 +156,7 @@ public class ChildComparerImp implements ChildComparer {
 			JsonValue jsonValue) {
 		// TODO: should be jsonObject not value... ??
 		// TODO: attributes???
+		// TODO: check nameInData top group
 		try {
 			return tryToCheckDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		} catch (Exception exception) {
@@ -243,7 +244,8 @@ public class ChildComparerImp implements ChildComparer {
 		return false;
 	}
 
-	private boolean dataAtomicHasValueFromJson(JsonObject childObject, ClientDataAtomic dataAtomic) {
+	private boolean dataAtomicHasValueFromJson(JsonObject childObject,
+			ClientDataAtomic dataAtomic) {
 		JsonString valueInJson = (JsonString) childObject.getValue("value");
 		String stringValueInJson = valueInJson.getStringValue();
 		return stringValueInJson.equals(dataAtomic.getValue());
