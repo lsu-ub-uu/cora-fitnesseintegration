@@ -252,6 +252,30 @@ public class ChildComparerTest {
 	// testRepeatableAtomicTwoPresentMatchOnOne
 	// testValuesRepeatableAtomicMatch
 	// testValuesNonRepeatableAtomicInsideGroupNoMatchWrongName
+
+	@Test
+	public void testValuesNonRepeatableAtomicChildTestWeirdValue() {
+		String fromXmlToFedora = "&lt;p&gt;Carl Linnaeus (/lɪˈniːəs, lɪˈneɪəs/;[1][2] 23 May[note 1] 1707 – 10 January 1778), also known after his ennoblement as Carl von Linné[3] (Swedish pronunciation: [ˈkɑːɭ fɔn lɪˈneː] ( listen)), was a Swedish botanist, zoologist, taxonomist, and physician who formalised binomial nomenclature, the modern system of naming organisms. He is known as the &quot;father of modern taxonomy&quot;.[4] Many of his writings were in Latin, and his name is rendered in Latin as Carolus Linnæus (after 1761 Carolus a Linné). &lt;/p&gt;";
+		String fromXmlToFedora2 = "&lt;p&gt;Carl Linnaeus also known after his ennoblement as Carl von Linné[3] (Swedish pronunciation: [ˈkɑːɭ fɔn lɪˈneː] ( listen)), was a Swedish botanist, zoologist, taxonomist, and physician who formalised binomial nomenclature, the modern system of naming organisms. He is known as the &quot;father of modern taxonomy&quot;.[4] Many of his writings were in Latin, and his name is rendered in Latin as Carolus Linnæus (after 1761 Carolus a Linné). &lt;/p&gt;";
+		String fromJsonAnswerInBrowser = "<p>Carl Linnaeus (/lɪˈniːəs, lɪˈneɪəs/;[1][2] 23 May[note 1] 1707 – 10 January 1778), also known after his ennoblement as Carl von Linné[3] (Swedish pronunciation: [ˈkɑːɭ fɔn lɪˈneː] ( listen)), was a Swedish botanist, zoologist, taxonomist, and physician who formalised binomial nomenclature, the modern system of naming organisms. He is known as the \"father of modern taxonomy\".[4] Many of his writings were in Latin, and his name is rendered in Latin as Carolus Linnæus (after 1761 Carolus a Linné). </p>";
+		String fromInputInBrowser = "<p>Carl Linnaeus (/lɪˈniːəs, lɪˈneɪəs/;[1][2] 23 May[note 1] 1707 – 10 January 1778), also known after his ennoblement as Carl von Linné[3] (Swedish pronunciation: [ˈkɑːɭ fɔn lɪˈneː] ( listen)), was a Swedish botanist, zoologist, taxonomist, and physician who formalised binomial nomenclature, the modern system of naming organisms. He is known as the \"father of modern taxonomy\".[4] Many of his writings were in Latin, and his name is rendered in Latin as Carolus Linnæus (after 1761 Carolus a Linné). </p>";
+		// String problemPart = "(/lɪˈniːəs, lɪˈneɪəs/;[1][2] 23 May[note 1] 1707 – 10 January
+		// 1778), ";
+		String problemPartNot = "/lɪˈniːəs, lɪˈneɪəs/;[1][2]";
+		String problemPart = "–-";
+		// String problemPart = "–-‒";
+		String trams = "trams";
+		String current = fromXmlToFedora;
+		// String current = problemPart;
+		// String current = problemPartNot;
+		dataGroup = ClientDataGroup.withNameInData("someDataGroup");
+		dataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("workoutName", current));
+
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"name\":\"workoutName\",\"value\":\"" + current + "\"}]}");
+		assertNoErrorMessages(jsonValue);
+	}
+
 	@Test
 	public void testValuesNonRepeatableAtomicChildTestCorrect() {
 		JsonValue jsonValue = jsonParser

@@ -31,7 +31,7 @@
 	<name>Fitnesse integration</name>
 
 	<properties>
-		<json.version>2.2.0</json.version>
+		<json.version>2.3-SNAPSHOT</json.version>
 		<httphandler.version>2.2.0</httphandler.version>
 		<cora-clientdata.version>3.8-SNAPSHOT</cora-clientdata.version>
 		<javaclient.version>1.8.0</javaclient.version>
