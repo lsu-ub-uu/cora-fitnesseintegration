@@ -97,20 +97,22 @@ public class ChildComparerTest {
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertEquals(errorMessages.size(), 1);
-		assertEquals(errorMessages.get(0), "Child with nameInData workoutName is missing.");
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData workoutName.");
 
 		boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
 		assertFalse(containsChildren);
 	}
 
 	@Test
-	public void testContainNotOKNoChildExistInDataGroup() {
-		dataGroup = ClientDataGroup.withNameInData("someDataGroup");
-		JsonValue jsonValue = jsonParser.parseString("{\"children\":[{\"name\":\"workoutName\"}]}");
+	public void testContainNotOKNoChildWithCorrectTypeExistInDataGroup() {
+		JsonValue jsonValue = jsonParser
+				.parseString("{\"children\":[{\"name\":\"workoutName\",\"children\":[]}]}");
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertEquals(errorMessages.size(), 1);
-		assertEquals(errorMessages.get(0), "Child with nameInData workoutName is missing.");
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData workoutName.");
 
 	}
 
@@ -130,7 +132,8 @@ public class ChildComparerTest {
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertEquals(errorMessages.size(), 1);
-		assertEquals(errorMessages.get(0), "Child with nameInData instructorId is missing.");
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData instructorId.");
 
 	}
 
@@ -142,9 +145,75 @@ public class ChildComparerTest {
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertEquals(errorMessages.size(), 2);
-		assertEquals(errorMessages.get(0), "Child with nameInData workoutName is missing.");
-		assertEquals(errorMessages.get(1), "Child with nameInData instructorId is missing.");
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData workoutName.");
+		assertEquals(errorMessages.get(1),
+				"Did not find a match for child with nameInData instructorId.");
+	}
 
+	@Test
+	public void testCheckContainOneGrandChildTestCorrect() {
+		ClientDataGroup instructorName = ClientDataGroup.withNameInData("instructorName");
+		instructorName.addChild(
+				ClientDataAtomic.withNameInDataAndValue("firstName", "someUnimportantValue"));
+		dataGroup.addChild(instructorName);
+
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\"}]}]}");
+		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
+				jsonValue);
+		assertEquals(errorMessages.size(), 0);
+	}
+
+	@Test
+	public void testCheckContainOneAtomicGrandChildTestMissingGrandChild() {
+		ClientDataGroup instructorName = ClientDataGroup.withNameInData("instructorName");
+		instructorName.setRepeatId("0");
+		dataGroup.addChild(instructorName);
+
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"name\":\"workoutName\"},{\"name\":\"instructorName\",\"repeatId\":\"0\",\"children\":[{\"name\":\"firstName\"}]}]}");
+		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
+				jsonValue);
+		assertEquals(errorMessages.size(), 1);
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData firstName.");
+	}
+
+	@Test
+	public void testCheckContainOneGroupGrandChildTestMissingGrandChild() {
+		ClientDataGroup instructorName = ClientDataGroup.withNameInData("instructorName");
+		dataGroup.addChild(instructorName);
+
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"children\":[]}]}]}");
+		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
+				jsonValue);
+		assertEquals(errorMessages.size(), 1);
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData firstName.");
+	}
+
+	@Test
+	public void testCheckContainOneGroupGrandChildTestMissingOneChildAndGrandChild() {
+		ClientDataGroup instructorName = ClientDataGroup.withNameInData("instructorName");
+		instructorName.setRepeatId("0");
+		dataGroup.addChild(instructorName);
+		ClientDataGroup instructorName1 = ClientDataGroup.withNameInData("instructorName");
+		instructorName1.setRepeatId("1");
+		dataGroup.addChild(instructorName1);
+
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"name\":\"NOTworkoutName\"},{\"name\":\"instructorName\",\"repeatId\":\"0\",\"children\":[{\"name\":\"firstName\",\"children\":[]}]},{\"name\":\"instructorName\",\"repeatId\":\"NOT1\",\"children\":[]}]}");
+		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
+				jsonValue);
+		assertEquals(errorMessages.size(), 3);
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData NOTworkoutName.");
+		assertEquals(errorMessages.get(1),
+				"Did not find a match for child with nameInData firstName.");
+		assertEquals(errorMessages.get(2),
+				"Did not find a match for child with nameInData instructorName and repeatId NOT1.");
 	}
 
 	@Test(expectedExceptions = JsonParseException.class, expectedExceptionsMessageRegExp = ""
@@ -192,7 +261,8 @@ public class ChildComparerTest {
 				jsonValue);
 
 		assertEquals(errorMessages.size(), 1);
-		assertEquals(errorMessages.get(0), "Child with nameInData instructorName is missing.");
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData instructorName.");
 		boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
 		assertFalse(containsChildren);
 	}
@@ -204,10 +274,10 @@ public class ChildComparerTest {
 		instructorName.addAttributeByIdWithValue("other", "name");
 		dataGroup.addChild(instructorName);
 		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"},{\"name\":\"lastName\",\"value\":\"Ledare\"}],\"attributes\":{\"type\":\"default\",\"other\":\"name\"}}]}");
+				"{\"children\":[{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"}],\"attributes\":{\"type\":\"default\",\"other\":\"name\"}}]}");
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
-		assertTrue(errorMessages.isEmpty());
+		assertEquals(errorMessages.size(), 0);
 		boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
 		assertTrue(containsChildren);
 	}
@@ -224,7 +294,8 @@ public class ChildComparerTest {
 				jsonValue);
 
 		assertEquals(errorMessages.size(), 1);
-		assertEquals(errorMessages.get(0), "Child with nameInData instructorName is missing.");
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData instructorName.");
 		boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
 		assertFalse(containsChildren);
 	}
@@ -266,6 +337,7 @@ public class ChildComparerTest {
 		// String problemPart = "–-‒";
 		String trams = "trams";
 		String current = fromXmlToFedora;
+		// String current = fromJsonAnswerInBrowser;
 		// String current = problemPart;
 		// String current = problemPartNot;
 		dataGroup = ClientDataGroup.withNameInData("someDataGroup");
