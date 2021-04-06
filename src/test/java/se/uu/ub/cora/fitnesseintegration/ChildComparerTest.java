@@ -97,20 +97,22 @@ public class ChildComparerTest {
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertEquals(errorMessages.size(), 1);
-		assertEquals(errorMessages.get(0), "Child with nameInData workoutName is missing.");
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData workoutName.");
 
 		boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
 		assertFalse(containsChildren);
 	}
 
 	@Test
-	public void testContainNotOKNoChildExistInDataGroup() {
-		dataGroup = ClientDataGroup.withNameInData("someDataGroup");
-		JsonValue jsonValue = jsonParser.parseString("{\"children\":[{\"name\":\"workoutName\"}]}");
+	public void testContainNotOKNoChildWithCorrectTypeExistInDataGroup() {
+		JsonValue jsonValue = jsonParser
+				.parseString("{\"children\":[{\"name\":\"workoutName\",\"children\":[]}]}");
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertEquals(errorMessages.size(), 1);
-		assertEquals(errorMessages.get(0), "Child with nameInData workoutName is missing.");
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData workoutName.");
 
 	}
 
@@ -130,7 +132,8 @@ public class ChildComparerTest {
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertEquals(errorMessages.size(), 1);
-		assertEquals(errorMessages.get(0), "Child with nameInData instructorId is missing.");
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData instructorId.");
 
 	}
 
@@ -142,9 +145,75 @@ public class ChildComparerTest {
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertEquals(errorMessages.size(), 2);
-		assertEquals(errorMessages.get(0), "Child with nameInData workoutName is missing.");
-		assertEquals(errorMessages.get(1), "Child with nameInData instructorId is missing.");
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData workoutName.");
+		assertEquals(errorMessages.get(1),
+				"Did not find a match for child with nameInData instructorId.");
+	}
 
+	@Test
+	public void testCheckContainOneGrandChildTestCorrect() {
+		ClientDataGroup instructorName = ClientDataGroup.withNameInData("instructorName");
+		instructorName.addChild(
+				ClientDataAtomic.withNameInDataAndValue("firstName", "someUnimportantValue"));
+		dataGroup.addChild(instructorName);
+
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\"}]}]}");
+		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
+				jsonValue);
+		assertEquals(errorMessages.size(), 0);
+	}
+
+	@Test
+	public void testCheckContainOneAtomicGrandChildTestMissingGrandChild() {
+		ClientDataGroup instructorName = ClientDataGroup.withNameInData("instructorName");
+		instructorName.setRepeatId("0");
+		dataGroup.addChild(instructorName);
+
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"name\":\"workoutName\"},{\"name\":\"instructorName\",\"repeatId\":\"0\",\"children\":[{\"name\":\"firstName\"}]}]}");
+		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
+				jsonValue);
+		assertEquals(errorMessages.size(), 1);
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData firstName.");
+	}
+
+	@Test
+	public void testCheckContainOneGroupGrandChildTestMissingGrandChild() {
+		ClientDataGroup instructorName = ClientDataGroup.withNameInData("instructorName");
+		dataGroup.addChild(instructorName);
+
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"children\":[]}]}]}");
+		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
+				jsonValue);
+		assertEquals(errorMessages.size(), 1);
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData firstName.");
+	}
+
+	@Test
+	public void testCheckContainOneGroupGrandChildTestMissingOneChildAndGrandChild() {
+		ClientDataGroup instructorName = ClientDataGroup.withNameInData("instructorName");
+		instructorName.setRepeatId("0");
+		dataGroup.addChild(instructorName);
+		ClientDataGroup instructorName1 = ClientDataGroup.withNameInData("instructorName");
+		instructorName1.setRepeatId("1");
+		dataGroup.addChild(instructorName1);
+
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"name\":\"NOTworkoutName\"},{\"name\":\"instructorName\",\"repeatId\":\"0\",\"children\":[{\"name\":\"firstName\",\"children\":[]}]},{\"name\":\"instructorName\",\"repeatId\":\"NOT1\",\"children\":[]}]}");
+		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
+				jsonValue);
+		assertEquals(errorMessages.size(), 3);
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData NOTworkoutName.");
+		assertEquals(errorMessages.get(1),
+				"Did not find a match for child with nameInData firstName.");
+		assertEquals(errorMessages.get(2),
+				"Did not find a match for child with nameInData instructorName and repeatId NOT1.");
 	}
 
 	@Test(expectedExceptions = JsonParseException.class, expectedExceptionsMessageRegExp = ""
@@ -161,108 +230,6 @@ public class ChildComparerTest {
 				.parseString("{\"children\":[{\"NOTname\":\"workoutName\"}]}");
 		try {
 			childComparer.checkDataGroupContainsChildren(dataGroup, jsonValue);
-
-		} catch (Exception e) {
-			assertTrue(e.getCause() instanceof JsonParseException);
-		}
-	}
-
-	@Test
-	public void testCheckCorrectValuesOKWhenOneAtomicChild() {
-		JsonValue jsonValue = jsonParser
-				.parseString("{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"}]}");
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-		assertTrue(errorMessages.isEmpty());
-
-	}
-
-	@Test
-	public void testCheckCorrectValuesOKWhenOneAtomicChild2() {
-		JsonValue jsonValue = jsonParser
-				.parseString("{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"}]}");
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-		assertTrue(errorMessages.isEmpty());
-
-	}
-
-	@Test
-	public void testCheckCorrectValuesNotOKWhenChildValueDiffers() {
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"workoutName\",\"value\":\"NOTcirkelfys\"}]}");
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-		assertEquals(errorMessages.size(), 1);
-		assertEquals(errorMessages.get(0),
-				"Did not find a match for child with nameInData workoutName and value NOTcirkelfys.");
-	}
-
-	@Test
-	public void testCheckCorrectValuesNotOKWhenChildTypeDiffers() {
-		JsonValue jsonValue = jsonParser
-				.parseString("{\"children\":[{\"name\":\"workoutName\",\"children\":[]}]}");
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-		assertEquals(errorMessages.size(), 1);
-		assertEquals(errorMessages.get(0),
-				"Child with nameInData workoutName and type group is missing.");
-	}
-
-	@Test
-	public void testCheckCorrectValuesOKWhenOneAtomicChildAndOneGroupChild() {
-		ClientDataGroup instructorName = createChildDataGroupInstructorName();
-		dataGroup.addChild(instructorName);
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"},{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"}]}]}");
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-		assertTrue(errorMessages.isEmpty());
-	}
-
-	@Test
-	public void testCorrectValuesNotOKWhenOneGrandChildValueDiffers() {
-		ClientDataGroup instructorName = createChildDataGroupInstructorName();
-		dataGroup.addChild(instructorName);
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"},{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"NOTAnna\"}]}]}");
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-		assertEquals(errorMessages.size(), 1);
-		assertEquals(errorMessages.get(0),
-				"Did not find a match for child with nameInData firstName and value NOTAnna.");
-	}
-
-	@Test
-	public void testCorrectValuesNotOKWhenOneGrandChildIsMissingOneGrandChildValueDiffers() {
-		ClientDataGroup instructorName = createChildDataGroupInstructorName();
-		instructorName.addChild(ClientDataAtomic.withNameInDataAndValue("lastName", "Ledare"));
-		dataGroup.addChild(instructorName);
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"},{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"NOTAnna\"},{\"name\":\"NOTlastName\",\"value\":\"Ledare\"}]}]}");
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-		assertEquals(errorMessages.size(), 2);
-		assertEquals(errorMessages.get(0),
-				"Did not find a match for child with nameInData firstName and value NOTAnna.");
-		assertEquals(errorMessages.get(1),
-				"Child with nameInData NOTlastName and type atomic is missing.");
-	}
-
-	@Test(expectedExceptions = JsonParseException.class, expectedExceptionsMessageRegExp = ""
-			+ "child must contain key: name")
-	public void testCheckCorrectValuesJsonValueDoesNotContainName() {
-		JsonValue jsonValue = jsonParser
-				.parseString("{\"children\":[{\"NOTname\":\"workoutName\"}]}");
-		childComparer.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-	}
-
-	@Test
-	public void testCheckCorrectValuesJsonValueDoesNotContainNameInitalExceptionIsSentAlong() {
-		JsonValue jsonValue = jsonParser
-				.parseString("{\"children\":[{\"NOTname\":\"workoutName\"}]}");
-		try {
-			childComparer.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 
 		} catch (Exception e) {
 			assertTrue(e.getCause() instanceof JsonParseException);
@@ -294,7 +261,8 @@ public class ChildComparerTest {
 				jsonValue);
 
 		assertEquals(errorMessages.size(), 1);
-		assertEquals(errorMessages.get(0), "Child with nameInData instructorName is missing.");
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData instructorName.");
 		boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
 		assertFalse(containsChildren);
 	}
@@ -306,10 +274,10 @@ public class ChildComparerTest {
 		instructorName.addAttributeByIdWithValue("other", "name");
 		dataGroup.addChild(instructorName);
 		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"},{\"name\":\"lastName\",\"value\":\"Ledare\"}],\"attributes\":{\"type\":\"default\",\"other\":\"name\"}}]}");
+				"{\"children\":[{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"}],\"attributes\":{\"type\":\"default\",\"other\":\"name\"}}]}");
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
-		assertTrue(errorMessages.isEmpty());
+		assertEquals(errorMessages.size(), 0);
 		boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
 		assertTrue(containsChildren);
 	}
@@ -326,41 +294,314 @@ public class ChildComparerTest {
 				jsonValue);
 
 		assertEquals(errorMessages.size(), 1);
-		assertEquals(errorMessages.get(0), "Child with nameInData instructorName is missing.");
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData instructorName.");
 		boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
 		assertFalse(containsChildren);
 	}
 
+	@Test(expectedExceptions = JsonParseException.class, expectedExceptionsMessageRegExp = ""
+			+ "child must contain key: name")
+	public void testCheckCorrectValuesJsonValueDoesNotContainName() {
+		JsonValue jsonValue = jsonParser
+				.parseString("{\"children\":[{\"NOTname\":\"workoutName\"}]}");
+		childComparer.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
+	}
+
 	@Test
-	public void testCheckCorrectValuesOKWhenOneGroupChildWithRepeatIdAndRepeatIdInData() {
-		ClientDataGroup instructorName = createChildDataGroupInstructorName();
-		instructorName.setRepeatId("0");
-		dataGroup.addChild(instructorName);
+	public void testCheckCorrectValuesJsonValueDoesNotContainNameInitalExceptionIsSentAlong() {
+		JsonValue jsonValue = jsonParser
+				.parseString("{\"children\":[{\"NOTname\":\"workoutName\"}]}");
+		try {
+			childComparer.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
+
+		} catch (Exception e) {
+			assertTrue(e.getCause() instanceof JsonParseException);
+		}
+	}
+
+	// testRepeatableAtomicTwoPresentMatchOnOne
+	// testValuesRepeatableAtomicMatch
+	// testValuesNonRepeatableAtomicInsideGroupNoMatchWrongName
+
+	@Test
+	public void testValuesNonRepeatableAtomicChildTestWeirdValue() {
+		String fromXmlToFedora = "&lt;p&gt;Carl Linnaeus (/lɪˈniːəs, lɪˈneɪəs/;[1][2] 23 May[note 1] 1707 – 10 January 1778), also known after his ennoblement as Carl von Linné[3] (Swedish pronunciation: [ˈkɑːɭ fɔn lɪˈneː] ( listen)), was a Swedish botanist, zoologist, taxonomist, and physician who formalised binomial nomenclature, the modern system of naming organisms. He is known as the &quot;father of modern taxonomy&quot;.[4] Many of his writings were in Latin, and his name is rendered in Latin as Carolus Linnæus (after 1761 Carolus a Linné). &lt;/p&gt;";
+		String fromXmlToFedora2 = "&lt;p&gt;Carl Linnaeus also known after his ennoblement as Carl von Linné[3] (Swedish pronunciation: [ˈkɑːɭ fɔn lɪˈneː] ( listen)), was a Swedish botanist, zoologist, taxonomist, and physician who formalised binomial nomenclature, the modern system of naming organisms. He is known as the &quot;father of modern taxonomy&quot;.[4] Many of his writings were in Latin, and his name is rendered in Latin as Carolus Linnæus (after 1761 Carolus a Linné). &lt;/p&gt;";
+		String fromJsonAnswerInBrowser = "<p>Carl Linnaeus (/lɪˈniːəs, lɪˈneɪəs/;[1][2] 23 May[note 1] 1707 – 10 January 1778), also known after his ennoblement as Carl von Linné[3] (Swedish pronunciation: [ˈkɑːɭ fɔn lɪˈneː] ( listen)), was a Swedish botanist, zoologist, taxonomist, and physician who formalised binomial nomenclature, the modern system of naming organisms. He is known as the \"father of modern taxonomy\".[4] Many of his writings were in Latin, and his name is rendered in Latin as Carolus Linnæus (after 1761 Carolus a Linné). </p>";
+		String fromInputInBrowser = "<p>Carl Linnaeus (/lɪˈniːəs, lɪˈneɪəs/;[1][2] 23 May[note 1] 1707 – 10 January 1778), also known after his ennoblement as Carl von Linné[3] (Swedish pronunciation: [ˈkɑːɭ fɔn lɪˈneː] ( listen)), was a Swedish botanist, zoologist, taxonomist, and physician who formalised binomial nomenclature, the modern system of naming organisms. He is known as the \"father of modern taxonomy\".[4] Many of his writings were in Latin, and his name is rendered in Latin as Carolus Linnæus (after 1761 Carolus a Linné). </p>";
+		// String problemPart = "(/lɪˈniːəs, lɪˈneɪəs/;[1][2] 23 May[note 1] 1707 – 10 January
+		// 1778), ";
+		String problemPartNot = "/lɪˈniːəs, lɪˈneɪəs/;[1][2]";
+		String problemPart = "–-";
+		// String problemPart = "–-‒";
+		String trams = "trams";
+		String current = fromXmlToFedora;
+		// String current = fromJsonAnswerInBrowser;
+		// String current = problemPart;
+		// String current = problemPartNot;
+		dataGroup = ClientDataGroup.withNameInData("someDataGroup");
+		dataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("workoutName", current));
 
 		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"},{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"}],\"repeatId\":\"0\"}]}");
+				"{\"children\":[{\"name\":\"workoutName\",\"value\":\"" + current + "\"}]}");
+		assertNoErrorMessages(jsonValue);
+	}
+
+	@Test
+	public void testValuesNonRepeatableAtomicChildTestCorrect() {
+		JsonValue jsonValue = jsonParser
+				.parseString("{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"}]}");
+		assertNoErrorMessages(jsonValue);
+	}
+
+	@Test
+	public void testValuesNonRepeatableAtomicChildTestWrongName() {
+		String json = "{\"name\":\"NOT_workoutName\",\"value\":\"cirkelfys\"}";
+		String error = "Did not find a match for child with nameInData NOT_workoutName and value cirkelfys.";
+		testValuesNonRepeatableAtomicWithRepeatIdJsonResultsInOneError(json, error);
+	}
+
+	@Test
+	public void testValuesNonRepeatableAtomicChildTestWrongValue() {
+		String json = "{\"name\":\"workoutName\",\"value\":\"NOT_cirkelfys\"}";
+		String error = "Did not find a match for child with nameInData workoutName and value NOT_cirkelfys.";
+		testValuesNonRepeatableAtomicWithRepeatIdJsonResultsInOneError(json, error);
+	}
+
+	@Test
+	public void testValuesNonRepeatableAtomicChildTestExtraRepeatId() {
+		String json = "{\"name\":\"workoutName\",\"value\":\"cirkelfys\""
+				+ ",\"repeatId\":\"EXTRA_repeatId\"}";
+		String error = "Did not find a match for child with nameInData workoutName and value cirkelfys"
+				+ " and repeatId EXTRA_repeatId.";
+		testValuesNonRepeatableAtomicWithRepeatIdJsonResultsInOneError(json, error);
+	}
+
+	@Test
+	public void testValuesNonRepeatableAtomicChildTestChildTypeDiffers() {
+		String json = "{\"name\":\"workoutName\",\"children\":[]}";
+		String error = "Child with nameInData workoutName and type group is missing.";
+		testValuesNonRepeatableAtomicWithRepeatIdJsonResultsInOneError(json, error);
+	}
+
+	private void testValuesNonRepeatableAtomicWithRepeatIdJsonResultsInOneError(String jsonString,
+			String error) {
+		JsonValue jsonValue = jsonParser.parseString("{\"children\":[" + jsonString + "]}");
+		assertOneErrorWithMessage(jsonValue, error);
+	}
+
+	private void assertNoErrorMessages(JsonValue jsonValue) {
+		List<String> errorMessages = childComparer
+				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
+		assertEquals(errorMessages.size(), 0);
+	}
+
+	private void assertOneErrorWithMessage(JsonValue jsonValue, String expectedError) {
+		List<String> errorMessages = childComparer
+				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
+		assertEquals(errorMessages.size(), 1);
+		assertEquals(errorMessages.get(0), expectedError);
+	}
+
+	@Test
+	public void testTwoAtomicChildrenTestCorrect() {
+		addRepeatableAtomic();
+		String firstChild = "{\"name\":\"workoutName\",\"value\":\"cirkelfys\"}";
+		String secondChild = "{\"name\":\"myName\",\"value\":\"myValue\",\"repeatId\":\"myRepeatId\"}";
+		JsonValue jsonValue = jsonParser
+				.parseString("{\"children\":[" + firstChild + "," + secondChild + "]}");
+		assertNoErrorMessages(jsonValue);
+	}
+
+	@Test
+	public void testValuesRepeatableAtomicWithRepeatIdTestCorrect() {
+		addRepeatableAtomic();
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"name\":\"myName\",\"value\":\"myValue\",\"repeatId\":\"myRepeatId\"}]}");
+
+		assertNoErrorMessages(jsonValue);
+	}
+
+	@Test
+	public void testValuesRepeatableAtomicWithRepeatIdChildTestWrongName() {
+		String json = "{\"name\":\"NOT_myName\",\"value\":\"myValue\",\"repeatId\":\"myRepeatId\"}";
+		String error = "Did not find a match for child with nameInData NOT_myName and value myValue "
+				+ "and repeatId myRepeatId.";
+		testValuesRepeatableAtomicWithRepeatIdJsonResultsInOneError(json, error);
+	}
+
+	@Test
+	public void testValuesRepeatableAtomicWithRepeatIdTestWrongValue() {
+		String json = "{\"name\":\"myName\",\"value\":\"NOT_myValue\",\"repeatId\":\"myRepeatId\"}";
+		String error = "Did not find a match for child with nameInData myName and value NOT_myValue "
+				+ "and repeatId myRepeatId.";
+		testValuesRepeatableAtomicWithRepeatIdJsonResultsInOneError(json, error);
+	}
+
+	@Test
+	public void testValuesRepeatableAtomicWithRepeatIdTestWrongRepeatId() {
+		String json = "{\"name\":\"myName\",\"value\":\"myValue\",\"repeatId\":\"NOT_myRepeatId\"}";
+		String error = "Did not find a match for child with nameInData myName and value myValue "
+				+ "and repeatId NOT_myRepeatId.";
+		testValuesRepeatableAtomicWithRepeatIdJsonResultsInOneError(json, error);
+	}
+
+	@Test
+	public void testValuesRepeatableAtomicWithRepeatIdTestNoRepeatId() {
+		String json = "{\"name\":\"myName\",\"value\":\"myValue\"}";
+		String error = "Did not find a match for child with nameInData myName and value myValue.";
+		testValuesRepeatableAtomicWithRepeatIdJsonResultsInOneError(json, error);
+	}
+
+	private void testValuesRepeatableAtomicWithRepeatIdJsonResultsInOneError(String jsonString,
+			String error) {
+		addRepeatableAtomic();
+		JsonValue jsonValue = jsonParser.parseString("{\"children\":[" + jsonString + "]}");
+		assertOneErrorWithMessage(jsonValue, error);
+	}
+
+	private void addRepeatableAtomic() {
+		ClientDataAtomic atomic = ClientDataAtomic.withNameInDataAndValue("myName", "myValue");
+		atomic.setRepeatId("myRepeatId");
+		dataGroup.addChild(atomic);
+	}
+
+	@Test
+	public void testValuesOneAtomicChildAsGrandChildTestCorrect() {
+		String json = "{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"}]}";
+
+		ClientDataGroup instructorName = createChildDataGroupInstructorName();
+		dataGroup.addChild(instructorName);
+
+		JsonValue jsonValue = jsonParser.parseString("{\"children\":[" + json + "]}");
+		assertNoErrorMessages(jsonValue);
+	}
+
+	@Test
+	public void testValuesOneAtomicChildAsGrandChildTestWrongName() {
+		String json = "{\"name\":\"NOT_firstName\",\"value\":\"Anna\"}";
+		String error = "Did not find a match for child with nameInData NOT_firstName and value Anna.";
+		testValuesOneAtomicChildAsGrandChildJsonResultsInOneError(json, error);
+	}
+
+	private void testValuesOneAtomicChildAsGrandChildJsonResultsInOneError(String jsonString,
+			String error) {
+		ClientDataGroup instructorName = createChildDataGroupInstructorName();
+		dataGroup.addChild(instructorName);
+		JsonValue jsonValue = jsonParser.parseString("{\"children\":["
+				+ "{\"name\":\"instructorName\",\"children\":[" + jsonString + "]}]}");
+		assertOneErrorWithMessage(jsonValue, error);
+	}
+
+	@Test
+	public void testValuesOneAtomicChildAsGrandChildTestWrongValue() {
+		String json = "{\"name\":\"firstName\",\"value\":\"NOT_Anna\"}";
+		String error = "Did not find a match for child with nameInData firstName and value NOT_Anna.";
+		testValuesOneAtomicChildAsGrandChildJsonResultsInOneError(json, error);
+	}
+
+	@Test
+	public void testValuesOneAtomicChildAsGrandChildTestExtraRepeatId() {
+		String json = "{\"name\":\"firstName\",\"value\":\"Anna\", \"repeatId\":\"EXTRA_repeatId\"}";
+		String error = "Did not find a match for child with nameInData firstName and value Anna and "
+				+ "repeatId EXTRA_repeatId.";
+		testValuesOneAtomicChildAsGrandChildJsonResultsInOneError(json, error);
+	}
+
+	@Test
+	public void testValuesOneAtomicChildWithRepeatIdAsGrandChildTestCorrect() {
+		createRecordInfoInStandardDataGroupWithDomainKTHWithRepeatId0();
+
+		String changingTestDomainPart = "{\"repeatId\":\"0\",\"name\":\"domain\",\"value\":\"kth\"}";
+		JsonValue jsonValue = createJsonValueForRecordInfoUsingChangingPart(changingTestDomainPart);
+
+		assertNoErrorMessages(jsonValue);
+	}
+
+	@Test
+	public void testValuesOneAtomicChildWithRepeatIdAsGrandChildTestWrongName() {
+		String json = "{\"name\":\"NOT_firstName\",\"value\":\"Anna\",\"repeatId\":\"0\"}";
+		String error = "Did not find a match for child with nameInData NOT_firstName and value Anna"
+				+ " and repeatId 0.";
+		testValuesOneAtomicChildWithRepeatIdAsGrandChildJsonResultsInOneError(json, error);
+	}
+
+	@Test
+	public void testValuesOneAtomicChildWithRepeatIdAsGrandChildTestWrongValue() {
+		String json = "{\"name\":\"firstName\",\"value\":\"NOT_Anna\",\"repeatId\":\"0\"}";
+		String error = "Did not find a match for child with nameInData firstName and value NOT_Anna"
+				+ " and repeatId 0.";
+		testValuesOneAtomicChildWithRepeatIdAsGrandChildJsonResultsInOneError(json, error);
+	}
+
+	@Test
+	public void testValuesOneAtomicChildWithRepeatIdAsGrandChildTestWrongRepeatId() {
+		String json = "{\"name\":\"firstName\",\"value\":\"Anna\", \"repeatId\":\"NOT_repeatId\"}";
+		String error = "Did not find a match for child with nameInData firstName and value Anna and "
+				+ "repeatId NOT_repeatId.";
+		testValuesOneAtomicChildWithRepeatIdAsGrandChildJsonResultsInOneError(json, error);
+	}
+
+	@Test
+	public void testValuesOneAtomicChildWithRepeatIdAsGrandChildTestEmptyRepeatId() {
+		String json = "{\"name\":\"firstName\",\"value\":\"Anna\", \"repeatId\":\"\"}";
+		String error = "Did not find a match for child with nameInData firstName and value Anna and "
+				+ "repeatId .";
+		testValuesOneAtomicChildWithRepeatIdAsGrandChildJsonResultsInOneError(json, error);
+	}
+
+	@Test
+	public void testValuesOneAtomicChildWithRepeatIdAsGrandChildTestMissingRepeatId() {
+		String json = "{\"name\":\"firstName\",\"value\":\"Anna\"}";
+		String error = "Did not find a match for child with nameInData firstName and value Anna.";
+		testValuesOneAtomicChildWithRepeatIdAsGrandChildJsonResultsInOneError(json, error);
+	}
+
+	private void testValuesOneAtomicChildWithRepeatIdAsGrandChildJsonResultsInOneError(
+			String jsonString, String error) {
+		createRecordInfoInStandardDataGroupWithDomainKTHWithRepeatId0();
+
+		JsonValue jsonValue = createJsonValueForRecordInfoUsingChangingPart(jsonString);
+		assertOneErrorWithMessage(jsonValue, error);
+	}
+
+	@Test
+	public void testValuesNotOKWhenOneGrandChildIsMissingOneGrandChildValueDiffers() {
+		ClientDataGroup instructorName = createChildDataGroupInstructorName();
+		instructorName.addChild(ClientDataAtomic.withNameInDataAndValue("lastName", "Ledare"));
+		dataGroup.addChild(instructorName);
+		JsonValue jsonValue = jsonParser
+				.parseString("{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"},"
+						+ "{\"name\":\"instructorName\",\"children\":["
+						+ "{\"name\":\"firstName\",\"value\":\"NOTAnna\"},"
+						+ "{\"name\":\"NOTlastName\",\"value\":\"Ledare\"}]}]}");
+		List<String> errorMessages = childComparer
+				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
+		assertEquals(errorMessages.size(), 2);
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData firstName and value NOTAnna.");
+		assertEquals(errorMessages.get(1),
+				"Did not find a match for child with nameInData NOTlastName and value Ledare.");
+	}
+
+	@Test
+	public void testValuesTwoGroupChildWithRepeatIdTestCorrect() {
+		createAndAddChildDataGroupInstructorNameWithRepeatId("1");
+		createAndAddChildDataGroupInstructorNameWithRepeatId("0");
+
+		JsonValue jsonValue = jsonParser.parseString("{\"children\":["
+				+ "{\"name\":\"instructorName\",\"children\":[],\"repeatId\":\"0\"}]}");
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 
 		assertTrue(errorMessages.isEmpty());
 	}
 
-	@Test
-	public void testCheckCorrectValuesOKWhenOneGroupChildWithRepeatIdAndRepeatIdInDataMultiple() {
+	private void createAndAddChildDataGroupInstructorNameWithRepeatId(String repeatId) {
 		ClientDataGroup instructorName = createChildDataGroupInstructorName();
-		instructorName.setRepeatId("1");
+		instructorName.setRepeatId(repeatId);
 		dataGroup.addChild(instructorName);
-
-		ClientDataGroup instructorName2 = createChildDataGroupInstructorName();
-		instructorName2.setRepeatId("0");
-		dataGroup.addChild(instructorName2);
-
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"},{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"}],\"repeatId\":\"0\"}]}");
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-
-		assertTrue(errorMessages.isEmpty());
 	}
 
 	private ClientDataGroup createChildDataGroupInstructorName() {
@@ -370,208 +611,109 @@ public class ChildComparerTest {
 	}
 
 	@Test
-	public void testCheckNotOkWhenOneGroupChildWithNORepeatIdButRepeatIdInData() {
+	public void testValuesOneGroupChildWithNORepeatIdTestExtraRepeatId() {
 		ClientDataGroup instructorName = createChildDataGroupInstructorName();
 		dataGroup.addChild(instructorName);
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"},{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"}],\"repeatId\":\"0\"}]}");
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-		assertEquals(errorMessages.size(), 1);
-		assertEquals(errorMessages.get(0),
-				"Child with nameInData instructorName and type group and repeatId 0 is missing.");
-	}
-
-	@Test
-	public void testCheckNotOkWhenOneGroupChildWithRepeatIdButNORepeatIdInData() {
-		ClientDataGroup instructorName = createChildDataGroupInstructorName();
-		instructorName.setRepeatId("0");
-		dataGroup.addChild(instructorName);
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"},{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"}]}]}");
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-		assertEquals(errorMessages.size(), 1);
-		assertEquals(errorMessages.get(0),
-				"Child with nameInData instructorName and type group is missing.");
-	}
-
-	@Test
-	public void testCheckCorrectValuesNOtOKWhenOneGroupChildWithDifferentRepeatIds() {
-		ClientDataGroup instructorName = createChildDataGroupInstructorName();
-		instructorName.setRepeatId("differentRepeatId");
-		dataGroup.addChild(instructorName);
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"},{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"}],\"repeatId\":\"0\"}]}");
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-		assertEquals(errorMessages.size(), 1);
-		assertEquals(errorMessages.get(0),
-				"Child with nameInData instructorName and type group and repeatId 0 is missing.");
-	}
-
-	@Test
-	public void testCheckCorrectValuesOKWhenOneAtomicChildWithRepeatIdAndRepeatIdInData() {
-		ClientDataAtomic atomicChild = ClientDataAtomic.withNameInDataAndValue("firstName", "Anna");
-		atomicChild.setRepeatId("0");
-		dataGroup.addChild(atomicChild);
-
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\",\"repeatId\":\"0\"}]}");
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-
-		assertTrue(errorMessages.isEmpty());
-	}
-
-	@Test
-	public void testCheckNotOkWhenOneAtomicChildWithNORepeatIdButRepeatIdInData() {
-		ClientDataAtomic atomicChild = ClientDataAtomic.withNameInDataAndValue("firstName", "Anna");
-		dataGroup.addChild(atomicChild);
-
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\",\"repeatId\":\"0\"}]}");
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-		assertEquals(errorMessages.size(), 1);
-		assertEquals(errorMessages.get(0),
-				"Child with nameInData firstName and type atomic and repeatId 0 is missing.");
-	}
-
-	@Test
-	public void testCheckNotOkWhenOneAtomicChildWithRepeatIdButNORepeatIdInData() {
-		ClientDataAtomic atomicChild = ClientDataAtomic.withNameInDataAndValue("firstName", "Anna");
-		atomicChild.setRepeatId("0");
-		dataGroup.addChild(atomicChild);
-
 		JsonValue jsonValue = jsonParser
-				.parseString("{\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"}]}");
+				.parseString("{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"},"
+						+ "{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"}],\"repeatId\":\"0\"}]}");
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 1);
 		assertEquals(errorMessages.get(0),
-				"Child with nameInData firstName and type atomic is missing.");
+				"Child with nameInData instructorName and type group and repeatId 0 is missing.");
 	}
 
 	@Test
-	public void testCheckCorrectValuesNOtOKWhenOneAtomicChildWithDifferentRepeatIds() {
-		ClientDataAtomic atomicChild = ClientDataAtomic.withNameInDataAndValue("firstName", "Anna");
-		atomicChild.setRepeatId("differentRepeatId");
-		dataGroup.addChild(atomicChild);
+	public void testValuesTwoGroupChildWithRepeatIdTestNoRepeatIdInData() {
+		String json = "{\"name\":\"instructorName\",\"children\":[]}";
+		String error = "Child with nameInData instructorName and type group is missing.";
+		testValuesTwoGroupChildWithRepeatIdJsonResultsInOneError(json, error);
+	}
 
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\",\"repeatId\":\"0\"}]}");
+	@Test
+	public void testValuesTwoGroupChildWithRepeatIdTestWrongRepeatIds() {
+		String json = "{\"name\":\"instructorName\",\"children\":[], \"repeatId\":\"NOT_0\"}";
+		String error = "Child with nameInData instructorName and type group and repeatId NOT_0 is missing.";
+		testValuesTwoGroupChildWithRepeatIdJsonResultsInOneError(json, error);
+	}
+
+	private void testValuesTwoGroupChildWithRepeatIdJsonResultsInOneError(String jsonString,
+			String error) {
+		createAndAddChildDataGroupInstructorNameWithRepeatId("1");
+		createAndAddChildDataGroupInstructorNameWithRepeatId("0");
+		JsonValue jsonValue = jsonParser.parseString("{\"children\":[" + jsonString + "]}");
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 1);
-		assertEquals(errorMessages.get(0),
-				"Child with nameInData firstName and type atomic and repeatId 0 is missing.");
+		assertOneErrorWithMessage(jsonValue, error);
 	}
 
 	@Test
-	public void testCheckCorrectAtomicValuesRepeatable() {
-		ClientDataGroup recordInfo = ClientDataGroup.withNameInData("recordInfo");
-		ClientDataAtomic atomicChild2 = ClientDataAtomic.withNameInDataAndValue("domain", "test");
+	public void testValuesRepeatableAtomicThreePresentNoMatchOnTwo() {
+		ClientDataGroup recordInfo = createRecordInfoInStandardDataGroupWithDomainKTHWithRepeatId0();
+
+		ClientDataAtomic atomicChild2 = ClientDataAtomic.withNameInDataAndValue("domain", "kth");
 		atomicChild2.setRepeatId("1");
 		recordInfo.addChild(atomicChild2);
 
-		addKthDomainPart(recordInfo);
+		ClientDataAtomic atomicChild3 = ClientDataAtomic.withNameInDataAndValue("domain", "test");
+		atomicChild3.setRepeatId("2");
+		recordInfo.addChild(atomicChild3);
 
-		dataGroup.addChild(recordInfo);
+		String changingTestDomainPart = "{\"repeatId\":\"NOT_0\",\"name\":\"domain\",\"value\":\"kth\"}"
+				+ ",{\"repeatId\":\"0\",\"name\":\"domain\",\"value\":\"NOT_kth\"}";
 
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"children\":[{\"repeatId\":\"0\",\"name\":\"domain\",\"value\":\"kth\"},{\"repeatId\":\"1\",\"name\":\"domain\",\"value\":\"test\"}],\"name\":\"recordInfo\"}],\"name\":\"person\"}");
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-		assertEquals(errorMessages.size(), 0);
+		List<String> errorMessages = compareChangingPartToExistingDataGroups(
+				changingTestDomainPart);
+		assertEquals(errorMessages.size(), 2);
+		assertEquals(errorMessages.get(0),
+				"Did not find a match for child with nameInData domain and value kth and repeatId NOT_0.");
+		assertEquals(errorMessages.get(1),
+				"Did not find a match for child with nameInData domain and value NOT_kth and repeatId 0.");
 	}
 
-	@Test
-	public void testCheckCorrectAtomicValuesRepeatableEmptyRepeatId() {
+	private ClientDataGroup createRecordInfoInStandardDataGroupWithDomainKTHWithRepeatId0() {
 		ClientDataGroup recordInfo = ClientDataGroup.withNameInData("recordInfo");
-		ClientDataAtomic atomicChild2 = ClientDataAtomic.withNameInDataAndValue("domain", "test");
-		atomicChild2.setRepeatId("");
-		recordInfo.addChild(atomicChild2);
-
-		addKthDomainPart(recordInfo);
 		dataGroup.addChild(recordInfo);
-
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"children\":[{\"repeatId\":\"0\",\"name\":\"domain\",\"value\":\"kth\"},{\"repeatId\":\"\",\"name\":\"domain\",\"value\":\"test\"}],\"name\":\"recordInfo\"}],\"name\":\"person\"}");
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-		assertEquals(errorMessages.size(), 0);
+		addKthDomainPartWithRepeatId0(recordInfo);
+		return recordInfo;
 	}
 
-	private void addKthDomainPart(ClientDataGroup recordInfo) {
+	private void addKthDomainPartWithRepeatId0(ClientDataGroup recordInfo) {
 		ClientDataAtomic atomicChild = ClientDataAtomic.withNameInDataAndValue("domain", "kth");
 		atomicChild.setRepeatId("0");
 		recordInfo.addChild(atomicChild);
 	}
 
-	@Test
-	public void testCheckCorrectAtomicValuesRepeatableNoRepeatId() {
-		ClientDataGroup recordInfo = ClientDataGroup.withNameInData("recordInfo");
-		ClientDataAtomic atomicChild = ClientDataAtomic.withNameInDataAndValue("domain", "test");
-		recordInfo.addChild(atomicChild);
-
-		addKthDomainPart(recordInfo);
-		dataGroup.addChild(recordInfo);
-
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"children\":[{\"repeatId\":\"0\",\"name\":\"domain\",\"value\":\"kth\"},{\"name\":\"domain\",\"value\":\"test\"}],\"name\":\"recordInfo\"}],\"name\":\"person\"}");
+	private List<String> compareChangingPartToExistingDataGroups(String changingTestDomainPart) {
+		JsonValue jsonValue = createJsonValueForRecordInfoUsingChangingPart(changingTestDomainPart);
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-		assertEquals(errorMessages.size(), 0);
+		return errorMessages;
 	}
 
-	@Test
-	public void testCheckCorrectAtomicValuesRepeatableEmptyRepeatIdInData() {
-		ClientDataGroup recordInfo = ClientDataGroup.withNameInData("recordInfo");
-		ClientDataAtomic atomicChild = ClientDataAtomic.withNameInDataAndValue("domain", "test");
-		atomicChild.setRepeatId("");
-		recordInfo.addChild(atomicChild);
-
-		addKthDomainPart(recordInfo);
-		dataGroup.addChild(recordInfo);
-
+	private JsonValue createJsonValueForRecordInfoUsingChangingPart(String changingTestDomainPart) {
 		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"children\":[{\"repeatId\":\"0\",\"name\":\"domain\",\"value\":\"kth\"},{\"name\":\"domain\",\"value\":\"test\"}],\"name\":\"recordInfo\"}],\"name\":\"person\"}");
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-		assertEquals(errorMessages.size(), 1);
-	}
-
-	@Test
-	public void testCheckCorrectAtomicValuesRepeatableSameValueDifferentRepeatId() {
-		ClientDataGroup recordInfo = ClientDataGroup.withNameInData("recordInfo");
-		ClientDataAtomic atomicChild2 = ClientDataAtomic.withNameInDataAndValue("domain", "kth");
-		recordInfo.addChild(atomicChild2);
-
-		addKthDomainPart(recordInfo);
-
-		ClientDataAtomic atomicChild3 = ClientDataAtomic.withNameInDataAndValue("domain", "uu");
-		atomicChild3.setRepeatId("2");
-		recordInfo.addChild(atomicChild3);
-
-		dataGroup.addChild(recordInfo);
-
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"children\":[{\"repeatId\":\"0\",\"name\":\"domain\",\"value\":\"kth\"},{\"repeatId\":\"0\",\"name\":\"domain\",\"value\":\"kth\"}],\"name\":\"recordInfo\"}],\"name\":\"person\"}");
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-		assertEquals(errorMessages.size(), 0);
+				"{\"children\":[{\"children\":[{\"repeatId\":\"0\",\"name\":\"domain\",\"value\":\"kth\"},"
+						+ changingTestDomainPart
+						+ "],\"name\":\"recordInfo\"}],\"name\":\"person\"}");
+		return jsonValue;
 	}
 
 	@Test
 	public void testLinksRepeatId() {
 		createAndAddDomainPart("authority-person:106:kth", "0");
 		createAndAddDomainPart("authority-person:106:test", "1");
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"repeatId\":\"0\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"personDomainPart\"},{\"name\":\"linkedRecordId\",\"value\":\"authority-person:106:kth\"}],\"name\":\"personDomainPart\"},{\"repeatId\":\"1\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"personDomainPart\"},{\"name\":\"linkedRecordId\",\"value\":\"authority-person:106:test\"}],\"name\":\"personDomainPart\"}],\"name\":\"person\"}");
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-		assertEquals(errorMessages.size(), 0);
+		JsonValue jsonValue = jsonParser
+				.parseString("{\"children\":[{\"repeatId\":\"0\",\"children\":["
+						+ "{\"name\":\"linkedRecordType\",\"value\":\"personDomainPart\"},"
+						+ "{\"name\":\"linkedRecordId\",\"value\":\"authority-person:106:kth\"}"
+						+ "],\"name\":\"personDomainPart\"}," + "{\"repeatId\":\"1\",\"children\":["
+						+ "{\"name\":\"linkedRecordType\",\"value\":\"personDomainPart\"},"
+						+ "{\"name\":\"linkedRecordId\",\"value\":\"authority-person:106:test\"}"
+						+ "],\"name\":\"personDomainPart\"}],\"name\":\"person\"}");
+		assertNoErrorMessages(jsonValue);
 	}
 
 	private void createAndAddDomainPart(String linkedRecordId, String repeatId) {
@@ -585,10 +727,19 @@ public class ChildComparerTest {
 	public void testLinksRepeatIdNoMatch() {
 		createAndAddDomainPart("authority-person:106:kth", "0");
 		createAndAddDomainPart("authority-person:106:test", "1");
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"repeatId\":\"0\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"personDomainPart\"},{\"name\":\"linkedRecordId\",\"value\":\"authority-person:106:kth\"}],\"name\":\"personDomainPart\"},{\"repeatId\":\"3\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"personDomainPart\"},{\"name\":\"linkedRecordId\",\"value\":\"authority-person:106:test\"}],\"name\":\"personDomainPart\"}],\"name\":\"person\"}");
+		JsonValue jsonValue = jsonParser
+				.parseString("{\"children\":[{\"repeatId\":\"0\",\"children\":["
+						+ "{\"name\":\"linkedRecordType\",\"value\":\"personDomainPart\"},"
+						+ "{\"name\":\"linkedRecordId\",\"value\":\"authority-person:106:kth\"}"
+						+ "],\"name\":\"personDomainPart\"},{\"repeatId\":\"3\",\"children\":["
+						+ "{\"name\":\"linkedRecordType\",\"value\":\"personDomainPart\"},"
+						+ "{\"name\":\"linkedRecordId\",\"value\":\"authority-person:106:test\"}"
+						+ "],\"name\":\"personDomainPart\"}],\"name\":\"person\"}");
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 1);
+		assertEquals(errorMessages.get(0),
+				"Child with nameInData personDomainPart and type group and repeatId 3 is missing.");
+
 	}
 }
