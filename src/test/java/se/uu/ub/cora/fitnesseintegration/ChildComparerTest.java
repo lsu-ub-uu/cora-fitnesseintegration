@@ -320,39 +320,65 @@ public class ChildComparerTest {
 		}
 	}
 
-	// testRepeatableAtomicTwoPresentMatchOnOne
-	// testValuesRepeatableAtomicMatch
-	// testValuesNonRepeatableAtomicInsideGroupNoMatchWrongName
+	@Test
+	public void testValuesNonRepeatableAtomicChildTestProblematicValue() {
+		String exampleWithProblematicCharacter = "–-";
+		dataGroup = ClientDataGroup.withNameInData("someDataGroup");
+		dataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("workoutName",
+				exampleWithProblematicCharacter));
+
+		JsonValue jsonValue = jsonParser
+				.parseString("{\"children\":[{\"name\":\"workoutName\",\"value\":\""
+						+ exampleWithProblematicCharacter + "\"}]}");
+		assertNoErrorMessagesWhenContainsWithValues(jsonValue);
+	}
 
 	@Test
-	public void testValuesNonRepeatableAtomicChildTestWeirdValue() {
-		String fromXmlToFedora = "&lt;p&gt;Carl Linnaeus (/lɪˈniːəs, lɪˈneɪəs/;[1][2] 23 May[note 1] 1707 – 10 January 1778), also known after his ennoblement as Carl von Linné[3] (Swedish pronunciation: [ˈkɑːɭ fɔn lɪˈneː] ( listen)), was a Swedish botanist, zoologist, taxonomist, and physician who formalised binomial nomenclature, the modern system of naming organisms. He is known as the &quot;father of modern taxonomy&quot;.[4] Many of his writings were in Latin, and his name is rendered in Latin as Carolus Linnæus (after 1761 Carolus a Linné). &lt;/p&gt;";
-		String fromXmlToFedora2 = "&lt;p&gt;Carl Linnaeus also known after his ennoblement as Carl von Linné[3] (Swedish pronunciation: [ˈkɑːɭ fɔn lɪˈneː] ( listen)), was a Swedish botanist, zoologist, taxonomist, and physician who formalised binomial nomenclature, the modern system of naming organisms. He is known as the &quot;father of modern taxonomy&quot;.[4] Many of his writings were in Latin, and his name is rendered in Latin as Carolus Linnæus (after 1761 Carolus a Linné). &lt;/p&gt;";
-		String fromJsonAnswerInBrowser = "<p>Carl Linnaeus (/lɪˈniːəs, lɪˈneɪəs/;[1][2] 23 May[note 1] 1707 – 10 January 1778), also known after his ennoblement as Carl von Linné[3] (Swedish pronunciation: [ˈkɑːɭ fɔn lɪˈneː] ( listen)), was a Swedish botanist, zoologist, taxonomist, and physician who formalised binomial nomenclature, the modern system of naming organisms. He is known as the \"father of modern taxonomy\".[4] Many of his writings were in Latin, and his name is rendered in Latin as Carolus Linnæus (after 1761 Carolus a Linné). </p>";
-		String fromInputInBrowser = "<p>Carl Linnaeus (/lɪˈniːəs, lɪˈneɪəs/;[1][2] 23 May[note 1] 1707 – 10 January 1778), also known after his ennoblement as Carl von Linné[3] (Swedish pronunciation: [ˈkɑːɭ fɔn lɪˈneː] ( listen)), was a Swedish botanist, zoologist, taxonomist, and physician who formalised binomial nomenclature, the modern system of naming organisms. He is known as the \"father of modern taxonomy\".[4] Many of his writings were in Latin, and his name is rendered in Latin as Carolus Linnæus (after 1761 Carolus a Linné). </p>";
-		// String problemPart = "(/lɪˈniːəs, lɪˈneɪəs/;[1][2] 23 May[note 1] 1707 – 10 January
-		// 1778), ";
-		String problemPartNot = "/lɪˈniːəs, lɪˈneɪəs/;[1][2]";
-		String problemPart = "–-";
-		// String problemPart = "–-‒";
-		String trams = "trams";
-		String current = fromXmlToFedora;
-		// String current = fromJsonAnswerInBrowser;
-		// String current = problemPart;
-		// String current = problemPartNot;
+	public void testValuesNonRepeatableAtomicChildTestProblematicValueAsUnicode() {
+		String exampleWithProblematicCharacter = "\u2013-";
 		dataGroup = ClientDataGroup.withNameInData("someDataGroup");
-		dataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("workoutName", current));
+		dataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("workoutName",
+				exampleWithProblematicCharacter));
 
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"workoutName\",\"value\":\"" + current + "\"}]}");
-		assertNoErrorMessages(jsonValue);
+		JsonValue jsonValue = jsonParser
+				.parseString("{\"children\":[{\"name\":\"workoutName\",\"value\":\""
+						+ exampleWithProblematicCharacter + "\"}]}");
+		assertNoErrorMessagesWhenContainsWithValues(jsonValue);
+	}
+
+	@Test
+	public void testValuesNonRepeatableAtomicChildTestProblematicValueAsUnicode2() {
+		String exampleWithProblematicCharacterUnicode = "–-";
+		String exampleWithProblematicCharacter = "\u2013-";
+		dataGroup = ClientDataGroup.withNameInData("someDataGroup");
+		dataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("workoutName",
+				exampleWithProblematicCharacterUnicode));
+
+		JsonValue jsonValue = jsonParser
+				.parseString("{\"children\":[{\"name\":\"workoutName\",\"value\":\""
+						+ exampleWithProblematicCharacter + "\"}]}");
+		assertNoErrorMessagesWhenContainsWithValues(jsonValue);
+	}
+
+	@Test
+	public void testValuesNonRepeatableAtomicChildTestProblematicValueAsUnicode3() {
+		String exampleWithProblematicCharacterUnicode = "–-";
+		String exampleWithProblematicCharacter = "\u2013-";
+		dataGroup = ClientDataGroup.withNameInData("someDataGroup");
+		dataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("workoutName",
+				exampleWithProblematicCharacter));
+
+		JsonValue jsonValue = jsonParser
+				.parseString("{\"children\":[{\"name\":\"workoutName\",\"value\":\""
+						+ exampleWithProblematicCharacterUnicode + "\"}]}");
+		assertNoErrorMessagesWhenContainsWithValues(jsonValue);
 	}
 
 	@Test
 	public void testValuesNonRepeatableAtomicChildTestCorrect() {
 		JsonValue jsonValue = jsonParser
 				.parseString("{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"}]}");
-		assertNoErrorMessages(jsonValue);
+		assertNoErrorMessagesWhenContainsWithValues(jsonValue);
 	}
 
 	@Test
@@ -391,7 +417,7 @@ public class ChildComparerTest {
 		assertOneErrorWithMessage(jsonValue, error);
 	}
 
-	private void assertNoErrorMessages(JsonValue jsonValue) {
+	private void assertNoErrorMessagesWhenContainsWithValues(JsonValue jsonValue) {
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 0);
@@ -411,7 +437,7 @@ public class ChildComparerTest {
 		String secondChild = "{\"name\":\"myName\",\"value\":\"myValue\",\"repeatId\":\"myRepeatId\"}";
 		JsonValue jsonValue = jsonParser
 				.parseString("{\"children\":[" + firstChild + "," + secondChild + "]}");
-		assertNoErrorMessages(jsonValue);
+		assertNoErrorMessagesWhenContainsWithValues(jsonValue);
 	}
 
 	@Test
@@ -420,7 +446,7 @@ public class ChildComparerTest {
 		JsonValue jsonValue = jsonParser.parseString(
 				"{\"children\":[{\"name\":\"myName\",\"value\":\"myValue\",\"repeatId\":\"myRepeatId\"}]}");
 
-		assertNoErrorMessages(jsonValue);
+		assertNoErrorMessagesWhenContainsWithValues(jsonValue);
 	}
 
 	@Test
@@ -475,7 +501,7 @@ public class ChildComparerTest {
 		dataGroup.addChild(instructorName);
 
 		JsonValue jsonValue = jsonParser.parseString("{\"children\":[" + json + "]}");
-		assertNoErrorMessages(jsonValue);
+		assertNoErrorMessagesWhenContainsWithValues(jsonValue);
 	}
 
 	@Test
@@ -516,7 +542,7 @@ public class ChildComparerTest {
 		String changingTestDomainPart = "{\"repeatId\":\"0\",\"name\":\"domain\",\"value\":\"kth\"}";
 		JsonValue jsonValue = createJsonValueForRecordInfoUsingChangingPart(changingTestDomainPart);
 
-		assertNoErrorMessages(jsonValue);
+		assertNoErrorMessagesWhenContainsWithValues(jsonValue);
 	}
 
 	@Test
@@ -713,7 +739,7 @@ public class ChildComparerTest {
 						+ "{\"name\":\"linkedRecordType\",\"value\":\"personDomainPart\"},"
 						+ "{\"name\":\"linkedRecordId\",\"value\":\"authority-person:106:test\"}"
 						+ "],\"name\":\"personDomainPart\"}],\"name\":\"person\"}");
-		assertNoErrorMessages(jsonValue);
+		assertNoErrorMessagesWhenContainsWithValues(jsonValue);
 	}
 
 	private void createAndAddDomainPart(String linkedRecordId, String repeatId) {
