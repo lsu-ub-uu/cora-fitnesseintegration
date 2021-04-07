@@ -214,7 +214,8 @@ public class ChildComparerImp implements ChildComparer {
 		return childElementType.equals(type);
 	}
 
-	private boolean repeatIdsAreEqual(Optional<String> repeatIdFromJson, String repeatIdFromDataElement) {
+	private boolean repeatIdsAreEqual(Optional<String> repeatIdFromJson,
+			String repeatIdFromDataElement) {
 		if (repeatIdFromJson.isEmpty()) {
 			return null == repeatIdFromDataElement;
 		}
@@ -245,9 +246,6 @@ public class ChildComparerImp implements ChildComparer {
 	@Override
 	public List<String> checkDataGroupContainsChildrenWithCorrectValues(ClientDataGroup dataGroup,
 			JsonValue jsonValue) {
-		// TODO: should be jsonObject not value... ??
-		// TODO: attributes???
-		// TODO: check nameInData top group
 		try {
 			return tryToCheckDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		} catch (Exception exception) {
