@@ -31,19 +31,22 @@
 	<name>Fitnesse integration</name>
 
 	<properties>
+		<logger.version>2.2.0</logger.version>
+<!-- 		<coralog4j.version>2.2.0</coralog4j.version> -->
 		<json.version>2.3.0</json.version>
 		<httphandler.version>2.2.0</httphandler.version>
 		<cora-clientdata.version>3.8.0</cora-clientdata.version>
 		<javaclient.version>1.8.0</javaclient.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
-		<fitnesse.version>20201213</fitnesse.version>
+		<fitnesse.version>20210410</fitnesse.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
 		<activation.version>1.1.1</activation.version>
 		<javax-activation.version>1.2.0</javax-activation.version>
 		<maven-classpath-plugin.version>1.9</maven-classpath-plugin.version>
 		<httpclient.version>4.5.13</httpclient.version>
 		<junit.version>4.13.2</junit.version>
-
+		<indexmessenger.version>1.3.0</indexmessenger.version>
+		
 	</properties>
 
 	<scm>
@@ -60,6 +63,17 @@
 			<version>${testng.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>se.uu.ub.cora</groupId>
+			<artifactId>logger</artifactId>
+			<version>${logger.version}</version>
+		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>se.uu.ub.cora</groupId> -->
+<!-- 			<artifactId>log4j</artifactId> -->
+<!-- 			<version>${coralog4j.version}</version> -->
+<!-- 			<scope>runtime</scope> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>se.uu.ub.cora</groupId>
 			<artifactId>json</artifactId>
@@ -129,6 +143,11 @@
 			<artifactId>httpclient</artifactId>
 			<version>${httpclient.version}</version>
 			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>se.uu.ub.cora</groupId>
+			<artifactId>indexmessenger</artifactId>
+			<version>${indexmessenger.version}</version>
 		</dependency>
 	</dependencies>
 </project>
