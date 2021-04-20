@@ -19,6 +19,7 @@
 package se.uu.ub.cora.fitnesseintegration.fixture;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,29 +28,42 @@ import java.util.Map;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.fitnesseintegration.message.MessageRoutingInfoHolder;
 import se.uu.ub.cora.fitnesseintegration.spy.LoggerFactorySpy;
 import se.uu.ub.cora.logger.LoggerFactory;
 import se.uu.ub.cora.logger.LoggerProvider;
+import se.uu.ub.cora.messaging.MessageRoutingInfo;
 import se.uu.ub.cora.messaging.MessagingProvider;
 
 public class MessageSenderFixtureTest {
 	private MessagingFactorySpy messagingFactory;
 	private MessageSenderFixture fixture;
+	private String message = "some JMS message";
+	private MessageRoutingInfo defaultRoutingInfo;
 
 	@BeforeMethod
 	public void setUp() {
+		setUpProviders();
+
+		setRoutingInfoInHolder();
+		fixture = new MessageSenderFixture();
+
+	}
+
+	private void setUpProviders() {
 		LoggerFactory loggerFactory = new LoggerFactorySpy();
 		LoggerProvider.setLoggerFactory(loggerFactory);
 		messagingFactory = new MessagingFactorySpy();
 		MessagingProvider.setMessagingFactory(messagingFactory);
+	}
 
-		fixture = new MessageSenderFixture();
+	private void setRoutingInfoInHolder() {
+		defaultRoutingInfo = new MessageRoutingInfo("hostName", "port", "routingkey");
+		MessageRoutingInfoHolder.setMessageRoutingInfo(defaultRoutingInfo);
 	}
 
 	@Test
 	public void testEmptyHeaders() {
-		String message = "some JMS message";
-
 		fixture.sendMessage(message);
 
 		MessageSenderSpy sender = messagingFactory.factoredSenders.get(0);
@@ -58,17 +72,43 @@ public class MessageSenderFixtureTest {
 	}
 
 	@Test
-	public void testInit() {
-		Map<String, Object> headers = new HashMap<>();
+	public void testSendMessage() {
+		Map<String, Object> headers = createDefaultHeaders();
 		fixture.setHeaders(headers);
-		String message = "some JMS message";
 
 		fixture.sendMessage(message);
 
 		MessageSenderSpy sender = messagingFactory.factoredSenders.get(0);
 		assertEquals(sender.message, message);
-		assertEquals(sender.headers, headers);
+		assertSame(sender.headers, headers);
 
+	}
+
+	private Map<String, Object> createDefaultHeaders() {
+		Map<String, Object> headers = new HashMap<>();
+		headers.put("pid", "somePid");
+		return headers;
+	}
+
+	@Test
+	public void testSendMessageCheckRoutingInfo() {
+		Map<String, Object> headers = createDefaultHeaders();
+		fixture.setHeaders(headers);
+
+		fixture.sendMessage(message);
+
+		assertSame(messagingFactory.routingInfos.get(0), defaultRoutingInfo);
+
+		assertRoutingInfoIsLatestFromHolder();
+
+	}
+
+	private void assertRoutingInfoIsLatestFromHolder() {
+		MessageRoutingInfo routingInfo2 = new MessageRoutingInfo("hostName2", "port2",
+				"routingkey2");
+		MessageRoutingInfoHolder.setMessageRoutingInfo(routingInfo2);
+		fixture.sendMessage(message);
+		assertSame(messagingFactory.routingInfos.get(1), routingInfo2);
 	}
 
 }

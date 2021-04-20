@@ -29,9 +29,11 @@ import se.uu.ub.cora.messaging.MessagingFactory;
 public class MessagingFactorySpy implements MessagingFactory {
 
 	public List<MessageSenderSpy> factoredSenders = new ArrayList<>();
+	public List<MessageRoutingInfo> routingInfos = new ArrayList<>();
 
 	@Override
 	public MessageSender factorTopicMessageSender(MessageRoutingInfo messagingRoutingInfo) {
+		routingInfos.add(messagingRoutingInfo);
 		MessageSenderSpy messageSenderSpy = new MessageSenderSpy();
 		factoredSenders.add(messageSenderSpy);
 		return messageSenderSpy;

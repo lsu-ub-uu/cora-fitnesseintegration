@@ -20,16 +20,21 @@ package se.uu.ub.cora.fitnesseintegration.message;
 
 import se.uu.ub.cora.messaging.MessageRoutingInfo;
 
+/**
+ * MessageRoutingInfoHolder holds MessageRoutingInfo used when sending messages.
+ */
 public class MessageRoutingInfoHolder {
+	// public MessageRoutingInfoHolder() {
+	// // needed by FitNesse
+	// }
 
-	private MessageRoutingInfo routingInfo;
+	private static MessageRoutingInfo routingInfo;
 
-	public void setMessageRoutingInfo(MessageRoutingInfo routingInfo) {
-		this.routingInfo = routingInfo;
+	public static void setMessageRoutingInfo(MessageRoutingInfo routingInfoIn) {
+		routingInfo = routingInfoIn;
 	}
 
-	public MessageRoutingInfo getMessageRoutingInfo() {
+	public static MessageRoutingInfo getMessageRoutingInfo() {
 		return routingInfo;
 	}
-
 }

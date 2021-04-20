@@ -21,23 +21,25 @@ package se.uu.ub.cora.fitnesseintegration.fixture;
 import java.util.Collections;
 import java.util.Map;
 
+import se.uu.ub.cora.fitnesseintegration.message.MessageRoutingInfoHolder;
 import se.uu.ub.cora.messaging.MessageRoutingInfo;
 import se.uu.ub.cora.messaging.MessageSender;
 import se.uu.ub.cora.messaging.MessagingProvider;
 
+/**
+ * MessageSenderFixture is used to send messages to Coras messaging system.
+ */
 public class MessageSenderFixture {
-
-	// Map<String, Object> headers = createHeaders();
-	// String message = createMessage();
-	//
-	// messageSender.sendMessage(headers, message);
 	private Map<String, Object> headers = Collections.emptyMap();
 
 	public void sendMessage(String message) {
-		MessageRoutingInfo messageRoutingInfo = null;
-		MessageSender messageSender = MessagingProvider.getTopicMessageSender(messageRoutingInfo);
+		MessageSender messageSender = createMessageSender();
 		messageSender.sendMessage(headers, message);
+	}
 
+	private MessageSender createMessageSender() {
+		MessageRoutingInfo messageRoutingInfo = MessageRoutingInfoHolder.getMessageRoutingInfo();
+		return MessagingProvider.getTopicMessageSender(messageRoutingInfo);
 	}
 
 	public void setHeaders(Map<String, Object> headers) {

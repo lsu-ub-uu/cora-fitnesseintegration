@@ -18,6 +18,7 @@
  */
 package se.uu.ub.cora.fitnesseintegration.message;
 
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertSame;
 
 import org.testng.annotations.Test;
@@ -29,8 +30,13 @@ public class MessageRoutingInfoHolderTest {
 	@Test
 	public void testInit() {
 		MessageRoutingInfoHolder holder = new MessageRoutingInfoHolder();
-		MessageRoutingInfo routingInfo = new MessageRoutingInfo("", "", "");
-		holder.setMessageRoutingInfo(routingInfo);
-		assertSame(holder.getMessageRoutingInfo(), routingInfo);
+		assertNotNull(holder);
+	}
+
+	@Test
+	public void testSetRoutingInfo() {
+		MessageRoutingInfo routingInfo = new MessageRoutingInfo("hostName", "port", "routingkey");
+		MessageRoutingInfoHolder.setMessageRoutingInfo(routingInfo);
+		assertSame(MessageRoutingInfoHolder.getMessageRoutingInfo(), routingInfo);
 	}
 }
