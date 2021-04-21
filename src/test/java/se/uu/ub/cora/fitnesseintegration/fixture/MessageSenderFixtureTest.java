@@ -22,8 +22,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -43,18 +41,20 @@ public class MessageSenderFixtureTest {
 
 	@BeforeMethod
 	public void setUp() {
-		setUpProviders();
-
+		setUpMessagingProvider();
 		setRoutingInfoInHolder();
 		fixture = new MessageSenderFixture();
-
 	}
 
-	private void setUpProviders() {
-		LoggerFactory loggerFactory = new LoggerFactorySpy();
-		LoggerProvider.setLoggerFactory(loggerFactory);
+	private void setUpMessagingProvider() {
+		createLoggerSpiesNeededByMessaging();
 		messagingFactory = new MessagingFactorySpy();
 		MessagingProvider.setMessagingFactory(messagingFactory);
+	}
+
+	private void createLoggerSpiesNeededByMessaging() {
+		LoggerFactory loggerFactory = new LoggerFactorySpy();
+		LoggerProvider.setLoggerFactory(loggerFactory);
 	}
 
 	private void setRoutingInfoInHolder() {
@@ -64,7 +64,7 @@ public class MessageSenderFixtureTest {
 
 	@Test
 	public void testEmptyHeaders() {
-		fixture.sendMessage(message);
+		fixture.setSendMessage(message);
 
 		MessageSenderSpy sender = messagingFactory.factoredSenders.get(0);
 		assertEquals(sender.message, message);
@@ -73,41 +73,36 @@ public class MessageSenderFixtureTest {
 
 	@Test
 	public void testSendMessage() {
-		Map<String, Object> headers = createDefaultHeaders();
-		fixture.setHeaders(headers);
+		setDefaultHeadersInFixture();
 
-		fixture.sendMessage(message);
+		fixture.setSendMessage(message);
 
 		MessageSenderSpy sender = messagingFactory.factoredSenders.get(0);
 		assertEquals(sender.message, message);
-		assertSame(sender.headers, headers);
-
+		String pid = (String) sender.headers.get("pid");
+		assertEquals(pid, "somePid");
 	}
 
-	private Map<String, Object> createDefaultHeaders() {
-		Map<String, Object> headers = new HashMap<>();
-		headers.put("pid", "somePid");
-		return headers;
+	private void setDefaultHeadersInFixture() {
+		String headers = "{pid:somePid}";
+		fixture.setHeaders(headers);
 	}
 
 	@Test
 	public void testSendMessageCheckRoutingInfo() {
-		Map<String, Object> headers = createDefaultHeaders();
-		fixture.setHeaders(headers);
+		setDefaultHeadersInFixture();
 
-		fixture.sendMessage(message);
+		fixture.setSendMessage(message);
 
 		assertSame(messagingFactory.routingInfos.get(0), defaultRoutingInfo);
-
 		assertRoutingInfoIsLatestFromHolder();
-
 	}
 
 	private void assertRoutingInfoIsLatestFromHolder() {
 		MessageRoutingInfo routingInfo2 = new MessageRoutingInfo("hostName2", "port2",
 				"routingkey2");
 		MessageRoutingInfoHolder.setMessageRoutingInfo(routingInfo2);
-		fixture.sendMessage(message);
+		fixture.setSendMessage(message);
 		assertSame(messagingFactory.routingInfos.get(1), routingInfo2);
 	}
 

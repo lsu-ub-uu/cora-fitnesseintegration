@@ -19,9 +19,17 @@
 package se.uu.ub.cora.fitnesseintegration.fixture;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
+import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
+import se.uu.ub.cora.fitnesseintegration.JsonHandler;
 import se.uu.ub.cora.fitnesseintegration.message.MessageRoutingInfoHolder;
+import se.uu.ub.cora.json.parser.JsonObject;
+import se.uu.ub.cora.json.parser.JsonString;
+import se.uu.ub.cora.json.parser.JsonValue;
 import se.uu.ub.cora.messaging.MessageRoutingInfo;
 import se.uu.ub.cora.messaging.MessageSender;
 import se.uu.ub.cora.messaging.MessagingProvider;
@@ -30,11 +38,13 @@ import se.uu.ub.cora.messaging.MessagingProvider;
  * MessageSenderFixture is used to send messages to Coras messaging system.
  */
 public class MessageSenderFixture {
-	private Map<String, Object> headers = Collections.emptyMap();
 
-	public void sendMessage(String message) {
+	private Map<String, Object> headersMap = Collections.emptyMap();
+	protected JsonHandler jsonHandler = DependencyProvider.getJsonHandler();;
+
+	public void setSendMessage(String message) {
 		MessageSender messageSender = createMessageSender();
-		messageSender.sendMessage(headers, message);
+		messageSender.sendMessage(headersMap, message);
 	}
 
 	private MessageSender createMessageSender() {
@@ -42,7 +52,14 @@ public class MessageSenderFixture {
 		return MessagingProvider.getTopicMessageSender(messageRoutingInfo);
 	}
 
-	public void setHeaders(Map<String, Object> headers) {
-		this.headers = headers;
+	public void setHeaders(String headers) {
+		headersMap = new HashMap<>();
+		JsonObject j = jsonHandler.parseStringAsObject(headers);
+		Set<Entry<String, JsonValue>> entrySet = j.entrySet();
+		for (Entry<String, JsonValue> entry : entrySet) {
+			String key = entry.getKey();
+			JsonString value = (JsonString) entry.getValue();
+			headersMap.put(key, value.getStringValue());
+		}
 	}
 }
