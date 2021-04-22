@@ -106,4 +106,26 @@ public class MessageSenderFixtureTest {
 		assertSame(messagingFactory.routingInfos.get(1), routingInfo2);
 	}
 
+	@Test
+	public void testSetMultipleHeaders() {
+		String headers = "{pid:somePid, methodName:modifyObject, someOtherHeader:someValue}";
+		fixture.setHeaders(headers);
+
+		fixture.setSendMessage(message);
+
+		assertCorrectValuesInHeader();
+	}
+
+	private void assertCorrectValuesInHeader() {
+		MessageSenderSpy sender = messagingFactory.factoredSenders.get(0);
+		assertHeadersContains(sender, "pid", "somePid");
+		assertHeadersContains(sender, "methodName", "modifyObject");
+		assertHeadersContains(sender, "someOtherHeader", "someValue");
+	}
+
+	private void assertHeadersContains(MessageSenderSpy sender, String key, String value) {
+		String pid = (String) sender.headers.get(key);
+		assertEquals(pid, value);
+	}
+
 }

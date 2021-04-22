@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.JsonHandler;
@@ -54,12 +53,19 @@ public class MessageSenderFixture {
 
 	public void setHeaders(String headers) {
 		headersMap = new HashMap<>();
-		JsonObject j = jsonHandler.parseStringAsObject(headers);
-		Set<Entry<String, JsonValue>> entrySet = j.entrySet();
-		for (Entry<String, JsonValue> entry : entrySet) {
-			String key = entry.getKey();
-			JsonString value = (JsonString) entry.getValue();
-			headersMap.put(key, value.getStringValue());
+		JsonObject headersObject = jsonHandler.parseStringAsObject(headers);
+		addHeadersFromJsonObject(headersObject);
+	}
+
+	private void addHeadersFromJsonObject(JsonObject headersObject) {
+		for (Entry<String, JsonValue> entry : headersObject.entrySet()) {
+			addHeader(entry);
 		}
+	}
+
+	private void addHeader(Entry<String, JsonValue> entry) {
+		String key = entry.getKey();
+		JsonString value = (JsonString) entry.getValue();
+		headersMap.put(key, value.getStringValue());
 	}
 }
