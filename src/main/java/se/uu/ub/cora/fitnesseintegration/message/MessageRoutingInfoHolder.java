@@ -24,9 +24,6 @@ import se.uu.ub.cora.messaging.MessageRoutingInfo;
  * MessageRoutingInfoHolder holds MessageRoutingInfo used when sending messages.
  */
 public class MessageRoutingInfoHolder {
-	// public MessageRoutingInfoHolder() {
-	// // needed by FitNesse
-	// }
 
 	private static MessageRoutingInfo routingInfo;
 
