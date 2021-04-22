@@ -18,7 +18,6 @@
  */
 package se.uu.ub.cora.fitnesseintegration.fixture;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,12 +37,35 @@ import se.uu.ub.cora.messaging.MessagingProvider;
  */
 public class MessageSenderFixture {
 
-	private Map<String, Object> headersMap = Collections.emptyMap();
-	protected JsonHandler jsonHandler = DependencyProvider.getJsonHandler();;
+	private Map<String, Object> headers = new HashMap<>();
+	protected JsonHandler jsonHandler = DependencyProvider.getJsonHandler();
+	private String jsonHeaders = "";
+	private String message = "";
 
-	public void setSendMessage(String message) {
+	public String sendMessage() {
+		try {
+			return tryToSendMessage(message);
+		} catch (Exception exception) {
+			return exception.getMessage();
+		}
+	}
+
+	private String tryToSendMessage(String message) {
+		handleHeaders();
 		MessageSender messageSender = createMessageSender();
-		messageSender.sendMessage(headersMap, message);
+		messageSender.sendMessage(headers, message);
+		return "OK";
+	}
+
+	private void handleHeaders() {
+		if (!jsonHeaders.isEmpty()) {
+			parseHeaders();
+		}
+	}
+
+	private void parseHeaders() {
+		JsonObject headersObject = jsonHandler.parseStringAsObject(jsonHeaders);
+		addHeadersFromJsonObject(headersObject);
 	}
 
 	private MessageSender createMessageSender() {
@@ -52,12 +74,11 @@ public class MessageSenderFixture {
 	}
 
 	public void setHeaders(String headers) {
-		headersMap = new HashMap<>();
-		JsonObject headersObject = jsonHandler.parseStringAsObject(headers);
-		addHeadersFromJsonObject(headersObject);
+		this.jsonHeaders = headers;
 	}
 
 	private void addHeadersFromJsonObject(JsonObject headersObject) {
+		headers = new HashMap<>();
 		for (Entry<String, JsonValue> entry : headersObject.entrySet()) {
 			addHeader(entry);
 		}
@@ -66,6 +87,10 @@ public class MessageSenderFixture {
 	private void addHeader(Entry<String, JsonValue> entry) {
 		String key = entry.getKey();
 		JsonString value = (JsonString) entry.getValue();
-		headersMap.put(key, value.getStringValue());
+		headers.put(key, value.getStringValue());
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
 	}
 }

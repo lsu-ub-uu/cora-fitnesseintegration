@@ -63,21 +63,24 @@ public class MessageSenderFixtureTest {
 	}
 
 	@Test
-	public void testEmptyHeaders() {
-		fixture.setSendMessage(message);
+	public void testEmptyHeadersAndMessage() {
+		String answer = fixture.sendMessage();
 
 		MessageSenderSpy sender = messagingFactory.factoredSenders.get(0);
-		assertEquals(sender.message, message);
+		assertEquals(answer, "OK");
+		assertEquals(sender.message, "");
 		assertEquals(sender.headers, Collections.emptyMap());
 	}
 
 	@Test
 	public void testSendMessage() {
 		setDefaultHeadersInFixture();
+		fixture.setMessage(message);
 
-		fixture.setSendMessage(message);
+		String answer = fixture.sendMessage();
 
 		MessageSenderSpy sender = messagingFactory.factoredSenders.get(0);
+		assertEquals(answer, "OK");
 		assertEquals(sender.message, message);
 		String pid = (String) sender.headers.get("pid");
 		assertEquals(pid, "somePid");
@@ -92,7 +95,7 @@ public class MessageSenderFixtureTest {
 	public void testSendMessageCheckRoutingInfo() {
 		setDefaultHeadersInFixture();
 
-		fixture.setSendMessage(message);
+		fixture.sendMessage();
 
 		assertSame(messagingFactory.routingInfos.get(0), defaultRoutingInfo);
 		assertRoutingInfoIsLatestFromHolder();
@@ -102,7 +105,7 @@ public class MessageSenderFixtureTest {
 		MessageRoutingInfo routingInfo2 = new MessageRoutingInfo("hostName2", "port2",
 				"routingkey2");
 		MessageRoutingInfoHolder.setMessageRoutingInfo(routingInfo2);
-		fixture.setSendMessage(message);
+		fixture.sendMessage();
 		assertSame(messagingFactory.routingInfos.get(1), routingInfo2);
 	}
 
@@ -111,7 +114,7 @@ public class MessageSenderFixtureTest {
 		String headers = "{pid:somePid, methodName:modifyObject, someOtherHeader:someValue}";
 		fixture.setHeaders(headers);
 
-		fixture.setSendMessage(message);
+		fixture.sendMessage();
 
 		assertCorrectValuesInHeader();
 	}
@@ -126,6 +129,16 @@ public class MessageSenderFixtureTest {
 	private void assertHeadersContains(MessageSenderSpy sender, String key, String value) {
 		String pid = (String) sender.headers.get(key);
 		assertEquals(pid, value);
+	}
+
+	@Test
+	public void testBrokenHeadersJsonReturnsErrorDoesNotSendMessage() throws Exception {
+		String headers = "{pid:}";
+		fixture.setHeaders(headers);
+
+		String answer = fixture.sendMessage();
+		assertEquals(answer, "Unable to parse json string");
+		assertEquals(messagingFactory.factoredSenders.size(), 0);
 	}
 
 }
