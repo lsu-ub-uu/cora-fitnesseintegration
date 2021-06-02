@@ -34,7 +34,7 @@
 		<logger.version>2.2.0</logger.version>
 		<json.version>2.3.0</json.version>
 		<httphandler.version>2.2.0</httphandler.version>
-		<cora-clientdata.version>3.8.0</cora-clientdata.version>
+		<cora-clientdata.version>3.9-SNAPSHOT</cora-clientdata.version>
 		<javaclient.version>1.8.0</javaclient.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 		<fitnesse.version>20210410</fitnesse.version>
