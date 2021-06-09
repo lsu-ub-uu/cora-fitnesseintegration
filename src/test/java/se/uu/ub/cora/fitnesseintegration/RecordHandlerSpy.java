@@ -188,4 +188,10 @@ public class RecordHandlerSpy implements RecordHandler {
 		this.jsonToReturn = jsonToReturn;
 	}
 
+	@Override
+	public BasicHttpResponse batchIndex(String authToken, String recordType, String filterAsJson) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

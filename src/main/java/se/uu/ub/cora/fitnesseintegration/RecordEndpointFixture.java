@@ -126,6 +126,18 @@ public class RecordEndpointFixture {
 		this.authToken = authToken;
 	}
 
+	public String testBatchIndexing() {
+
+		// Start with empty filter?
+		// get authtoken
+		// call to recordHandler.batchIndex with authToken and recordType
+		// Retrieve statusType
+		// return response text from readResponse
+
+		return "";
+
+	}
+
 	public String testReadRecord() {
 		String readAuthToken = getSetAuthTokenOrAdminAuthToken();
 

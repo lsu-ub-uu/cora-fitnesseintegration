@@ -191,4 +191,14 @@ public class RecordHandlerImp implements RecordHandler {
 
 	}
 
+	@Override
+	public BasicHttpResponse batchIndex(String authToken, String recordType, String filterAsJson) {
+
+		// RestClient restClient = restClientFactory.factorUsingAuthToken(authToken);
+		// RestResponse response = restClient.batchIndex(recordType, recordId);
+		// return createBasicHttpResponseFromRestResponse(response);
+
+		return null;
+	}
+
 }
