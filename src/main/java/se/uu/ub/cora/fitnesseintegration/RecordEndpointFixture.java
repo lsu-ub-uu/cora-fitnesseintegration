@@ -128,13 +128,12 @@ public class RecordEndpointFixture {
 
 	public String testBatchIndexing() {
 
-		// Start with empty filter?
-		// get authtoken
-		// call to recordHandler.batchIndex with authToken and recordType
-		// Retrieve statusType
-		// return response text from readResponse
+		ExtendedHttpResponse response = recordHandler.batchIndex(getSetAuthTokenOrAdminAuthToken(),
+				type, json);
 
-		return "";
+		setValuesFromResponse(response);
+
+		return response.responseText;
 
 	}
 

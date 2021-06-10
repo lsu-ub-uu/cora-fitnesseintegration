@@ -25,6 +25,8 @@ import static org.testng.Assert.assertTrue;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import javax.ws.rs.core.Response;
+
 import org.apache.http.client.ClientProtocolException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -417,6 +419,46 @@ public class RecordEndpointFixtureTest {
 				jsonParser.jsonObjectSpies.get(0));
 
 		assertSame(DataHolder.getRecord(), jsonToDataRecordConverterSpy.clientDataRecordSpy);
+	}
+
+	@Test
+	public void testBatchIndexingFetchesDataFromRecordHandler() {
+
+		String authToken = "someToken";
+		fixture.setAuthToken(authToken);
+		String recordType = "someType";
+		fixture.setType(recordType);
+		String filterAsJson = "some filter";
+		fixture.setJson(filterAsJson);
+		fixture.testBatchIndexing();
+
+		assertEquals(recordHandler.authToken, authToken);
+		assertEquals(recordHandler.recordType, recordType);
+		assertEquals(recordHandler.filter, filterAsJson);
+
+		assertEquals(fixture.getCreatedId(), recordHandler.createdId);
+		assertEquals(fixture.getToken(), recordHandler.token);
+		assertEquals(fixture.statusType,
+				Response.Status.fromStatusCode(recordHandler.statusTypeReturned));
+
+	}
+
+	@Test
+	public void testBatchIndexingAdminAuthTokenUsedWhenNoAuthTokenSet() {
+		fixture.testBatchIndexing();
+		assertEquals(recordHandler.authToken, AuthTokenHolder.getAdminAuthToken());
+	}
+
+	@Test
+	public void testBatchIndexingReturnsResponseText() {
+		fixture.setType("someRecordType");
+		fixture.setAuthToken("someToken");
+		fixture.setJson("some filter");
+		recordHandler.jsonToReturnDefault = "indexBatchJobAsJson";
+
+		String responseText = fixture.testBatchIndexing();
+
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 	}
 
 }
