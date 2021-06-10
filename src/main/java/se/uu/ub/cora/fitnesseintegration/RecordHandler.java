@@ -159,6 +159,6 @@ public interface RecordHandler {
 	 *            A JSON-formatted String used to filter the result
 	 * 
 	 */
-	BasicHttpResponse batchIndex(String authToken, String recordType, String filterAsJson);
+	ExtendedHttpResponse batchIndex(String authToken, String recordType, String filterAsJson);
 
 }

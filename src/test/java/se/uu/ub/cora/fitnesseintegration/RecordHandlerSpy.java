@@ -189,7 +189,8 @@ public class RecordHandlerSpy implements RecordHandler {
 	}
 
 	@Override
-	public BasicHttpResponse batchIndex(String authToken, String recordType, String filterAsJson) {
+	public ExtendedHttpResponse batchIndex(String authToken, String recordType,
+			String filterAsJson) {
 		// TODO Auto-generated method stub
 		return null;
 	}

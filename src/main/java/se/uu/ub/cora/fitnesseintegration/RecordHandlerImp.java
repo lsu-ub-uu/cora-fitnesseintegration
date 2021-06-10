@@ -111,12 +111,16 @@ public class RecordHandlerImp implements RecordHandler {
 		RestClient restClient = restClientFactory.factorUsingAuthToken(authToken);
 		ExtendedRestResponse response = restClient.createRecordFromJson(recordType, json);
 
+		return createExtendedHttpResponse(response);
+
+	}
+
+	private ExtendedHttpResponse createExtendedHttpResponse(ExtendedRestResponse response) {
 		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(response.statusCode,
 				response.responseText);
 
 		return response.statusCode == CREATED ? createCreateResponse(response, basicHttpResponse)
 				: new ExtendedHttpResponse(basicHttpResponse);
-
 	}
 
 	protected void addPropertiesToHttpHandler(HttpHandler httpHandler, String json,
@@ -192,13 +196,14 @@ public class RecordHandlerImp implements RecordHandler {
 	}
 
 	@Override
-	public BasicHttpResponse batchIndex(String authToken, String recordType, String filterAsJson) {
+	public ExtendedHttpResponse batchIndex(String authToken, String recordType,
+			String filterAsJson) {
 
-		// RestClient restClient = restClientFactory.factorUsingAuthToken(authToken);
-		// RestResponse response = restClient.batchIndex(recordType, recordId);
-		// return createBasicHttpResponseFromRestResponse(response);
+		RestClient restClient = restClientFactory.factorUsingAuthToken(authToken);
+		ExtendedRestResponse response = restClient.batchIndexWithFilterAsJson(recordType,
+				filterAsJson);
 
-		return null;
+		return createExtendedHttpResponse(response);
 	}
 
 }
