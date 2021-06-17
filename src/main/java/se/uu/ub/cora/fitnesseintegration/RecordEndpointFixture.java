@@ -68,7 +68,7 @@ public class RecordEndpointFixture {
 	private JsonToDataRecordConverter jsonToDataRecordConverter;
 	private ChildComparer childComparer;
 	private RecordHandler recordHandler;
-	private int maxRepeatCount;
+	private int maxNumberOfReads;
 	private int sleepTime;
 
 	public RecordEndpointFixture() {
@@ -360,28 +360,24 @@ public class RecordEndpointFixture {
 
 	public String deleteIndexBatchJobWhenFinished() throws InterruptedException {
 
-		int repeatCount = 0;
+		int numberOfReads = 0;
 		boolean continueToReadIndexBatchJob = true;
-		String messageToReturn = "IndexBatchJob was not finished within "
-				+ maxRepeatCount * sleepTime + " milliseconds";
 		while (continueToReadIndexBatchJob) {
-			repeatCount++;
+			numberOfReads++;
 
 			testReadRecordAndStoreJson();
 
-			if (indexBatchJobIsFinished()) {
+			if (storedIndexBatchJobIsFinished() || numberOfReads == maxNumberOfReads) {
 				continueToReadIndexBatchJob = false;
-				messageToReturn = testDeleteRecord();
+			} else {
+				Thread.sleep(sleepTime);
 			}
-			if (repeatCount == maxRepeatCount) {
-				continueToReadIndexBatchJob = false;
-			}
-			Thread.sleep(sleepTime);
 		}
-		return messageToReturn;
+
+		return generateResponseBasedOnIndexBatchJobStatus();
 	}
 
-	private boolean indexBatchJobIsFinished() {
+	private boolean storedIndexBatchJobIsFinished() {
 		String status = extractStatusFromIndexBatchJob();
 		return "finished".equals(status);
 	}
@@ -390,6 +386,15 @@ public class RecordEndpointFixture {
 		DataRecord record = DataHolder.getRecord();
 		ClientDataGroup clientDataGroup = record.getClientDataGroup();
 		return clientDataGroup.getFirstAtomicValueWithNameInData("status");
+	}
+
+	private String generateResponseBasedOnIndexBatchJobStatus() {
+		if (storedIndexBatchJobIsFinished()) {
+			return testDeleteRecord();
+		} else {
+			return "Tried to read indexBatchJob " + maxNumberOfReads + " times, waiting "
+					+ sleepTime + " milliseconds between each read, but it was still not finished.";
+		}
 	}
 
 	public HttpHandlerFactory getHttpHandlerFactory() {
@@ -434,8 +439,8 @@ public class RecordEndpointFixture {
 
 	}
 
-	public void setMaxRepeatCount(int maxRepeatCount) {
-		this.maxRepeatCount = maxRepeatCount;
+	public void setMaxNumberOfReads(int maxRepeatCount) {
+		this.maxNumberOfReads = maxRepeatCount;
 
 	}
 

@@ -471,7 +471,7 @@ public class RecordEndpointFixtureTest {
 		fixture.setType("indexBatchJob");
 		fixture.setId("indexBatchJob:12345");
 		fixture.setSleepTime(0);
-		fixture.setMaxRepeatCount(1);
+		fixture.setMaxNumberOfReads(1);
 
 		JsonToDataRecordConverterForIndexBatchJobSpy jsonToDataRecordConverterSpy = new JsonToDataRecordConverterForIndexBatchJobSpy();
 		fixture.setJsonToDataRecordConverter(jsonToDataRecordConverterSpy);
@@ -503,7 +503,7 @@ public class RecordEndpointFixtureTest {
 		JsonHandler jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
 		fixture.setJsonHandler(jsonHandler);
 		fixture.setSleepTime(0);
-		fixture.setMaxRepeatCount(1);
+		fixture.setMaxNumberOfReads(1);
 
 		fixture.deleteIndexBatchJobWhenFinished();
 
@@ -515,20 +515,23 @@ public class RecordEndpointFixtureTest {
 	}
 
 	@Test
-	public void testDeleteIndexBatchJobWhenFinishedStopsAtMaxRepeatCount()
+	public void testDeleteIndexBatchJobWhenFinishedStopsAtMaxNumberOfReads()
 			throws InterruptedException {
-		setUpFixtureAndSpiesWithCallsUntilFinished(6);
+		setUpFixtureAndSpiesWithCallsUntilFinished(7);
 		int sleepTime = 1;
 		fixture.setSleepTime(sleepTime);
-		int maxRepeatCount = 5;
-		fixture.setMaxRepeatCount(maxRepeatCount);
-		recordHandler.jsonToReturnDefault = "IndexBatchJob was not finished within the "
-				+ maxRepeatCount * sleepTime + " milliseconds";
+		int maxNumberOfReads = 5;
+		fixture.setMaxNumberOfReads(maxNumberOfReads);
+		String expectedResponseText = "Tried to read indexBatchJob " + maxNumberOfReads
+				+ " times, waiting " + sleepTime
+				+ " milliseconds between each read, but it was still not finished.";
+		recordHandler.jsonToReturnDefault = expectedResponseText;
 
-		fixture.deleteIndexBatchJobWhenFinished();
+		String responseText = fixture.deleteIndexBatchJobWhenFinished();
 
 		assertEquals(recordHandler.MCR.getNumberOfCallsToMethod("readRecord"), 5);
 		assertFalse(recordHandler.deleteRecordWasCalled);
+		assertEquals(responseText, expectedResponseText);
 	}
 
 	@Test
@@ -536,7 +539,7 @@ public class RecordEndpointFixtureTest {
 			throws InterruptedException {
 		setUpFixtureAndSpiesWithCallsUntilFinished(3);
 		fixture.setSleepTime(0);
-		fixture.setMaxRepeatCount(5);
+		fixture.setMaxNumberOfReads(5);
 
 		fixture.deleteIndexBatchJobWhenFinished();
 
@@ -548,7 +551,7 @@ public class RecordEndpointFixtureTest {
 			throws InterruptedException {
 		setUpFixtureAndSpiesWithCallsUntilFinished(1);
 		fixture.setSleepTime(0);
-		fixture.setMaxRepeatCount(5);
+		fixture.setMaxNumberOfReads(5);
 
 		String responseText = fixture.deleteIndexBatchJobWhenFinished();
 
@@ -558,21 +561,21 @@ public class RecordEndpointFixtureTest {
 	}
 
 	@Test
-	public void testDeleteIndexBatchJobWhenFinishedWaitsSleepTimeInEachLoop()
+	public void testDeleteIndexBatchJobWhenFinishedWaitsSleepTimeInEachLoopIfNotFinished()
 			throws InterruptedException {
-		setUpFixtureAndSpiesWithCallsUntilFinished(1);
+		setUpFixtureAndSpiesWithCallsUntilFinished(2);
 
 		int sleepTime = 1000;
-		int maxRepeatCount = 1;
+		int maxNumberOfReads = 3;
 		fixture.setSleepTime(sleepTime);
-		fixture.setMaxRepeatCount(maxRepeatCount);
+		fixture.setMaxNumberOfReads(maxNumberOfReads);
 
 		Instant start = Instant.now();
 		fixture.deleteIndexBatchJobWhenFinished();
 		Instant end = Instant.now();
 		Duration timeElapsed = Duration.between(start, end);
 
-		assertEquals(recordHandler.MCR.getNumberOfCallsToMethod("readRecord"), 1);
+		assertEquals(recordHandler.MCR.getNumberOfCallsToMethod("readRecord"), 2);
 		assertEquals(timeElapsed.toSeconds(), sleepTime / 1000);
 	}
 
