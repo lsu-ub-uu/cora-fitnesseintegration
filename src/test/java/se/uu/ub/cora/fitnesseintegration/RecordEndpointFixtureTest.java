@@ -19,11 +19,17 @@
 package se.uu.ub.cora.fitnesseintegration;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Map;
+
+import javax.ws.rs.core.Response;
 
 import org.apache.http.client.ClientProtocolException;
 import org.testng.annotations.BeforeMethod;
@@ -417,6 +423,177 @@ public class RecordEndpointFixtureTest {
 				jsonParser.jsonObjectSpies.get(0));
 
 		assertSame(DataHolder.getRecord(), jsonToDataRecordConverterSpy.clientDataRecordSpy);
+	}
+
+	@Test
+	public void testBatchIndexingFetchesDataFromRecordHandler() {
+
+		String authToken = "someToken";
+		fixture.setAuthToken(authToken);
+		String recordType = "someType";
+		fixture.setType(recordType);
+		String filterAsJson = "some filter";
+		fixture.setJson(filterAsJson);
+		fixture.testBatchIndexing();
+
+		assertEquals(recordHandler.authToken, authToken);
+		assertEquals(recordHandler.recordType, recordType);
+		assertEquals(recordHandler.filter, filterAsJson);
+
+		assertEquals(fixture.getCreatedId(), recordHandler.createdId);
+		assertEquals(fixture.getToken(), recordHandler.token);
+		assertEquals(fixture.statusType,
+				Response.Status.fromStatusCode(recordHandler.statusTypeReturned));
+
+	}
+
+	@Test
+	public void testBatchIndexingAdminAuthTokenUsedWhenNoAuthTokenSet() {
+		fixture.testBatchIndexing();
+		assertEquals(recordHandler.authToken, AuthTokenHolder.getAdminAuthToken());
+	}
+
+	@Test
+	public void testBatchIndexingReturnsResponseText() {
+		fixture.setType("someRecordType");
+		fixture.setAuthToken("someToken");
+		fixture.setJson("some filter");
+		recordHandler.jsonToReturnDefault = "indexBatchJobAsJson";
+
+		String responseText = fixture.testBatchIndexing();
+
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
+	}
+
+	@Test
+	public void testDeleteIndexBatchJobWhenFinishedReadsRecord() throws InterruptedException {
+		fixture.setAuthToken("someToken");
+		fixture.setType("indexBatchJob");
+		fixture.setId("indexBatchJob:12345");
+		fixture.setSleepTime(0);
+		fixture.setMaxNumberOfReads(1);
+
+		JsonToDataRecordConverterForIndexBatchJobSpy jsonToDataRecordConverterSpy = new JsonToDataRecordConverterForIndexBatchJobSpy();
+		fixture.setJsonToDataRecordConverter(jsonToDataRecordConverterSpy);
+		JsonParserSpy jsonParser = new JsonParserSpy();
+		JsonHandler jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
+		fixture.setJsonHandler(jsonHandler);
+
+		fixture.deleteIndexBatchJobWhenFinished();
+
+		assertEquals(recordHandler.MCR.getNumberOfCallsToMethod("readRecord"), 1);
+		Map<String, Object> parametersForReadRecord = recordHandler.MCR
+				.getParametersForMethodAndCallNumber("readRecord", 0);
+
+		assertSame(parametersForReadRecord.get("authToken"), "someToken");
+		assertSame(parametersForReadRecord.get("recordType"), "indexBatchJob");
+		assertSame(parametersForReadRecord.get("recordId"), "indexBatchJob:12345");
+
+	}
+
+	@Test
+	public void testDeleteIndexBatchJobWhenFinishedStoresJson() throws InterruptedException {
+		fixture.setAuthToken("someToken");
+		fixture.setType("indexBatchJob");
+		fixture.setId("indexBatchJob:12345");
+
+		JsonToDataRecordConverterForIndexBatchJobSpy jsonToDataRecordConverterSpy = new JsonToDataRecordConverterForIndexBatchJobSpy();
+		fixture.setJsonToDataRecordConverter(jsonToDataRecordConverterSpy);
+		JsonParserSpy jsonParser = new JsonParserSpy();
+		JsonHandler jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
+		fixture.setJsonHandler(jsonHandler);
+		fixture.setSleepTime(0);
+		fixture.setMaxNumberOfReads(1);
+
+		fixture.deleteIndexBatchJobWhenFinished();
+
+		assertEquals(jsonParser.jsonStringSentToParser, recordHandler.json);
+		assertEquals(jsonToDataRecordConverterSpy.jsonObjects.get(0),
+				jsonParser.jsonObjectSpies.get(0));
+
+		assertSame(DataHolder.getRecord(), jsonToDataRecordConverterSpy.clientDataRecordSpy);
+	}
+
+	@Test
+	public void testDeleteIndexBatchJobWhenFinishedStopsAtMaxNumberOfReads()
+			throws InterruptedException {
+		setUpFixtureAndSpiesWithCallsUntilFinished(7);
+		int sleepTime = 1;
+		fixture.setSleepTime(sleepTime);
+		int maxNumberOfReads = 5;
+		fixture.setMaxNumberOfReads(maxNumberOfReads);
+		String expectedResponseText = "Tried to read indexBatchJob " + maxNumberOfReads
+				+ " times, waiting " + sleepTime
+				+ " milliseconds between each read, but it was still not finished.";
+		recordHandler.jsonToReturnDefault = expectedResponseText;
+
+		String responseText = fixture.deleteIndexBatchJobWhenFinished();
+
+		assertEquals(recordHandler.MCR.getNumberOfCallsToMethod("readRecord"), 5);
+		assertFalse(recordHandler.deleteRecordWasCalled);
+		assertEquals(responseText, expectedResponseText);
+	}
+
+	@Test
+	public void testDeleteIndexBatchJobWhenFinishedStopsWhenJobFinished()
+			throws InterruptedException {
+		setUpFixtureAndSpiesWithCallsUntilFinished(3);
+		fixture.setSleepTime(0);
+		fixture.setMaxNumberOfReads(5);
+
+		fixture.deleteIndexBatchJobWhenFinished();
+
+		assertEquals(recordHandler.MCR.getNumberOfCallsToMethod("readRecord"), 3);
+	}
+
+	@Test
+	public void testDeleteIndexBatchJobWhenFinishedDeletesJobWhenFinished()
+			throws InterruptedException {
+		setUpFixtureAndSpiesWithCallsUntilFinished(1);
+		fixture.setSleepTime(0);
+		fixture.setMaxNumberOfReads(5);
+
+		String responseText = fixture.deleteIndexBatchJobWhenFinished();
+
+		assertEquals(recordHandler.MCR.getNumberOfCallsToMethod("readRecord"), 1);
+		assertTrue(recordHandler.deleteRecordWasCalled);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
+	}
+
+	@Test
+	public void testDeleteIndexBatchJobWhenFinishedWaitsSleepTimeInEachLoopIfNotFinished()
+			throws InterruptedException {
+		setUpFixtureAndSpiesWithCallsUntilFinished(2);
+
+		int sleepTime = 1000;
+		int maxNumberOfReads = 3;
+		fixture.setSleepTime(sleepTime);
+		fixture.setMaxNumberOfReads(maxNumberOfReads);
+
+		Instant start = Instant.now();
+		fixture.deleteIndexBatchJobWhenFinished();
+		Instant end = Instant.now();
+		Duration timeElapsed = Duration.between(start, end);
+
+		assertEquals(recordHandler.MCR.getNumberOfCallsToMethod("readRecord"), 2);
+		assertEquals(timeElapsed.toSeconds(), sleepTime / 1000);
+	}
+
+	private void setUpFixtureAndSpiesWithCallsUntilFinished(int callsUntilFinished) {
+		fixture.setAuthToken("someToken");
+		fixture.setType("indexBatchJob");
+		fixture.setId("indexBatchJob:12345");
+
+		JsonToDataRecordConverterForIndexBatchJobSpy jsonToDataRecordConverterSpy = new JsonToDataRecordConverterForIndexBatchJobSpy();
+
+		ClientDataRecordForIndexBatchJobSpy clientDataRecordForIndexBatchJobSpy = new ClientDataRecordForIndexBatchJobSpy();
+		clientDataRecordForIndexBatchJobSpy.callsUntilFinished = callsUntilFinished;
+		jsonToDataRecordConverterSpy.clientDataRecordSpy = clientDataRecordForIndexBatchJobSpy;
+
+		fixture.setJsonToDataRecordConverter(jsonToDataRecordConverterSpy);
+		JsonParserSpy jsonParser = new JsonParserSpy();
+		JsonHandler jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
+		fixture.setJsonHandler(jsonHandler);
 	}
 
 }

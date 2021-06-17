@@ -93,4 +93,15 @@ public class RestClientSpy implements RestClient {
 		return null;
 	}
 
+	@Override
+	public ExtendedRestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson) {
+		this.recordType = recordType;
+		this.filter = filterAsJson;
+
+		RestResponse restResponse = new RestResponse(201, returnedJson);
+		createdId = "someCreatedId";
+		return new ExtendedRestResponse(restResponse, createdId);
+
+	}
+
 }

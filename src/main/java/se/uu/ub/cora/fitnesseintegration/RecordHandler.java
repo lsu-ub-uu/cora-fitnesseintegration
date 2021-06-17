@@ -147,4 +147,18 @@ public interface RecordHandler {
 	 */
 	BasicHttpResponse readIncomingLinks(String authToken, String recordType, String recordId);
 
+	/**
+	 * Creates an IndexBatchJob for the provided recordType.
+	 * 
+	 * @param authToken
+	 *            A String authToken to use in the http request
+	 * @param recordType
+	 *            A String recordType representing the type of record to batch index
+	 * 
+	 * @param filter
+	 *            A JSON-formatted String used to filter the result
+	 * 
+	 */
+	ExtendedHttpResponse batchIndex(String authToken, String recordType, String filterAsJson);
+
 }

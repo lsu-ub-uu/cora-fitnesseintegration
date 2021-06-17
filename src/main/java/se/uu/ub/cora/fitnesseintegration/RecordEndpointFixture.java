@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
 
+import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
@@ -67,6 +68,8 @@ public class RecordEndpointFixture {
 	private JsonToDataRecordConverter jsonToDataRecordConverter;
 	private ChildComparer childComparer;
 	private RecordHandler recordHandler;
+	private int maxNumberOfReads;
+	private int sleepTime;
 
 	public RecordEndpointFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
@@ -346,6 +349,53 @@ public class RecordEndpointFixture {
 		return jsonToDataRecordConverter.toInstance(recordJsonObject);
 	}
 
+	public String testBatchIndexing() {
+		ExtendedHttpResponse response = recordHandler.batchIndex(getSetAuthTokenOrAdminAuthToken(),
+				type, json);
+
+		setValuesFromResponse(response);
+
+		return response.responseText;
+	}
+
+	public String deleteIndexBatchJobWhenFinished() throws InterruptedException {
+
+		int numberOfReads = 0;
+		boolean continueToReadIndexBatchJob = true;
+		while (continueToReadIndexBatchJob) {
+			numberOfReads++;
+
+			testReadRecordAndStoreJson();
+
+			if (storedIndexBatchJobIsFinished() || numberOfReads == maxNumberOfReads) {
+				continueToReadIndexBatchJob = false;
+			} else {
+				Thread.sleep(sleepTime);
+			}
+		}
+
+		return generateResponseBasedOnIndexBatchJobStatus();
+	}
+
+	private boolean storedIndexBatchJobIsFinished() {
+		String status = extractStatusFromIndexBatchJob();
+		return "finished".equals(status);
+	}
+
+	private String extractStatusFromIndexBatchJob() {
+		DataRecord record = DataHolder.getRecord();
+		ClientDataGroup clientDataGroup = record.getClientDataGroup();
+		return clientDataGroup.getFirstAtomicValueWithNameInData("status");
+	}
+
+	private String generateResponseBasedOnIndexBatchJobStatus() {
+		if (storedIndexBatchJobIsFinished()) {
+			return testDeleteRecord();
+		}
+		return "Tried to read indexBatchJob " + maxNumberOfReads + " times, waiting " + sleepTime
+				+ " milliseconds between each read, but it was still not finished.";
+	}
+
 	public HttpHandlerFactory getHttpHandlerFactory() {
 		return httpHandlerFactory;
 	}
@@ -385,6 +435,16 @@ public class RecordEndpointFixture {
 	public void setRecordHandler(RecordHandler recordHandler) {
 		// needed for test
 		this.recordHandler = recordHandler;
+
+	}
+
+	public void setMaxNumberOfReads(int maxRepeatCount) {
+		this.maxNumberOfReads = maxRepeatCount;
+
+	}
+
+	public void setSleepTime(int sleepTime) {
+		this.sleepTime = sleepTime;
 
 	}
 }

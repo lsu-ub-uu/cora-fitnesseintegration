@@ -78,4 +78,11 @@ public class RestClientInvalidSpy implements RestClient {
 		return null;
 	}
 
+	@Override
+	public ExtendedRestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson) {
+		returnedErrorMessage = "Error from spy: " + recordType;
+		RestResponse restResponse = new RestResponse(500, returnedErrorMessage);
+		return new ExtendedRestResponse(restResponse);
+	}
+
 }

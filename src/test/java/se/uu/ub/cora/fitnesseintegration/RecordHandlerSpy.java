@@ -188,4 +188,22 @@ public class RecordHandlerSpy implements RecordHandler {
 		this.jsonToReturn = jsonToReturn;
 	}
 
+	@Override
+	public ExtendedHttpResponse batchIndex(String authToken, String recordType,
+			String filterAsJson) {
+		this.authToken = authToken;
+		this.recordType = recordType;
+		this.filter = filterAsJson;
+		if (defaultStatusCodeUnchanged()) {
+			statusTypeReturned = 201;
+		}
+
+		BasicHttpResponse readResponse = new BasicHttpResponse(statusTypeReturned,
+				jsonToReturnDefault);
+
+		createdId = "someCreatedId";
+		token = "someToken";
+		return new ExtendedHttpResponse(readResponse, createdId, token);
+	}
+
 }

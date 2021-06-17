@@ -45,6 +45,7 @@ public class RecordHandlerTest {
 		restClientFactory = new RestClientFactorySpy();
 		httpHandlerFactorySpy = new HttpHandlerFactorySpy();
 		recordHandler = new RecordHandlerImp(httpHandlerFactorySpy, restClientFactory);
+		filterAsJson = null;
 
 	}
 
@@ -357,4 +358,70 @@ public class RecordHandlerTest {
 		assertTrue(readResponse.statusCode == 500);
 		assertEquals(readResponse.responseText, restClient.returnedErrorMessage);
 	}
+
+	@Test
+	public void testBatchIndexRestClientSetUpCorrectly() {
+		filterAsJson = "someFilter";
+		recordHandler.batchIndex(authToken, recordType, filterAsJson);
+
+		assertEquals(restClientFactory.authToken, authToken);
+
+		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+
+		assertEquals(restClient.recordType, recordType);
+		assertEquals(restClient.filter, filterAsJson);
+	}
+
+	@Test
+	public void testBatchIndexNotOk() {
+		restClientFactory.factorInvalidRestClient = true;
+		filterAsJson = "someFilter";
+
+		ExtendedHttpResponse response = recordHandler.batchIndex(authToken, recordType,
+				filterAsJson);
+
+		assertNotNull(response.responseText);
+		assertTrue(response.statusCode == 500);
+
+		RestClientInvalidSpy restClient = (RestClientInvalidSpy) restClientFactory.returnedRestClient;
+		assertEquals(response.responseText, restClient.returnedErrorMessage);
+
+	}
+
+	@Test
+	public void testBatchIndexOk() {
+		httpHandlerFactorySpy.setResponseCode(201);
+		filterAsJson = "someFilter";
+		restClientFactory.jsonToReturn = "some json";
+
+		ExtendedHttpResponse response = recordHandler.batchIndex(authToken, recordType,
+				filterAsJson);
+
+		assertNotNull(response);
+
+		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		assertEquals(response.responseText, restClient.returnedJson);
+
+		assertEquals(response.statusCode, 201);
+
+	}
+
+	@Test
+	public void testBatchIndexOkWithCreatedIdAndToken() {
+		httpHandlerFactorySpy.setResponseCode(201);
+		filterAsJson = "someFilter";
+		restClientFactory.jsonToReturn = "{\"record\":{\"data\":{\"children\":[{\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"system\"},{\"name\":\"linkedRecordId\",\"value\":\"cora\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/system/cora\",\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"dataDivider\"},{\"name\":\"id\",\"value\":\"appToken:7053734211763\"},{\"name\":\"type\",\"value\":\"appToken\"},{\"name\":\"createdBy\",\"value\":\"131313\"}],\"name\":\"recordInfo\"},{\"name\":\"note\",\"value\":\"My  device\"},{\"name\":\"token\",\"value\":\"ba064c86-bd7c-4283-a5f3-86ba1dade3f3\"}],\"name\":\"appToken\"},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/appToken/appToken:7053734211763\",\"accept\":\"application/vnd.uub.record+json\"},\"read_incoming_links\":{\"requestMethod\":\"GET\",\"rel\":\"read_incoming_links\",\"url\":\"http://localhost:8080/therest/rest/record/appToken/appToken:7053734211763/incomingLinks\",\"accept\":\"application/vnd.uub.recordList+json\"},\"update\":{\"requestMethod\":\"POST\",\"rel\":\"update\",\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"http://localhost:8080/therest/rest/record/appToken/appToken:7053734211763\",\"accept\":\"application/vnd.uub.record+json\"}}}}";
+
+		ExtendedHttpResponse response = recordHandler.batchIndex(authToken, recordType,
+				filterAsJson);
+
+		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+
+		assertEquals(response.statusCode, 201);
+		assertEquals(response.createdId, restClient.createdId);
+		assertEquals(response.createdId, restClient.createdId);
+		assertEquals(response.token, "ba064c86-bd7c-4283-a5f3-86ba1dade3f3");
+
+	}
+
 }
