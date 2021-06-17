@@ -359,37 +359,47 @@ public class RecordEndpointFixture {
 	}
 
 	public String deleteIndexBatchJobWhenFinished() throws InterruptedException {
-
 		int repeatCount = 0;
 		boolean continueToReadIndexBatchJob = true;
-		String messageToReturn = "IndexBatchJob was not finished within "
-				+ maxRepeatCount * sleepTime + " milliseconds";
+		String status = "started";
 		while (continueToReadIndexBatchJob) {
 			repeatCount++;
+			status = readBatchJobRecordAndGetStatus();
 
-			testReadRecordAndStoreJson();
-
-			if (indexBatchJobIsFinished()) {
-				continueToReadIndexBatchJob = false;
-				messageToReturn = testDeleteRecord();
-			}
-			if (repeatCount == maxRepeatCount) {
-				continueToReadIndexBatchJob = false;
-			}
+			continueToReadIndexBatchJob = possiblySetContinueToFalse(repeatCount,
+					status);
 			Thread.sleep(sleepTime);
 		}
-		return messageToReturn;
+		return indexBatchJobIsFinished(status) ? testDeleteRecord()
+				: composeMessageForJobNotFinished();
 	}
 
-	private boolean indexBatchJobIsFinished() {
-		String status = extractStatusFromIndexBatchJob();
-		return "finished".equals(status);
+	private boolean possiblySetContinueToFalse(int repeatCount,
+			String status) {
+		if (indexBatchJobIsFinished(status) || repeatCount == maxRepeatCount) {
+			return false;
+		}
+		return true;
+	}
+
+	private String readBatchJobRecordAndGetStatus() {
+		testReadRecordAndStoreJson();
+		return extractStatusFromIndexBatchJob();
 	}
 
 	private String extractStatusFromIndexBatchJob() {
 		DataRecord record = DataHolder.getRecord();
 		ClientDataGroup clientDataGroup = record.getClientDataGroup();
 		return clientDataGroup.getFirstAtomicValueWithNameInData("status");
+	}
+
+	private boolean indexBatchJobIsFinished(String status) {
+		return "finished".equals(status);
+	}
+
+	private String composeMessageForJobNotFinished() {
+		return "IndexBatchJob was not finished within " + maxRepeatCount * sleepTime
+				+ " milliseconds";
 	}
 
 	public HttpHandlerFactory getHttpHandlerFactory() {
