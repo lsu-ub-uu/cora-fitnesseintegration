@@ -391,10 +391,9 @@ public class RecordEndpointFixture {
 	private String generateResponseBasedOnIndexBatchJobStatus() {
 		if (storedIndexBatchJobIsFinished()) {
 			return testDeleteRecord();
-		} else {
-			return "Tried to read indexBatchJob " + maxNumberOfReads + " times, waiting "
-					+ sleepTime + " milliseconds between each read, but it was still not finished.";
 		}
+		return "Tried to read indexBatchJob " + maxNumberOfReads + " times, waiting " + sleepTime
+				+ " milliseconds between each read, but it was still not finished.";
 	}
 
 	public HttpHandlerFactory getHttpHandlerFactory() {
