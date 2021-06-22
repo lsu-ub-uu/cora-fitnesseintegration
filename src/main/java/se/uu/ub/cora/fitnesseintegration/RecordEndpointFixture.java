@@ -358,7 +358,7 @@ public class RecordEndpointFixture {
 		return response.responseText;
 	}
 
-	public String deleteIndexBatchJobWhenFinished() throws InterruptedException {
+	public String waitUntilIndexBatchJobIsFinished() throws InterruptedException {
 
 		int numberOfReads = 0;
 		boolean continueToReadIndexBatchJob = true;
@@ -390,7 +390,7 @@ public class RecordEndpointFixture {
 
 	private String generateResponseBasedOnIndexBatchJobStatus() {
 		if (storedIndexBatchJobIsFinished()) {
-			return testDeleteRecord();
+			return "finished";
 		}
 		return "Tried to read indexBatchJob " + maxNumberOfReads + " times, waiting " + sleepTime
 				+ " milliseconds between each read, but it was still not finished.";

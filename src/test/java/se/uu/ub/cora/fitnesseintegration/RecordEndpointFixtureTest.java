@@ -466,7 +466,7 @@ public class RecordEndpointFixtureTest {
 	}
 
 	@Test
-	public void testDeleteIndexBatchJobWhenFinishedReadsRecord() throws InterruptedException {
+	public void waitUntilIndexBatchJobIsFinishedReadsRecord() throws InterruptedException {
 		fixture.setAuthToken("someToken");
 		fixture.setType("indexBatchJob");
 		fixture.setId("indexBatchJob:12345");
@@ -479,7 +479,7 @@ public class RecordEndpointFixtureTest {
 		JsonHandler jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
 		fixture.setJsonHandler(jsonHandler);
 
-		fixture.deleteIndexBatchJobWhenFinished();
+		fixture.waitUntilIndexBatchJobIsFinished();
 
 		assertEquals(recordHandler.MCR.getNumberOfCallsToMethod("readRecord"), 1);
 		Map<String, Object> parametersForReadRecord = recordHandler.MCR
@@ -492,7 +492,7 @@ public class RecordEndpointFixtureTest {
 	}
 
 	@Test
-	public void testDeleteIndexBatchJobWhenFinishedStoresJson() throws InterruptedException {
+	public void waitUntilIndexBatchJobIsFinishedStoresJson() throws InterruptedException {
 		fixture.setAuthToken("someToken");
 		fixture.setType("indexBatchJob");
 		fixture.setId("indexBatchJob:12345");
@@ -505,7 +505,7 @@ public class RecordEndpointFixtureTest {
 		fixture.setSleepTime(0);
 		fixture.setMaxNumberOfReads(1);
 
-		fixture.deleteIndexBatchJobWhenFinished();
+		fixture.waitUntilIndexBatchJobIsFinished();
 
 		assertEquals(jsonParser.jsonStringSentToParser, recordHandler.json);
 		assertEquals(jsonToDataRecordConverterSpy.jsonObjects.get(0),
@@ -515,7 +515,7 @@ public class RecordEndpointFixtureTest {
 	}
 
 	@Test
-	public void testDeleteIndexBatchJobWhenFinishedStopsAtMaxNumberOfReads()
+	public void waitUntilIndexBatchJobIsFinishedStopsAtMaxNumberOfReads()
 			throws InterruptedException {
 		setUpFixtureAndSpiesWithCallsUntilFinished(7);
 		int sleepTime = 1;
@@ -527,7 +527,7 @@ public class RecordEndpointFixtureTest {
 				+ " milliseconds between each read, but it was still not finished.";
 		recordHandler.jsonToReturnDefault = expectedResponseText;
 
-		String responseText = fixture.deleteIndexBatchJobWhenFinished();
+		String responseText = fixture.waitUntilIndexBatchJobIsFinished();
 
 		assertEquals(recordHandler.MCR.getNumberOfCallsToMethod("readRecord"), 5);
 		assertFalse(recordHandler.deleteRecordWasCalled);
@@ -535,33 +535,32 @@ public class RecordEndpointFixtureTest {
 	}
 
 	@Test
-	public void testDeleteIndexBatchJobWhenFinishedStopsWhenJobFinished()
-			throws InterruptedException {
+	public void waitUntilIndexBatchJobIsFinishedStopsWhenJobFinished() throws InterruptedException {
 		setUpFixtureAndSpiesWithCallsUntilFinished(3);
 		fixture.setSleepTime(0);
 		fixture.setMaxNumberOfReads(5);
 
-		fixture.deleteIndexBatchJobWhenFinished();
+		fixture.waitUntilIndexBatchJobIsFinished();
 
 		assertEquals(recordHandler.MCR.getNumberOfCallsToMethod("readRecord"), 3);
 	}
 
 	@Test
-	public void testDeleteIndexBatchJobWhenFinishedDeletesJobWhenFinished()
+	public void waitUntilIndexBatchJobIsFinishedDoesNotDeleteJobWhenFinished()
 			throws InterruptedException {
 		setUpFixtureAndSpiesWithCallsUntilFinished(1);
 		fixture.setSleepTime(0);
 		fixture.setMaxNumberOfReads(5);
 
-		String responseText = fixture.deleteIndexBatchJobWhenFinished();
+		String responseText = fixture.waitUntilIndexBatchJobIsFinished();
 
 		assertEquals(recordHandler.MCR.getNumberOfCallsToMethod("readRecord"), 1);
-		assertTrue(recordHandler.deleteRecordWasCalled);
-		assertEquals(responseText, recordHandler.jsonToReturnDefault);
+		assertFalse(recordHandler.deleteRecordWasCalled);
+		assertEquals(responseText, "finished");
 	}
 
 	@Test
-	public void testDeleteIndexBatchJobWhenFinishedWaitsSleepTimeInEachLoopIfNotFinished()
+	public void waitUntilIndexBatchJobIsFinishedWaitsSleepTimeInEachLoopIfNotFinished()
 			throws InterruptedException {
 		setUpFixtureAndSpiesWithCallsUntilFinished(2);
 
@@ -571,7 +570,7 @@ public class RecordEndpointFixtureTest {
 		fixture.setMaxNumberOfReads(maxNumberOfReads);
 
 		Instant start = Instant.now();
-		fixture.deleteIndexBatchJobWhenFinished();
+		fixture.waitUntilIndexBatchJobIsFinished();
 		Instant end = Instant.now();
 		Duration timeElapsed = Duration.between(start, end);
 
