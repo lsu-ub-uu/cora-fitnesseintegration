@@ -383,8 +383,8 @@ public class RecordEndpointFixture {
 	}
 
 	private String extractStatusFromIndexBatchJob() {
-		DataRecord record = DataHolder.getRecord();
-		ClientDataGroup clientDataGroup = record.getClientDataGroup();
+		DataRecord dataRecord = DataHolder.getRecord();
+		ClientDataGroup clientDataGroup = dataRecord.getClientDataGroup();
 		return clientDataGroup.getFirstAtomicValueWithNameInData("status");
 	}
 
