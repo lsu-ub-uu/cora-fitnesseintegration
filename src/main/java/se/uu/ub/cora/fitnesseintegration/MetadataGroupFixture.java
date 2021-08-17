@@ -17,15 +17,15 @@ public class MetadataGroupFixture {
 
 	public int numberOfChildrenWithNameInData() {
 		int numOfMatchingChildren = 0;
-		DataRecord record = DataHolder.getRecord();
-		if (topLevelGroupExists(record)) {
-			numOfMatchingChildren = findNumOfMatchingChildren(record);
+		DataRecord dataRecord = DataHolder.getRecord();
+		if (topLevelGroupExists(dataRecord)) {
+			numOfMatchingChildren = findNumOfMatchingChildren(dataRecord);
 		}
 		return numOfMatchingChildren;
 	}
 
-	private int findNumOfMatchingChildren(DataRecord record) {
-		ClientDataGroup topLevelDataGroup = record.getClientDataGroup();
+	private int findNumOfMatchingChildren(DataRecord dataRecord) {
+		ClientDataGroup topLevelDataGroup = dataRecord.getClientDataGroup();
 		if (shouldFindChildrenInTopLevelDataGroup()) {
 			return getNumberOfMatchingChildren(topLevelDataGroup);
 		}
@@ -54,8 +54,8 @@ public class MetadataGroupFixture {
 		return getNumberOfMatchingChildren(childDataGroup);
 	}
 
-	private boolean topLevelGroupExists(DataRecord record) {
-		return record != null && record.getClientDataGroup() != null;
+	private boolean topLevelGroupExists(DataRecord dataRecord) {
+		return dataRecord != null && dataRecord.getClientDataGroup() != null;
 	}
 
 	private int getNumberOfMatchingChildren(ClientDataGroup topLevelDataGroup) {

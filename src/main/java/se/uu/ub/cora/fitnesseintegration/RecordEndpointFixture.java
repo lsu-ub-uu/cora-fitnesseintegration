@@ -204,8 +204,8 @@ public class RecordEndpointFixture {
 	}
 
 	private JsonObject extractDataAsJsonObjectFromResponseText(String responseText) {
-		JsonObject record = extractRecordAsJsonObjectFromResponseText(responseText);
-		return record.getValueAsJsonObject("data");
+		JsonObject dataRecord = extractRecordAsJsonObjectFromResponseText(responseText);
+		return dataRecord.getValueAsJsonObject("data");
 	}
 
 	private JsonObject extractRecordAsJsonObjectFromResponseText(String responseText) {

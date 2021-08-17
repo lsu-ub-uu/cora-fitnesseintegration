@@ -76,8 +76,8 @@ public class ComparerFixture {
 	public String testReadAndStoreRecord() {
 		BasicHttpResponse readResponse = recordHandler.readRecord(authToken, type, id);
 		JsonObject recordJsonObject = jsonHandler.parseStringAsObject(readResponse.responseText);
-		DataRecord record = jsonToDataRecordConverter.toInstance(recordJsonObject);
-		DataHolder.setRecord(record);
+		DataRecord dataRecord = jsonToDataRecordConverter.toInstance(recordJsonObject);
+		DataHolder.setRecord(dataRecord);
 		return readResponse.responseText;
 	}
 
@@ -92,8 +92,8 @@ public class ComparerFixture {
 		Iterator<JsonValue> iterator = getIteratorFromListOfRecords();
 		List<DataRecord> convertedRecords = new ArrayList<>();
 		while (iterator.hasNext()) {
-			JsonObject record = (JsonObject) iterator.next();
-			convertAndAddRecord(record, convertedRecords);
+			JsonObject dataRecord = (JsonObject) iterator.next();
+			convertAndAddRecord(dataRecord, convertedRecords);
 		}
 		return convertedRecords;
 	}
@@ -149,8 +149,8 @@ public class ComparerFixture {
 
 	private void convertAndAddRecord(JsonObject recordJsonObject,
 			List<DataRecord> convertedRecords) {
-		DataRecord record = jsonToDataRecordConverter.toInstance(recordJsonObject);
-		convertedRecords.add(record);
+		DataRecord dataRecord = jsonToDataRecordConverter.toInstance(recordJsonObject);
+		convertedRecords.add(dataRecord);
 	}
 
 	protected String joinErrorMessages(List<String> errorMessages) {
@@ -196,8 +196,8 @@ public class ComparerFixture {
 	}
 
 	private void createRecordFromResponseAndSetInDataHolder(BasicHttpResponse response) {
-		DataRecord record = createRecordFromResponseText(response.responseText);
-		DataHolder.setRecord(record);
+		DataRecord dataRecord = createRecordFromResponseText(response.responseText);
+		DataHolder.setRecord(dataRecord);
 	}
 
 	public String testCreateAndStoreRecord() {
@@ -217,8 +217,8 @@ public class ComparerFixture {
 	}
 
 	private void createRecordFromExtendedResponseAndSetInDataHolder(ExtendedHttpResponse response) {
-		DataRecord record = createRecordFromResponseText(response.responseText);
-		DataHolder.setRecord(record);
+		DataRecord dataRecord = createRecordFromResponseText(response.responseText);
+		DataHolder.setRecord(dataRecord);
 	}
 
 	private DataRecord createRecordFromResponseText(String responseText) {

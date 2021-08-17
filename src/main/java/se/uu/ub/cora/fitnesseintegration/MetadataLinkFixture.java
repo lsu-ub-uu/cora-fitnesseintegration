@@ -83,15 +83,15 @@ public class MetadataLinkFixture {
 	}
 
 	private void possiblySetChildReferenceList() {
-		DataRecord record = DataHolder.getRecord();
-		if (recordContainsDataGroup(record)) {
-			ClientDataGroup topLevelDataGroup = record.getClientDataGroup();
+		DataRecord dataRecord = DataHolder.getRecord();
+		if (recordContainsDataGroup(dataRecord)) {
+			ClientDataGroup topLevelDataGroup = dataRecord.getClientDataGroup();
 			setChildReferenceList(topLevelDataGroup);
 		}
 	}
 
-	private boolean recordContainsDataGroup(DataRecord record) {
-		return null != record && record.getClientDataGroup() != null;
+	private boolean recordContainsDataGroup(DataRecord dataRecord) {
+		return null != dataRecord && dataRecord.getClientDataGroup() != null;
 	}
 
 	private void setChildReferenceList(ClientDataGroup topLevelDataGroup) {

@@ -18,15 +18,15 @@ public class PresentationGroupFixture extends MetadataLinkFixture {
 	}
 
 	public int numberOfRefs() {
-		DataRecord record = DataHolder.getRecord();
-		if (recordHasDataGroup(record)) {
-			return possiblyGetNumberOfMatchingChildren(record);
+		DataRecord dataRecord = DataHolder.getRecord();
+		if (recordHasDataGroup(dataRecord)) {
+			return possiblyGetNumberOfMatchingChildren(dataRecord);
 		}
 		return 0;
 	}
 
-	private int possiblyGetNumberOfMatchingChildren(DataRecord record) {
-		ClientDataGroup topLevelDataGroup = record.getClientDataGroup();
+	private int possiblyGetNumberOfMatchingChildren(DataRecord dataRecord) {
+		ClientDataGroup topLevelDataGroup = dataRecord.getClientDataGroup();
 		if (groupHasChildren(topLevelDataGroup)) {
 			return getNumberOfMatchingChildren(topLevelDataGroup);
 		}
@@ -54,8 +54,8 @@ public class PresentationGroupFixture extends MetadataLinkFixture {
 		return childReferenceMatchesTypeAndId(childLinkedRecordType, childLinkedRecordId);
 	}
 
-	private boolean recordHasDataGroup(DataRecord record) {
-		return record != null && record.getClientDataGroup() != null;
+	private boolean recordHasDataGroup(DataRecord dataRecord) {
+		return dataRecord != null && dataRecord.getClientDataGroup() != null;
 	}
 
 	private boolean groupHasChildren(ClientDataGroup topLevelDataGroup) {
