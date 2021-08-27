@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import se.uu.ub.cora.fitnesseintegration.spy.MethodCallRecorder;
 import se.uu.ub.cora.json.parser.JsonValue;
+import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
 
 public class IteratorSpy implements Iterator<JsonValue> {
 

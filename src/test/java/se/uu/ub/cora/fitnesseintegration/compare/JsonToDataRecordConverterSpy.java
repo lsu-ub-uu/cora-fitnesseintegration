@@ -5,8 +5,8 @@ import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
-import se.uu.ub.cora.fitnesseintegration.spy.MethodCallRecorder;
 import se.uu.ub.cora.json.parser.JsonObject;
+import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
 
 public class JsonToDataRecordConverterSpy implements JsonToDataRecordConverter {
 
