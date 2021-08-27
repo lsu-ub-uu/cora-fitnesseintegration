@@ -20,12 +20,12 @@ package se.uu.ub.cora.fitnesseintegration;
 
 import java.util.Iterator;
 
-import se.uu.ub.cora.fitnesseintegration.spy.MethodCallRecorder;
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.json.parser.JsonString;
 import se.uu.ub.cora.json.parser.JsonValue;
 import se.uu.ub.cora.json.parser.JsonValueType;
+import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
 
 public class JsonArraySpy implements JsonArray {
 

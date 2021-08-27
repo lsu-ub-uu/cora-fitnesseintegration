@@ -2,11 +2,11 @@ package se.uu.ub.cora.fitnesseintegration.compare;
 
 import se.uu.ub.cora.fitnesseintegration.JsonHandler;
 import se.uu.ub.cora.fitnesseintegration.JsonObjectSpy;
-import se.uu.ub.cora.fitnesseintegration.spy.MethodCallRecorder;
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.json.parser.JsonParser;
 import se.uu.ub.cora.json.parser.JsonValue;
+import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
 
 public class JsonHandlerSpy implements JsonHandler {
 

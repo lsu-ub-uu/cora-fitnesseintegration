@@ -18,7 +18,7 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
-import se.uu.ub.cora.fitnesseintegration.spy.MethodCallRecorder;
+import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
 
 public class RecordHandlerSpy implements RecordHandler {
 
