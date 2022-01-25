@@ -38,32 +38,43 @@ public class PermissionComparer implements DataComparer {
 	@Override
 	public List<String> checkDataRecordContains(JsonValue jsonValue) {
 		JsonObject permissions = (JsonObject) jsonValue;
-		List<String> errorMessages = new ArrayList<>();
-		addMessagesIfMissingReadPermissions(errorMessages, permissions);
-		addMessagesIfMissingWritePermissions(errorMessages, permissions);
-		return errorMessages;
+		List<String> missingReadPermissions = new ArrayList<>();
+		List<String> missingWritePermissions = new ArrayList<>();
+		addMessagesIfMissingReadPermissions(missingReadPermissions, permissions);
+		addMessagesIfMissingWritePermissions(missingWritePermissions, permissions);
+		missingReadPermissions.addAll(missingWritePermissions);
+
+		return missingReadPermissions;
+
 	}
 
-	private void addMessagesIfMissingReadPermissions(List<String> errorMessages,
+	private void addMessagesIfMissingReadPermissions(List<String> missingPermissions,
 			JsonObject permissions) {
 		if (permissions.containsKey("read")) {
-			checkReadPermissions(errorMessages, permissions);
+			checkReadPermissions(missingPermissions, permissions);
 		}
 	}
 
-	private void checkReadPermissions(List<String> errorMessages, JsonObject permissions) {
+	private void checkReadPermissions(List<String> missingPermissions, JsonObject permissions) {
 		JsonArray readPermissions = permissions.getValueAsJsonArray("read");
 
 		for (JsonValue readPermission : readPermissions) {
-			addMessageIfReadPermissionIsMissing(errorMessages, readPermission);
+			addMessageIfReadPermissionIsMissing(missingPermissions, readPermission);
 		}
 	}
 
-	private void addMessageIfReadPermissionIsMissing(List<String> errorReadMessages,
+	private void addMessageIfReadPermissionIsMissing(List<String> missingPermissions,
 			JsonValue readPermission) {
 		String permission = ((JsonString) readPermission).getStringValue();
 		if (readPermissionIsMissing(permission)) {
-			errorReadMessages.add("Read permission " + permission + " is missing.");
+			addHeaderForMissingPermissions(missingPermissions, "Missing read permissions:");
+			missingPermissions.add(permission);
+		}
+	}
+
+	private void addHeaderForMissingPermissions(List<String> missingPermissions, String header) {
+		if (missingPermissions.isEmpty()) {
+			missingPermissions.add(header);
 		}
 	}
 
@@ -71,27 +82,29 @@ public class PermissionComparer implements DataComparer {
 		return !getDataRecord().getReadPermissions().contains(permission);
 	}
 
-	private void addMessagesIfMissingWritePermissions(List<String> errorMessages,
+	private void addMessagesIfMissingWritePermissions(List<String> missingPermissions,
 			JsonObject permissions) {
 		if (permissions.containsKey("write")) {
-			checkWritePermissions(errorMessages, permissions);
+			checkWritePermissions(missingPermissions, permissions);
 		}
 	}
 
-	private List<String> checkWritePermissions(List<String> errorMessages, JsonObject permissions) {
+	private List<String> checkWritePermissions(List<String> missingPermissions,
+			JsonObject permissions) {
 		JsonArray writePermissions = permissions.getValueAsJsonArray("write");
 
 		for (JsonValue writePermission : writePermissions) {
-			addMessageIfWritePermissionIsMissing(errorMessages, writePermission);
+			addMessageIfWritePermissionIsMissing(missingPermissions, writePermission);
 		}
-		return errorMessages;
+		return missingPermissions;
 	}
 
-	private void addMessageIfWritePermissionIsMissing(List<String> errorWriteMessages,
+	private void addMessageIfWritePermissionIsMissing(List<String> missingPermissions,
 			JsonValue writePermission) {
 		String permission = ((JsonString) writePermission).getStringValue();
 		if (writePermissionIsMissing(permission)) {
-			errorWriteMessages.add("Write permission " + permission + " is missing.");
+			addHeaderForMissingPermissions(missingPermissions, "Missing write permissions:");
+			missingPermissions.add(permission);
 		}
 	}
 

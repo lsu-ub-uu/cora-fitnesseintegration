@@ -84,8 +84,8 @@ public class PermissionComparerTest {
 		JsonValue jsonValue = jsonParser.parseString(permissions);
 
 		List<String> results = comparer.checkDataRecordContains(jsonValue);
-		assertEquals(results.size(), 1);
-		assertEquals(results.get(0), "Read permission readPermissionOne is missing.");
+		assertEquals(results.size(), 2);
+		assertEquals(results.get(1), "readPermissionOne");
 
 	}
 
@@ -96,19 +96,22 @@ public class PermissionComparerTest {
 		JsonValue jsonValue = jsonParser.parseString(permissions);
 
 		List<String> results = comparer.checkDataRecordContains(jsonValue);
-		assertEquals(results.size(), 1);
-		assertEquals(results.get(0), "Read permission readPermissionTwo is missing.");
+		assertEquals(results.size(), 2);
+		assertEquals(results.get(0), "Missing read permissions:");
+		assertEquals(results.get(1), "readPermissionTwo");
 
 	}
 
 	@Test
 	public void testNoWritePermissionsInRecordNOTOk() {
-		String permissions = "{\"write\":[\"writePermissionOne\"]}";
+		String permissions = "{\"write\":[\"writePermissionOne\", \"writePermissionTwo\"]}";
 		JsonValue jsonValue = jsonParser.parseString(permissions);
 
 		List<String> results = comparer.checkDataRecordContains(jsonValue);
-		assertEquals(results.size(), 1);
-		assertEquals(results.get(0), "Write permission writePermissionOne is missing.");
+		assertEquals(results.size(), 3);
+		assertEquals(results.get(0), "Missing write permissions:");
+		assertEquals(results.get(1), "writePermissionOne");
+		assertEquals(results.get(2), "writePermissionTwo");
 
 	}
 
