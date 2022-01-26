@@ -45,7 +45,6 @@ public class PermissionComparer implements DataComparer {
 		missingReadPermissions.addAll(missingWritePermissions);
 
 		return missingReadPermissions;
-
 	}
 
 	private void addMessagesIfMissingReadPermissions(List<String> missingPermissions,
@@ -79,7 +78,7 @@ public class PermissionComparer implements DataComparer {
 	}
 
 	private boolean readPermissionIsMissing(String permission) {
-		return !getDataRecord().getReadPermissions().contains(permission);
+		return !dataRecord.getReadPermissions().contains(permission);
 	}
 
 	private void addMessagesIfMissingWritePermissions(List<String> missingPermissions,
@@ -109,7 +108,7 @@ public class PermissionComparer implements DataComparer {
 	}
 
 	private boolean writePermissionIsMissing(String permission) {
-		return !getDataRecord().getWritePermissions().contains(permission);
+		return !dataRecord.getWritePermissions().contains(permission);
 	}
 
 	public DataRecord getDataRecord() {
