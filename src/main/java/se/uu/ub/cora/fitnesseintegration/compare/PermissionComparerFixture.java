@@ -38,20 +38,16 @@ public class PermissionComparerFixture extends ComparerFixture {
 
 	public String testCheckPermissions() {
 		DataRecord dataRecord = DataHolder.getRecord();
-		return comparePermissionUsingDataRecord(dataRecord);
-	}
-
-	private String comparePermissionUsingDataRecord(DataRecord dataRecord) {
-		JsonObject permissionObject = jsonHandler.parseStringAsObject(permissions);
-
 		DataComparer comparer = comparerFactory.factor("permission", dataRecord);
 
+		JsonObject permissionObject = jsonHandler.parseStringAsObject(permissions);
 		List<String> errorMessages = comparer.checkDataRecordContains(permissionObject);
 		return errorMessages.isEmpty() ? "OK" : joinErrorMessages(errorMessages);
 	}
 
 	public void setPermissions(String permissions) {
 		this.permissions = permissions;
+
 	}
 
 	ComparerFactory getComparerFactory() {
@@ -65,6 +61,13 @@ public class PermissionComparerFixture extends ComparerFixture {
 		} catch (JsonParseException exception) {
 			return exception.getMessage();
 		}
+	}
+
+	private String comparePermissionUsingDataRecord(DataRecord dataRecord) {
+		JsonObject permissionObject = jsonHandler.parseStringAsObject(permissions);
+		DataComparer comparer = comparerFactory.factor("permission", dataRecord);
+		List<String> errorMessages = comparer.checkDataRecordContains(permissionObject);
+		return errorMessages.isEmpty() ? "OK" : joinErrorMessages(errorMessages);
 	}
 
 }
