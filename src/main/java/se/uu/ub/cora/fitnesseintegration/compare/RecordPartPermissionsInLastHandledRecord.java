@@ -33,7 +33,6 @@ public class RecordPartPermissionsInLastHandledRecord {
 
 	public void setReadPartPermissionsSpecifiedInMetadata(String readPermissions) {
 		if (readPermissions.trim().length() > 0) {
-			// readPermissions.trim();
 			String[] permissionAsArray = readPermissions.split("\n");
 			allPossibleReadPermissions = new LinkedHashSet<>(Arrays.asList(permissionAsArray));
 		} else {

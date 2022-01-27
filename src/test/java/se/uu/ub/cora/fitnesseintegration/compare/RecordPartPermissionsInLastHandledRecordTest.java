@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 
-public class HasUserRecordPartPermissionsTest {
+public class RecordPartPermissionsInLastHandledRecordTest {
 	private DataRecordSpy clientDataRecord;
 	String allPossibleReadPermissions = """
 			permissionX
