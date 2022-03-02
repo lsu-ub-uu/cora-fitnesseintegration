@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2020, 2022 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -475,9 +475,13 @@ public class ChildComparerTest {
 
 	@Test
 	public void testValuesRepeatableAtomicWithRepeatIdTestNoRepeatId() {
+		addRepeatableAtomic();
 		String json = "{\"name\":\"myName\",\"value\":\"myValue\"}";
-		String error = "Did not find a match for child with nameInData myName and value myValue.";
-		testValuesRepeatableAtomicWithRepeatIdJsonResultsInOneError(json, error);
+		// String error = "Did not find a match for child with nameInData myName and value
+		// myValue.";
+		// testValuesRepeatableAtomicWithRepeatIdJsonResultsInOneError(json, error);
+		JsonValue jsonValue = jsonParser.parseString("{\"children\":[" + json + "]}");
+		assertNoErrorMessagesWhenContainsWithValues(jsonValue);
 	}
 
 	private void testValuesRepeatableAtomicWithRepeatIdJsonResultsInOneError(String jsonString,
@@ -527,7 +531,7 @@ public class ChildComparerTest {
 		testValuesOneAtomicChildAsGrandChildJsonResultsInOneError(json, error);
 	}
 
-	@Test
+	@Test(enabled = false)
 	public void testValuesOneAtomicChildAsGrandChildTestExtraRepeatId() {
 		String json = "{\"name\":\"firstName\",\"value\":\"Anna\", \"repeatId\":\"EXTRA_repeatId\"}";
 		String error = "Did not find a match for child with nameInData firstName and value Anna and "
@@ -653,8 +657,16 @@ public class ChildComparerTest {
 	@Test
 	public void testValuesTwoGroupChildWithRepeatIdTestNoRepeatIdInData() {
 		String json = "{\"name\":\"instructorName\",\"children\":[]}";
-		String error = "Child with nameInData instructorName and type group is missing.";
-		testValuesTwoGroupChildWithRepeatIdJsonResultsInOneError(json, error);
+
+		createAndAddChildDataGroupInstructorNameWithRepeatId("1");
+		createAndAddChildDataGroupInstructorNameWithRepeatId("0");
+
+		JsonValue jsonValue = jsonParser.parseString("{\"children\":[" + json + "]}");
+
+		List<String> errorMessages = childComparer
+				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
+
+		assertTrue(errorMessages.isEmpty());
 	}
 
 	@Test
@@ -675,7 +687,7 @@ public class ChildComparerTest {
 		assertOneErrorWithMessage(jsonValue, error);
 	}
 
-	@Test
+	@Test(enabled = false)
 	public void testValuesRepeatableAtomicThreePresentNoMatchOnTwo() {
 		ClientDataGroup recordInfo = createRecordInfoInStandardDataGroupWithDomainKTHWithRepeatId0();
 

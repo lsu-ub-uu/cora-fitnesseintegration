@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2020, 2022 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -182,7 +182,7 @@ public class ChildComparerImp implements ChildComparer {
 		Optional<String> repeatIdFromJson = getRepeatIdOrNullFromJsonObject(childJsonObject);
 		String repeatIdFromData = getRepeatIdFromChildElement(childDataElement);
 		return typesAreEqual(type, childDataElement)
-				&& repeatIdsAreEqual(repeatIdFromJson, repeatIdFromData);
+				&& repeatIdsAreEqualOrEmpty(repeatIdFromJson, repeatIdFromData);
 	}
 
 	private String getType(JsonObject childObject) {
@@ -214,12 +214,9 @@ public class ChildComparerImp implements ChildComparer {
 		return childElementType.equals(type);
 	}
 
-	private boolean repeatIdsAreEqual(Optional<String> repeatIdFromJson,
+	private boolean repeatIdsAreEqualOrEmpty(Optional<String> repeatIdFromJson,
 			String repeatIdFromDataElement) {
-		if (repeatIdFromJson.isEmpty()) {
-			return null == repeatIdFromDataElement;
-		}
-		return repeatIdFromJson.get().equals(repeatIdFromDataElement);
+		return repeatIdFromJson.isEmpty() || repeatIdFromJson.get().equals(repeatIdFromDataElement);
 	}
 
 	private void createAndAddErrorMessage(List<String> errorMessages, JsonObject childObject,
@@ -306,7 +303,7 @@ public class ChildComparerImp implements ChildComparer {
 	private boolean dataAtomicMatchesJson(JsonObject childObject, Optional<String> repeatIdFromJson,
 			ClientDataAtomic dataAtomic) {
 		String repeatIdFromData = dataAtomic.getRepeatId();
-		if (repeatIdsAreEqual(repeatIdFromJson, repeatIdFromData)) {
+		if (repeatIdsAreEqualOrEmpty(repeatIdFromJson, repeatIdFromData)) {
 			return dataAtomicHasValueFromJson(childObject, dataAtomic);
 		}
 		return false;
@@ -355,7 +352,7 @@ public class ChildComparerImp implements ChildComparer {
 				.getAllGroupsWithNameInData(nameInData);
 		for (ClientDataGroup cDataGroup : allGroupsWithNameInData) {
 			String repeatIdFromData = cDataGroup.getRepeatId();
-			if (repeatIdsAreEqual(repeatIdFromJson, repeatIdFromData)) {
+			if (repeatIdsAreEqualOrEmpty(repeatIdFromJson, repeatIdFromData)) {
 				return Optional.of(cDataGroup);
 			}
 		}
