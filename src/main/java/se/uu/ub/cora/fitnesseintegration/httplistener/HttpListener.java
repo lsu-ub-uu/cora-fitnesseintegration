@@ -25,6 +25,7 @@ import se.uu.ub.cora.logger.LoggerProvider;
 
 public class HttpListener {
 	private static Logger logger = LoggerProvider.getLoggerForClass(HttpListener.class);
+	private static HttpListenerInt httpListenerInt;
 
 	public static void main(String[] args) throws IOException {
 		logger.logInfoUsingMessage("HttpListener starting...");
@@ -39,11 +40,17 @@ public class HttpListener {
 
 	private static void startServerAndlistenForHttpCalls(String[] args) throws IOException {
 		int port = Integer.parseInt(args[0]);
-		new HttpListenerInt(port);
+		httpListenerInt = new HttpListenerInt(port);
+		httpListenerInt.startServer();
 	}
 
 	private static boolean portIsSet(String[] args) {
 		return args != null && args.length > 0;
+	}
+
+	public static void stopAfterNextCall() {
+		httpListenerInt.stopAfterNextCall();
+
 	}
 
 }
