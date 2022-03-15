@@ -18,9 +18,9 @@
  */
 package se.uu.ub.cora.fitnesseintegration.httplistener;
 
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -32,6 +32,7 @@ import se.uu.ub.cora.logger.Logger;
 import se.uu.ub.cora.logger.LoggerProvider;
 
 public class HttpListenerInt {
+	private static final String END_OF_HEADER = "\r\n\r\n";
 	private static final String CONTENT_LENGTH = "Content-Length:";
 	private static final String HTTP_OK = "HTTP/1.1 200 OK\r\n";
 	private static final String CONTENT_TYPE = "Content-Type: text/plain;charset=utf-8\r\n\r\n";
@@ -80,47 +81,56 @@ public class HttpListenerInt {
 	}
 
 	private String readInputToString(Socket socket) throws IOException {
-		InputStreamReader isr = new InputStreamReader(socket.getInputStream());
-		BufferedReader reader = new BufferedReader(isr);
-		String line = reader.readLine();
-		StringBuilder totalRead = new StringBuilder(line);
-		// int contentLength = 0;
-		while (!line.isEmpty()) {
-			// Content-Length: 17
-			// if (line.startsWith(CONTENT_LENGTH)) {
-			// contentLength = calculateContentLength(line);
-			// }
-			line = reader.readLine();
-			totalRead.append(line);
+		DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+		StringBuilder readHeader = readHeader(in);
+		if (!readHeader.toString().contains(CONTENT_LENGTH)) {
+			return readHeader.toString();
 		}
+		int contentLength = calculateContentLength(readHeader.toString());
+		int readingOnPosition = readHeader.length();
+		int totalBytesToRead = readingOnPosition + contentLength;
 
-		// if (contentLength > 0) {
-		// byte[] messageByte = new byte[contentLength];
-		// boolean end = false;
-		// StringBuilder dataString = new StringBuilder(contentLength);
-		// int totalBytesRead = 0;
-		// while (!end) {
-		// int currentBytesRead = socket.getInputStream().read(messageByte);
-		// totalBytesRead = currentBytesRead + totalBytesRead;
-		// if (totalBytesRead <= contentLength) {
-		// dataString.append(
-		// new String(messageByte, 0, currentBytesRead, StandardCharsets.UTF_8));
-		// } else {
-		// dataString.append(new String(messageByte, 0,
-		// contentLength - totalBytesRead + currentBytesRead,
-		// StandardCharsets.UTF_8));
-		// }
-		// if (dataString.length() >= contentLength) {
-		// end = true;
-		// }
-		// }
-		// }
+		StringBuilder readBody = readBody(in, totalBytesToRead, readingOnPosition);
+		return readHeader.append(readBody).toString();
+	}
 
-		return totalRead.toString();
+	private StringBuilder readHeader(DataInputStream in) throws IOException {
+		StringBuilder readHeader = new StringBuilder();
+		byte[] byteArray = new byte[1];
+		while (stillReadingHeader(readHeader)) {
+			byteArray[0] = in.readByte();
+			readHeader.append(new String(byteArray, StandardCharsets.UTF_8));
+		}
+		return readHeader;
+	}
+
+	private boolean stillReadingHeader(StringBuilder readHeader) {
+		if (readHeader.length() < 4) {
+			return true;
+		}
+		String lastFour = readHeader.substring(readHeader.length() - 4);
+		return !END_OF_HEADER.equals(lastFour);
 	}
 
 	private int calculateContentLength(String call) {
-		return Integer.parseInt(call.substring(CONTENT_LENGTH.length() + 1));
+		int indexOf = call.indexOf(CONTENT_LENGTH);
+		int endContentLength = call.indexOf("\r\n", indexOf);
+		return Integer
+				.parseInt(call.substring(indexOf + CONTENT_LENGTH.length() + 1, endContentLength));
+	}
+
+	private StringBuilder readBody(DataInputStream in, int totalBytesToRead, int readingOnPosition)
+			throws IOException {
+		StringBuilder readBody = new StringBuilder();
+
+		byte[] messageByte = new byte[totalBytesToRead];
+
+		while (readingOnPosition < totalBytesToRead) {
+			int currentBytesRead = in.read(messageByte);
+			readingOnPosition += currentBytesRead;
+		}
+		readBody.append(new String(messageByte, 0, totalBytesToRead, StandardCharsets.UTF_8));
+		return readBody;
 	}
 
 	private boolean callToGetPreviousCall(String call) {

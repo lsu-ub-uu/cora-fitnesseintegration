@@ -141,7 +141,7 @@ public class HttpListenerTest {
 				"...stopping HttpListener");
 	}
 
-	@Test(enabled = false)
+	@Test
 	public void testGetPreviousCallWithBody() throws Exception {
 		startServer("2223");
 		HttpHandler httpHandler = httpHandlerFactory
