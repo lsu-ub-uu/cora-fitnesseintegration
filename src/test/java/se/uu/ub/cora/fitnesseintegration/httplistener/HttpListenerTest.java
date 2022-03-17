@@ -106,10 +106,10 @@ public class HttpListenerTest {
 
 	@Test
 	public void testListensToAndRemembersCalls() throws Exception {
-		startServer("111");
+		startServer("11111");
 
 		HttpHandler httpHandler = httpHandlerFactory
-				.factor("http://localhost:111/remember_this_call");
+				.factor("http://localhost:11111/remember_this_call");
 		assertResponseCodeOkAndTextPlainContentType(httpHandler);
 		String responseText2 = httpHandler.getResponseText();
 		assertEquals(responseText2, "remembering call as no: 0");
@@ -117,26 +117,26 @@ public class HttpListenerTest {
 		assertEquals(loggerFactorySpy.getInfoLogMessageUsingClassNameAndNo("HttpListenerInt", 1),
 				"Call recieved: Remember call");
 
-		stopServer("111");
+		stopServer("11111");
 		assertEquals(loggerFactorySpy.getInfoLogMessageUsingClassNameAndNo("HttpListenerInt", 3),
 				"...stopping HttpListener");
 	}
 
 	@Test
 	public void testGetPreviousCall() throws Exception {
-		startServer("222");
+		startServer("11111");
 		HttpHandler httpHandler = httpHandlerFactory
-				.factor("http://localhost:222/remember_this_call");
+				.factor("http://localhost:11111/remember_this_call");
 		httpHandler.getResponseCode();
 
-		HttpHandler httpHandler2 = httpHandlerFactory.factor("http://localhost:222/getCallNo/0");
+		HttpHandler httpHandler2 = httpHandlerFactory.factor("http://localhost:11111/getCallNo/0");
 		assertResponseCodeOkAndTextPlainContentType(httpHandler2);
 		String responseText2 = httpHandler2.getResponseText();
 		assertTrue(responseText2.startsWith("GET /remember_this_call"));
 
 		assertEquals(loggerFactorySpy.getInfoLogMessageUsingClassNameAndNo("HttpListenerInt", 2),
 				"Call recieved: Get previous call");
-		stopServer("222");
+		stopServer("11111");
 		assertEquals(loggerFactorySpy.getInfoLogMessageUsingClassNameAndNo("HttpListenerInt", 4),
 				"...stopping HttpListener");
 	}
@@ -166,45 +166,48 @@ public class HttpListenerTest {
 
 	@Test
 	public void testGetPreviousNoCallsMade() throws Exception {
-		startServer("222");
-		HttpHandler httpHandler2 = httpHandlerFactory.factor("http://localhost:222/getCallNo/987");
+		startServer("11111");
+		HttpHandler httpHandler2 = httpHandlerFactory
+				.factor("http://localhost:11111/getCallNo/987");
 		assertResponseCodeOkAndTextPlainContentType(httpHandler2);
 		String responseText2 = httpHandler2.getResponseText();
 		assertEquals(responseText2, "No calls registered.");
+		stopServer("11111");
 	}
 
 	@Test
 	public void testGetPreviousCallNotMade() throws Exception {
-		startServer("222");
+		startServer("11111");
 		HttpHandler httpHandler = httpHandlerFactory
-				.factor("http://localhost:222/remember_this_call");
+				.factor("http://localhost:11111/remember_this_call");
 		httpHandler.getResponseCode();
 
-		HttpHandler httpHandler2 = httpHandlerFactory.factor("http://localhost:222/getCallNo/987");
+		HttpHandler httpHandler2 = httpHandlerFactory
+				.factor("http://localhost:11111/getCallNo/987");
 		assertResponseCodeOkAndTextPlainContentType(httpHandler2);
 		String responseText2 = httpHandler2.getResponseText();
 		assertEquals(responseText2,
 				"No call made with no:987, the highest registered call number is:0 ");
-		stopServer("222");
+		stopServer("11111");
 
 	}
 
 	@Test
 	public void testEmptyCallMemory() throws Exception {
-		startServer("333");
+		startServer("11111");
 
 		HttpHandler httpHandler = httpHandlerFactory
-				.factor("http://localhost:333/remember_this_call1");
+				.factor("http://localhost:11111/remember_this_call1");
 		httpHandler.getResponseCode();
 
 		HttpHandler httpHandlerEmpty = httpHandlerFactory
-				.factor("http://localhost:333/empty_memory");
+				.factor("http://localhost:11111/empty_memory");
 		assertResponseCodeOkAndTextPlainContentType(httpHandler);
 		String responseText = httpHandlerEmpty.getResponseText();
 		assertEquals(responseText, "forgot all remembered calls");
 
 		HttpHandler httpHandler3 = httpHandlerFactory
-				.factor("http://localhost:333/remember_this_call");
+				.factor("http://localhost:11111/remember_this_call");
 
 		assertResponseCodeOkAndTextPlainContentType(httpHandler3);
 		String responseText3 = httpHandler3.getResponseText();
@@ -212,7 +215,7 @@ public class HttpListenerTest {
 
 		assertEquals(loggerFactorySpy.getInfoLogMessageUsingClassNameAndNo("HttpListenerInt", 2),
 				"Call recieved: Empty memory");
-		stopServer("333");
+		stopServer("11111");
 	}
 
 	@Test
