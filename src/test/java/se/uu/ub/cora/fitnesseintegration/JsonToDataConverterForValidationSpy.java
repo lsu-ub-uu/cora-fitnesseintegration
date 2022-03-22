@@ -1,8 +1,8 @@
 package se.uu.ub.cora.fitnesseintegration;
 
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
-import se.uu.ub.cora.clientdata.ClientDataElement;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.converter.javatojson.Convertible;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverter;
 import se.uu.ub.cora.json.parser.JsonValue;
 
@@ -22,7 +22,7 @@ public class JsonToDataConverterForValidationSpy implements JsonToDataConverter 
 	}
 
 	@Override
-	public ClientDataElement toInstance() {
+	public Convertible toInstance() {
 		toInstanceWasCalled = true;
 		ClientDataGroup clientDataGroup = ClientDataGroup.withNameInData("someTopLevelDataGroup");
 		clientDataGroup
