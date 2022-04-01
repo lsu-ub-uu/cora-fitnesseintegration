@@ -105,10 +105,10 @@ public class HttpListenerInt {
 	}
 
 	private boolean stillReadingHeader(StringBuilder readHeader) {
-		if (readHeader.length() < 4) {
+		if (readHeader.length() < END_OF_HEADER.length()) {
 			return true;
 		}
-		String lastFour = readHeader.substring(readHeader.length() - 4);
+		String lastFour = readHeader.substring(readHeader.length() - END_OF_HEADER.length());
 		return !END_OF_HEADER.equals(lastFour);
 	}
 
