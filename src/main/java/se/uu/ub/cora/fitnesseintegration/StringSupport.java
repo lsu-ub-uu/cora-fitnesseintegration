@@ -33,4 +33,8 @@ public class StringSupport {
 		return sDateFormat.format(date);
 	}
 
+	public String replaceAll(String text, String find, String replaceWith) {
+		return text.replace(find, replaceWith);
+	}
+
 }
