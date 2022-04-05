@@ -34,8 +34,8 @@
 		<logger.version>2.4.0</logger.version>
 		<json.version>3.2.0</json.version>
 		<httphandler.version>2.5.0</httphandler.version>
-		<cora-clientdata.version>4.0.0</cora-clientdata.version>
-		<javaclient.version>1.13.0</javaclient.version>
+		<cora-clientdata.version>5.0-SNAPSHOT</cora-clientdata.version>
+		<javaclient.version>1.14-SNAPSHOT</javaclient.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 		<fitnesse.version>20220319</fitnesse.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>

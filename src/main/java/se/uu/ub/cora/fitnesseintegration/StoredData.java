@@ -18,23 +18,18 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverter;
+import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
+import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactoryImp;
 
-public class StringSupport {
+public class StoredData {
+	DataToJsonConverterFactory dataToJsonConverterFactory = new DataToJsonConverterFactoryImp();
 
-	public String concatenate(String string1, String string2) {
-		return string1.concat(string2);
+	public String getStoredRecordDataGroupAsJsonWithoutLinks() {
+		ClientDataGroup dataGroup = DataHolder.getRecord().getClientDataGroup();
+		DataToJsonConverter converter = dataToJsonConverterFactory
+				.createForClientDataElementIncludingActionLinks(dataGroup, false);
+		return converter.toJson();
 	}
-
-	public String dateFormat(String pattern) {
-		Date date = new Date();
-		SimpleDateFormat sDateFormat = new SimpleDateFormat(pattern);
-		return sDateFormat.format(date);
-	}
-
-	public String replaceAll(String text, String find, String replaceWith) {
-		return text.replace(find, replaceWith);
-	}
-
 }

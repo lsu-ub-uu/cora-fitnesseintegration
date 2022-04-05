@@ -48,4 +48,14 @@ public class StringSupportTest {
 		assertEquals(result, todaysYear);
 	}
 
+	@Test
+	public void testReplaceAll() throws Exception {
+		StringSupport stringSupport = new StringSupport();
+		String text = "ababa";
+		String find = "b";
+		String replaceWith = "a";
+		String textReplaced = stringSupport.replaceAll(text, find, replaceWith);
+
+		assertEquals(textReplaced, "aaaaa");
+	}
 }

@@ -8,8 +8,6 @@ import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverter;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactoryImp;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
-import se.uu.ub.cora.json.builder.JsonBuilderFactory;
-import se.uu.ub.cora.json.builder.org.OrgJsonBuilderFactoryAdapter;
 
 public class MetadataValidationFixture extends RecordEndpointFixture {
 
@@ -27,10 +25,9 @@ public class MetadataValidationFixture extends RecordEndpointFixture {
 	public String testGetValidationOrder() {
 		ClientDataGroup validationOrder = createValidationOrder();
 
-		JsonBuilderFactory factory = new OrgJsonBuilderFactoryAdapter();
 		DataToJsonConverterFactoryImp dataToJsonConverterFactory = new DataToJsonConverterFactoryImp();
 		DataToJsonConverter converter = dataToJsonConverterFactory
-				.createForClientDataElement(factory, validationOrder);
+				.createForClientDataElement(validationOrder);
 		String validationOrderAsJson = converter.toJson();
 
 		return "{\"order\":" + validationOrderAsJson + ",	\"record\":" + jsonRecordToValidate
