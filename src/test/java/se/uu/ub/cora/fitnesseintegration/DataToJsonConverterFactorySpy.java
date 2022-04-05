@@ -18,18 +18,32 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
-import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.converter.javatojson.Convertible;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverter;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactoryImp;
+import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
 
-public class StoredData {
-	DataToJsonConverterFactory dataToJsonConverterFactory = new DataToJsonConverterFactoryImp();
+public class DataToJsonConverterFactorySpy implements DataToJsonConverterFactory {
 
-	public String getStoredRecordDataGroupAsJsonWithoutLinks() {
-		ClientDataGroup dataGroup = DataHolder.getRecord().getClientDataGroup();
-		DataToJsonConverter converter = dataToJsonConverterFactory
-				.createForClientDataElementIncludingActionLinks(dataGroup, false);
-		return converter.toJson();
+	MethodCallRecorder MCR = new MethodCallRecorder();
+
+	@Override
+	public DataToJsonConverter createForClientDataElement(Convertible convertible) {
+		MCR.addCall("convertible", convertible);
+
+		DataToJsonConverter converter = new DataToJsonConverterSpy();
+		MCR.addReturned(converter);
+		return converter;
 	}
+
+	@Override
+	public DataToJsonConverter createForClientDataElementIncludingActionLinks(
+			Convertible convertible, boolean includeActionLinks) {
+		MCR.addCall("convertible", convertible, "includeActionLinks", includeActionLinks);
+
+		DataToJsonConverter converter = new DataToJsonConverterSpy();
+		MCR.addReturned(converter);
+		return converter;
+	}
+
 }
