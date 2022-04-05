@@ -33,7 +33,7 @@ public class StoredDataTest {
 	private DataRecordSpy clientDataRecord;
 
 	@BeforeMethod
-	private void beforeMethod() {
+	public void beforeMethod() {
 		storedData = new StoredDataOnlyForTest();
 		dataToJsonConverterFactorySpy = new DataToJsonConverterFactorySpy();
 		clientDataRecord = new DataRecordSpy();
