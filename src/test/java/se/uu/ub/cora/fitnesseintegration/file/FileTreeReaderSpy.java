@@ -19,8 +19,22 @@
 
 package se.uu.ub.cora.fitnesseintegration.file;
 
-public interface FileTreeReader {
+import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
+import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 
-	String createFileTreeFromPath(String path);
+public class FileTreeReaderSpy implements FileTreeReader {
+
+	public MethodCallRecorder MCR = new MethodCallRecorder();
+	public MethodReturnValues MRV = new MethodReturnValues();
+
+	public FileTreeReaderSpy() {
+		MCR.useMRV(MRV);
+		MRV.setDefaultReturnValuesSupplier("createFileTreeFromPath", String::new);
+	}
+
+	@Override
+	public String createFileTreeFromPath(String path) {
+		return (String) MCR.addCallAndReturnFromMRV("path", path);
+	}
 
 }

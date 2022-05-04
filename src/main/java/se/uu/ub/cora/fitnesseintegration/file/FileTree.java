@@ -19,8 +19,21 @@
 
 package se.uu.ub.cora.fitnesseintegration.file;
 
-public interface FileTreeReader {
+public class FileTree {
 
-	String createFileTreeFromPath(String path);
+	public FileTreeReader fileTreeReader;
+	private String basePath;
+
+	public FileTree() {
+		fileTreeReader = new FileTreeReaderImp();
+	}
+
+	public void setPath(String basePath) {
+		this.basePath = basePath;
+	}
+
+	public String getTree() {
+		return "<pre>" + fileTreeReader.createFileTreeFromPath(basePath) + "</pre>";
+	}
 
 }
