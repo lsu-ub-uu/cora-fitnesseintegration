@@ -19,13 +19,17 @@
 
 package se.uu.ub.cora.fitnesseintegration.file;
 
-public class FileTree {
+public class ArchiveFile {
 
 	public FileTreeReader fileTreeReader;
+	public ArchiveFileReader archiveFileReader;
 	private String basePath;
+	private String filename;
+	private String version;
 
-	public FileTree() {
+	public ArchiveFile() {
 		fileTreeReader = new FileTreeReaderImp();
+		archiveFileReader = new ArchiveFileReaderImp();
 	}
 
 	public void setPath(String basePath) {
@@ -36,4 +40,17 @@ public class FileTree {
 		return "<pre>" + fileTreeReader.createFileTreeFromPath(basePath) + "</pre>";
 	}
 
+	public void setFileName(String filename) {
+		this.filename = filename;
+
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+
+	}
+
+	public String getReadFile() {
+		return archiveFileReader.readFileWithNameAndVersion(basePath, filename, version);
+	}
 }

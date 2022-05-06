@@ -23,15 +23,8 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
-import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.stream.Stream;
 
 import org.testng.annotations.AfterMethod;
@@ -40,57 +33,29 @@ import org.testng.annotations.Test;
 
 public class FileTreeReaderTest {
 
-	private String basePath = "/tmp/recordStorageOnDiskTemp/";
+	private FileTestHelper fileHelper;
+	FileTreeReader treeReader;
 
 	@BeforeMethod
-	public void makeSureBasePathExistsAndIsEmpty() throws IOException {
-		File dir = new File(basePath);
-		dir.mkdir();
-		deleteFiles(basePath);
-	}
-
-	private void deleteFiles(String path) throws IOException {
-		Stream<Path> list;
-		list = Files.list(Paths.get(path));
-
-		list.forEach(p -> deleteFile(p));
-		list.close();
-	}
-
-	private void deleteFile(Path path) {
-		try {
-			if (path.toFile().isDirectory()) {
-				deleteFiles(path.toString());
-			}
-			Files.delete(path);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public void beforeMethod() throws IOException {
+		fileHelper = FileTestHelper.forDirectory("/tmp/recordStorageOnDiskTemp/");
+		treeReader = new FileTreeReaderImp();
 	}
 
 	@AfterMethod
-	public void removeTempFiles() throws IOException {
-		if (Files.exists(Paths.get(basePath))) {
-			deleteFiles(basePath);
-			File dir = new File(basePath);
-			dir.delete();
-		}
+	public void afterMethod() throws IOException {
+		fileHelper.removeFiles();
 	}
 
 	@Test
 	public void testCreateFileTreeFromPathWithEmptyDirectory() throws Exception {
-
-		FileTreeReader treeReader = new FileTreeReaderImp();
-
-		String fileTree = treeReader.createFileTreeFromPath(basePath);
+		String fileTree = treeReader.createFileTreeFromPath(fileHelper.basePath);
 
 		assertEquals(fileTree, "");
 	}
 
 	@Test
 	public void testCreateFileTreeFromPathDoesNotExist() throws Exception {
-
-		FileTreeReader treeReader = new FileTreeReaderImp();
 		try {
 			treeReader.createFileTreeFromPath("somePath");
 			assertTrue(false);
@@ -103,41 +68,19 @@ public class FileTreeReaderTest {
 
 	@Test
 	public void testCreateFileTreeFromPathOneFiles() throws Exception {
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileName.xml");
 
-		FileTreeReader treeReader = new FileTreeReaderImp();
-		writeFileToDisk("someData", "", "fileName.xml");
-
-		String fileTree = treeReader.createFileTreeFromPath(basePath);
+		String fileTree = treeReader.createFileTreeFromPath(fileHelper.basePath);
 
 		assertEquals(fileTree, "fileName.xml");
 	}
 
-	private void writeFileToDisk(String content, String folderName, String fileName)
-			throws IOException {
-		possiblyCreateFolderForDataDivider(folderName);
-		Path path = FileSystems.getDefault().getPath(basePath, folderName, fileName);
-		BufferedWriter writer;
-		writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE);
-		writer.write(content, 0, content.length());
-		writer.flush();
-		writer.close();
-	}
-
-	private void possiblyCreateFolderForDataDivider(String dataDivider) {
-		Path pathIncludingDataDivider = Paths.get(basePath, dataDivider);
-		File newPath = pathIncludingDataDivider.toFile();
-		if (!newPath.exists()) {
-			newPath.mkdir();
-		}
-	}
-
 	@Test
 	public void testCreateFileTreeFromPathTwoFiles() throws Exception {
-		FileTreeReader treeReader = new FileTreeReaderImp();
-		writeFileToDisk("someData", "folder", "fileName.xml");
-		writeFileToDisk("someData2", "folder", "fileName2.xml");
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "folder", "fileName.xml");
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData2", "folder", "fileName2.xml");
 
-		String fileTree = treeReader.createFileTreeFromPath(basePath);
+		String fileTree = treeReader.createFileTreeFromPath(fileHelper.basePath);
 		assertEquals(fileTree, """
 				folder
 				    fileName.xml
@@ -146,14 +89,13 @@ public class FileTreeReaderTest {
 
 	@Test
 	public void testCreateFileTreeFromPathTwoFilesIndent() throws Exception {
-		FileTreeReader treeReader = new FileTreeReaderImp();
-		writeFileToDisk("someData", "", "fileName.xml");
-		writeFileToDisk("someData", "folder1", "fileName1.xml");
-		writeFileToDisk("someData2", "folder1", "fileName2.xml");
-		writeFileToDisk("someData2", "folder1/folder2", "fileName3.xml");
-		writeFileToDisk("someData2", "folder3", "fileName4.xml");
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileName.xml");
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "folder1", "fileName1.xml");
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData2", "folder1", "fileName2.xml");
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData2", "folder1/folder2", "fileName3.xml");
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData2", "folder3", "fileName4.xml");
 
-		String fileTree = treeReader.createFileTreeFromPath(basePath);
+		String fileTree = treeReader.createFileTreeFromPath(fileHelper.basePath);
 		assertEquals(fileTree, """
 				fileName.xml
 				folder1
@@ -169,7 +111,7 @@ public class FileTreeReaderTest {
 	public void testMakeSureFileListIsClosed() throws Exception {
 		OnlyForTestFileTreeReader treeReader = new OnlyForTestFileTreeReader();
 
-		String fileTree = treeReader.createFileTreeFromPath(basePath);
+		String fileTree = treeReader.createFileTreeFromPath(fileHelper.basePath);
 
 		assertEquals(fileTree, "");
 		assertTrue(treeReader.closeCheck.runCalled);

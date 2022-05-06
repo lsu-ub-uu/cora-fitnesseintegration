@@ -26,34 +26,60 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class FileTreeTest {
+public class ArchiveFileTest {
 
-	FileTree fileTree;
+	ArchiveFile archiveFile;
 	FileTreeReaderSpy fileTreeReaderSpy;
+	ArchiveFileReaderSpy archiveFileReaderSpy;
 
 	String basePath = "someFolder/someOtherFolder/";
 
 	@BeforeMethod
 	public void beforeMethod() {
 		fileTreeReaderSpy = new FileTreeReaderSpy();
+		archiveFileReaderSpy = new ArchiveFileReaderSpy();
 
-		fileTree = new FileTree();
-		fileTree.fileTreeReader = fileTreeReaderSpy;
+		archiveFile = new ArchiveFile();
+		archiveFile.fileTreeReader = fileTreeReaderSpy;
+		archiveFile.archiveFileReader = archiveFileReaderSpy;
 	}
 
 	@Test
-	public void testInit() throws Exception {
-		String expecedOutputFromSpy = "someFiles";
+	public void tesGetTree() throws Exception {
+		String expectedOutputFromSpy = "someFiles";
 		fileTreeReaderSpy.MRV.setReturnValues("createFileTreeFromPath",
-				List.of(expecedOutputFromSpy), basePath);
+				List.of(expectedOutputFromSpy), basePath);
 
-		fileTree.setPath(basePath);
-		String tree = fileTree.getTree();
+		archiveFile.setPath(basePath);
+		String tree = archiveFile.getTree();
 
 		fileTreeReaderSpy.MCR.assertParameters("createFileTreeFromPath", 0, basePath);
 		String returnValue = (String) fileTreeReaderSpy.MCR.getReturnValue("createFileTreeFromPath",
 				0);
 		assertEquals(tree, "<pre>" + returnValue + "</pre>");
+
+	}
+
+	@Test
+	public void testReadFile() throws Exception {
+		String expectedOutputFromSpy = "someContent";
+		String fileName = "someFilename";
+		String version = "someVersion";
+		archiveFileReaderSpy.MRV.setReturnValues("readFileWithNameAndVersion",
+				List.of(expectedOutputFromSpy), basePath, fileName, version);
+
+		archiveFile.setPath(basePath);
+		archiveFile.setFileName(fileName);
+		archiveFile.setVersion(version);
+
+		String fileContent = archiveFile.getReadFile();
+
+		archiveFileReaderSpy.MCR.assertParameters("readFileWithNameAndVersion", 0, basePath,
+				fileName, version);
+		String returnValue = (String) archiveFileReaderSpy.MCR
+				.getReturnValue("readFileWithNameAndVersion", 0);
+
+		assertEquals(fileContent, returnValue);
 
 	}
 }
