@@ -68,7 +68,12 @@ public class FileTreeReaderTest {
 
 	@Test
 	public void testCreateFileTreeFromPathOneFiles() throws Exception {
+		// <<<<<<< HEAD
 		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileName.xml");
+		// =======
+		// fileHelper.writeFileToDisk("someData", "", "fileName.xml");
+		// >>>>>>> branch 'issues/ALVIN-2668' of
+		// https://github.com/lsu-ub-uu/cora-fitnesseintegration.git
 
 		String fileTree = treeReader.createFileTreeFromPath(fileHelper.basePath);
 
@@ -77,8 +82,15 @@ public class FileTreeReaderTest {
 
 	@Test
 	public void testCreateFileTreeFromPathTwoFiles() throws Exception {
+		// <<<<<<< HEAD
 		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "folder", "fileName.xml");
-		fileHelper.writeFileToDiskWithContentInFolderWithName("someData2", "folder", "fileName2.xml");
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData2", "folder",
+				"fileName2.xml");
+		// =======
+		// fileHelper.writeFileToDisk("someData", "folder", "fileName.xml");
+		// fileHelper.writeFileToDisk("someData2", "folder", "fileName2.xml");
+		// >>>>>>> branch 'issues/ALVIN-2668' of
+		// https://github.com/lsu-ub-uu/cora-fitnesseintegration.git
 
 		String fileTree = treeReader.createFileTreeFromPath(fileHelper.basePath);
 		assertEquals(fileTree, """
@@ -89,11 +101,24 @@ public class FileTreeReaderTest {
 
 	@Test
 	public void testCreateFileTreeFromPathTwoFilesIndent() throws Exception {
+		// <<<<<<< HEAD
 		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileName.xml");
-		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "folder1", "fileName1.xml");
-		fileHelper.writeFileToDiskWithContentInFolderWithName("someData2", "folder1", "fileName2.xml");
-		fileHelper.writeFileToDiskWithContentInFolderWithName("someData2", "folder1/folder2", "fileName3.xml");
-		fileHelper.writeFileToDiskWithContentInFolderWithName("someData2", "folder3", "fileName4.xml");
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "folder1",
+				"fileName1.xml");
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData2", "folder1",
+				"fileName2.xml");
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData2", "folder1/folder2",
+				"fileName3.xml");
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData2", "folder3",
+				"fileName4.xml");
+		// =======
+		// fileHelper.writeFileToDisk("someData", "", "fileName.xml");
+		// fileHelper.writeFileToDisk("someData", "folder1", "fileName1.xml");
+		// fileHelper.writeFileToDisk("someData2", "folder1", "fileName2.xml");
+		// fileHelper.writeFileToDisk("someData2", "folder1/folder2", "fileName3.xml");
+		// fileHelper.writeFileToDisk("someData2", "folder3", "fileName4.xml");
+		// >>>>>>> branch 'issues/ALVIN-2668' of
+		// https://github.com/lsu-ub-uu/cora-fitnesseintegration.git
 
 		String fileTree = treeReader.createFileTreeFromPath(fileHelper.basePath);
 		assertEquals(fileTree, """

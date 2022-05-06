@@ -48,6 +48,7 @@ public class FileTestHelper {
 		}
 	}
 
+	// <<<<<<< HEAD
 	public void writeFileToDiskWithContentInFolderWithName(String content, String folderName,
 			String fileName) throws IOException {
 		String currentPath = possiblyCreateFolder(folderName);
@@ -71,6 +72,27 @@ public class FileTestHelper {
 			currentPath += "/" + folder;
 		}
 		return currentPath;
+		// =======
+		// public void writeFileToDisk(String content, String folderName, String fileName)
+		// throws IOException {
+		// possiblyCreateFolder(folderName);
+		// Path path = FileSystems.getDefault().getPath(basePath, folderName, fileName);
+		// BufferedWriter writer;
+		// writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8,
+		// StandardOpenOption.CREATE);
+		// writer.write(content, 0, content.length());
+		// writer.flush();
+		// writer.close();
+		// }
+		//
+		// private void possiblyCreateFolder(String folderName) {
+		// Path pathIncludingFolderName = Paths.get(basePath, folderName);
+		// File newPath = pathIncludingFolderName.toFile();
+		// if (!newPath.exists()) {
+		// newPath.mkdir();
+		// }
+		// >>>>>>> branch 'issues/ALVIN-2668' of
+		// https://github.com/lsu-ub-uu/cora-fitnesseintegration.git
 	}
 
 	public void removeFiles() throws IOException {
