@@ -91,9 +91,9 @@ public class ChildComparerFixture extends ComparerFixture {
 	public String testCheckNumberOfChildren() {
 		int numberOfChildren = getNumberOfChildReferences();
 		if (actualAndExpectedIsSameSize(numberOfChildren)) {
-			return "Expected " + expectedNumberOfChildren + " but found " + numberOfChildren;
+			return "OK";
 		}
-		return "OK";
+		return "Expected " + expectedNumberOfChildren + " but found " + numberOfChildren;
 	}
 
 	private int getNumberOfChildReferences() {
@@ -104,7 +104,7 @@ public class ChildComparerFixture extends ComparerFixture {
 	}
 
 	private boolean actualAndExpectedIsSameSize(int numberOfChildren) {
-		return numberOfChildren != expectedNumberOfChildren;
+		return numberOfChildren == expectedNumberOfChildren;
 	}
 
 	public void setChildren(String children) {
@@ -117,8 +117,7 @@ public class ChildComparerFixture extends ComparerFixture {
 
 	}
 
-	public ChildComparer getChildComparer() {
-		// needed for test
+	public ChildComparer onlyForTestGetChildComparer() {
 		return childComparer;
 	}
 

@@ -78,7 +78,7 @@ public class ChildComparerFixtureTest {
 	@Test
 	public void testInit() {
 		fixture = new ChildComparerFixture();
-		assertTrue(fixture.getChildComparer() instanceof ChildComparerSpy);
+		assertTrue(fixture.onlyForTestGetChildComparer() instanceof ChildComparerSpy);
 		assertTrue(fixture.getJsonHandler() instanceof JsonHandlerImp);
 		assertTrue(fixture.getJsonToDataRecordConverter() instanceof JsonToDataRecordConverterImp);
 		assertTrue(fixture.getHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
@@ -109,7 +109,7 @@ public class ChildComparerFixtureTest {
 		fixture.setListIndexToCompareTo(0);
 		fixture.setChildren(childrenToLookFor);
 
-		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.getChildComparer();
+		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		childComparer.numberOfErrorsToReturn = 3;
 
 		assertEquals(fixture.testReadFromListCheckContainWithValues(),
@@ -127,7 +127,7 @@ public class ChildComparerFixtureTest {
 		fixture.setListIndexToCompareTo(0);
 		fixture.testReadFromListCheckContainWithValues();
 
-		ChildComparerSpy comparerSpy = (ChildComparerSpy) fixture.getChildComparer();
+		ChildComparerSpy comparerSpy = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		assertEquals(jsonParser.jsonStringsSentToParser.get(0), children);
 
 		assertSame(comparerSpy.jsonValue, jsonParser.jsonObjectSpies.get(0));
@@ -149,7 +149,7 @@ public class ChildComparerFixtureTest {
 		String childrenToLookFor = "{\"children\":[{\"type\":\"atomic\",\"name\":\"workoutName\",\"value\":\"cirkelfys\"}]}";
 		fixture.setListIndexToCompareTo(0);
 		fixture.setChildren(childrenToLookFor);
-		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.getChildComparer();
+		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		childComparer.spyShouldThrowError = true;
 
 		assertEquals(fixture.testReadFromListCheckContainWithValues(), childComparer.errorMessage);
@@ -171,7 +171,7 @@ public class ChildComparerFixtureTest {
 		fixture.setListIndexToCompareTo(0);
 		fixture.setChildren(childrenToLookFor);
 
-		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.getChildComparer();
+		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		childComparer.numberOfErrorsToReturn = 3;
 
 		assertEquals(fixture.testReadFromListCheckContain(),
@@ -189,7 +189,7 @@ public class ChildComparerFixtureTest {
 		fixture.setListIndexToCompareTo(0);
 		fixture.testReadFromListCheckContain();
 
-		ChildComparerSpy comparerSpy = (ChildComparerSpy) fixture.getChildComparer();
+		ChildComparerSpy comparerSpy = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		assertEquals(jsonParser.jsonStringsSentToParser.get(0), childrenToLookFor);
 
 		assertSame(comparerSpy.jsonValue, jsonParser.jsonObjectSpies.get(0));
@@ -211,7 +211,7 @@ public class ChildComparerFixtureTest {
 		String childrenToLookFor = "{\"children\":[{\"name\":\"instructorId\"},{\"name\":\"popularity\"}]}";
 		fixture.setListIndexToCompareTo(0);
 		fixture.setChildren(childrenToLookFor);
-		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.getChildComparer();
+		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		childComparer.spyShouldThrowError = true;
 
 		assertEquals(fixture.testReadFromListCheckContain(), childComparer.errorMessage);
@@ -230,7 +230,7 @@ public class ChildComparerFixtureTest {
 		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
 		DataHolder.setRecord(clientDataRecordSpy);
 
-		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.getChildComparer();
+		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		childComparer.numberOfErrorsToReturn = 3;
 
 		assertEquals(fixture.testCheckContain(),
@@ -249,7 +249,7 @@ public class ChildComparerFixtureTest {
 
 		assertEquals(jsonParser.jsonStringsSentToParser.get(0), childrenToLookFor);
 
-		ChildComparerSpy comparerSpy = (ChildComparerSpy) fixture.getChildComparer();
+		ChildComparerSpy comparerSpy = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		assertSame(comparerSpy.jsonValue, jsonParser.jsonObjectSpies.get(0));
 		ClientDataRecordSpy recordSpy = (ClientDataRecordSpy) DataHolder.getRecord();
 		assertSame(comparerSpy.dataGroup, recordSpy.clientDataGroup);
@@ -259,7 +259,7 @@ public class ChildComparerFixtureTest {
 	public void testCheckContainComparerThrowsError() {
 		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
 		DataHolder.setRecord(clientDataRecordSpy);
-		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.getChildComparer();
+		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		childComparer.spyShouldThrowError = true;
 
 		assertEquals(fixture.testCheckContain(), childComparer.errorMessage);
@@ -278,7 +278,7 @@ public class ChildComparerFixtureTest {
 		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
 		DataHolder.setRecord(clientDataRecordSpy);
 
-		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.getChildComparer();
+		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		childComparer.numberOfErrorsToReturn = 3;
 
 		assertEquals(fixture.testCheckContainWithValues(),
@@ -297,7 +297,7 @@ public class ChildComparerFixtureTest {
 
 		assertEquals(jsonParser.jsonStringsSentToParser.get(0), childrenToLookFor);
 
-		ChildComparerSpy comparerSpy = (ChildComparerSpy) fixture.getChildComparer();
+		ChildComparerSpy comparerSpy = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		assertSame(comparerSpy.jsonValue, jsonParser.jsonObjectSpies.get(0));
 		ClientDataRecordSpy recordSpy = (ClientDataRecordSpy) DataHolder.getRecord();
 		assertSame(comparerSpy.dataGroup, recordSpy.clientDataGroup);
@@ -307,7 +307,7 @@ public class ChildComparerFixtureTest {
 	public void testCheckContainWithValuesThrowsError() {
 		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
 		DataHolder.setRecord(clientDataRecordSpy);
-		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.getChildComparer();
+		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		childComparer.spyShouldThrowError = true;
 
 		assertEquals(fixture.testCheckContainWithValues(), childComparer.errorMessage);

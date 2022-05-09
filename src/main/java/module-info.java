@@ -6,6 +6,7 @@ module se.uu.ub.cora.fitnesseintegration {
 	requires java.xml;
 	requires se.uu.ub.cora.json;
 	requires se.uu.ub.cora.messaging;
+	requires se.uu.ub.cora.data;
 
 	exports se.uu.ub.cora.fitnesseintegration;
 	exports se.uu.ub.cora.fitnesseintegration.compare;

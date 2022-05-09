@@ -162,13 +162,11 @@ public class ComparerFixture {
 	}
 
 	protected ClientDataGroup getDataGroupFromRecordHolderUsingIndex() {
-		int index = getListIndexToCompareTo();
-		return DataHolder.getRecordList().get(index).getClientDataGroup();
+		return DataHolder.getRecordList().get(indexToCompareTo).getClientDataGroup();
 	}
 
 	protected DataRecord getDataRecordFromRecordHolderUsingIndex() {
-		int index = getListIndexToCompareTo();
-		return DataHolder.getRecordList().get(index);
+		return DataHolder.getRecordList().get(indexToCompareTo);
 	}
 
 	public void testSearchAndStoreRecords() throws UnsupportedEncodingException {
