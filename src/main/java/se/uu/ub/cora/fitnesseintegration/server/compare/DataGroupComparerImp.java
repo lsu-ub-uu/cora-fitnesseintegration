@@ -40,7 +40,6 @@ public class DataGroupComparerImp implements DataGroupComparer {
 			String name2 = compareWith.getNameInData();
 			// compareWith.hasAttributes()
 			return List.of(MessageFormat.format("Group with name: {0} not found.", name2));
-
 		}
 		if (compareAgainst.hasAttributes() != compareWith.hasAttributes()) {
 			String attributeString = "";

@@ -22,12 +22,14 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.data.DataAttribute;
 import se.uu.ub.cora.testspies.data.DataAttributeSpy;
 import se.uu.ub.cora.testspies.data.DataGroupSpy;
 
@@ -63,17 +65,17 @@ public class DataGroupComparerTest {
 
 	@Test
 	public void testCompareDifferentAttributes() throws Exception {
-		setMRVWithNameInDataAndAttributes(compareWith, "someName", "attribName1", "attribValue1");
-		compareWith.MRV.setDefaultReturnValuesSupplier("getNameInData",
-				(Supplier<String>) () -> "nameInData");
-		compareWith.MRV.setDefaultReturnValuesSupplier("hasAttributes",
-				(Supplier<Boolean>) () -> true);
-		DataAttributeSpy attribute = createAttribute("attributeA", "A");
-		compareWith.MRV.setReturnValues("getAttributes", List.of(List.of(attribute)));
+		setMRVWithNameInDataAndAttributes(compareWith, "nameInData", "attributeA", "A");
+		// compareWith.MRV.setDefaultReturnValuesSupplier("getNameInData",
+		// (Supplier<String>) () -> "nameInData");
+		// compareWith.MRV.setDefaultReturnValuesSupplier("hasAttributes",
+		// (Supplier<Boolean>) () -> true);
+		// DataAttributeSpy attribute = createAttribute("attributeA", "A");
+		// compareWith.MRV.setReturnValues("getAttributes", List.of(List.of(attribute)));
 
 		compareAgainst.MRV.setReturnValues("getNameInData", List.of("nameInData"));
-		compareAgainst.MRV.setDefaultReturnValuesSupplier("hasAttributes",
-				(Supplier<Boolean>) () -> false);
+		// compareAgainst.MRV.setDefaultReturnValuesSupplier("hasAttributes",
+		// (Supplier<Boolean>) () -> false);
 
 		List<String> report = comparer.compareDataGroupToDataGroup(compareWith, compareAgainst);
 
@@ -86,15 +88,22 @@ public class DataGroupComparerTest {
 
 	private void setMRVWithNameInDataAndAttributes(DataGroupSpy group, String nameInData,
 			String... attributeStuff) {
-		// TODO Auto-generated method stub
-
-		// group.MRV.setDefaultReturnValuesSupplier("getNameInData",
-		// (Supplier<String>) () -> nameInData);
-		// group.MRV.setDefaultReturnValuesSupplier("hasAttributes", (Supplier<Boolean>) () ->
-		// true);
-		// DataAttributeSpy attribute = createAttribute("attributeA", "A");
-		// group.MRV.setReturnValues("getAttributes", List.of(List.of(attribute)));
-
+		group.MRV.setDefaultReturnValuesSupplier("getNameInData",
+				(Supplier<String>) () -> nameInData);
+		if (attributeStuff.length > 0) {
+			group.MRV.setDefaultReturnValuesSupplier("hasAttributes",
+					(Supplier<Boolean>) () -> true);
+			int position = 0;
+			List<DataAttribute> attributes = new ArrayList<>();
+			while (position < attributeStuff.length) {
+				DataAttributeSpy attribute = createAttribute(attributeStuff[position],
+						attributeStuff[position + 1]);
+				attributes.add(attribute);
+				position = position + 2;
+			}
+			group.MRV.setDefaultReturnValuesSupplier("getAttributes",
+					(Supplier<List<DataAttribute>>) () -> attributes);
+		}
 	}
 
 	private DataAttributeSpy createAttribute(String attributeName, String attributeValue) {
