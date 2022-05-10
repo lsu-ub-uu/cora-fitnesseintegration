@@ -21,8 +21,11 @@ package se.uu.ub.cora.fitnesseintegration.server.compare;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
+import java.util.StringJoiner;
 
+import se.uu.ub.cora.data.DataAtomic;
 import se.uu.ub.cora.data.DataAttribute;
+import se.uu.ub.cora.data.DataChild;
 import se.uu.ub.cora.data.DataGroup;
 
 public class DataGroupComparerImp implements DataGroupComparer {
@@ -30,30 +33,99 @@ public class DataGroupComparerImp implements DataGroupComparer {
 	@Override
 	public List<String> compareDataGroupToDataGroup(DataGroup compareWith,
 			DataGroup compareAgainst) {
+		boolean isSame = isSameChild(compareWith, compareAgainst);
 
-		if (!compareAgainst.getNameInData().equals(compareWith.getNameInData())) {
-			String name2 = compareWith.getNameInData();
-			// compareWith.hasAttributes()
-			return List.of(MessageFormat.format("Group with name: {0} not found.", name2));
-		}
-		if (!compareWith.hasAttributes() && compareAgainst.hasAttributes()) {
-			String name2 = compareWith.getNameInData();
-			// compareWith.hasAttributes()
-			return List.of(MessageFormat.format("Group with name: {0} not found.", name2));
-		}
-		if (compareAgainst.hasAttributes() != compareWith.hasAttributes()) {
-			String attributeString = "";
-			String pattern = "name: {0} and value: {1}";
-			for (DataAttribute attribute : compareWith.getAttributes()) {
-				attributeString += MessageFormat.format(pattern, attribute.getNameInData(),
-						attribute.getValue());
+		for (DataChild dataChild : compareWith.getChildren()) {
+			// find matching child
+			DataChild sameChildFromAgainst = null;
+			for (DataChild against : compareAgainst.getChildren()) {
+				if (isSameChild(dataChild, against)) {
+					sameChildFromAgainst = against;
+				}
 			}
-			return List.of(
-					MessageFormat.format("Group with name: {0} and attribute/s with {1} not found.",
-							compareWith.getNameInData(), attributeString));
+			if (sameChildFromAgainst == null) {
+				// write error
+
+				String nameInData = dataChild.getNameInData();
+				String value = ((DataAtomic) dataChild).getValue();
+
+				if (!dataChild.hasAttributes()) {
+					String out = "Atomic with name: " + nameInData + " and value: " + value
+							+ " not found.";
+					return List.of(out);
+				}
+
+				StringJoiner sj = getAttributeString(dataChild);
+				return List.of(MessageFormat.format(
+						"Atomic with name: {0} and attribute/s with {1} and value: {2} not found.",
+						nameInData, sj.toString(), value));
+
+			} else {
+				// check value
+				DataAtomic atomicChild = (DataAtomic) dataChild;
+				DataAtomic atomicAgainst = (DataAtomic) sameChildFromAgainst;
+				if (!atomicChild.getValue().equals(atomicAgainst.getValue())) {
+					String nameInData = dataChild.getNameInData();
+					String value = atomicChild.getValue();
+					String out = "Atomic with name: " + nameInData + " and value: " + value
+							+ " not found.";
+					return List.of(out);
+
+				}
+
+			}
+
 		}
 
-		return Collections.emptyList();
+		// end checks
+		if (isSame) {
+			return Collections.emptyList();
+		}
+
+		//////////////////////
+
+		if (!compareWith.hasAttributes()) {
+			return List.of(MessageFormat.format("Group with name: {0} not found.",
+					compareWith.getNameInData()));
+		}
+
+		StringJoiner sj = getAttributeString(compareWith);
+		return List
+				.of(MessageFormat.format("Group with name: {0} and attribute/s with {1} not found.",
+						compareWith.getNameInData(), sj.toString()));
+	}
+
+	private StringJoiner getAttributeString(DataChild compareWith) {
+		String pattern = "name: {0} and value: {1}";
+		StringJoiner sj = new StringJoiner(", ");
+		for (DataAttribute attribute : compareWith.getAttributes()) {
+			sj.add(MessageFormat.format(pattern, attribute.getNameInData(), attribute.getValue()));
+		}
+		return sj;
+	}
+
+	private boolean isSameChild(DataChild compareWith, DataChild compareAgainst) {
+		if (!compareAgainst.getNameInData().equals(compareWith.getNameInData())) {
+			return false;
+		}
+
+		if (compareWith.getAttributes().size() != compareAgainst.getAttributes().size()) {
+			return false;
+		}
+		boolean attributeFound = false;
+		for (DataAttribute attributeWith : compareWith.getAttributes()) {
+			attributeFound = false;
+			for (DataAttribute attributeAgainst : compareAgainst.getAttributes()) {
+				if (attributeWith.getNameInData().equals(attributeAgainst.getNameInData())
+						&& attributeWith.getValue().equals(attributeAgainst.getValue())) {
+					attributeFound = true;
+				}
+			}
+			if (!attributeFound) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }
