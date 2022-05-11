@@ -36,6 +36,7 @@
 		<httphandler.version>2.6.0</httphandler.version>
 		<cora-clientdata.version>5.1.0</cora-clientdata.version>
 		<coradata.version>7.0.0</coradata.version>
+		<converter.version>3.0.0</converter.version>
 		<javaclient.version>1.15.0</javaclient.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 		<fitnesse.version>20220319</fitnesse.version>
@@ -97,6 +98,12 @@
 			<groupId>se.uu.ub.cora</groupId>
 			<artifactId>coradata</artifactId>
 			<version>${coradata.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>se.uu.ub.cora</groupId>
+			<artifactId>converter</artifactId>
+			<version>${converter.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>

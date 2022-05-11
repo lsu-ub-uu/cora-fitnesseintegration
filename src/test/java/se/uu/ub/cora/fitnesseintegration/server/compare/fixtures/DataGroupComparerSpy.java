@@ -16,24 +16,30 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration.file;
+package se.uu.ub.cora.fitnesseintegration.server.compare.fixtures;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import se.uu.ub.cora.data.DataGroup;
+import se.uu.ub.cora.fitnesseintegration.server.compare.DataGroupComparer;
 import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
 import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 
-public class ArchiveFileReaderSpy implements ArchiveFileReader {
+public class DataGroupComparerSpy implements DataGroupComparer {
 	public MethodCallRecorder MCR = new MethodCallRecorder();
 	public MethodReturnValues MRV = new MethodReturnValues();
 
-	public ArchiveFileReaderSpy() {
+	public DataGroupComparerSpy() {
 		MCR.useMRV(MRV);
-		MRV.setDefaultReturnValuesSupplier("readFileWithNameAndVersion", String::new);
+		MRV.setDefaultReturnValuesSupplier("compareDataGroupToDataGroup", ArrayList::new);
 	}
 
 	@Override
-	public String readFileWithNameAndVersion(String basePath, String fileName, String version) {
-		return (String) MCR.addCallAndReturnFromMRV("basePath", basePath, "fileName", fileName,
-				"version", version);
+	public List<String> compareDataGroupToDataGroup(DataGroup compareWith,
+			DataGroup compareAgainst) {
+		return (List<String>) MCR.addCallAndReturnFromMRV("compareWith", compareWith,
+				"compareAgainst", compareAgainst);
 	}
 
 }

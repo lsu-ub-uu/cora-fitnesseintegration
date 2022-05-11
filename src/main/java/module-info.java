@@ -7,6 +7,7 @@ module se.uu.ub.cora.fitnesseintegration {
 	requires se.uu.ub.cora.json;
 	requires se.uu.ub.cora.messaging;
 	requires se.uu.ub.cora.data;
+	requires se.uu.ub.cora.converter;
 
 	exports se.uu.ub.cora.fitnesseintegration;
 	exports se.uu.ub.cora.fitnesseintegration.compare;

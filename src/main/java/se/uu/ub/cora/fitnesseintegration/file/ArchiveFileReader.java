@@ -18,8 +18,28 @@
  */
 package se.uu.ub.cora.fitnesseintegration.file;
 
+/**
+ * ArchiveFileReader reads a file from an archive.
+ */
 public interface ArchiveFileReader {
-
+	/**
+	 * readFileWithNameAndVersion reads a file from the (Fedora) archive on disk using the specified
+	 * basePath, fileName and version.
+	 * <p>
+	 * The reader searches the file tree starting at the specified base path until it finds a file
+	 * with the specified name. From there it finds the folder with the specified version and
+	 * returns the contens of the file with the specified filename from the correct version folder.
+	 * 
+	 * @param basePath
+	 *            A String with the basePath of the (Fedora) archive on disk
+	 * @param fileName
+	 *            A String with the fileName to find in the archive
+	 * @param version
+	 *            A String with the version of the file to read.
+	 * @return A String with the contens of the read file.
+	 * @throws {@link
+	 *             RuntimeException} if any error occurs while trying to read the file.
+	 */
 	String readFileWithNameAndVersion(String basePath, String fileName, String version);
 
 }
