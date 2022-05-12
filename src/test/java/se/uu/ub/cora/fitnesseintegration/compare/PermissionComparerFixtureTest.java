@@ -69,20 +69,22 @@ public class PermissionComparerFixtureTest {
 
 		fixture.setType("someRecordType");
 		fixture.setRecordHandler(recordHandler);
-		fixture.setJsonHandler(jsonHandler);
-		fixture.setJsonToDataRecordConverter(jsonToDataConverter);
+		fixture.onlyForTestSetJsonHandler(jsonHandler);
+		fixture.onlyForTestSetJsonToDataRecordConverter(jsonToDataConverter);
 	}
 
 	@Test
 	public void testInit() {
 		fixture = new PermissionComparerFixture();
 		assertTrue(fixture.getComparerFactory() instanceof ComparerFactorySpy);
-		assertTrue(fixture.getJsonHandler() instanceof JsonHandlerImp);
-		assertTrue(fixture.getJsonToDataRecordConverter() instanceof JsonToDataRecordConverterImp);
-		assertTrue(fixture.getHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
+		assertTrue(fixture.onlyForTestGetJsonHandler() instanceof JsonHandlerImp);
+		assertTrue(fixture
+				.onlyForTestGetJsonToDataRecordConverter() instanceof JsonToDataRecordConverterImp);
+		assertTrue(fixture.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
 
 		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.getRecordHandler();
-		assertSame(recordHandler.getHttpHandlerFactory(), fixture.getHttpHandlerFactory());
+		assertSame(recordHandler.getHttpHandlerFactory(),
+				fixture.onlyForTestGetHttpHandlerFactory());
 	}
 
 	@Test

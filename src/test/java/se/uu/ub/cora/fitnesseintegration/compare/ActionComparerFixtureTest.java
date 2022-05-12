@@ -56,7 +56,7 @@ public class ActionComparerFixtureTest {
 		jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
 		fixture = new ActionComparerFixture();
 		fixture.setRecordHandler(recordHandler);
-		fixture.setJsonHandler(jsonHandler);
+		fixture.onlyForTestSetJsonHandler(jsonHandler);
 
 	}
 
@@ -64,12 +64,14 @@ public class ActionComparerFixtureTest {
 	public void testInit() {
 		fixture = new ActionComparerFixture();
 		assertTrue(fixture.getComparerFactory() instanceof ComparerFactorySpy);
-		assertTrue(fixture.getJsonHandler() instanceof JsonHandlerImp);
-		assertTrue(fixture.getJsonToDataRecordConverter() instanceof JsonToDataRecordConverterImp);
-		assertTrue(fixture.getHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
+		assertTrue(fixture.onlyForTestGetJsonHandler() instanceof JsonHandlerImp);
+		assertTrue(fixture
+				.onlyForTestGetJsonToDataRecordConverter() instanceof JsonToDataRecordConverterImp);
+		assertTrue(fixture.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
 
 		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.getRecordHandler();
-		assertSame(recordHandler.getHttpHandlerFactory(), fixture.getHttpHandlerFactory());
+		assertSame(recordHandler.getHttpHandlerFactory(),
+				fixture.onlyForTestGetHttpHandlerFactory());
 	}
 
 	@Test
