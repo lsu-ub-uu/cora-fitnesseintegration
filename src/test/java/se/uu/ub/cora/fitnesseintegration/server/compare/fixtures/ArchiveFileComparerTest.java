@@ -1,21 +1,5 @@
-/*
- * Copyright 2022 Uppsala University Library
- *
- * This file is part of Cora.
- *
- *     Cora is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
- *
- *     Cora is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License
- *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
- */
+/**Copyright 2022 Uppsala University Library**This file is part of Cora.**Cora is free software:you can redistribute it and/or modify*it under the terms of the GNU General Public License as published by*the Free Software Foundation,either version 3 of the License,or*(at your option)any later version.**Cora is distributed in the hope that it will be useful,*but WITHOUT ANY WARRANTY;without even the implied warranty of*MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the*GNU General Public License for more details.**You should have received a copy of the GNU General Public License*along with Cora.If not,see<http://www.gnu.org/licenses/>.
+*/
 package se.uu.ub.cora.fitnesseintegration.server.compare.fixtures;
 
 import static org.testng.Assert.assertEquals;
@@ -28,7 +12,9 @@ import java.util.function.Supplier;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.converter.ConverterException;
 import se.uu.ub.cora.converter.ConverterProvider;
+import se.uu.ub.cora.converter.StringToExternallyConvertibleConverter;
 import se.uu.ub.cora.fitnesseintegration.file.ArchiveFileReaderImp;
 import se.uu.ub.cora.fitnesseintegration.file.ArchiveFileReaderSpy;
 import se.uu.ub.cora.fitnesseintegration.server.compare.DataGroupComparerImp;
@@ -92,7 +78,7 @@ public class ArchiveFileComparerTest {
 		archiveFileComparer.setBasePath(basePath);
 		archiveFileComparer.setVersion(version);
 		archiveFileComparer.setFileName(fileName);
-		archiveFileComparer.setXmlToCompareWith(COMPAREWITH);
+		archiveFileComparer.setXmlCompareWith(COMPAREWITH);
 
 		archiveFileComparer.compare();
 
@@ -113,7 +99,7 @@ public class ArchiveFileComparerTest {
 
 	@Test
 	public void testConverterCalledForEnteredXML() throws Exception {
-		archiveFileComparer.setXmlToCompareWith(COMPAREWITH);
+		archiveFileComparer.setXmlCompareWith(COMPAREWITH);
 
 		archiveFileComparer.compare();
 
@@ -157,10 +143,60 @@ public class ArchiveFileComparerTest {
 		result.add("compare1");
 		result.add("compare2");
 		result.add("compare3");
+
 		groupComparerSpy.MRV.setDefaultReturnValuesSupplier("compareDataGroupToDataGroup",
 				((Supplier<List<String>>) () -> result));
 		String compareResult = archiveFileComparer.compare();
 		assertEquals(compareResult, "compare1" + NEW_LINE + "compare2" + NEW_LINE + "compare3");
 	}
 
+	@Test
+	public void testXMLConversionErrorFromArchive() throws Exception {
+		setUpArchiveFileComparerToGetConversionErrorOnConvertFromFile();
+
+		String compareResult = archiveFileComparer.compare();
+		assertEquals(compareResult, "Conversion of XML from archive failed: Error converting xml");
+	}
+
+	@Test
+	public void testXMLConversionErrorFromInput() throws Exception {
+
+		setUpArchiveFileComparerToGetConversionErrorOnConvertFromInput();
+		archiveFileComparer.setXmlCompareWith(COMPAREWITH);
+
+		String compareResult = archiveFileComparer.compare();
+		assertEquals(compareResult, "Conversion of compare with XML failed: Error converting xml");
+	}
+
+	private void setUpArchiveFileComparerToGetConversionErrorOnConvertFromFile() {
+		String stringToConvertToThrowErrorOn = "readFromFile";
+		fileReaderSpy.MRV.setDefaultReturnValuesSupplier("readFileWithNameAndVersion",
+				(Supplier<String>) () -> stringToConvertToThrowErrorOn);
+		setupConverterToThrowErrorOnString(stringToConvertToThrowErrorOn);
+	}
+
+	private void setupConverterToThrowErrorOnString(String stringToConvertToThrowErrorOn) {
+		StringToExternallyConvertibleConverterSpy converter = new StringToExternallyConvertibleConverterSpy();
+		ConverterException converterException = new ConverterException("Error converting xml");
+		converter.MRV.setThrowException("convert", converterException,
+				stringToConvertToThrowErrorOn);
+		converterFactory.MRV.setDefaultReturnValuesSupplier(
+				"factorStringToExternallyConvertableConverter",
+				(Supplier<StringToExternallyConvertibleConverter>) () -> converter);
+
+		archiveFileComparer = new ArchiveFileComparer();
+		archiveFileComparer.onlyForTestSetFileReader(fileReaderSpy);
+		archiveFileComparer.onlyForTestSetGroupComparer(groupComparerSpy);
+	}
+
+	private void setUpArchiveFileComparerToGetConversionErrorOnConvertFromInput() {
+		setupConverterToThrowErrorOnString(COMPAREWITH);
+	}
+
+	@Test
+	public void testGetXmlCompareWith() throws Exception {
+		archiveFileComparer.setXmlCompareWith(COMPAREWITH);
+		assertEquals(archiveFileComparer.getXmlComparerWith(), COMPAREWITH);
+
+	}
 }

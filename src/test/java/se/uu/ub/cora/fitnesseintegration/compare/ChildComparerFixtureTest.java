@@ -71,20 +71,22 @@ public class ChildComparerFixtureTest {
 
 		fixture.setType("someRecordType");
 		fixture.setRecordHandler(recordHandler);
-		fixture.setJsonHandler(jsonHandler);
-		fixture.setJsonToDataRecordConverter(jsonToDataRecordConverter);
+		fixture.onlyForTestSetJsonHandler(jsonHandler);
+		fixture.onlyForTestSetJsonToDataRecordConverter(jsonToDataRecordConverter);
 	}
 
 	@Test
 	public void testInit() {
 		fixture = new ChildComparerFixture();
 		assertTrue(fixture.onlyForTestGetChildComparer() instanceof ChildComparerSpy);
-		assertTrue(fixture.getJsonHandler() instanceof JsonHandlerImp);
-		assertTrue(fixture.getJsonToDataRecordConverter() instanceof JsonToDataRecordConverterImp);
-		assertTrue(fixture.getHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
+		assertTrue(fixture.onlyForTestGetJsonHandler() instanceof JsonHandlerImp);
+		assertTrue(fixture
+				.onlyForTestGetJsonToDataRecordConverter() instanceof JsonToDataRecordConverterImp);
+		assertTrue(fixture.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
 
 		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.getRecordHandler();
-		assertSame(recordHandler.getHttpHandlerFactory(), fixture.getHttpHandlerFactory());
+		assertSame(recordHandler.getHttpHandlerFactory(),
+				fixture.onlyForTestGetHttpHandlerFactory());
 	}
 
 	private void addRecordsToDataHolder() {

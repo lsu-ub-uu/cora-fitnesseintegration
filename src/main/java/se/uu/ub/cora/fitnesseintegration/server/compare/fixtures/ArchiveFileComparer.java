@@ -20,6 +20,7 @@ package se.uu.ub.cora.fitnesseintegration.server.compare.fixtures;
 
 import java.util.List;
 
+import se.uu.ub.cora.converter.ConverterException;
 import se.uu.ub.cora.converter.ConverterProvider;
 import se.uu.ub.cora.converter.StringToExternallyConvertibleConverter;
 import se.uu.ub.cora.data.DataGroup;
@@ -30,6 +31,7 @@ import se.uu.ub.cora.fitnesseintegration.server.compare.DataGroupComparer;
 import se.uu.ub.cora.fitnesseintegration.server.compare.DataGroupComparerImp;
 
 public class ArchiveFileComparer {
+
 	ArchiveFileReader fileReader = new ArchiveFileReaderImp();
 	DataGroupComparer comparer = new DataGroupComparerImp();
 	private String basePath;
@@ -51,29 +53,61 @@ public class ArchiveFileComparer {
 		this.fileName = fileName;
 	}
 
-	public void setXmlToCompareWith(String xmlCompareWith) {
+	public void setXmlCompareWith(String xmlCompareWith) {
 		this.xmlCompareWith = xmlCompareWith;
 	}
 
 	public String compare() {
-		String archiveFile = "";
 		try {
-			archiveFile = fileReader.readFileWithNameAndVersion(basePath, fileName, version);
-
+			return tryToConvert();
 		} catch (RuntimeException e) {
-			return "Failed to read file from archive: " + e.getMessage();
+			return e.getMessage();
 		}
-		// TODO: Handle error on conversion for archiveFile
-		ExternallyConvertible compareAgainst = xmlConverter.convert(archiveFile);
-		// TODO: Handle error on conversion for xmlCompareWith
-		ExternallyConvertible compareWith = xmlConverter.convert(xmlCompareWith);
+	}
 
+	private String tryToConvert() {
+		String archiveFile = tryToReadFileWithNameAndVersion();
+		ExternallyConvertible compareAgainst = tryToConvertArchiveFileToXml(archiveFile);
+		ExternallyConvertible compareWith = tryToConvertCompareWithToXml();
+		return compareAndReturnResult(compareAgainst, compareWith);
+	}
+
+	private String compareAndReturnResult(ExternallyConvertible compareAgainst,
+			ExternallyConvertible compareWith) {
 		List<String> comparerMessages = comparer
 				.compareDataGroupToDataGroup((DataGroup) compareWith, (DataGroup) compareAgainst);
-		if (comparerMessages.isEmpty()) {
-			return "OK";
+		return handleResults(comparerMessages);
+	}
+
+	private String handleResults(List<String> comparerMessages) {
+		if (!comparerMessages.isEmpty()) {
+			return String.join("\n", comparerMessages);
 		}
-		return String.join("\n", comparerMessages);
+		return "OK";
+	}
+
+	private String tryToReadFileWithNameAndVersion() {
+		try {
+			return fileReader.readFileWithNameAndVersion(basePath, fileName, version);
+		} catch (RuntimeException e) {
+			throw new RuntimeException("Failed to read file from archive: " + e.getMessage());
+		}
+	}
+
+	private ExternallyConvertible tryToConvertArchiveFileToXml(String archiveFile) {
+		try {
+			return xmlConverter.convert(archiveFile);
+		} catch (ConverterException e) {
+			throw new RuntimeException("Conversion of XML from archive failed: " + e.getMessage());
+		}
+	}
+
+	private ExternallyConvertible tryToConvertCompareWithToXml() {
+		try {
+			return xmlConverter.convert(xmlCompareWith);
+		} catch (ConverterException e) {
+			throw new RuntimeException("Conversion of compare with XML failed: " + e.getMessage());
+		}
 	}
 
 	ArchiveFileReader onlyForTestGetArchiveFileReader() {
@@ -92,4 +126,7 @@ public class ArchiveFileComparer {
 		comparer = groupComparer;
 	}
 
+	public String getXmlComparerWith() {
+		return xmlCompareWith;
+	}
 }

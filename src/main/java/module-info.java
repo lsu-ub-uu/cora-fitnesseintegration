@@ -11,6 +11,6 @@ module se.uu.ub.cora.fitnesseintegration {
 
 	exports se.uu.ub.cora.fitnesseintegration;
 	exports se.uu.ub.cora.fitnesseintegration.compare;
-
 	exports se.uu.ub.cora.fitnesseintegration.fixture;
+	exports se.uu.ub.cora.fitnesseintegration.server.compare.fixtures;
 }

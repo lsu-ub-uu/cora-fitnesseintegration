@@ -224,27 +224,19 @@ public class ComparerFixture {
 		return jsonToDataRecordConverter.toInstance(recordJsonObject);
 	}
 
-	protected int getListIndexToCompareTo() {
-		return indexToCompareTo;
-	}
-
 	public void setListIndexToCompareTo(int index) {
 		this.indexToCompareTo = index;
-
 	}
 
-	void setJsonHandler(JsonHandler jsonHandler) {
-		// needed for test
+	void onlyForTestSetJsonHandler(JsonHandler jsonHandler) {
 		this.jsonHandler = jsonHandler;
 	}
 
-	void setJsonToDataRecordConverter(JsonToDataRecordConverter jsonToDataConverter) {
-		// needed for test
+	void onlyForTestSetJsonToDataRecordConverter(JsonToDataRecordConverter jsonToDataConverter) {
 		this.jsonToDataRecordConverter = jsonToDataConverter;
 	}
 
-	public HttpHandlerFactory getHttpHandlerFactory() {
-		// needed for test
+	public HttpHandlerFactory onlyForTestGetHttpHandlerFactory() {
 		return httpHandlerFactory;
 	}
 
@@ -256,24 +248,20 @@ public class ComparerFixture {
 		this.listFilter = listFilter;
 	}
 
-	public JsonHandler getJsonHandler() {
-		// needed for test
+	public JsonHandler onlyForTestGetJsonHandler() {
 		return jsonHandler;
 	}
 
-	public JsonToDataRecordConverter getJsonToDataRecordConverter() {
-		// needed for test
+	public JsonToDataRecordConverter onlyForTestGetJsonToDataRecordConverter() {
 		return jsonToDataRecordConverter;
 	}
 
 	public void setId(String id) {
 		this.id = id;
-
 	}
 
 	public void setType(String type) {
 		this.type = type;
-
 	}
 
 	public RecordHandler getRecordHandler() {
@@ -282,7 +270,6 @@ public class ComparerFixture {
 
 	void setRecordHandler(RecordHandler recordHandler) {
 		this.recordHandler = recordHandler;
-
 	}
 
 	public String getStoredListAsJson() {
@@ -291,12 +278,10 @@ public class ComparerFixture {
 
 	public void setSearchId(String searchId) {
 		this.searchId = searchId;
-
 	}
 
 	public void setJson(String json) {
 		this.json = json;
-
 	}
 
 	public StatusType getStatusType() {
@@ -310,5 +295,4 @@ public class ComparerFixture {
 	public void setIdToStore(String idToStore) {
 		this.idToStore = idToStore;
 	}
-
 }
