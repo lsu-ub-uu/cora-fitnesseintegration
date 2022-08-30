@@ -22,8 +22,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataAttribute;
@@ -179,7 +181,7 @@ public class ChildComparerImp implements ChildComparer {
 
 	private boolean childMatches(ClientDataElement childDataElement, JsonObject childJsonObject) {
 		String type = getType(childJsonObject);
-		Optional<String> repeatIdFromJson = getRepeatIdOrNullFromJsonObject(childJsonObject);
+		Optional<String> repeatIdFromJson = getOptionalRepeatIdFromJsonObject(childJsonObject);
 		String repeatIdFromData = getRepeatIdFromChildElement(childDataElement);
 		return typesAreEqual(type, childDataElement)
 				&& repeatIdsAreEqualOrEmpty(repeatIdFromJson, repeatIdFromData);
@@ -192,7 +194,7 @@ public class ChildComparerImp implements ChildComparer {
 		return ATOMIC;
 	}
 
-	private Optional<String> getRepeatIdOrNullFromJsonObject(JsonObject childObject) {
+	private Optional<String> getOptionalRepeatIdFromJsonObject(JsonObject childObject) {
 		if (childObject.containsKey(REPEAT_ID)) {
 			return Optional.of(((JsonString) childObject.getValue(REPEAT_ID)).getStringValue());
 		}
@@ -291,22 +293,65 @@ public class ChildComparerImp implements ChildComparer {
 
 	private boolean checkIfMatchingAtomicExistsInList(JsonObject childObject,
 			List<ClientDataAtomic> allDataAtomicsWithNameInData) {
-		Optional<String> repeatIdFromJson = getRepeatIdOrNullFromJsonObject(childObject);
 		for (ClientDataAtomic dataAtomic : allDataAtomicsWithNameInData) {
-			if (dataAtomicMatchesJson(childObject, repeatIdFromJson, dataAtomic)) {
+			if (dataAtomicMatchesJson(childObject, dataAtomic)) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private boolean dataAtomicMatchesJson(JsonObject childObject, Optional<String> repeatIdFromJson,
-			ClientDataAtomic dataAtomic) {
+	private boolean dataAtomicMatchesJson(JsonObject json, ClientDataAtomic dataAtomic) {
+		Optional<String> repeatIdFromJson = getOptionalRepeatIdFromJsonObject(json);
 		String repeatIdFromData = dataAtomic.getRepeatId();
+
+		if (!sameAttributes(json, dataAtomic)) {
+			return false;
+		}
 		if (repeatIdsAreEqualOrEmpty(repeatIdFromJson, repeatIdFromData)) {
-			return dataAtomicHasValueFromJson(childObject, dataAtomic);
+			return dataAtomicHasValueFromJson(json, dataAtomic);
 		}
 		return false;
+	}
+
+	private boolean sameAttributes(JsonObject json, ClientDataElement dataElement) {
+		Optional<JsonObject> attributesFromJson = getOptionalAttributesFromJsonObject(json);
+
+		int dataSize = dataElement.getAttributes().size();
+		int jsonSize = 0;
+		if (attributesFromJson.isPresent()) {
+			Set<Entry<String, JsonValue>> entrySet = attributesFromJson.get().entrySet();
+			jsonSize = entrySet.size();
+		}
+
+		if (jsonSize != dataSize) {
+			return false;
+		}
+		if (jsonSize == 0) {
+			return true;
+		}
+
+		Set<Entry<String, JsonValue>> entrySet = attributesFromJson.get().entrySet();
+		Map<String, String> attributes = dataElement.getAttributes();
+
+		for (Entry<String, JsonValue> attributeFromJson : entrySet) {
+			String key = attributeFromJson.getKey();
+			if (!attributes.containsKey(key)) {
+				return false;
+			}
+			JsonValue value = attributeFromJson.getValue();
+			if (!attributes.get(key).equals(((JsonString) value).getStringValue())) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private Optional<JsonObject> getOptionalAttributesFromJsonObject(JsonObject childObject) {
+		if (childObject.containsKey("attributes")) {
+			return Optional.of(childObject.getValueAsJsonObject("attributes"));
+		}
+		return Optional.empty();
 	}
 
 	private boolean dataAtomicHasValueFromJson(JsonObject childObject,
@@ -336,7 +381,7 @@ public class ChildComparerImp implements ChildComparer {
 	private void checkGroupContainsCorrectChildren(ClientDataGroup dataGroup,
 			JsonObject childObject, List<String> errorMessages) {
 		String nameInData = extractNameInDataFromJsonObject(childObject);
-		Optional<String> repeatIdFromJson = getRepeatIdOrNullFromJsonObject(childObject);
+		Optional<String> repeatIdFromJson = getOptionalRepeatIdFromJsonObject(childObject);
 
 		Optional<ClientDataGroup> matchingGroup = getChildFromDataGroupUsingNameInDataAndRepeatId(
 				dataGroup, nameInData, repeatIdFromJson);

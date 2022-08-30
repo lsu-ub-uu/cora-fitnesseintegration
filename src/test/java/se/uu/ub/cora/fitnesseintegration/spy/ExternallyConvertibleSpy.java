@@ -6,6 +6,7 @@ import java.util.List;
 import se.uu.ub.cora.data.DataAtomic;
 import se.uu.ub.cora.data.DataAttribute;
 import se.uu.ub.cora.data.DataChild;
+import se.uu.ub.cora.data.DataChildFilter;
 import se.uu.ub.cora.data.DataGroup;
 import se.uu.ub.cora.data.ExternallyConvertible;
 
@@ -163,6 +164,18 @@ public class ExternallyConvertibleSpy implements ExternallyConvertible, DataGrou
 	public Collection<DataAttribute> getAttributes() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public List<DataChild> getAllChildrenMatchingFilter(DataChildFilter childFilter) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean removeAllChildrenMatchingFilter(DataChildFilter childFilter) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
