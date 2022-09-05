@@ -34,10 +34,10 @@
 		<logger.version>2.5.0</logger.version>
 		<json.version>3.3.0</json.version>
 		<httphandler.version>2.6.0</httphandler.version>
-		<cora-clientdata.version>5.2-SNAPSHOT</cora-clientdata.version>
+		<cora-clientdata.version>5.2.0</cora-clientdata.version>
 		<coradata.version>7.1.0</coradata.version>
 		<converter.version>3.1.0</converter.version>
-		<javaclient.version>1.15.0</javaclient.version>
+		<javaclient.version>1.16.0</javaclient.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 		<fitnesse.version>20220815</fitnesse.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
@@ -46,7 +46,7 @@
 		<maven-classpath-plugin.version>1.9</maven-classpath-plugin.version>
 		<httpclient.version>4.5.13</httpclient.version>
 		<junit.version>4.13.2</junit.version>
-		<indexmessenger.version>1.9.0</indexmessenger.version>
+		<indexmessenger.version>1.10.0</indexmessenger.version>
 		<testutils.version>1.5.0</testutils.version>
 		<testspies.version>1.2.0</testspies.version>
 	</properties>
