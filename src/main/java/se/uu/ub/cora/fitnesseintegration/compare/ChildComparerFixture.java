@@ -64,9 +64,11 @@ public class ChildComparerFixture extends ComparerFixture {
 	}
 
 	private String compareChildrenWithValuesUsingDataGroup(ClientDataGroup clientDataGroup) {
-		JsonObject childrenObject = jsonHandler.parseStringAsObject(childrenToCompare);
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(clientDataGroup, childrenObject);
+		JsonObject jsonToBeComparedWith = jsonHandler.parseStringAsObject(childrenToCompare);
+		// DataRecord dataGroupToBeComparedWith =
+		// jsonToDataRecordConverter.toInstance(jsonToBeComparedWith);
+		List<String> errorMessages = childComparer.checkDataGroupContainsChildrenWithCorrectValues(
+				clientDataGroup, jsonToBeComparedWith);
 		return errorMessages.isEmpty() ? "OK" : joinErrorMessages(errorMessages);
 	}
 

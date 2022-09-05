@@ -18,12 +18,14 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataAttribute;
@@ -38,9 +40,12 @@ import se.uu.ub.cora.json.parser.JsonValue;
 public class ChildComparerImp implements ChildComparer {
 
 	private static final String GROUP = "group";
-	private static final String REPEAT_ID = "repeatId";
-	private static final String CHILDREN = "children";
 	private static final String ATOMIC = "atomic";
+	private static final String REPEAT_ID = "repeatId";
+	private static final String ATTRIBUTES = "attributes";
+	private static final String CHILDREN = "children";
+	private String errorMessageGroup = "Child with nameInData {0} and type {1}{2} is missing.";
+	private String errorMessageAtomic = "Did not find a match for child with nameInData {0}{2}.";
 
 	@Override
 	public boolean dataGroupContainsChildren(ClientDataGroup dataGroup, JsonValue jsonValue) {
@@ -56,6 +61,7 @@ public class ChildComparerImp implements ChildComparer {
 		} catch (Exception exception) {
 			throw new JsonParseException(exception.getMessage(), exception);
 		}
+
 	}
 
 	private List<String> tryToCheckDataGroupContainsChildren(ClientDataGroup dataGroup,
@@ -82,9 +88,11 @@ public class ChildComparerImp implements ChildComparer {
 		Optional<ClientDataElement> matchingChild = findMatchingChild(dataGroup, childObject,
 				nameInData);
 
-		matchingChild.ifPresentOrElse(
-				foundChild -> checkChildrenIfGroup(errorMessages, childObject, foundChild),
-				() -> createAndAddErrorMessage(errorMessages, childObject, nameInData));
+		if (matchingChild.isPresent()) {
+			checkChildrenIfGroup(errorMessages, childObject, matchingChild.get());
+		} else {
+			addErrorMessage("", errorMessages, childObject);
+		}
 	}
 
 	private String extractNameInDataFromJsonObject(JsonObject childObject) {
@@ -112,8 +120,8 @@ public class ChildComparerImp implements ChildComparer {
 	}
 
 	private List<ClientDataAttribute> getAttributesFromJsonOrEmpty(JsonObject childObject) {
-		if (childObject.containsKey("attributes")) {
-			JsonObject jsonAttributes = childObject.getValueAsJsonObject("attributes");
+		if (childObject.containsKey(ATTRIBUTES)) {
+			JsonObject jsonAttributes = childObject.getValueAsJsonObject(ATTRIBUTES);
 			return getAttributesAsClientDataAttributes(jsonAttributes);
 		}
 		return Collections.emptyList();
@@ -179,7 +187,7 @@ public class ChildComparerImp implements ChildComparer {
 
 	private boolean childMatches(ClientDataElement childDataElement, JsonObject childJsonObject) {
 		String type = getType(childJsonObject);
-		Optional<String> repeatIdFromJson = getRepeatIdOrNullFromJsonObject(childJsonObject);
+		Optional<String> repeatIdFromJson = getOptionalRepeatIdFromJsonObject(childJsonObject);
 		String repeatIdFromData = getRepeatIdFromChildElement(childDataElement);
 		return typesAreEqual(type, childDataElement)
 				&& repeatIdsAreEqualOrEmpty(repeatIdFromJson, repeatIdFromData);
@@ -192,7 +200,7 @@ public class ChildComparerImp implements ChildComparer {
 		return ATOMIC;
 	}
 
-	private Optional<String> getRepeatIdOrNullFromJsonObject(JsonObject childObject) {
+	private Optional<String> getOptionalRepeatIdFromJsonObject(JsonObject childObject) {
 		if (childObject.containsKey(REPEAT_ID)) {
 			return Optional.of(((JsonString) childObject.getValue(REPEAT_ID)).getStringValue());
 		}
@@ -217,27 +225,6 @@ public class ChildComparerImp implements ChildComparer {
 	private boolean repeatIdsAreEqualOrEmpty(Optional<String> repeatIdFromJson,
 			String repeatIdFromDataElement) {
 		return repeatIdFromJson.isEmpty() || repeatIdFromJson.get().equals(repeatIdFromDataElement);
-	}
-
-	private void createAndAddErrorMessage(List<String> errorMessages, JsonObject childObject,
-			String nameInData) {
-		String message = "Did not find a match for child with nameInData " + nameInData
-				+ getPossibleRepeatIdMessage(childObject) + ".";
-		errorMessages.add(message);
-	}
-
-	private String getMessagePrefix(String nameInData) {
-		return "Child with nameInData " + nameInData;
-	}
-
-	private String constructMissingMessageWithType(String nameInData, String type) {
-		return getMessagePrefix(nameInData) + " and type " + type + " is missing.";
-	}
-
-	private String constructMissingMessageWithTypeAndRepeatId(String nameInData, String type,
-			String repeatId) {
-		return getMessagePrefix(nameInData) + " and type " + type + " and repeatId " + repeatId
-				+ " is missing.";
 	}
 
 	@Override
@@ -271,40 +258,70 @@ public class ChildComparerImp implements ChildComparer {
 		String type = getType(childObject);
 
 		if (ATOMIC.equals(type)) {
-			checkAtomicHasCorrectValues(dataGroup, childObject, errorMessages);
+			checkDataGroupContainsFullyCorrectAtomicChild(dataGroup, childObject, errorMessages);
 		} else {
-			checkGroupContainsCorrectChildren(dataGroup, childObject, errorMessages);
+			checkDataGroupContainsCorrectChildren(dataGroup, childObject, errorMessages);
 		}
 	}
 
-	private void checkAtomicHasCorrectValues(ClientDataGroup dataGroup, JsonObject childObject,
-			List<String> errorMessages) {
+	private void checkDataGroupContainsFullyCorrectAtomicChild(ClientDataGroup dataGroup,
+			JsonObject atomicChild, List<String> errorMessages) {
+		Collection<ClientDataAtomic> allChildAtomicsMatchingNameAndAttributes = getAllMatchingAtomics(
+				dataGroup, atomicChild);
+		boolean fullyCorrectAtomicChildFound = listContainsAtomicChildsRepeatIdAndValue(
+				allChildAtomicsMatchingNameAndAttributes, atomicChild);
+		if (!fullyCorrectAtomicChildFound) {
+			addErrorMessage("", errorMessages, atomicChild);
+		}
+	}
+
+	private Collection<ClientDataAtomic> getAllMatchingAtomics(ClientDataGroup dataGroup,
+			JsonObject childObject) {
 		String nameInData = extractNameInDataFromJsonObject(childObject);
-		List<ClientDataAtomic> allDataAtomicsWithNameInData = dataGroup
-				.getAllDataAtomicsWithNameInData(nameInData);
-		boolean atomicExists = checkIfMatchingAtomicExistsInList(childObject,
-				allDataAtomicsWithNameInData);
-		if (!atomicExists) {
-			createAndAddErrorMessageIncludingValue(errorMessages, childObject, nameInData);
-		}
+		List<ClientDataAttribute> attributes = extractAttributesFromJsonObject(childObject);
+
+		return dataGroup.getAllDataAtomicsWithNameInDataAndAttributes(nameInData,
+				(attributes.toArray(new ClientDataAttribute[0])));
 	}
 
-	private boolean checkIfMatchingAtomicExistsInList(JsonObject childObject,
-			List<ClientDataAtomic> allDataAtomicsWithNameInData) {
-		Optional<String> repeatIdFromJson = getRepeatIdOrNullFromJsonObject(childObject);
+	private List<ClientDataAttribute> extractAttributesFromJsonObject(JsonObject childObject) {
+		Optional<JsonObject> attributesFromJson = getOptionalAttributesFromJsonObject(childObject);
+		List<ClientDataAttribute> attributeListFromJson = new ArrayList<>();
+		if (attributesFromJson.isPresent()) {
+			Set<Entry<String, JsonValue>> entrySet = attributesFromJson.get().entrySet();
+			for (Entry<String, JsonValue> attributeFromJson : entrySet) {
+				String key = attributeFromJson.getKey();
+				JsonValue value = attributeFromJson.getValue();
+				ClientDataAttribute dataAttributeFromJson = ClientDataAttribute
+						.withNameInDataAndValue(key, ((JsonString) value).getStringValue());
+				attributeListFromJson.add(dataAttributeFromJson);
+			}
+		}
+		return attributeListFromJson;
+	}
+
+	private Optional<JsonObject> getOptionalAttributesFromJsonObject(JsonObject childObject) {
+		if (childObject.containsKey(ATTRIBUTES)) {
+			return Optional.of(childObject.getValueAsJsonObject(ATTRIBUTES));
+		}
+		return Optional.empty();
+	}
+
+	private boolean listContainsAtomicChildsRepeatIdAndValue(
+			Collection<ClientDataAtomic> allDataAtomicsWithNameInData, JsonObject childObject) {
 		for (ClientDataAtomic dataAtomic : allDataAtomicsWithNameInData) {
-			if (dataAtomicMatchesJson(childObject, repeatIdFromJson, dataAtomic)) {
+			if (dataAtomicMatchesJson(childObject, dataAtomic)) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private boolean dataAtomicMatchesJson(JsonObject childObject, Optional<String> repeatIdFromJson,
-			ClientDataAtomic dataAtomic) {
+	private boolean dataAtomicMatchesJson(JsonObject json, ClientDataAtomic dataAtomic) {
+		Optional<String> repeatIdFromJson = getOptionalRepeatIdFromJsonObject(json);
 		String repeatIdFromData = dataAtomic.getRepeatId();
 		if (repeatIdsAreEqualOrEmpty(repeatIdFromJson, repeatIdFromData)) {
-			return dataAtomicHasValueFromJson(childObject, dataAtomic);
+			return dataAtomicHasValueFromJson(json, dataAtomic);
 		}
 		return false;
 	}
@@ -316,40 +333,23 @@ public class ChildComparerImp implements ChildComparer {
 		return stringValueInJson.equals(dataAtomic.getValue());
 	}
 
-	private void createAndAddErrorMessageIncludingValue(List<String> errorMessages,
-			JsonObject childObject, String nameInData) {
-		JsonString valueInJson = (JsonString) childObject.getValue("value");
-		String message = "Did not find a match for child with nameInData " + nameInData
-				+ " and value " + valueInJson.getStringValue()
-				+ getPossibleRepeatIdMessage(childObject) + ".";
-		errorMessages.add(message);
-	}
-
-	private String getPossibleRepeatIdMessage(JsonObject childObject) {
-		if (childObject.containsKey(REPEAT_ID)) {
-			JsonString repeatIdInJson = (JsonString) childObject.getValue(REPEAT_ID);
-			return " and repeatId " + repeatIdInJson.getStringValue();
-		}
-		return "";
-	}
-
-	private void checkGroupContainsCorrectChildren(ClientDataGroup dataGroup,
+	private void checkDataGroupContainsCorrectChildren(ClientDataGroup dataGroup,
 			JsonObject childObject, List<String> errorMessages) {
-		String nameInData = extractNameInDataFromJsonObject(childObject);
-		Optional<String> repeatIdFromJson = getRepeatIdOrNullFromJsonObject(childObject);
 
 		Optional<ClientDataGroup> matchingGroup = getChildFromDataGroupUsingNameInDataAndRepeatId(
-				dataGroup, nameInData, repeatIdFromJson);
-		matchingGroup.ifPresentOrElse(foundGroup -> {
+				dataGroup, childObject);
+		if (matchingGroup.isPresent()) {
 			JsonArray children = childObject.getValueAsJsonArray(CHILDREN);
-			checkChildrenHasCorrectValues(foundGroup, errorMessages, children);
-		}, () -> createAndAddError(errorMessages, nameInData, repeatIdFromJson));
+			checkChildrenHasCorrectValues(matchingGroup.get(), errorMessages, children);
+		} else {
+			addErrorMessage(GROUP, errorMessages, childObject);
+		}
 	}
 
 	private Optional<ClientDataGroup> getChildFromDataGroupUsingNameInDataAndRepeatId(
-			ClientDataGroup dataGroup, String nameInData, Optional<String> repeatIdFromJson) {
-		List<ClientDataGroup> allGroupsWithNameInData = dataGroup
-				.getAllGroupsWithNameInData(nameInData);
+			ClientDataGroup dataGroup, JsonObject childObject) {
+		Optional<String> repeatIdFromJson = getOptionalRepeatIdFromJsonObject(childObject);
+		Collection<ClientDataGroup> allGroupsWithNameInData = getAllGroups(dataGroup, childObject);
 		for (ClientDataGroup cDataGroup : allGroupsWithNameInData) {
 			String repeatIdFromData = cDataGroup.getRepeatId();
 			if (repeatIdsAreEqualOrEmpty(repeatIdFromJson, repeatIdFromData)) {
@@ -359,11 +359,71 @@ public class ChildComparerImp implements ChildComparer {
 		return Optional.empty();
 	}
 
-	private void createAndAddError(List<String> errorMessages, String nameInData,
-			Optional<String> repeatIdFromJson) {
-		repeatIdFromJson.ifPresentOrElse(
-				repeatId -> errorMessages.add(
-						constructMissingMessageWithTypeAndRepeatId(nameInData, GROUP, repeatId)),
-				() -> errorMessages.add(constructMissingMessageWithType(nameInData, GROUP)));
+	private Collection<ClientDataGroup> getAllGroups(ClientDataGroup dataGroup,
+			JsonObject childObject) {
+		String nameInData = extractNameInDataFromJsonObject(childObject);
+		List<ClientDataAttribute> attributes = extractAttributesFromJsonObject(childObject);
+
+		return dataGroup.getAllGroupsWithNameInDataAndAttributes(nameInData,
+				(attributes.toArray(new ClientDataAttribute[0])));
 	}
+
+	private Optional<String> getOptionalValueFromJsonObject(JsonObject childObject) {
+		if (childObject.containsKey("value")) {
+			return Optional.of(((JsonString) childObject.getValue("value")).getStringValue());
+		}
+		return Optional.empty();
+
+	}
+
+	private void addErrorMessage(String type, List<String> errorMessages, JsonObject childObject) {
+
+		String nameInData = extractNameInDataFromJsonObject(childObject);
+		String additionalMessage = "";
+		additionalMessage += addValueIfPresent(childObject);
+		additionalMessage += addRepeatIdIfPresent(childObject);
+		additionalMessage += addAttributesIfPresent(childObject);
+		String messageToFormat = decideMessageToFormatByType(type);
+		errorMessages
+				.add(MessageFormat.format(messageToFormat, nameInData, type, additionalMessage));
+
+	}
+
+	private String addValueIfPresent(JsonObject childObject) {
+		Optional<String> value = getOptionalValueFromJsonObject(childObject);
+		if (!value.isEmpty()) {
+			return " and value " + value.get();
+		}
+		return "";
+	}
+
+	private String addRepeatIdIfPresent(JsonObject childObject) {
+		Optional<String> repeatIdFromJson = getOptionalRepeatIdFromJsonObject(childObject);
+		if (repeatIdFromJson.isPresent()) {
+			return " and repeatId " + repeatIdFromJson.get();
+		}
+		return "";
+	}
+
+	private String addAttributesIfPresent(JsonObject childObject) {
+		List<ClientDataAttribute> attributes = extractAttributesFromJsonObject(childObject);
+		if (!attributes.isEmpty()) {
+			List<String> asstributeAsString = new ArrayList<>();
+			for (ClientDataAttribute attribute : attributes) {
+				asstributeAsString.add(MessageFormat.format("{0}:{1}", attribute.getNameInData(),
+						attribute.getValue()));
+			}
+
+			return " and attributes [" + String.join(", ", asstributeAsString) + "]";
+		}
+		return "";
+	}
+
+	private String decideMessageToFormatByType(String type) {
+		if (type.equals(GROUP)) {
+			return errorMessageGroup;
+		}
+		return errorMessageAtomic;
+	}
+
 }

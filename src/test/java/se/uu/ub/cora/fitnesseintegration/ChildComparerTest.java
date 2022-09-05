@@ -46,7 +46,6 @@ public class ChildComparerTest {
 		dataGroup = ClientDataGroup.withNameInData("someDataGroup");
 		dataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("workoutName", "cirkelfys"));
 		jsonParser = new OrgJsonParser();
-
 	}
 
 	@Test
@@ -57,7 +56,6 @@ public class ChildComparerTest {
 		assertTrue(errorMessages.isEmpty());
 		boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
 		assertTrue(containsChildren);
-
 	}
 
 	@Test
@@ -181,6 +179,132 @@ public class ChildComparerTest {
 	}
 
 	@Test
+	public void testCompareGroupWithAttributes() {
+		ClientDataGroup topGroup = ClientDataGroup.withNameInData("topGroup");
+		ClientDataGroup childGroupLevel1 = ClientDataGroup.withNameInData("childGroupLevel1");
+		childGroupLevel1.addAttributeByIdWithValue("exampleAttributeChoice", "one");
+		ClientDataAtomic atomicChild1 = ClientDataAtomic.withNameInDataAndValue("atomicChild1",
+				"valueOne");
+		childGroupLevel1.addChild(atomicChild1);
+		topGroup.addChild(childGroupLevel1);
+
+		JsonValue jsonValue = jsonParser
+				.parseString("{\"children\":[{\"name\":\"childGroupLevel1\", "
+						+ "\"attributes\":{\"exampleAttributeChoice\":\"one\"},"
+						+ "\"children\":[{\"name\":\"atomicChild1\",\"value\":\"valueOne\"}]}]}");
+
+		List<String> errorMessages = childComparer
+				.checkDataGroupContainsChildrenWithCorrectValues(topGroup, jsonValue);
+		assertEquals(errorMessages.size(), 0);
+	}
+
+	@Test
+	public void testCompareGroupWithAttributesDifferent() {
+		ClientDataGroup topGroup = ClientDataGroup.withNameInData("topGroup");
+		ClientDataGroup childGroupLevel1 = ClientDataGroup.withNameInData("childGroupLevel1");
+		childGroupLevel1.addAttributeByIdWithValue("exampleAttributeChoice", "oneNOT");
+		ClientDataAtomic atomicChild1 = ClientDataAtomic.withNameInDataAndValue("atomicChild1",
+				"valueOne");
+		childGroupLevel1.addChild(atomicChild1);
+		topGroup.addChild(childGroupLevel1);
+
+		JsonValue jsonValue = jsonParser
+				.parseString("{\"children\":[{\"name\":\"childGroupLevel1\", \"attributes\":{"
+						+ "\"exampleAttributeChoiceOne\":\"one\", \"exampleAttributeChoiceTwo\":\"two\"},"
+						+ "\"children\":[{\"name\":\"atomicChild1\",\"value\":\"valueOne\"}]}]}");
+
+		List<String> errorMessages = childComparer
+				.checkDataGroupContainsChildrenWithCorrectValues(topGroup, jsonValue);
+		assertEquals(errorMessages.size(), 1);
+		assertEquals(errorMessages.get(0), "Child with nameInData childGroupLevel1 "
+				+ "and type group and attributes [exampleAttributeChoiceTwo:two, exampleAttributeChoiceOne:one] is missing.");
+	}
+
+	@Test
+	public void testCompareAtomicWithAttributes() {
+		ClientDataGroup aDataGroup = ClientDataGroup.withNameInData("aDataGroup");
+		ClientDataAtomic selectableAttribute = ClientDataAtomic
+				.withNameInDataAndValue("selectableAttribute1", "valueOne");
+		selectableAttribute.addAttributeByIdWithValue("exampleAttributeChoice", "one");
+		aDataGroup.addChild(selectableAttribute);
+
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"name\":\"selectableAttribute1\",\"value\":\"valueOne\","
+						+ "\"attributes\":{\"exampleAttributeChoice\":\"one\"}}]}");
+
+		List<String> errorMessages = childComparer
+				.checkDataGroupContainsChildrenWithCorrectValues(aDataGroup, jsonValue);
+		assertEquals(errorMessages.size(), 0);
+	}
+
+	@Test
+	public void testCompareAtomicWithAttributesAndAttributesMissing() {
+		ClientDataGroup aDataGroup = ClientDataGroup.withNameInData("aDataGroup");
+		ClientDataAtomic selectableAttribute = ClientDataAtomic
+				.withNameInDataAndValue("selectableAttribute1", "valueOne");
+		aDataGroup.addChild(selectableAttribute);
+
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"name\":\"selectableAttribute1\",\"value\":\"valueOne\","
+						+ "\"attributes\":{\"exampleAttributeChoice\":\"one\"}}]}");
+
+		List<String> errorMessages = childComparer
+				.checkDataGroupContainsChildrenWithCorrectValues(aDataGroup, jsonValue);
+		assertEquals(errorMessages.size(), 1);
+	}
+
+	@Test
+	public void testCompareAtomicWithAttributesNoMatchingAttributes() {
+		ClientDataGroup aDataGroup = ClientDataGroup.withNameInData("aDataGroup");
+		ClientDataAtomic selectableAttribute = ClientDataAtomic
+				.withNameInDataAndValue("selectableAttribute1", "valueOne");
+		selectableAttribute.addAttributeByIdWithValue("exampleAttributeChoice", "one");
+		aDataGroup.addChild(selectableAttribute);
+
+		JsonValue jsonValue = jsonParser.parseString(
+
+				"{\"children\":[{\"name\":\"selectableAttribute1\",\"value\":\"valueOne\"}]}");
+
+		List<String> errorMessages = childComparer
+				.checkDataGroupContainsChildrenWithCorrectValues(aDataGroup, jsonValue);
+		assertEquals(errorMessages.size(), 1);
+	}
+
+	@Test
+	public void testCompareAtomicWithAttributesNoMatchingAttributeName() {
+		ClientDataGroup aDataGroup = ClientDataGroup.withNameInData("aDataGroup");
+		ClientDataAtomic selectableAttribute = ClientDataAtomic
+				.withNameInDataAndValue("selectableAttribute1", "valueOne");
+		selectableAttribute.addAttributeByIdWithValue("exampleAttributeChoiceWrong", "one");
+		aDataGroup.addChild(selectableAttribute);
+
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"name\":\"selectableAttribute1\",\"value\":\"valueOne\","
+						+ "\"attributes\":{\"exampleAttributeChoice\":\"one\"}}]}");
+
+		List<String> errorMessages = childComparer
+				.checkDataGroupContainsChildrenWithCorrectValues(aDataGroup, jsonValue);
+		assertEquals(errorMessages.size(), 1);
+	}
+
+	@Test
+	public void testCompareAtomicWithAttributesNoMatchingAttributeValue() {
+		ClientDataGroup aDataGroup = ClientDataGroup.withNameInData("aDataGroup");
+		ClientDataAtomic selectableAttribute = ClientDataAtomic
+				.withNameInDataAndValue("selectableAttribute1", "valueOne");
+		selectableAttribute.addAttributeByIdWithValue("exampleAttributeChoice", "oneWrong");
+		aDataGroup.addChild(selectableAttribute);
+
+		JsonValue jsonValue = jsonParser.parseString(
+				"{\"children\":[{\"name\":\"selectableAttribute1\",\"value\":\"valueOne\","
+						+ "\"attributes\":{\"exampleAttributeChoice\":\"one\"}}]}");
+
+		List<String> errorMessages = childComparer
+				.checkDataGroupContainsChildrenWithCorrectValues(aDataGroup, jsonValue);
+		assertEquals(errorMessages.size(), 1);
+	}
+
+	@Test
 	public void testCheckContainOneGroupGrandChildTestMissingGrandChild() {
 		ClientDataGroup instructorName = ClientDataGroup.withNameInData("instructorName");
 		dataGroup.addChild(instructorName);
@@ -262,7 +386,7 @@ public class ChildComparerTest {
 
 		assertEquals(errorMessages.size(), 1);
 		assertEquals(errorMessages.get(0),
-				"Did not find a match for child with nameInData instructorName.");
+				"Did not find a match for child with nameInData instructorName and attributes [type:default].");
 		boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
 		assertFalse(containsChildren);
 	}
@@ -295,7 +419,7 @@ public class ChildComparerTest {
 
 		assertEquals(errorMessages.size(), 1);
 		assertEquals(errorMessages.get(0),
-				"Did not find a match for child with nameInData instructorName.");
+				"Did not find a match for child with nameInData instructorName and attributes [type:default, other:name].");
 		boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
 		assertFalse(containsChildren);
 	}
