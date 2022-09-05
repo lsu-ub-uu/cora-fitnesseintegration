@@ -35,8 +35,8 @@
 		<json.version>3.3.0</json.version>
 		<httphandler.version>2.6.0</httphandler.version>
 		<cora-clientdata.version>5.2-SNAPSHOT</cora-clientdata.version>
-		<coradata.version>7.1-SNAPSHOT</coradata.version>
-		<converter.version>3.0.0</converter.version>
+		<coradata.version>7.1.0</coradata.version>
+		<converter.version>3.1.0</converter.version>
 		<javaclient.version>1.15.0</javaclient.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 		<fitnesse.version>20220815</fitnesse.version>
@@ -48,7 +48,7 @@
 		<junit.version>4.13.2</junit.version>
 		<indexmessenger.version>1.9.0</indexmessenger.version>
 		<testutils.version>1.5.0</testutils.version>
-		<testspies.version>1.1.0</testspies.version>
+		<testspies.version>1.2.0</testspies.version>
 	</properties>
 
 	<scm>
