@@ -67,12 +67,6 @@
 		</dependency>
 		<dependency>
 			<groupId>se.uu.ub.cora</groupId>
-			<artifactId>testutils</artifactId>
-			<version>${testutils.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>se.uu.ub.cora</groupId>
 			<artifactId>logger</artifactId>
 			<version>${logger.version}</version>
 		</dependency>
