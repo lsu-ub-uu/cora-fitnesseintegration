@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>se.uu.ub.cora</groupId>
 		<artifactId>cora-parent</artifactId>
-		<version>2.0.0</version>
+		<version>2.1.0</version>
 	</parent>
 
 	<artifactId>fitnesseintegration</artifactId>
@@ -31,13 +31,13 @@
 	<name>Fitnesse integration</name>
 
 	<properties>
-		<logger.version>2.5.0</logger.version>
-		<json.version>3.4.0</json.version>
-		<httphandler.version>2.6.0</httphandler.version>
-		<cora-clientdata.version>5.3.0</cora-clientdata.version>
-		<coradata.version>7.2.0</coradata.version>
-		<converter.version>3.2.0</converter.version>
-		<javaclient.version>1.17.0</javaclient.version>
+		<logger.version>2.6.0</logger.version>
+		<json.version>3.5.0</json.version>
+		<httphandler.version>2.7.0</httphandler.version>
+		<cora-clientdata.version>5.4.0</cora-clientdata.version>
+		<coradata.version>7.3.0</coradata.version>
+		<converter.version>3.3.0</converter.version>
+		<javaclient.version>1.18.0</javaclient.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 		<fitnesse.version>20220815</fitnesse.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
@@ -46,8 +46,8 @@
 		<maven-classpath-plugin.version>1.9</maven-classpath-plugin.version>
 		<httpclient.version>4.5.13</httpclient.version>
 		<junit.version>4.13.2</junit.version>
-		<indexmessenger.version>1.11.0</indexmessenger.version>
-		<testutils.version>1.6.0</testutils.version>
+		<indexmessenger.version>1.12.0</indexmessenger.version>
+		<testutils.version>1.7.0</testutils.version>
 		<testspies.version>1.2.0</testspies.version>
 	</properties>
 
