@@ -38,7 +38,7 @@ public class FileTreeReaderTest {
 
 	@BeforeMethod
 	public void beforeMethod() throws IOException {
-		fileHelper = FileTestHelper.forDirectory("/tmp/recordStorageOnDiskTemp/");
+		fileHelper = FileTestHelper.forDirectory("/tmp/fitnesseOnDiskTemp/");
 		treeReader = new FileTreeReaderImp();
 	}
 

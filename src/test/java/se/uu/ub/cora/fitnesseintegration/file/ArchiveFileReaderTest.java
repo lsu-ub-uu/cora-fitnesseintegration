@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 
 public class ArchiveFileReaderTest {
 	private FileTestHelper fileHelper;
-	private String basePath = "/tmp/recordStorageOnDiskTemp";
+	private String basePath = "/tmp/fitnesseOnDiskTemp";
 	private ArchiveFileReader archiveFileReader;
 
 	@BeforeMethod
