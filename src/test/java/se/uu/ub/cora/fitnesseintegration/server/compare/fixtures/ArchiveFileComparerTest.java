@@ -21,7 +21,7 @@ import se.uu.ub.cora.fitnesseintegration.server.compare.DataGroupComparerImp;
 import se.uu.ub.cora.fitnesseintegration.spy.ConverterFactorySpy;
 import se.uu.ub.cora.fitnesseintegration.spy.StringToExternallyConvertibleConverterSpy;
 import se.uu.ub.cora.logger.LoggerProvider;
-import se.uu.ub.cora.testspies.logger.LoggerFactorySpy;
+import se.uu.ub.cora.logger.spies.LoggerFactorySpy;
 
 public class ArchiveFileComparerTest {
 

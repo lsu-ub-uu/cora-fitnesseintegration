@@ -31,12 +31,12 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.data.DataAttribute;
 import se.uu.ub.cora.data.DataChild;
-import se.uu.ub.cora.testspies.data.DataAtomicSpy;
-import se.uu.ub.cora.testspies.data.DataAttributeSpy;
-import se.uu.ub.cora.testspies.data.DataChildSpy;
-import se.uu.ub.cora.testspies.data.DataGroupSpy;
-import se.uu.ub.cora.testspies.data.DataRecordLinkSpy;
-import se.uu.ub.cora.testspies.data.DataResourceLinkSpy;
+import se.uu.ub.cora.data.spies.DataAtomicSpy;
+import se.uu.ub.cora.data.spies.DataAttributeSpy;
+import se.uu.ub.cora.data.spies.DataChildSpy;
+import se.uu.ub.cora.data.spies.DataGroupSpy;
+import se.uu.ub.cora.data.spies.DataRecordLinkSpy;
+import se.uu.ub.cora.data.spies.DataResourceLinkSpy;
 import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 
 public class DataGroupComparerTest {
