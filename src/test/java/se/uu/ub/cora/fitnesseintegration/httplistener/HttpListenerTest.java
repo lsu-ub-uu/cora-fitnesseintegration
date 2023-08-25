@@ -97,7 +97,7 @@ public class HttpListenerTest {
 	private void startServer(String port) throws InterruptedException {
 		httpListenerThread = new HttpListenerThread(port);
 		httpListenerThread.start();
-		TimeUnit.MILLISECONDS.sleep(100);
+		TimeUnit.MILLISECONDS.sleep(200);
 	}
 
 	@Test
@@ -116,10 +116,11 @@ public class HttpListenerTest {
 		logger.MCR.assertParameters("logInfoUsingMessage", 2, "...stopping HttpListener");
 	}
 
-	private void stopServer(String port) {
+	private void stopServer(String port) throws InterruptedException {
 		HttpListener.stopAfterNextCall();
 		HttpHandler httpHandler = httpHandlerFactory.factor("http://localhost:" + port);
 		httpHandler.getResponseCode();
+		TimeUnit.MILLISECONDS.sleep(200);
 	}
 
 	@Test
@@ -158,13 +159,15 @@ public class HttpListenerTest {
 
 	@Test
 	public void testGetPreviousCall() throws Exception {
-		startServer("11111");
+		String port = "11112";
+		startServer(port);
 
 		HttpHandler httpHandler = httpHandlerFactory
-				.factor("http://localhost:11111/remember_this_call");
+				.factor("http://localhost:" + port + "/remember_this_call");
 		httpHandler.getResponseCode();
 
-		HttpHandler httpHandler2 = httpHandlerFactory.factor("http://localhost:11111/getCallNo/0");
+		HttpHandler httpHandler2 = httpHandlerFactory
+				.factor("http://localhost:" + port + "/getCallNo/0");
 		assertResponseCodeOkAndTextPlainContentType(httpHandler2);
 		String responseText2 = httpHandler2.getResponseText();
 		assertTrue(responseText2.startsWith("GET /remember_this_call"));
@@ -172,7 +175,7 @@ public class HttpListenerTest {
 		LoggerSpy logger = (LoggerSpy) loggerFactorySpy.MCR.getReturnValue("factorForClass", 0);
 		logger.MCR.assertParameters("logInfoUsingMessage", 2, "Call recieved: Get previous call");
 
-		stopServer("11111");
+		stopServer(port);
 
 		logger.MCR.assertParameters("logInfoUsingMessage", 4, "...stopping HttpListener");
 	}
@@ -184,7 +187,6 @@ public class HttpListenerTest {
 				.factor("http://localhost:2223/remember_this_call");
 		httpHandler.setRequestMethod("POST");
 		httpHandler.setOutput("some body content");
-		// httpHandler.
 		httpHandler.getResponseCode();
 
 		HttpHandler httpHandler2 = httpHandlerFactory.factor("http://localhost:2223/getCallNo/0");
