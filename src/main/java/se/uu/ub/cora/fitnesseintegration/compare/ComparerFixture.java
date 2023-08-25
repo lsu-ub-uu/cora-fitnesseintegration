@@ -64,6 +64,7 @@ public class ComparerFixture {
 	private StatusType statusType;
 	private int indexToStore = 0;
 	private String idToStore;
+	private String createdId;
 
 	public ComparerFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
@@ -202,6 +203,7 @@ public class ComparerFixture {
 		ExtendedHttpResponse response = recordHandler.createRecord(authToken, type, json);
 		tryToCreateRecordFromExtendedResponseAndSetInDataHolder(response);
 		statusType = Response.Status.fromStatusCode(response.statusCode);
+		createdId = response.createdId;
 		return response.responseText;
 	}
 
@@ -294,5 +296,9 @@ public class ComparerFixture {
 
 	public void setIdToStore(String idToStore) {
 		this.idToStore = idToStore;
+	}
+
+	public String getCreatedId() {
+		return createdId;
 	}
 }
