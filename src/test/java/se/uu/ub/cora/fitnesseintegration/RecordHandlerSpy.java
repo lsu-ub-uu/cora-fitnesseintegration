@@ -35,7 +35,7 @@ public class RecordHandlerSpy implements RecordHandler {
 	 * response.
 	 */
 	public int statusTypeReturned = 200;
-	public String createdId;
+	public String createdId = "someCreatedId";
 	public String token;
 	public boolean createRecordWasCalled = false;
 	public boolean updateRecordWasCalled = false;
@@ -112,7 +112,7 @@ public class RecordHandlerSpy implements RecordHandler {
 		BasicHttpResponse readResponse = new BasicHttpResponse(statusTypeReturned,
 				jsonToReturnDefault);
 
-		createdId = "someCreatedId";
+		// createdId = "someCreatedId";
 		token = "someToken";
 		return new ExtendedHttpResponse(readResponse, createdId, token);
 	}
@@ -149,7 +149,7 @@ public class RecordHandlerSpy implements RecordHandler {
 		// statusTypeReturned = new StatusTypeSpy();
 		// statusTypeReturned.statusCodeToReturn = 200;
 		// }
-		createdId = "someCreatedId";
+		// createdId = "someCreatedId";
 		token = "someToken";
 		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(statusTypeReturned,
 				jsonToReturnDefault);
@@ -201,7 +201,7 @@ public class RecordHandlerSpy implements RecordHandler {
 		BasicHttpResponse readResponse = new BasicHttpResponse(statusTypeReturned,
 				jsonToReturnDefault);
 
-		createdId = "someCreatedId";
+		// createdId = "someCreatedId";
 		token = "someToken";
 		return new ExtendedHttpResponse(readResponse, createdId, token);
 	}

@@ -524,4 +524,15 @@ public class ComparerFixtureTest {
 		assertEquals(statusType.getStatusCode(), recordHandler.statusTypeReturned);
 	}
 
+	@Test
+	public void testGetCreatedId() throws Exception {
+		setupForCreate();
+		String expectedCreatedId = "myCreatedId";
+		recordHandler.createdId = expectedCreatedId;
+
+		fixture.testCreateAndStoreRecord();
+
+		assertEquals(fixture.getCreatedId(), expectedCreatedId);
+	}
+
 }
