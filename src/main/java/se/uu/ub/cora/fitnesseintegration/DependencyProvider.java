@@ -21,17 +21,13 @@ package se.uu.ub.cora.fitnesseintegration;
 
 import java.lang.reflect.Constructor;
 
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
-import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public final class DependencyProvider {
 
 	private static HttpHandlerFactory httpHandlerFactory;
-	private static JsonToDataConverterFactory jsonToDataConverterFactory;
+	// private static JsonToDataConverterFactory jsonToDataConverterFactory;
 	private static ChildComparer childComparer;
 	private static ComparerFactory permissionComparerFactory;
 
@@ -55,21 +51,21 @@ public final class DependencyProvider {
 		return httpHandlerFactory;
 	}
 
-	public static synchronized void setJsonToDataFactoryClassName(
-			String jsonToDataConverterFactoryClassName) {
-		Constructor<?> constructor;
-		try {
-			constructor = Class.forName(jsonToDataConverterFactoryClassName).getConstructor();
-			jsonToDataConverterFactory = (JsonToDataConverterFactory) constructor.newInstance();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+	// public static synchronized void setJsonToDataFactoryClassName(
+	// String jsonToDataConverterFactoryClassName) {
+	// Constructor<?> constructor;
+	// try {
+	// constructor = Class.forName(jsonToDataConverterFactoryClassName).getConstructor();
+	// jsonToDataConverterFactory = (JsonToDataConverterFactory) constructor.newInstance();
+	// } catch (Exception e) {
+	// throw new RuntimeException(e);
+	// }
+	//
+	// }
 
-	}
-
-	public static JsonToDataConverterFactory getJsonToDataConverterFactory() {
-		return jsonToDataConverterFactory;
-	}
+	// public static JsonToDataConverterFactory getJsonToDataConverterFactory() {
+	// return jsonToDataConverterFactory;
+	// }
 
 	public static synchronized void setChildComparerUsingClassName(String childComparerClassName) {
 		Constructor<?> constructor;
@@ -86,14 +82,14 @@ public final class DependencyProvider {
 		return childComparer;
 	}
 
-	public static JsonToDataRecordConverter getJsonToDataRecordConverter() {
-		return new JsonToDataRecordConverterImp(getJsonToDataConverterFactory());
-	}
+	// public static JsonToClientDataConverter getJsonToClientDataRecordConverter() {
+	// return new JsonToClientDataRecordConverterImp(getJsonToDataConverterFactory());
+	// }
 
-	public static JsonHandler getJsonHandler() {
-		OrgJsonParser jsonParser = new OrgJsonParser();
-		return JsonHandlerImp.usingJsonParser(jsonParser);
-	}
+	// public static JsonHandler getJsonHandler() {
+	// OrgJsonParser jsonParser = new OrgJsonParser();
+	// return JsonHandlerImp.usingJsonParser(jsonParser);
+	// }
 
 	public static void setComparerFactoryUsingClassName(String className) {
 		Constructor<?> constructor;

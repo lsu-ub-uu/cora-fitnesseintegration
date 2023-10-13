@@ -19,49 +19,56 @@
 package se.uu.ub.cora.fitnesseintegration;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.ClientDataProvider;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
-import se.uu.ub.cora.clientdata.DataRecord;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
-import se.uu.ub.cora.json.parser.JsonObject;
-import se.uu.ub.cora.json.parser.JsonString;
+import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
+import se.uu.ub.cora.clientdata.ClientDataRecordLink;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
+import se.uu.ub.cora.clientdata.spies.ClientDataRecordGroupSpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
+import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
+import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterSpy;
 
 public class MetadataLinkFixtureTest {
-
 	MetadataLinkFixture fixture;
 	private HttpHandlerFactorySpy httpHandlerFactorySpy;
-	private JsonToDataConverterFactorySpy jsonToDataConverterFactory;
+	JsonToClientDataConverterFactorySpy converterFactorySpy = new JsonToClientDataConverterFactorySpy();
 
 	@BeforeMethod
 	public void setUp() {
+		JsonToClientDataConverterProvider.setJsonToDataConverterFactory(converterFactorySpy);
+
 		SystemUrl.setUrl("http://localhost:8080/therest/");
 		AuthTokenHolder.setAdminAuthToken("someAdminToken");
 		DependencyProvider.setHttpHandlerFactoryClassName(
 				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy");
-		DependencyProvider.setJsonToDataFactoryClassName(
-				"se.uu.ub.cora.fitnesseintegration.JsonToDataConverterFactorySpy");
 		httpHandlerFactorySpy = (HttpHandlerFactorySpy) DependencyProvider.getHttpHandlerFactory();
-		jsonToDataConverterFactory = (JsonToDataConverterFactorySpy) DependencyProvider
-				.getJsonToDataConverterFactory();
-		fixture = new MetadataLinkFixture();
 
+		setupTestRecordInDataHolder();
+
+		fixture = new MetadataLinkFixture();
+	}
+
+	private void setupTestRecordInDataHolder() {
 		ClientDataGroup topLevelDataGroup = createTopLevelDataGroup();
 
-		DataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
-		DataHolder.setRecord(record);
+		ClientDataRecordGroup recordGroup = ClientDataProvider
+				.createRecordGroupFromDataGroup(topLevelDataGroup);
+		ClientDataRecord record = ClientDataProvider.createRecordWithDataRecordGroup(recordGroup);
 
+		DataHolder.setRecord(record);
 	}
 
 	private ClientDataGroup createTopLevelDataGroup() {
-		ClientDataGroup topLevelDataGroup = ClientDataGroup.withNameInData("metadata");
-		ClientDataGroup childReferences = ClientDataGroup.withNameInData("childReferences");
+		ClientDataGroup topLevelDataGroup = ClientDataProvider
+				.createGroupUsingNameInData("metadata");
+		ClientDataGroup childReferences = ClientDataProvider
+				.createGroupUsingNameInData("childReferences");
 		ClientDataGroup childReference = createChildReferenceWithRepeatIdRecordTypeAndRecordId("0",
 				"metadataGroup", "someRecordId", "0", "X");
 		childReferences.addChild(childReference);
@@ -71,19 +78,24 @@ public class MetadataLinkFixtureTest {
 
 	private ClientDataGroup createChildReferenceWithRepeatIdRecordTypeAndRecordId(String repeatId,
 			String linkedRecordType, String linkedRecordId, String repeatMin, String repeatMax) {
-		ClientDataGroup childReference = ClientDataGroup.withNameInData("childReference");
+		ClientDataGroup childReference = ClientDataProvider
+				.createGroupUsingNameInData("childReference");
 		childReference.setRepeatId(repeatId);
-		ClientDataGroup ref = ClientDataGroup.withNameInData("ref");
-		ref.addChild(ClientDataAtomic.withNameInDataAndValue("linkedRecordType", linkedRecordType));
-		ref.addChild(ClientDataAtomic.withNameInDataAndValue("linkedRecordId", linkedRecordId));
-		childReference.addChild(ref);
-		childReference.addChild(ClientDataAtomic.withNameInDataAndValue("repeatMin", repeatMin));
-		childReference.addChild(ClientDataAtomic.withNameInDataAndValue("repeatMax", repeatMax));
+		ClientDataRecordLink refLink = ClientDataProvider
+				.createRecordLinkUsingNameInDataAndTypeAndId("ref", linkedRecordType,
+						linkedRecordId);
+		childReference.addChild(refLink);
+		childReference.addChild(
+				ClientDataProvider.createAtomicUsingNameInDataAndValue("repeatMin", repeatMin));
+		childReference.addChild(
+				ClientDataProvider.createAtomicUsingNameInDataAndValue("repeatMax", repeatMax));
 		return childReference;
 	}
 
 	@Test
 	public void testNameInData() {
+		setUpConverterFromJsonToReturnNameInDataForClientDataRecordGroup("someNameInData");
+
 		fixture.setAuthToken("someToken");
 		fixture.setLinkedRecordType("metadataGroup");
 		fixture.setLinkedRecordId("someRecordId");
@@ -93,14 +105,23 @@ public class MetadataLinkFixtureTest {
 		String nameInData = fixture.getNameInData();
 		assertEquals(nameInData, "someNameInData");
 
-		assertTrue(fixture.getJsonToRecordDataConverter() instanceof JsonToDataRecordConverter);
-		JsonToDataConverterSpy converterSpy = (JsonToDataConverterSpy) jsonToDataConverterFactory.factored;
+		String responseText = httpHandlerFactorySpy.httpHandlerSpy.getResponseText();
+		converterFactorySpy.MCR.assertParameters("factorUsingString", 0, responseText);
+	}
 
-		assertTrue(converterSpy.toInstanceWasCalled);
+	private void setUpConverterFromJsonToReturnNameInDataForClientDataRecordGroup(
+			String nameInData) {
+		ClientDataRecordGroupSpy clientDataRecordGroup = new ClientDataRecordGroupSpy();
+		clientDataRecordGroup.MRV.setDefaultReturnValuesSupplier("getNameInData", () -> nameInData);
 
-		JsonObject jsonObject = (JsonObject) converterSpy.jsonValue;
-		assertJsonObjectFromReadRecordIsSentToConverter(jsonObject);
+		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
+		clientDataRecordSpy.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup",
+				() -> clientDataRecordGroup);
 
+		JsonToClientDataConverterSpy converterSpy = new JsonToClientDataConverterSpy();
+		converterSpy.MRV.setDefaultReturnValuesSupplier("toInstance", () -> clientDataRecordSpy);
+		converterFactorySpy.MRV.setDefaultReturnValuesSupplier("factorUsingString",
+				() -> converterSpy);
 	}
 
 	private void assertCorrectHttpHandler() {
@@ -111,19 +132,12 @@ public class MetadataLinkFixtureTest {
 				"someToken");
 	}
 
-	private void assertJsonObjectFromReadRecordIsSentToConverter(JsonObject jsonObject) {
-		JsonString name = jsonObject.getValueAsJsonString("name");
-		assertEquals(name.getStringValue(), "metadata");
-
-		assertNotNull(jsonObject.getValue("children"));
-		assertNotNull(jsonObject.getValue("attributes"));
-		assertEquals(jsonObject.entrySet().size(), 3);
-	}
-
 	@Test
 	public void testNoMatchingChild() {
-		ClientDataGroup topLevelDataGroup = ClientDataGroup.withNameInData("metadata");
-		DataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
+		ClientDataRecordGroup topLevelDataGroup = ClientDataProvider
+				.createRecordGroupUsingNameInData("metadata");
+		ClientDataRecord record = ClientDataProvider
+				.createRecordWithDataRecordGroup(topLevelDataGroup);
 		DataHolder.setRecord(record);
 		fixture.setLinkedRecordType("metadataGroup");
 		fixture.setLinkedRecordId("someRecordId");
@@ -133,7 +147,7 @@ public class MetadataLinkFixtureTest {
 
 	@Test
 	public void testNoTopLevelDatagroupInRecord() {
-		DataRecord record = ClientDataRecord.withClientDataGroup(null);
+		ClientDataRecord record = ClientDataProvider.createRecordWithDataRecordGroup(null);
 		DataHolder.setRecord(record);
 		fixture.setLinkedRecordId("someRecordId");
 		fixture.setLinkedRecordType("metadataGroup");
@@ -141,8 +155,8 @@ public class MetadataLinkFixtureTest {
 	}
 
 	private void createAndAddSecondChild() {
-		DataRecord record = DataHolder.getRecord();
-		ClientDataGroup clientDataGroup = record.getClientDataGroup();
+		ClientDataRecord record = DataHolder.getRecord();
+		ClientDataRecordGroup clientDataGroup = record.getDataRecordGroup();
 		ClientDataGroup childReferences = clientDataGroup
 				.getFirstGroupWithNameInData("childReferences");
 		ClientDataGroup childReference = createChildReferenceWithRepeatIdRecordTypeAndRecordId("1",
@@ -289,14 +303,14 @@ public class MetadataLinkFixtureTest {
 	}
 
 	private void createAndAddChildWithConstraint(String constraint) {
-		DataRecord record = DataHolder.getRecord();
-		ClientDataGroup clientDataGroup = record.getClientDataGroup();
+		ClientDataRecord record = DataHolder.getRecord();
+		ClientDataRecordGroup clientDataGroup = record.getDataRecordGroup();
 		ClientDataGroup childReferences = clientDataGroup
 				.getFirstGroupWithNameInData("childReferences");
 		ClientDataGroup childReference = createChildReferenceWithRepeatIdRecordTypeAndRecordId("1",
 				"metadataGroup", "childWithConstraintRecordId", "1", "3");
-		childReference.addChild(
-				ClientDataAtomic.withNameInDataAndValue("recordPartConstraint", constraint));
+		childReference.addChild(ClientDataProvider
+				.createAtomicUsingNameInDataAndValue("recordPartConstraint", constraint));
 		childReferences.addChild(childReference);
 	}
 }

@@ -20,7 +20,7 @@ package se.uu.ub.cora.fitnesseintegration.compare;
 
 import java.util.List;
 
-import se.uu.ub.cora.clientdata.DataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
 import se.uu.ub.cora.json.parser.JsonObject;
@@ -36,19 +36,19 @@ public class ActionComparerFixture extends ComparerFixture {
 	}
 
 	public String testCheckActions() {
-		DataRecord dataRecord = DataHolder.getRecord();
+		ClientDataRecord dataRecord = DataHolder.getRecord();
 		return checkActions(dataRecord);
 	}
 
 	public String testCheckActionsFromList() {
-		DataRecord dataRecord = getDataRecordFromRecordHolderUsingIndex();
+		ClientDataRecord dataRecord = getClientDataRecordFromRecordHolderUsingIndex();
 		return checkActions(dataRecord);
 	}
 
-	private String checkActions(DataRecord dataRecord) {
+	private String checkActions(ClientDataRecord dataRecord) {
 		DataComparer comparer = comparerFactory.factor("action", dataRecord);
 		JsonObject permissionObject = jsonHandler.parseStringAsObject(actions);
-		List<String> errorMessages = comparer.checkDataRecordContains(permissionObject);
+		List<String> errorMessages = comparer.checkClientDataRecordContains(permissionObject);
 		return errorMessages.isEmpty() ? "OK" : joinErrorMessages(errorMessages);
 	}
 

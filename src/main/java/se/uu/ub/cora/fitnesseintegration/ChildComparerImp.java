@@ -29,8 +29,10 @@ import java.util.Set;
 
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataAttribute;
-import se.uu.ub.cora.clientdata.ClientDataElement;
+import se.uu.ub.cora.clientdata.ClientDataChild;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.ClientDataParent;
+import se.uu.ub.cora.clientdata.ClientDataProvider;
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.json.parser.JsonParseException;
@@ -53,7 +55,7 @@ public class ChildComparerImp implements ChildComparer {
 	}
 
 	@Override
-	public List<String> checkDataGroupContainsChildren(ClientDataGroup dataGroup,
+	public List<String> checkDataGroupContainsChildren(ClientDataParent dataGroup,
 			JsonValue jsonValue) {
 		try {
 			List<String> errorMessages = new ArrayList<>();
@@ -64,7 +66,7 @@ public class ChildComparerImp implements ChildComparer {
 
 	}
 
-	private List<String> tryToCheckDataGroupContainsChildren(ClientDataGroup dataGroup,
+	private List<String> tryToCheckDataGroupContainsChildren(ClientDataParent dataGroup,
 			JsonValue jsonValue, List<String> errorMessages) {
 		JsonArray children = extractChildren((JsonObject) jsonValue);
 		checkContainsChildren(dataGroup, errorMessages, children);
@@ -75,17 +77,17 @@ public class ChildComparerImp implements ChildComparer {
 		return jsonObject.getValueAsJsonArray(CHILDREN);
 	}
 
-	private void checkContainsChildren(ClientDataGroup dataGroup, List<String> errorMessages,
+	private void checkContainsChildren(ClientDataParent dataGroup, List<String> errorMessages,
 			JsonArray children) {
 		for (JsonValue childValue : children) {
 			checkContainsChild(dataGroup, errorMessages, (JsonObject) childValue);
 		}
 	}
 
-	private void checkContainsChild(ClientDataGroup dataGroup, List<String> errorMessages,
+	private void checkContainsChild(ClientDataParent dataGroup, List<String> errorMessages,
 			JsonObject childObject) {
 		String nameInData = extractNameInDataFromJsonObject(childObject);
-		Optional<ClientDataElement> matchingChild = findMatchingChild(dataGroup, childObject,
+		Optional<ClientDataChild> matchingChild = findMatchingChild(dataGroup, childObject,
 				nameInData);
 
 		if (matchingChild.isPresent()) {
@@ -111,7 +113,7 @@ public class ChildComparerImp implements ChildComparer {
 		}
 	}
 
-	private Optional<ClientDataElement> findMatchingChild(ClientDataGroup dataGroup,
+	private Optional<ClientDataChild> findMatchingChild(ClientDataParent dataGroup,
 			JsonObject childObject, String nameInData) {
 		List<ClientDataAttribute> dataAttributes = getAttributesFromJsonOrEmpty(childObject);
 
@@ -139,15 +141,16 @@ public class ChildComparerImp implements ChildComparer {
 
 	private ClientDataAttribute getAttributeAsClientDataAttribute(Entry<String, JsonValue> entry) {
 		String attributeValue = ((JsonString) entry.getValue()).getStringValue();
-		return ClientDataAttribute.withNameInDataAndValue(entry.getKey(), attributeValue);
+		return ClientDataProvider.createAttributeUsingNameInDataAndValue(entry.getKey(),
+				attributeValue);
 	}
 
-	private Optional<ClientDataElement> getChildFromDataGroupUsingNameInDataAndRepeatIdAndAttributes(
-			ClientDataGroup dataGroup, String nameInData, List<ClientDataAttribute> dataAttributes,
+	private Optional<ClientDataChild> getChildFromDataGroupUsingNameInDataAndRepeatIdAndAttributes(
+			ClientDataParent dataGroup, String nameInData, List<ClientDataAttribute> dataAttributes,
 			JsonObject childJsonObject) {
-		Collection<ClientDataElement> possibleMatches = possiblyGetMatchingChildren(dataGroup,
+		Collection<ClientDataChild> possibleMatches = possiblyGetMatchingChildren(dataGroup,
 				nameInData, dataAttributes);
-		for (ClientDataElement childDataElement : possibleMatches) {
+		for (ClientDataChild childDataElement : possibleMatches) {
 			if (childMatches(childDataElement, childJsonObject)) {
 				return Optional.of(childDataElement);
 			}
@@ -155,9 +158,9 @@ public class ChildComparerImp implements ChildComparer {
 		return Optional.empty();
 	}
 
-	private Collection<ClientDataElement> possiblyGetMatchingChildren(ClientDataGroup dataGroup,
+	private Collection<ClientDataChild> possiblyGetMatchingChildren(ClientDataParent dataGroup,
 			String nameInData, List<ClientDataAttribute> dataAttributes) {
-		Collection<ClientDataElement> possibleMatches = new ArrayList<>();
+		Collection<ClientDataChild> possibleMatches = new ArrayList<>();
 		if (dataAttributesExistsWhichMeansChildIsGroup(dataAttributes)) {
 			possibleMatches.addAll(getMatchingGroups(dataGroup, nameInData, dataAttributes));
 		} else {
@@ -171,21 +174,21 @@ public class ChildComparerImp implements ChildComparer {
 		return !dataAttributes.isEmpty();
 	}
 
-	private Collection<ClientDataGroup> getMatchingGroups(ClientDataGroup dataGroup,
+	private Collection<ClientDataGroup> getMatchingGroups(ClientDataParent dataGroup,
 			String nameInData, List<ClientDataAttribute> dataAttributes) {
 		return dataGroup.getAllGroupsWithNameInDataAndAttributes(nameInData,
 				dataAttributes.toArray(ClientDataAttribute[]::new));
 	}
 
 	private void checkChildrenIfGroup(List<String> errorMessages, JsonObject childObject,
-			ClientDataElement matchingChild) {
+			ClientDataChild matchingChild) {
 		if (matchingChild instanceof ClientDataGroup) {
 			tryToCheckDataGroupContainsChildren((ClientDataGroup) matchingChild, childObject,
 					errorMessages);
 		}
 	}
 
-	private boolean childMatches(ClientDataElement childDataElement, JsonObject childJsonObject) {
+	private boolean childMatches(ClientDataChild childDataElement, JsonObject childJsonObject) {
 		String type = getType(childJsonObject);
 		Optional<String> repeatIdFromJson = getOptionalRepeatIdFromJsonObject(childJsonObject);
 		String repeatIdFromData = getRepeatIdFromChildElement(childDataElement);
@@ -207,14 +210,14 @@ public class ChildComparerImp implements ChildComparer {
 		return Optional.empty();
 	}
 
-	private String getRepeatIdFromChildElement(ClientDataElement childElement) {
+	private String getRepeatIdFromChildElement(ClientDataChild childElement) {
 		if (childElement instanceof ClientDataGroup) {
 			return ((ClientDataGroup) childElement).getRepeatId();
 		}
 		return ((ClientDataAtomic) childElement).getRepeatId();
 	}
 
-	private boolean typesAreEqual(String type, ClientDataElement childElement) {
+	private boolean typesAreEqual(String type, ClientDataChild childElement) {
 		String childElementType = ATOMIC;
 		if (childElement instanceof ClientDataGroup) {
 			childElementType = GROUP;
@@ -228,7 +231,7 @@ public class ChildComparerImp implements ChildComparer {
 	}
 
 	@Override
-	public List<String> checkDataGroupContainsChildrenWithCorrectValues(ClientDataGroup dataGroup,
+	public List<String> checkDataGroupContainsChildrenWithCorrectValues(ClientDataParent dataGroup,
 			JsonValue jsonValue) {
 		try {
 			return tryToCheckDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
@@ -238,14 +241,14 @@ public class ChildComparerImp implements ChildComparer {
 	}
 
 	private List<String> tryToCheckDataGroupContainsChildrenWithCorrectValues(
-			ClientDataGroup dataGroup, JsonValue jsonValue) {
+			ClientDataParent dataGroup, JsonValue jsonValue) {
 		List<String> errorMessages = new ArrayList<>();
 		JsonArray childValues = extractChildren((JsonObject) jsonValue);
 		checkChildrenHasCorrectValues(dataGroup, errorMessages, childValues);
 		return errorMessages;
 	}
 
-	private void checkChildrenHasCorrectValues(ClientDataGroup dataGroup,
+	private void checkChildrenHasCorrectValues(ClientDataParent dataGroup,
 			List<String> errorMessages, JsonArray childValues) {
 		for (JsonValue childValue : childValues) {
 			checkDataGroupContainsChildWithCorrectValue(dataGroup, (JsonObject) childValue,
@@ -253,7 +256,7 @@ public class ChildComparerImp implements ChildComparer {
 		}
 	}
 
-	private void checkDataGroupContainsChildWithCorrectValue(ClientDataGroup dataGroup,
+	private void checkDataGroupContainsChildWithCorrectValue(ClientDataParent dataGroup,
 			JsonObject childObject, List<String> errorMessages) {
 		String type = getType(childObject);
 
@@ -264,7 +267,7 @@ public class ChildComparerImp implements ChildComparer {
 		}
 	}
 
-	private void checkDataGroupContainsFullyCorrectAtomicChild(ClientDataGroup dataGroup,
+	private void checkDataGroupContainsFullyCorrectAtomicChild(ClientDataParent dataGroup,
 			JsonObject atomicChild, List<String> errorMessages) {
 		Collection<ClientDataAtomic> allChildAtomicsMatchingNameAndAttributes = getAllMatchingAtomics(
 				dataGroup, atomicChild);
@@ -275,7 +278,7 @@ public class ChildComparerImp implements ChildComparer {
 		}
 	}
 
-	private Collection<ClientDataAtomic> getAllMatchingAtomics(ClientDataGroup dataGroup,
+	private Collection<ClientDataAtomic> getAllMatchingAtomics(ClientDataParent dataGroup,
 			JsonObject childObject) {
 		String nameInData = extractNameInDataFromJsonObject(childObject);
 		List<ClientDataAttribute> attributes = extractAttributesFromJsonObject(childObject);
@@ -292,8 +295,9 @@ public class ChildComparerImp implements ChildComparer {
 			for (Entry<String, JsonValue> attributeFromJson : entrySet) {
 				String key = attributeFromJson.getKey();
 				JsonValue value = attributeFromJson.getValue();
-				ClientDataAttribute dataAttributeFromJson = ClientDataAttribute
-						.withNameInDataAndValue(key, ((JsonString) value).getStringValue());
+				ClientDataAttribute dataAttributeFromJson = ClientDataProvider
+						.createAttributeUsingNameInDataAndValue(key,
+								((JsonString) value).getStringValue());
 				attributeListFromJson.add(dataAttributeFromJson);
 			}
 		}
@@ -333,7 +337,7 @@ public class ChildComparerImp implements ChildComparer {
 		return stringValueInJson.equals(dataAtomic.getValue());
 	}
 
-	private void checkDataGroupContainsCorrectChildren(ClientDataGroup dataGroup,
+	private void checkDataGroupContainsCorrectChildren(ClientDataParent dataGroup,
 			JsonObject childObject, List<String> errorMessages) {
 
 		Optional<ClientDataGroup> matchingGroup = getChildFromDataGroupUsingNameInDataAndRepeatId(
@@ -347,7 +351,7 @@ public class ChildComparerImp implements ChildComparer {
 	}
 
 	private Optional<ClientDataGroup> getChildFromDataGroupUsingNameInDataAndRepeatId(
-			ClientDataGroup dataGroup, JsonObject childObject) {
+			ClientDataParent dataGroup, JsonObject childObject) {
 		Optional<String> repeatIdFromJson = getOptionalRepeatIdFromJsonObject(childObject);
 		Collection<ClientDataGroup> allGroupsWithNameInData = getAllGroups(dataGroup, childObject);
 		for (ClientDataGroup cDataGroup : allGroupsWithNameInData) {
@@ -359,7 +363,7 @@ public class ChildComparerImp implements ChildComparer {
 		return Optional.empty();
 	}
 
-	private Collection<ClientDataGroup> getAllGroups(ClientDataGroup dataGroup,
+	private Collection<ClientDataGroup> getAllGroups(ClientDataParent dataGroup,
 			JsonObject childObject) {
 		String nameInData = extractNameInDataFromJsonObject(childObject);
 		List<ClientDataAttribute> attributes = extractAttributesFromJsonObject(childObject);

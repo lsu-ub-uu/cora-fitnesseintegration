@@ -23,21 +23,21 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
-import se.uu.ub.cora.fitnesseintegration.compare.DataRecordSpy;
+import se.uu.ub.cora.data.converter.DataToJsonConverterFactory;
+import se.uu.ub.cora.fitnesseintegration.compare.ClientDataRecordSpy;
 
 public class StoredDataTest {
 
 	private StoredDataOnlyForTest storedData;
 	private DataToJsonConverterFactorySpy dataToJsonConverterFactorySpy;
-	private DataRecordSpy clientDataRecord;
+	private ClientDataRecordSpy clientClientDataRecord;
 
 	@BeforeMethod
 	public void beforeMethod() {
 		storedData = new StoredDataOnlyForTest();
 		dataToJsonConverterFactorySpy = new DataToJsonConverterFactorySpy();
-		clientDataRecord = new DataRecordSpy();
-		DataHolder.setRecord(clientDataRecord);
+		clientClientDataRecord = new ClientDataRecordSpy();
+		DataHolder.setRecord(clientClientDataRecord);
 	}
 
 	@Test
@@ -54,8 +54,8 @@ public class StoredDataTest {
 		storedData.getStoredRecordDataGroupAsJsonWithoutLinks();
 
 		dataToJsonConverterFactorySpy.MCR.assertParameters(
-				"createForClientDataElementIncludingActionLinks", 0,
-				clientDataRecord.getClientDataGroup(), false);
+				"createForClientDataChildIncludingClientActionLinks", 0,
+				clientClientDataRecord.getDataRecordGroup(), false);
 	}
 
 	@Test
@@ -65,7 +65,7 @@ public class StoredDataTest {
 		String json = storedData.getStoredRecordDataGroupAsJsonWithoutLinks();
 
 		DataToJsonConverterSpy converterSpy = (DataToJsonConverterSpy) dataToJsonConverterFactorySpy.MCR
-				.getReturnValue("createForClientDataElementIncludingActionLinks", 0);
+				.getReturnValue("createForClientDataChildIncludingClientActionLinks", 0);
 		converterSpy.MCR.assertReturn("toJson", 0, json);
 	}
 

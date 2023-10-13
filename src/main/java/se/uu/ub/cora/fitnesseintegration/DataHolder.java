@@ -21,7 +21,7 @@ package se.uu.ub.cora.fitnesseintegration;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.uu.ub.cora.clientdata.DataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 
 public class DataHolder {
 
@@ -30,24 +30,24 @@ public class DataHolder {
 		super();
 	}
 
-	private static DataRecord clientDataRecord;
-	private static List<DataRecord> dataRecords;
+	private static ClientDataRecord clientClientDataRecord;
+	private static List<ClientDataRecord> dataRecords;
 
-	public static void setRecord(DataRecord clientDataRecord) {
-		DataHolder.clientDataRecord = clientDataRecord;
+	public static void setRecord(ClientDataRecord clientClientDataRecord) {
+		DataHolder.clientClientDataRecord = clientClientDataRecord;
 	}
 
-	public static DataRecord getRecord() {
-		return clientDataRecord;
+	public static ClientDataRecord getRecord() {
+		return clientClientDataRecord;
 	}
 
-	public static void setRecordList(List<DataRecord> recordList) {
+	public static void setRecordList(List<ClientDataRecord> recordList) {
 		dataRecords = new ArrayList<>();
 		dataRecords.addAll(recordList);
 
 	}
 
-	public static List<DataRecord> getRecordList() {
+	public static List<ClientDataRecord> getRecordList() {
 		return dataRecords;
 	}
 

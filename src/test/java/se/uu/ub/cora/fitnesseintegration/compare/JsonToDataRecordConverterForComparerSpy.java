@@ -21,25 +21,25 @@ package se.uu.ub.cora.fitnesseintegration.compare;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.uu.ub.cora.clientdata.DataRecord;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToClientDataRecordConverter;
 import se.uu.ub.cora.fitnesseintegration.ClientDataRecordSpy;
 import se.uu.ub.cora.json.parser.JsonObject;
 
-public class JsonToDataRecordConverterForComparerSpy implements JsonToDataRecordConverter {
+public class JsonToClientDataRecordConverterForComparerSpy implements JsonToClientDataRecordConverter {
 
 	public JsonObject jsonObject;
 	public List<JsonObject> jsonObjects = new ArrayList<>();
-	public ClientDataRecordSpy clientDataRecordSpy;
+	public ClientDataRecordSpy clientClientDataRecordSpy;
 	public List<ClientDataRecordSpy> returnedSpies = new ArrayList<>();
 
 	@Override
-	public DataRecord toInstance(JsonObject jsonObject) {
+	public ClientDataRecord toInstance(JsonObject jsonObject) {
 		this.jsonObject = jsonObject;
 		jsonObjects.add(jsonObject);
-		clientDataRecordSpy = new ClientDataRecordSpy();
-		returnedSpies.add(clientDataRecordSpy);
-		return clientDataRecordSpy;
+		clientClientDataRecordSpy = new ClientDataRecordSpy();
+		returnedSpies.add(clientClientDataRecordSpy);
+		return clientClientDataRecordSpy;
 	}
 
 }

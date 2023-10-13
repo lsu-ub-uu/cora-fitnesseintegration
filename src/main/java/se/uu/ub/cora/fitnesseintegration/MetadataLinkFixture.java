@@ -21,18 +21,15 @@ package se.uu.ub.cora.fitnesseintegration;
 import java.util.ArrayList;
 import java.util.List;
 
+import se.uu.ub.cora.clientdata.ClientConvertible;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
-import se.uu.ub.cora.clientdata.DataRecord;
-import se.uu.ub.cora.clientdata.RecordIdentifier;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
+import se.uu.ub.cora.clientdata.ClientDataParent;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverter;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
-import se.uu.ub.cora.json.parser.JsonObject;
-import se.uu.ub.cora.json.parser.JsonParser;
-import se.uu.ub.cora.json.parser.JsonValue;
-import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public class MetadataLinkFixture {
 
@@ -44,12 +41,9 @@ public class MetadataLinkFixture {
 	private HttpHandlerFactory httpHandlerFactory;
 	private String baseUrl = SystemUrl.getUrl() + "rest/record/";
 	private String authToken;
-	private JsonToDataConverterFactory jsonToDataConverterFactory;
-	private JsonToDataRecordConverter recordConverter;
 
 	public MetadataLinkFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
-		jsonToDataConverterFactory = DependencyProvider.getJsonToDataConverterFactory();
 	}
 
 	public void setAuthToken(String authToken) {
@@ -83,18 +77,18 @@ public class MetadataLinkFixture {
 	}
 
 	private void possiblySetChildReferenceList() {
-		DataRecord dataRecord = DataHolder.getRecord();
+		ClientDataRecord dataRecord = DataHolder.getRecord();
 		if (recordContainsDataGroup(dataRecord)) {
-			ClientDataGroup topLevelDataGroup = dataRecord.getClientDataGroup();
+			ClientDataRecordGroup topLevelDataGroup = dataRecord.getDataRecordGroup();
 			setChildReferenceList(topLevelDataGroup);
 		}
 	}
 
-	private boolean recordContainsDataGroup(DataRecord dataRecord) {
-		return null != dataRecord && dataRecord.getClientDataGroup() != null;
+	private boolean recordContainsDataGroup(ClientDataRecord dataRecord) {
+		return null != dataRecord && dataRecord.getDataRecordGroup() != null;
 	}
 
-	private void setChildReferenceList(ClientDataGroup topLevelDataGroup) {
+	private void setChildReferenceList(ClientDataParent topLevelDataGroup) {
 		if (childReferencesExists(topLevelDataGroup)) {
 			ClientDataGroup childReferences = topLevelDataGroup
 					.getFirstGroupWithNameInData("childReferences");
@@ -102,7 +96,7 @@ public class MetadataLinkFixture {
 		}
 	}
 
-	private boolean childReferencesExists(ClientDataGroup topLevelDataGroup) {
+	private boolean childReferencesExists(ClientDataParent topLevelDataGroup) {
 		return topLevelDataGroup.containsChildWithNameInData("childReferences");
 	}
 
@@ -180,36 +174,27 @@ public class MetadataLinkFixture {
 		String childLinkedRecordId = extractValueFromReferenceUsingNameInData(
 				matchingChildReference, "linkedRecordId");
 
-		return RecordIdentifier.usingTypeAndId(childLinkedRecordType, childLinkedRecordId);
+		return new RecordIdentifier(childLinkedRecordType, childLinkedRecordId);
 	}
 
 	private String readRecordAsJson(RecordIdentifier identfier) {
-		HttpHandler httpHandler = setUpHttpHandlerForReadingChildReference(identfier.type,
-				identfier.id);
+		HttpHandler httpHandler = setUpHttpHandlerForReadingChildReference(identfier.type(),
+				identfier.id());
 		return httpHandler.getResponseText();
 	}
 
 	private String getNameInDataFromConvertedJson(String responseText) {
-		JsonObject recordJsonObject = createJsonObjectFromResponseText(responseText);
-		recordConverter = JsonToDataRecordConverterImp
-				.usingConverterFactory(jsonToDataConverterFactory);
-		DataRecord clientDataRecord = recordConverter.toInstance(recordJsonObject);
+		JsonToClientDataConverter jsonToClientDataConverter = JsonToClientDataConverterProvider
+				.getConverterUsingJsonString(responseText);
+
+		ClientConvertible instance = jsonToClientDataConverter.toInstance();
+		ClientDataRecord clientDataRecord = (ClientDataRecord) instance;
 		return getNameInDataFromDataGroupInRecord(clientDataRecord);
 	}
 
-	private String getNameInDataFromDataGroupInRecord(DataRecord clientDataRecord) {
-		ClientDataGroup dataElement = clientDataRecord.getClientDataGroup();
-		return dataElement.getFirstAtomicValueWithNameInData("nameInData");
-	}
-
-	private JsonObject createJsonObjectFromResponseText(String responseText) {
-		JsonParser jsonParser = new OrgJsonParser();
-		JsonValue jsonValue = jsonParser.parseString(responseText);
-		return (JsonObject) jsonValue;
-	}
-
-	public JsonToDataRecordConverter getJsonToRecordDataConverter() {
-		return recordConverter;
+	private String getNameInDataFromDataGroupInRecord(ClientDataRecord clientClientDataRecord) {
+		ClientDataRecordGroup dataElement = clientClientDataRecord.getDataRecordGroup();
+		return dataElement.getNameInData();
 	}
 
 	public String getRecordPartConstraint() {
@@ -222,4 +207,6 @@ public class MetadataLinkFixture {
 		return matchingChildReference.getFirstAtomicValueWithNameInData("recordPartConstraint");
 	}
 
+	private record RecordIdentifier(String type, String id) {
+	}
 }

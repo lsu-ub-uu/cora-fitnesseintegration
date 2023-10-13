@@ -22,6 +22,8 @@ package se.uu.ub.cora.fitnesseintegration.compare;
 import java.util.List;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.ClientDataParent;
+import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.fitnesseintegration.ChildComparer;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
@@ -40,14 +42,14 @@ public class ChildComparerFixture extends ComparerFixture {
 
 	public String testCheckContain() {
 		try {
-			ClientDataGroup readDataGroup = DataHolder.getRecord().getClientDataGroup();
+			ClientDataRecordGroup readDataGroup = DataHolder.getRecord().getDataRecordGroup();
 			return compareChildrenUsingDataGroup(readDataGroup);
 		} catch (JsonParseException exception) {
 			return exception.getMessage();
 		}
 	}
 
-	private String compareChildrenUsingDataGroup(ClientDataGroup clientDataGroup) {
+	private String compareChildrenUsingDataGroup(ClientDataParent clientDataGroup) {
 		JsonObject childrenObject = jsonHandler.parseStringAsObject(childrenToCompare);
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(clientDataGroup,
 				childrenObject);
@@ -56,17 +58,17 @@ public class ChildComparerFixture extends ComparerFixture {
 
 	public String testCheckContainWithValues() {
 		try {
-			ClientDataGroup readDataGroup = DataHolder.getRecord().getClientDataGroup();
+			ClientDataRecordGroup readDataGroup = DataHolder.getRecord().getDataRecordGroup();
 			return compareChildrenWithValuesUsingDataGroup(readDataGroup);
 		} catch (JsonParseException exception) {
 			return exception.getMessage();
 		}
 	}
 
-	private String compareChildrenWithValuesUsingDataGroup(ClientDataGroup clientDataGroup) {
+	private String compareChildrenWithValuesUsingDataGroup(ClientDataParent clientDataGroup) {
 		JsonObject jsonToBeComparedWith = jsonHandler.parseStringAsObject(childrenToCompare);
-		// DataRecord dataGroupToBeComparedWith =
-		// jsonToDataRecordConverter.toInstance(jsonToBeComparedWith);
+		// ClientDataRecord dataGroupToBeComparedWith =
+		// jsonToClientDataRecordConverter.toInstance(jsonToBeComparedWith);
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildrenWithCorrectValues(
 				clientDataGroup, jsonToBeComparedWith);
 		return errorMessages.isEmpty() ? "OK" : joinErrorMessages(errorMessages);
@@ -99,7 +101,7 @@ public class ChildComparerFixture extends ComparerFixture {
 	}
 
 	private int getNumberOfChildReferences() {
-		ClientDataGroup readDataGroup = DataHolder.getRecord().getClientDataGroup();
+		ClientDataRecordGroup readDataGroup = DataHolder.getRecord().getDataRecordGroup();
 		ClientDataGroup childReferences = readDataGroup
 				.getFirstGroupWithNameInData("childReferences");
 		return childReferences.getAllGroupsWithNameInData("childReference").size();

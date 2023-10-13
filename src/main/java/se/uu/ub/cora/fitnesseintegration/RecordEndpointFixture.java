@@ -28,13 +28,14 @@ import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
 
-import se.uu.ub.cora.clientdata.ClientDataGroup;
-import se.uu.ub.cora.clientdata.DataRecord;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverter;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpMultiPartUploader;
+import se.uu.ub.cora.javaclient.rest.RestClientFactory;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
@@ -63,9 +64,9 @@ public class RecordEndpointFixture {
 	protected String baseUrl = SystemUrl.getUrl() + "rest/";
 	protected String baseRecordUrl = baseUrl + "record/";
 	private String token;
-	private JsonToDataConverterFactory jsonToDataConverterFactory;
-	private JsonHandler jsonHandler;
-	private JsonToDataRecordConverter jsonToDataRecordConverter;
+	// private JsonToDataConverterFactory jsonToDataConverterFactory;
+	// private JsonHandler jsonHandler;
+	// private JsonToClientDataRecordConverter jsonToClientDataRecordConverter;
 	private ChildComparer childComparer;
 	private RecordHandler recordHandler;
 	private int maxNumberOfReads;
@@ -73,12 +74,21 @@ public class RecordEndpointFixture {
 
 	public RecordEndpointFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
-		jsonToDataConverterFactory = DependencyProvider.getJsonToDataConverterFactory();
 		childComparer = DependencyProvider.getChildComparer();
-		jsonToDataRecordConverter = DependencyProvider.getJsonToDataRecordConverter();
-		jsonHandler = DependencyProvider.getJsonHandler();
-		RestClientFactoryImp restClientFactory = new RestClientFactoryImp(baseUrl);
+		// jsonHandler = DependencyProvider.getJsonHandler();
+
+		// jsonToDataConverterFactory = DependencyProvider.getJsonToDataConverterFactory();
+		// jsonToClientDataRecordConverter =
+		// DependencyProvider.getJsonToClientDataRecordConverter();
+		// jsonToDataConverterFactory = JsonToDataConverterProvider.
+		// jsonToClientDataRecordConverter =
+		// DependencyProvider.getJsonToClientDataRecordConverter();
+
+		// New
+		RestClientFactory restClientFactory = RestClientFactoryImp
+				.usingBaseUrlAndAppTokenVerifierUrl(baseUrl, SystemUrl.getAppTokenVerifierUrl());
 		recordHandler = new RecordHandlerImp(httpHandlerFactory, restClientFactory);
+
 	}
 
 	public void setType(String type) {
@@ -135,7 +145,6 @@ public class RecordEndpointFixture {
 		BasicHttpResponse readResponse = recordHandler.readRecord(readAuthToken, type, id);
 		statusType = Response.Status.fromStatusCode(readResponse.statusCode);
 		return readResponse.responseText;
-
 	}
 
 	protected String getSetAuthTokenOrAdminAuthToken() {
@@ -182,7 +191,6 @@ public class RecordEndpointFixture {
 	}
 
 	public String testCreateRecordCreatedType() {
-
 		String responseText = createRecordAndSetValuesFromResponse();
 		if (statusIsCreated()) {
 			return getRecordTypeFromResponseText(responseText);
@@ -339,14 +347,15 @@ public class RecordEndpointFixture {
 
 	public void testReadRecordAndStoreJson() {
 		String responseText = testReadRecord();
-		DataRecord clientDataRecord = convertJsonToClientDataRecord(responseText);
+		ClientDataRecord clientClientDataRecord = convertJsonToClientDataRecord(responseText);
 
-		DataHolder.setRecord(clientDataRecord);
+		DataHolder.setRecord(clientClientDataRecord);
 	}
 
-	protected DataRecord convertJsonToClientDataRecord(String responseText) {
-		JsonObject recordJsonObject = jsonHandler.parseStringAsObject(responseText);
-		return jsonToDataRecordConverter.toInstance(recordJsonObject);
+	protected ClientDataRecord convertJsonToClientDataRecord(String responseText) {
+		JsonToClientDataConverter toClientConverter = JsonToClientDataConverterProvider
+				.getConverterUsingJsonString(responseText);
+		return (ClientDataRecord) toClientConverter.toInstance();
 	}
 
 	public String testBatchIndexing() {
@@ -359,7 +368,6 @@ public class RecordEndpointFixture {
 	}
 
 	public String waitUntilIndexBatchJobIsFinished() throws InterruptedException {
-
 		int numberOfReads = 0;
 		boolean continueToReadIndexBatchJob = true;
 		while (continueToReadIndexBatchJob) {
@@ -373,7 +381,6 @@ public class RecordEndpointFixture {
 				Thread.sleep(sleepTime);
 			}
 		}
-
 		return generateResponseBasedOnIndexBatchJobStatus();
 	}
 
@@ -383,8 +390,8 @@ public class RecordEndpointFixture {
 	}
 
 	private String extractStatusFromIndexBatchJob() {
-		DataRecord dataRecord = DataHolder.getRecord();
-		ClientDataGroup clientDataGroup = dataRecord.getClientDataGroup();
+		ClientDataRecord dataRecord = DataHolder.getRecord();
+		ClientDataRecordGroup clientDataGroup = dataRecord.getDataRecordGroup();
 		return clientDataGroup.getFirstAtomicValueWithNameInData("status");
 	}
 
@@ -400,33 +407,34 @@ public class RecordEndpointFixture {
 		return httpHandlerFactory;
 	}
 
-	public JsonToDataConverterFactory getJsonToDataConverterFactory() {
-		return jsonToDataConverterFactory;
-	}
+	// public JsonToDataConverterFactory getJsonToDataConverterFactory() {
+	// return jsonToDataConverterFactory;
+	// }
 
 	public ChildComparer getChildComparer() {
 		// needed for test
 		return childComparer;
 	}
 
-	JsonToDataRecordConverter getJsonToDataRecordConverter() {
-		// needed for test
-		return jsonToDataRecordConverter;
-	}
+	// JsonToClientDataRecordConverter getJsonToClientDataRecordConverter() {
+	// // needed for test
+	// return jsonToClientDataRecordConverter;
+	// }
+	//
+	// void setJsonToClientDataRecordConverter(
+	// JsonToClientDataRecordConverter jsonToClientDataRecordConverter) {
+	// // needed for test
+	// this.jsonToClientDataRecordConverter = jsonToClientDataRecordConverter;
+	// }
 
-	void setJsonToDataRecordConverter(JsonToDataRecordConverter jsonToDataRecordConverter) {
-		// needed for test
-		this.jsonToDataRecordConverter = jsonToDataRecordConverter;
-	}
+	// public JsonHandler getJsonHandler() {
+	// // needed for test
+	// return jsonHandler;
+	// }
 
-	public JsonHandler getJsonHandler() {
-		// needed for test
-		return jsonHandler;
-	}
-
-	void setJsonHandler(JsonHandler jsonHandler) {
-		this.jsonHandler = jsonHandler;
-	}
+	// void setJsonHandler(JsonHandler jsonHandler) {
+	// this.jsonHandler = jsonHandler;
+	// }
 
 	public RecordHandler getRecordHandler() {
 		return recordHandler;
@@ -435,16 +443,13 @@ public class RecordEndpointFixture {
 	public void setRecordHandler(RecordHandler recordHandler) {
 		// needed for test
 		this.recordHandler = recordHandler;
-
 	}
 
 	public void setMaxNumberOfReads(int maxRepeatCount) {
 		this.maxNumberOfReads = maxRepeatCount;
-
 	}
 
 	public void setSleepTime(int sleepTime) {
 		this.sleepTime = sleepTime;
-
 	}
 }

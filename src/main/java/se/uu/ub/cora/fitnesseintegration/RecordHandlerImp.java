@@ -27,7 +27,6 @@ import javax.ws.rs.core.Response.StatusType;
 
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
-import se.uu.ub.cora.javaclient.rest.ExtendedRestResponse;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactory;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
@@ -51,7 +50,7 @@ public class RecordHandlerImp implements RecordHandler {
 			String filterAsJson) throws UnsupportedEncodingException {
 		RestClient restClient = restClientFactory.factorUsingAuthToken(authToken);
 		RestResponse response = getRecordListResponse(restClient, recordType, filterAsJson);
-		return new BasicHttpResponse(response.statusCode, response.responseText);
+		return new BasicHttpResponse(response.responseCode(), response.responseText());
 	}
 
 	private RestResponse getRecordListResponse(RestClient restClient, String recordType,
@@ -87,8 +86,8 @@ public class RecordHandlerImp implements RecordHandler {
 	}
 
 	private BasicHttpResponse createBasicHttpResponseFromRestResponse(RestResponse response) {
-		String json = response.responseText;
-		return new BasicHttpResponse(response.statusCode, json);
+		String json = response.responseText();
+		return new BasicHttpResponse(response.responseCode(), json);
 	}
 
 	@Override
@@ -109,17 +108,18 @@ public class RecordHandlerImp implements RecordHandler {
 	@Override
 	public ExtendedHttpResponse createRecord(String authToken, String recordType, String json) {
 		RestClient restClient = restClientFactory.factorUsingAuthToken(authToken);
-		ExtendedRestResponse response = restClient.createRecordFromJson(recordType, json);
+		RestResponse response = restClient.createRecordFromJson(recordType, json);
 
 		return createExtendedHttpResponse(response);
 
 	}
 
-	private ExtendedHttpResponse createExtendedHttpResponse(ExtendedRestResponse response) {
-		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(response.statusCode,
-				response.responseText);
+	private ExtendedHttpResponse createExtendedHttpResponse(RestResponse response) {
+		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(response.responseCode(),
+				response.responseText());
 
-		return response.statusCode == CREATED ? createCreateResponse(response, basicHttpResponse)
+		return response.responseCode() == CREATED
+				? createCreateResponse(response, basicHttpResponse)
 				: new ExtendedHttpResponse(basicHttpResponse);
 	}
 
@@ -131,10 +131,10 @@ public class RecordHandlerImp implements RecordHandler {
 		httpHandler.setOutput(json);
 	}
 
-	private ExtendedHttpResponse createCreateResponse(ExtendedRestResponse response,
+	private ExtendedHttpResponse createCreateResponse(RestResponse response,
 			BasicHttpResponse readResponse) {
 		String responseText = readResponse.responseText;
-		String createdId = response.createdId;
+		String createdId = response.createdId().get();
 		String token = tryToExtractCreatedTokenFromResponseText(responseText);
 		return new ExtendedHttpResponse(readResponse, createdId, token);
 	}
@@ -200,8 +200,7 @@ public class RecordHandlerImp implements RecordHandler {
 			String filterAsJson) {
 
 		RestClient restClient = restClientFactory.factorUsingAuthToken(authToken);
-		ExtendedRestResponse response = restClient.batchIndexWithFilterAsJson(recordType,
-				filterAsJson);
+		RestResponse response = restClient.batchIndexWithFilterAsJson(recordType, filterAsJson);
 
 		return createExtendedHttpResponse(response);
 	}

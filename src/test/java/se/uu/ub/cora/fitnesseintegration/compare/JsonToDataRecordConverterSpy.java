@@ -3,27 +3,26 @@ package se.uu.ub.cora.fitnesseintegration.compare;
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
-import se.uu.ub.cora.clientdata.DataRecord;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
+import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToClientDataRecordConverter;
 import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
 
-public class JsonToDataRecordConverterSpy implements JsonToDataRecordConverter {
+public class JsonToClientDataRecordConverterSpy implements JsonToClientDataRecordConverter {
 
 	MethodCallRecorder MCR = new MethodCallRecorder();
 	private String startRecordId = null;
 
 	@Override
-	public DataRecord toInstance(JsonObject jsonObject) {
+	public ClientDataRecord toInstance(JsonObject jsonObject) {
 		MCR.addCall("jsonObject", jsonObject);
 
-		DataRecord returnRecord = null;
+		ClientDataRecord returnRecord = null;
 
 		if (startRecordId != null) {
-			returnRecord = createDataRecord(startRecordId);
+			returnRecord = createClientDataRecord(startRecordId);
 			addNumberOfCallstoId();
 		} else {
-			returnRecord = createDataRecord("AnotherRecordIDNotToBeFound");
+			returnRecord = createClientDataRecord("AnotherRecordIDNotToBeFound");
 		}
 
 		MCR.addReturned(returnRecord);
@@ -35,8 +34,8 @@ public class JsonToDataRecordConverterSpy implements JsonToDataRecordConverter {
 		startRecordId = startRecordId + counter;
 	}
 
-	private DataRecord createDataRecord(String recordId) {
-		DataRecord returnRecord;
+	private ClientDataRecord createClientDataRecord(String recordId) {
+		ClientDataRecord returnRecord;
 		ClientDataGroup withNameInData = ClientDataGroup.withNameInData("something");
 		ClientDataGroup recordInfo = ClientDataGroup.withNameInData("recordInfo");
 		ClientDataAtomic atomicID = ClientDataAtomic.withNameInDataAndValue("id", recordId);

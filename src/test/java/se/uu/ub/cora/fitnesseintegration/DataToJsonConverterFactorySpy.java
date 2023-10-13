@@ -18,9 +18,9 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
-import se.uu.ub.cora.clientdata.converter.javatojson.Convertible;
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverter;
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
+import se.uu.ub.cora.data.Convertible;
+import se.uu.ub.cora.data.converter.DataToJsonConverter;
+import se.uu.ub.cora.data.converter.DataToJsonConverterFactory;
 import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
 
 public class DataToJsonConverterFactorySpy implements DataToJsonConverterFactory {
@@ -28,7 +28,7 @@ public class DataToJsonConverterFactorySpy implements DataToJsonConverterFactory
 	MethodCallRecorder MCR = new MethodCallRecorder();
 
 	@Override
-	public DataToJsonConverter createForClientDataElement(Convertible convertible) {
+	public DataToJsonConverter createForClientDataChild(Convertible convertible) {
 		MCR.addCall("convertible", convertible);
 
 		DataToJsonConverter converter = new DataToJsonConverterSpy();
@@ -37,9 +37,9 @@ public class DataToJsonConverterFactorySpy implements DataToJsonConverterFactory
 	}
 
 	@Override
-	public DataToJsonConverter createForClientDataElementIncludingActionLinks(
-			Convertible convertible, boolean includeActionLinks) {
-		MCR.addCall("convertible", convertible, "includeActionLinks", includeActionLinks);
+	public DataToJsonConverter createForClientDataChildIncludingClientActionLinks(
+			Convertible convertible, boolean includeClientActionLinks) {
+		MCR.addCall("convertible", convertible, "includeClientActionLinks", includeClientActionLinks);
 
 		DataToJsonConverter converter = new DataToJsonConverterSpy();
 		MCR.addReturned(converter);

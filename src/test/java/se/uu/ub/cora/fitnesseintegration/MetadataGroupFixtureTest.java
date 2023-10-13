@@ -26,7 +26,6 @@ import org.testng.annotations.Test;
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
-import se.uu.ub.cora.clientdata.DataRecord;
 
 public class MetadataGroupFixtureTest {
 
@@ -38,7 +37,7 @@ public class MetadataGroupFixtureTest {
 
 		ClientDataGroup topLevelDataGroup = createTopLevelDataGroup();
 
-		DataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
+		ClientDataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
 		DataHolder.setRecord(record);
 
 	}
@@ -58,7 +57,7 @@ public class MetadataGroupFixtureTest {
 
 	@Test
 	public void testNoTopLevelDatagroup() {
-		DataRecord record = ClientDataRecord.withClientDataGroup(null);
+		ClientDataRecord record = ClientDataRecord.withClientDataGroup(null);
 		DataHolder.setRecord(record);
 		fixture.setChildNameInData("testTitle");
 		assertEquals(fixture.numberOfChildrenWithNameInData(), 0);
@@ -67,7 +66,7 @@ public class MetadataGroupFixtureTest {
 	@Test
 	public void testNoChildPresentFirstLevelNoChildDataGroupSet() {
 		ClientDataGroup topLevelDataGroup = ClientDataGroup.withNameInData("testStudentThesis");
-		DataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
+		ClientDataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
 		DataHolder.setRecord(record);
 		fixture.setChildNameInData("testTitle");
 		assertEquals(fixture.numberOfChildrenWithNameInData(), 0);
@@ -95,7 +94,7 @@ public class MetadataGroupFixtureTest {
 	@Test
 	public void testChildDataGroupDoesNotExist() {
 		ClientDataGroup topLevelDataGroup = ClientDataGroup.withNameInData("testStudentThesis");
-		DataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
+		ClientDataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
 		DataHolder.setRecord(record);
 
 		fixture.setChildDataGroup("recordInfo");
@@ -108,7 +107,7 @@ public class MetadataGroupFixtureTest {
 		ClientDataGroup topLevelDataGroup = ClientDataGroup.withNameInData("testStudentThesis");
 		ClientDataGroup recordInfo = ClientDataGroup.withNameInData("recordInfo");
 		topLevelDataGroup.addChild(recordInfo);
-		DataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
+		ClientDataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
 		DataHolder.setRecord(record);
 
 		fixture.setChildDataGroup("recordInfo");
@@ -122,7 +121,7 @@ public class MetadataGroupFixtureTest {
 		ClientDataGroup recordInfo = ClientDataGroup.withNameInData("recordInfo");
 		topLevelDataGroup.addChild(recordInfo);
 		recordInfo.addChild(ClientDataAtomic.withNameInDataAndValue("NOTtestTitle", "Not a title"));
-		DataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
+		ClientDataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
 		DataHolder.setRecord(record);
 
 		fixture.setChildDataGroup("recordInfo");
@@ -136,7 +135,7 @@ public class MetadataGroupFixtureTest {
 		ClientDataGroup recordInfo = ClientDataGroup.withNameInData("recordInfo");
 		topLevelDataGroup.addChild(recordInfo);
 		recordInfo.addChild(ClientDataAtomic.withNameInDataAndValue("testTitle", "A title"));
-		DataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
+		ClientDataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
 		DataHolder.setRecord(record);
 
 		fixture.setChildDataGroup("recordInfo");

@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.Response;
@@ -35,22 +37,33 @@ import org.apache.http.client.ClientProtocolException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
+import se.uu.ub.cora.clientdata.spies.ClientDataRecordGroupSpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterFactoryCreatorSpy;
+import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
+import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterSpy;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 
 public class RecordEndpointFixtureTest {
+	JsonToClientDataConverterFactorySpy converterToClientFactorySpy;
+	ClientDataToJsonConverterFactoryCreatorSpy toJsonFactoryCreator;
 	private RecordEndpointFixture fixture;
 	private HttpHandlerFactorySpy httpHandlerFactorySpy;
 	private RecordHandlerSpy recordHandler;
 
 	@BeforeMethod
 	public void setUp() {
+		converterToClientFactorySpy = new JsonToClientDataConverterFactorySpy();
+		JsonToClientDataConverterProvider
+				.setJsonToDataConverterFactory(converterToClientFactorySpy);
+
 		SystemUrl.setUrl("http://localhost:8080/therest/");
+		SystemUrl.setAppTokenVerifierUrl("http://localhost:8080/appTokenVerifier/");
 		AuthTokenHolder.setAdminAuthToken("someAdminToken");
+
 		DependencyProvider.setHttpHandlerFactoryClassName(
 				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy");
-		DependencyProvider.setJsonToDataFactoryClassName(
-				"se.uu.ub.cora.fitnesseintegration.JsonToDataConverterFactorySpy");
 		DependencyProvider.setChildComparerUsingClassName(
 				"se.uu.ub.cora.fitnesseintegration.ChildComparerSpy");
 		httpHandlerFactorySpy = (HttpHandlerFactorySpy) DependencyProvider.getHttpHandlerFactory();
@@ -63,21 +76,17 @@ public class RecordEndpointFixtureTest {
 	@Test
 	public void testInit() {
 		fixture = new RecordEndpointFixture();
-		assertTrue(
-				fixture.getJsonToDataConverterFactory() instanceof JsonToDataConverterFactorySpy);
 		assertTrue(fixture.getHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
 		assertTrue(fixture.getChildComparer() instanceof ChildComparerSpy);
-		assertTrue(fixture.getJsonToDataRecordConverter() instanceof JsonToDataRecordConverterImp);
-		assertTrue(fixture.getJsonHandler() instanceof JsonHandlerImp);
 		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.getRecordHandler();
 		assertSame(recordHandler.getHttpHandlerFactory(), fixture.getHttpHandlerFactory());
 		RestClientFactoryImp clientFactory = (RestClientFactoryImp) recordHandler
 				.getRestClientFactory();
-		assertEquals(clientFactory.getBaseUrl(), fixture.baseUrl);
+		assertEquals(clientFactory.onlyForTestGetBaseUrl(), fixture.baseUrl);
 	}
 
 	@Test
-	public void testReadRecordDataRecordHandlerIsOk() {
+	public void testReadRecordClientDataRecordHandlerIsOk() {
 		String type = "someType";
 		String id = "someId";
 		fixture.setType(type);
@@ -132,7 +141,8 @@ public class RecordEndpointFixtureTest {
 	}
 
 	@Test
-	public void testReadRecordListDataRecordHandlerIsOk() throws UnsupportedEncodingException {
+	public void testReadRecordListClientDataRecordHandlerIsOk()
+			throws UnsupportedEncodingException {
 		String type = "someType";
 		fixture.setType(type);
 		fixture.setAuthToken("someToken");
@@ -263,7 +273,7 @@ public class RecordEndpointFixtureTest {
 	}
 
 	@Test
-	public void testDeleteRecordDataRecordHandlerIsOk() {
+	public void testDeleteRecordClientDataRecordHandlerIsOk() {
 		String type = "someType";
 		String id = "someId";
 		fixture.setType(type);
@@ -411,18 +421,24 @@ public class RecordEndpointFixtureTest {
 		fixture.setType("metadataGroup");
 		fixture.setId("someMetadataGroupId");
 		fixture.setAuthToken("someToken");
-		JsonToDataRecordConverterSpy jsonToDataRecordConverterSpy = new JsonToDataRecordConverterSpy();
-		fixture.setJsonToDataRecordConverter(jsonToDataRecordConverterSpy);
-		JsonParserSpy jsonParser = new JsonParserSpy();
-		JsonHandler jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
-		fixture.setJsonHandler(jsonHandler);
+
+		setupConverterToClientFactorySpyToReturnClientDataRecordSpy();
+
 		fixture.testReadRecordAndStoreJson();
 
-		assertEquals(jsonParser.jsonStringSentToParser, recordHandler.json);
-		assertEquals(jsonToDataRecordConverterSpy.jsonObjects.get(0),
-				jsonParser.jsonObjectSpies.get(0));
+		converterToClientFactorySpy.MCR.assertParameters("factorUsingString", 0,
+				"some json returned from spy");
+		JsonToClientDataConverterSpy toClientConverter = (JsonToClientDataConverterSpy) converterToClientFactorySpy.MCR
+				.getReturnValue("factorUsingString", 0);
+		toClientConverter.MCR.assertReturn("toInstance", 0, DataHolder.getRecord());
+	}
 
-		assertSame(DataHolder.getRecord(), jsonToDataRecordConverterSpy.clientDataRecordSpy);
+	private void setupConverterToClientFactorySpyToReturnClientDataRecordSpy() {
+		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
+		JsonToClientDataConverterSpy converterSpy = new JsonToClientDataConverterSpy();
+		converterSpy.MRV.setDefaultReturnValuesSupplier("toInstance", () -> clientDataRecordSpy);
+		converterToClientFactorySpy.MRV.setDefaultReturnValuesSupplier("factorUsingString",
+				() -> converterSpy);
 	}
 
 	@Test
@@ -455,9 +471,6 @@ public class RecordEndpointFixtureTest {
 
 	@Test
 	public void testBatchIndexingReturnsResponseText() {
-		fixture.setType("someRecordType");
-		fixture.setAuthToken("someToken");
-		fixture.setJson("some filter");
 		recordHandler.jsonToReturnDefault = "indexBatchJobAsJson";
 
 		String responseText = fixture.testBatchIndexing();
@@ -473,11 +486,7 @@ public class RecordEndpointFixtureTest {
 		fixture.setSleepTime(0);
 		fixture.setMaxNumberOfReads(1);
 
-		JsonToDataRecordConverterForIndexBatchJobSpy jsonToDataRecordConverterSpy = new JsonToDataRecordConverterForIndexBatchJobSpy();
-		fixture.setJsonToDataRecordConverter(jsonToDataRecordConverterSpy);
-		JsonParserSpy jsonParser = new JsonParserSpy();
-		JsonHandler jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
-		fixture.setJsonHandler(jsonHandler);
+		setupConverterToClientFactorySpyToReturnClientDataRecordSpy();
 
 		fixture.waitUntilIndexBatchJobIsFinished();
 
@@ -493,25 +502,18 @@ public class RecordEndpointFixtureTest {
 
 	@Test
 	public void waitUntilIndexBatchJobIsFinishedStoresJson() throws InterruptedException {
-		fixture.setAuthToken("someToken");
-		fixture.setType("indexBatchJob");
-		fixture.setId("indexBatchJob:12345");
-
-		JsonToDataRecordConverterForIndexBatchJobSpy jsonToDataRecordConverterSpy = new JsonToDataRecordConverterForIndexBatchJobSpy();
-		fixture.setJsonToDataRecordConverter(jsonToDataRecordConverterSpy);
-		JsonParserSpy jsonParser = new JsonParserSpy();
-		JsonHandler jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
-		fixture.setJsonHandler(jsonHandler);
 		fixture.setSleepTime(0);
 		fixture.setMaxNumberOfReads(1);
 
+		setUpFixtureAndSpiesWithCallsUntilFinished(7);
+
 		fixture.waitUntilIndexBatchJobIsFinished();
 
-		assertEquals(jsonParser.jsonStringSentToParser, recordHandler.json);
-		assertEquals(jsonToDataRecordConverterSpy.jsonObjects.get(0),
-				jsonParser.jsonObjectSpies.get(0));
-
-		assertSame(DataHolder.getRecord(), jsonToDataRecordConverterSpy.clientDataRecordSpy);
+		converterToClientFactorySpy.MCR.assertParameters("factorUsingString", 0,
+				"some json returned from spy");
+		JsonToClientDataConverterSpy toClientConverter = (JsonToClientDataConverterSpy) converterToClientFactorySpy.MCR
+				.getReturnValue("factorUsingString", 0);
+		toClientConverter.MCR.assertReturn("toInstance", 0, DataHolder.getRecord());
 	}
 
 	@Test
@@ -583,16 +585,38 @@ public class RecordEndpointFixtureTest {
 		fixture.setType("indexBatchJob");
 		fixture.setId("indexBatchJob:12345");
 
-		JsonToDataRecordConverterForIndexBatchJobSpy jsonToDataRecordConverterSpy = new JsonToDataRecordConverterForIndexBatchJobSpy();
+		setUpConverterFromJsonToReturnNameInDataForClientDataRecordGroup(callsUntilFinished);
+	}
 
-		ClientDataRecordForIndexBatchJobSpy clientDataRecordForIndexBatchJobSpy = new ClientDataRecordForIndexBatchJobSpy();
-		clientDataRecordForIndexBatchJobSpy.callsUntilFinished = callsUntilFinished;
-		jsonToDataRecordConverterSpy.clientDataRecordSpy = clientDataRecordForIndexBatchJobSpy;
+	private void setUpConverterFromJsonToReturnNameInDataForClientDataRecordGroup(
+			int callsUntilFinished) {
+		ClientDataRecordSpy clientDataRecordFinishedSpy = setupConverterFromJsonToREturnStatusForClientDataRecordGroup(
+				"finished");
 
-		fixture.setJsonToDataRecordConverter(jsonToDataRecordConverterSpy);
-		JsonParserSpy jsonParser = new JsonParserSpy();
-		JsonHandler jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
-		fixture.setJsonHandler(jsonHandler);
+		ClientDataRecordSpy clientDataRecordNotFinishedSpy = setupConverterFromJsonToREturnStatusForClientDataRecordGroup(
+				"notFinished");
+
+		List<Object> of = new ArrayList<>();
+		while (of.size() + 1 < callsUntilFinished) {
+			of.add(clientDataRecordNotFinishedSpy);
+		}
+		of.add(clientDataRecordFinishedSpy);
+
+		JsonToClientDataConverterSpy converterSpy = new JsonToClientDataConverterSpy();
+		converterSpy.MRV.setReturnValues("toInstance", of);
+		converterToClientFactorySpy.MRV.setDefaultReturnValuesSupplier("factorUsingString",
+				() -> converterSpy);
+	}
+
+	private ClientDataRecordSpy setupConverterFromJsonToREturnStatusForClientDataRecordGroup(
+			String status) {
+		ClientDataRecordGroupSpy clientDataRecordGroupFinished = new ClientDataRecordGroupSpy();
+		clientDataRecordGroupFinished.MRV.setSpecificReturnValuesSupplier(
+				"getFirstAtomicValueWithNameInData", () -> status, "status");
+		ClientDataRecordSpy clientDataRecordFinishedSpy = new ClientDataRecordSpy();
+		clientDataRecordFinishedSpy.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup",
+				() -> clientDataRecordGroupFinished);
+		return clientDataRecordFinishedSpy;
 	}
 
 }

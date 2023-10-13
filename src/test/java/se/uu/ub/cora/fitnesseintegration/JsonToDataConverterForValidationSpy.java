@@ -2,8 +2,8 @@ package se.uu.ub.cora.fitnesseintegration;
 
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
-import se.uu.ub.cora.clientdata.converter.javatojson.Convertible;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverter;
+import se.uu.ub.cora.data.Convertible;
+import se.uu.ub.cora.data.converter.JsonToDataConverter;
 import se.uu.ub.cora.json.parser.JsonValue;
 
 public class JsonToDataConverterForValidationSpy implements JsonToDataConverter {

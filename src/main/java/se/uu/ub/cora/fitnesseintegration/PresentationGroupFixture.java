@@ -3,7 +3,8 @@ package se.uu.ub.cora.fitnesseintegration;
 import java.util.List;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
-import se.uu.ub.cora.clientdata.DataRecord;
+import se.uu.ub.cora.clientdata.ClientDataParent;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 
 public class PresentationGroupFixture extends MetadataLinkFixture {
 
@@ -18,22 +19,22 @@ public class PresentationGroupFixture extends MetadataLinkFixture {
 	}
 
 	public int numberOfRefs() {
-		DataRecord dataRecord = DataHolder.getRecord();
+		ClientDataRecord dataRecord = DataHolder.getRecord();
 		if (recordHasDataGroup(dataRecord)) {
 			return possiblyGetNumberOfMatchingChildren(dataRecord);
 		}
 		return 0;
 	}
 
-	private int possiblyGetNumberOfMatchingChildren(DataRecord dataRecord) {
-		ClientDataGroup topLevelDataGroup = dataRecord.getClientDataGroup();
+	private int possiblyGetNumberOfMatchingChildren(ClientDataRecord dataRecord) {
+		ClientDataParent topLevelDataGroup = dataRecord.getDataRecordGroup();
 		if (groupHasChildren(topLevelDataGroup)) {
 			return getNumberOfMatchingChildren(topLevelDataGroup);
 		}
 		return 0;
 	}
 
-	private int getNumberOfMatchingChildren(ClientDataGroup topLevelDataGroup) {
+	private int getNumberOfMatchingChildren(ClientDataParent topLevelDataGroup) {
 		List<ClientDataGroup> childReferenceGroups = extractChildReferences(topLevelDataGroup);
 		int children = 0;
 		for (ClientDataGroup childReference : childReferenceGroups) {
@@ -54,15 +55,15 @@ public class PresentationGroupFixture extends MetadataLinkFixture {
 		return childReferenceMatchesTypeAndId(childLinkedRecordType, childLinkedRecordId);
 	}
 
-	private boolean recordHasDataGroup(DataRecord dataRecord) {
-		return dataRecord != null && dataRecord.getClientDataGroup() != null;
+	private boolean recordHasDataGroup(ClientDataRecord dataRecord) {
+		return dataRecord != null && dataRecord.getDataRecordGroup() != null;
 	}
 
-	private boolean groupHasChildren(ClientDataGroup topLevelDataGroup) {
+	private boolean groupHasChildren(ClientDataParent topLevelDataGroup) {
 		return topLevelDataGroup.containsChildWithNameInData("childReferences");
 	}
 
-	private List<ClientDataGroup> extractChildReferences(ClientDataGroup topLevelDataGroup) {
+	private List<ClientDataGroup> extractChildReferences(ClientDataParent topLevelDataGroup) {
 		ClientDataGroup childReferences = topLevelDataGroup
 				.getFirstGroupWithNameInData("childReferences");
 		return childReferences.getAllGroupsWithNameInData("childReference");

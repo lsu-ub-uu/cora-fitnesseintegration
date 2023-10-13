@@ -26,8 +26,9 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.ClientDataProvider;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.json.parser.JsonParser;
 import se.uu.ub.cora.json.parser.JsonValue;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
@@ -40,8 +41,9 @@ public class PermissionComparerTest {
 
 	@BeforeMethod
 	public void setUp() {
-		ClientDataGroup dataGroup = ClientDataGroup.withNameInData("someDataGroup");
-		dataRecord = ClientDataRecord.withClientDataGroup(dataGroup);
+		ClientDataRecordGroup dataGroup = ClientDataProvider
+				.createRecordGroupUsingNameInData("someDataGroup");
+		dataRecord = ClientDataProvider.createRecordWithDataRecordGroup(dataGroup);
 		comparer = new PermissionComparer(dataRecord);
 		jsonParser = new OrgJsonParser();
 	}
@@ -52,7 +54,7 @@ public class PermissionComparerTest {
 		String permissions = "{\"read\":[\"readPermissionOne\"]}";
 		JsonValue jsonValue = jsonParser.parseString(permissions);
 
-		List<String> results = comparer.checkDataRecordContains(jsonValue);
+		List<String> results = comparer.checkClientDataRecordContains(jsonValue);
 		assertTrue(results.isEmpty());
 	}
 
@@ -63,7 +65,7 @@ public class PermissionComparerTest {
 		String permissions = "{\"read\":[\"readPermissionOne\"]}";
 		JsonValue jsonValue = jsonParser.parseString(permissions);
 
-		List<String> results = comparer.checkDataRecordContains(jsonValue);
+		List<String> results = comparer.checkClientDataRecordContains(jsonValue);
 		assertTrue(results.isEmpty());
 	}
 
@@ -74,7 +76,7 @@ public class PermissionComparerTest {
 		String permissions = "{\"read\":[\"readPermissionOne\"],\"write\":[\"writePermissionOne\"]}";
 		JsonValue jsonValue = jsonParser.parseString(permissions);
 
-		List<String> results = comparer.checkDataRecordContains(jsonValue);
+		List<String> results = comparer.checkClientDataRecordContains(jsonValue);
 		assertTrue(results.isEmpty());
 	}
 
@@ -83,7 +85,7 @@ public class PermissionComparerTest {
 		String permissions = "{\"read\":[\"readPermissionOne\"]}";
 		JsonValue jsonValue = jsonParser.parseString(permissions);
 
-		List<String> results = comparer.checkDataRecordContains(jsonValue);
+		List<String> results = comparer.checkClientDataRecordContains(jsonValue);
 		assertEquals(results.size(), 1);
 		assertEquals(results.get(0), "Read permission readPermissionOne is missing.");
 
@@ -95,7 +97,7 @@ public class PermissionComparerTest {
 		String permissions = "{\"read\":[\"readPermissionOne\", \"readPermissionTwo\"]}";
 		JsonValue jsonValue = jsonParser.parseString(permissions);
 
-		List<String> results = comparer.checkDataRecordContains(jsonValue);
+		List<String> results = comparer.checkClientDataRecordContains(jsonValue);
 		assertEquals(results.size(), 1);
 		assertEquals(results.get(0), "Read permission readPermissionTwo is missing.");
 
@@ -106,7 +108,7 @@ public class PermissionComparerTest {
 		String permissions = "{\"write\":[\"writePermissionOne\"]}";
 		JsonValue jsonValue = jsonParser.parseString(permissions);
 
-		List<String> results = comparer.checkDataRecordContains(jsonValue);
+		List<String> results = comparer.checkClientDataRecordContains(jsonValue);
 		assertEquals(results.size(), 1);
 		assertEquals(results.get(0), "Write permission writePermissionOne is missing.");
 
@@ -118,7 +120,7 @@ public class PermissionComparerTest {
 		String permissions = "{\"write\":[\"writePermissionOne\"]}";
 		JsonValue jsonValue = jsonParser.parseString(permissions);
 
-		List<String> results = comparer.checkDataRecordContains(jsonValue);
+		List<String> results = comparer.checkClientDataRecordContains(jsonValue);
 		assertTrue(results.isEmpty());
 	}
 }

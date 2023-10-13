@@ -2,10 +2,11 @@ package se.uu.ub.cora.fitnesseintegration.compare;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
-import se.uu.ub.cora.clientdata.ActionLink;
-import se.uu.ub.cora.clientdata.DataRecord;
+import se.uu.ub.cora.clientdata.ClientAction;
+import se.uu.ub.cora.clientdata.ClientActionLink;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.json.parser.JsonString;
@@ -13,14 +14,14 @@ import se.uu.ub.cora.json.parser.JsonValue;
 
 public class ActionComparer implements DataComparer {
 
-	private DataRecord dataRecord;
+	private ClientDataRecord dataRecord;
 
-	public ActionComparer(DataRecord dataRecord) {
+	public ActionComparer(ClientDataRecord dataRecord) {
 		this.dataRecord = dataRecord;
 	}
 
 	@Override
-	public List<String> checkDataRecordContains(JsonValue jsonValue) {
+	public List<String> checkClientDataRecordContains(JsonValue jsonValue) {
 		JsonObject actionAsJsonObject = (JsonObject) jsonValue;
 		List<String> errorMessages = new ArrayList<>();
 		addErrorMessageIfActionIsMissing(actionAsJsonObject, errorMessages);
@@ -31,16 +32,17 @@ public class ActionComparer implements DataComparer {
 			List<String> errorMessages) {
 		JsonArray actions = actionAsJsonObject.getValueAsJsonArray("actions");
 
-		Map<String, ActionLink> actionLinks = getDataRecord().getActionLinks();
 		for (JsonValue action : actions) {
 			String actionString = ((JsonString) action).getStringValue();
-			if (!actionLinks.containsKey(actionString)) {
+			Optional<ClientActionLink> actionLink = dataRecord
+					.getActionLink(ClientAction.valueOf(actionString));
+			if (actionLink.isEmpty()) {
 				errorMessages.add("Action " + actionString + " is missing.");
 			}
 		}
 	}
 
-	public DataRecord getDataRecord() {
+	public ClientDataRecord getClientDataRecord() {
 		return dataRecord;
 	}
 

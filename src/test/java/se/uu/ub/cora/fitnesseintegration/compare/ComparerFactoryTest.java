@@ -25,12 +25,11 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
-import se.uu.ub.cora.clientdata.DataRecord;
 
 public class ComparerFactoryTest {
 
 	private ComparerFactoryImp factory;
-	private DataRecord dataRecord;
+	private ClientDataRecord dataRecord;
 
 	@BeforeMethod
 	public void setUp() {
@@ -43,13 +42,13 @@ public class ComparerFactoryTest {
 	public void testFactorPermissionComparer() {
 		PermissionComparer permissionComparer = (PermissionComparer) factory.factor("permission",
 				dataRecord);
-		assertSame(permissionComparer.getDataRecord(), dataRecord);
+		assertSame(permissionComparer.getClientDataRecord(), dataRecord);
 	}
 
 	@Test
 	public void testFactorActionComparer() {
 		ActionComparer actionComparer = (ActionComparer) factory.factor("action", dataRecord);
-		assertSame(actionComparer.getDataRecord(), dataRecord);
+		assertSame(actionComparer.getClientDataRecord(), dataRecord);
 	}
 
 	@Test(expectedExceptions = NotImplementedException.class, expectedExceptionsMessageRegExp = ""

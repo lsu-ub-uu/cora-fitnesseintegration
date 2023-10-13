@@ -19,17 +19,17 @@
 package se.uu.ub.cora.fitnesseintegration;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverter;
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactoryImp;
+import se.uu.ub.cora.data.converter.DataToJsonConverter;
+import se.uu.ub.cora.data.converter.DataToJsonConverterFactory;
 
 public class StoredData {
 	DataToJsonConverterFactory dataToJsonConverterFactory = new DataToJsonConverterFactoryImp();
 
 	public String getStoredRecordDataGroupAsJsonWithoutLinks() {
-		ClientDataGroup dataGroup = DataHolder.getRecord().getClientDataGroup();
+		ClientDataGroup dataGroup = DataHolder.getRecord().getDataRecordGroup();
 		DataToJsonConverter converter = dataToJsonConverterFactory
-				.createForClientDataElementIncludingActionLinks(dataGroup, false);
+				.createForClientDataChildIncludingClientActionLinks(dataGroup, false);
 		return converter.toJson();
 	}
 }

@@ -26,7 +26,6 @@ import org.testng.annotations.Test;
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
-import se.uu.ub.cora.clientdata.DataRecord;
 
 public class PresentationGroupFixtureTest {
 
@@ -39,7 +38,7 @@ public class PresentationGroupFixtureTest {
 
 		topLevelDataGroup = createTopLevelDataGroup();
 
-		DataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
+		ClientDataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
 		DataHolder.setRecord(record);
 
 	}
@@ -80,7 +79,7 @@ public class PresentationGroupFixtureTest {
 
 	@Test
 	public void testNoTopLevelDataGroup() {
-		DataRecord record = ClientDataRecord.withClientDataGroup(null);
+		ClientDataRecord record = ClientDataRecord.withClientDataGroup(null);
 		DataHolder.setRecord(record);
 		fixture.setLinkedRecordId("somePresentationPGroup");
 		fixture.setLinkedRecordType("presentationGroup");
@@ -91,7 +90,7 @@ public class PresentationGroupFixtureTest {
 	public void testNumOfChildrenWithNoChildren() {
 
 		ClientDataGroup dataGroup = ClientDataGroup.withNameInData("presentation");
-		DataRecord record = ClientDataRecord.withClientDataGroup(dataGroup);
+		ClientDataRecord record = ClientDataRecord.withClientDataGroup(dataGroup);
 		DataHolder.setRecord(record);
 		fixture.setLinkedRecordId("somePresentationPGroup");
 		fixture.setLinkedRecordType("presentationGroup");

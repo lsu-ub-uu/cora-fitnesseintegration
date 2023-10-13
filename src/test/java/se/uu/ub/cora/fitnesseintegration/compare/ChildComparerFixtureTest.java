@@ -29,8 +29,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
-import se.uu.ub.cora.clientdata.DataRecord;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToClientDataRecordConverterImp;
 import se.uu.ub.cora.fitnesseintegration.ChildComparerSpy;
 import se.uu.ub.cora.fitnesseintegration.ClientDataRecordSpy;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
@@ -38,7 +38,7 @@ import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy;
 import se.uu.ub.cora.fitnesseintegration.JsonHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.JsonParserSpy;
-import se.uu.ub.cora.fitnesseintegration.JsonToDataRecordConverterSpy;
+import se.uu.ub.cora.fitnesseintegration.JsonToClientDataRecordConverterSpy;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerSpy;
 import se.uu.ub.cora.fitnesseintegration.SystemUrl;
@@ -47,7 +47,7 @@ public class ChildComparerFixtureTest {
 
 	private ChildComparerFixture fixture;
 	private RecordHandlerSpy recordHandler;
-	private JsonToDataRecordConverterSpy jsonToDataRecordConverter;
+	private JsonToClientDataRecordConverterSpy jsonToClientDataRecordConverter;
 	private JsonParserSpy jsonParser;
 	private JsonHandlerImp jsonHandler;
 
@@ -67,12 +67,12 @@ public class ChildComparerFixtureTest {
 		recordHandler = new RecordHandlerSpy();
 		jsonParser = new JsonParserSpy();
 		jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
-		jsonToDataRecordConverter = new JsonToDataRecordConverterSpy();
+		jsonToClientDataRecordConverter = new JsonToClientDataRecordConverterSpy();
 
 		fixture.setType("someRecordType");
 		fixture.setRecordHandler(recordHandler);
 		fixture.onlyForTestSetJsonHandler(jsonHandler);
-		fixture.onlyForTestSetJsonToDataRecordConverter(jsonToDataRecordConverter);
+		fixture.onlyForTestSetJsonToClientDataRecordConverter(jsonToClientDataRecordConverter);
 	}
 
 	@Test
@@ -81,7 +81,7 @@ public class ChildComparerFixtureTest {
 		assertTrue(fixture.onlyForTestGetChildComparer() instanceof ChildComparerSpy);
 		assertTrue(fixture.onlyForTestGetJsonHandler() instanceof JsonHandlerImp);
 		assertTrue(fixture
-				.onlyForTestGetJsonToDataRecordConverter() instanceof JsonToDataRecordConverterImp);
+				.onlyForTestGetJsonToClientDataRecordConverter() instanceof JsonToClientDataRecordConverterImp);
 		assertTrue(fixture.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
 
 		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.getRecordHandler();
@@ -90,7 +90,7 @@ public class ChildComparerFixtureTest {
 	}
 
 	private void addRecordsToDataHolder() {
-		List<DataRecord> dataRecords = new ArrayList<>();
+		List<ClientDataRecord> dataRecords = new ArrayList<>();
 		dataRecords.add(new ClientDataRecordSpy());
 		dataRecords.add(new ClientDataRecordSpy());
 		DataHolder.setRecordList(dataRecords);
@@ -221,16 +221,16 @@ public class ChildComparerFixtureTest {
 
 	@Test
 	public void testCheckContainOK() {
-		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
-		DataHolder.setRecord(clientDataRecordSpy);
+		ClientDataRecordSpy clientClientDataRecordSpy = new ClientDataRecordSpy();
+		DataHolder.setRecord(clientClientDataRecordSpy);
 		String result = fixture.testCheckContain();
 		assertEquals(result, "OK");
 	}
 
 	@Test
 	public void testCheckContainResultNotOK() {
-		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
-		DataHolder.setRecord(clientDataRecordSpy);
+		ClientDataRecordSpy clientClientDataRecordSpy = new ClientDataRecordSpy();
+		DataHolder.setRecord(clientClientDataRecordSpy);
 
 		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		childComparer.numberOfErrorsToReturn = 3;
@@ -243,8 +243,8 @@ public class ChildComparerFixtureTest {
 
 	@Test
 	public void testCheckContainSendsResultBetweenObjectsCorrectly() {
-		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
-		DataHolder.setRecord(clientDataRecordSpy);
+		ClientDataRecordSpy clientClientDataRecordSpy = new ClientDataRecordSpy();
+		DataHolder.setRecord(clientClientDataRecordSpy);
 		String childrenToLookFor = "{\"children\":[{\"name\":\"instructorId\"},{\"name\":\"popularity\"}]}";
 		fixture.setChildren(childrenToLookFor);
 		fixture.testCheckContain();
@@ -259,8 +259,8 @@ public class ChildComparerFixtureTest {
 
 	@Test
 	public void testCheckContainComparerThrowsError() {
-		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
-		DataHolder.setRecord(clientDataRecordSpy);
+		ClientDataRecordSpy clientClientDataRecordSpy = new ClientDataRecordSpy();
+		DataHolder.setRecord(clientClientDataRecordSpy);
 		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		childComparer.spyShouldThrowError = true;
 
@@ -277,8 +277,8 @@ public class ChildComparerFixtureTest {
 
 	@Test
 	public void testCheckContainWithValuesResultNotOK() {
-		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
-		DataHolder.setRecord(clientDataRecordSpy);
+		ClientDataRecordSpy clientClientDataRecordSpy = new ClientDataRecordSpy();
+		DataHolder.setRecord(clientClientDataRecordSpy);
 
 		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		childComparer.numberOfErrorsToReturn = 3;
@@ -291,8 +291,8 @@ public class ChildComparerFixtureTest {
 
 	@Test
 	public void testCheckContainWithValuesSendsResultBetweenObjectsCorrectly() {
-		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
-		DataHolder.setRecord(clientDataRecordSpy);
+		ClientDataRecordSpy clientClientDataRecordSpy = new ClientDataRecordSpy();
+		DataHolder.setRecord(clientClientDataRecordSpy);
 		String childrenToLookFor = "{\"children\":[{\"type\":\"atomic\",\"name\":\"workoutName\",\"value\":\"cirkelfys\"}]}";
 		fixture.setChildren(childrenToLookFor);
 		fixture.testCheckContainWithValues();
@@ -307,8 +307,8 @@ public class ChildComparerFixtureTest {
 
 	@Test
 	public void testCheckContainWithValuesThrowsError() {
-		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
-		DataHolder.setRecord(clientDataRecordSpy);
+		ClientDataRecordSpy clientClientDataRecordSpy = new ClientDataRecordSpy();
+		DataHolder.setRecord(clientClientDataRecordSpy);
 		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		childComparer.spyShouldThrowError = true;
 
@@ -318,9 +318,9 @@ public class ChildComparerFixtureTest {
 	@Test
 	public void testCountChildrenOK() {
 		ClientDataGroup clientDataGroup = createDataGroupWithTwoChildReferences();
-		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
-		clientDataRecordSpy.clientDataGroup = clientDataGroup;
-		DataHolder.setRecord(clientDataRecordSpy);
+		ClientDataRecordSpy clientClientDataRecordSpy = new ClientDataRecordSpy();
+		clientClientDataRecordSpy.clientDataGroup = clientDataGroup;
+		DataHolder.setRecord(clientClientDataRecordSpy);
 
 		fixture.setExpectedNumberOfChildren(2);
 		String result = fixture.testCheckNumberOfChildren();
@@ -345,9 +345,9 @@ public class ChildComparerFixtureTest {
 	@Test
 	public void testCountChildrenNotOK() {
 		ClientDataGroup clientDataGroup = createDataGroupWithTwoChildReferences();
-		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
-		clientDataRecordSpy.clientDataGroup = clientDataGroup;
-		DataHolder.setRecord(clientDataRecordSpy);
+		ClientDataRecordSpy clientClientDataRecordSpy = new ClientDataRecordSpy();
+		clientClientDataRecordSpy.clientDataGroup = clientDataGroup;
+		DataHolder.setRecord(clientClientDataRecordSpy);
 
 		fixture.setExpectedNumberOfChildren(3);
 		String result = fixture.testCheckNumberOfChildren();

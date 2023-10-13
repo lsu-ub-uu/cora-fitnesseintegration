@@ -27,8 +27,8 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.DataRecord;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToClientDataRecordConverterImp;
 import se.uu.ub.cora.fitnesseintegration.ClientDataRecordSpy;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
@@ -66,7 +66,7 @@ public class ActionComparerFixtureTest {
 		assertTrue(fixture.getComparerFactory() instanceof ComparerFactorySpy);
 		assertTrue(fixture.onlyForTestGetJsonHandler() instanceof JsonHandlerImp);
 		assertTrue(fixture
-				.onlyForTestGetJsonToDataRecordConverter() instanceof JsonToDataRecordConverterImp);
+				.onlyForTestGetJsonToClientDataRecordConverter() instanceof JsonToClientDataRecordConverterImp);
 		assertTrue(fixture.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
 
 		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.getRecordHandler();
@@ -76,16 +76,16 @@ public class ActionComparerFixtureTest {
 
 	@Test
 	public void testCallsAreMadeCorrectly() {
-		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
+		ClientDataRecordSpy clientClientDataRecordSpy = new ClientDataRecordSpy();
 
-		DataHolder.setRecord(clientDataRecordSpy);
+		DataHolder.setRecord(clientClientDataRecordSpy);
 		ComparerFactorySpy comparerFactory = (ComparerFactorySpy) fixture.getComparerFactory();
 		fixture.setActions("{\"actions\":[ \"read\", \"delete\",\"update\"]}");
 
 		fixture.testCheckActions();
 
 		assertEquals(comparerFactory.type, "action");
-		assertSame(comparerFactory.dataRecord, clientDataRecordSpy);
+		assertSame(comparerFactory.dataRecord, clientClientDataRecordSpy);
 
 		ComparerSpy factoredComparer = comparerFactory.factoredComparer;
 		assertEquals(jsonParser.jsonStringsSentToParser.get(0),
@@ -117,8 +117,8 @@ public class ActionComparerFixtureTest {
 
 	@Test
 	public void testTestCheckActionsFromListPermissionsOK() {
-		DataRecord dataRecord = new DataRecordSpy();
-		List<DataRecord> dataRecordList = List.of(dataRecord);
+		ClientDataRecord dataRecord = new ClientDataRecordSpy();
+		List<ClientDataRecord> dataRecordList = List.of(dataRecord);
 
 		ComparerFactorySpy comparerFactory = (ComparerFactorySpy) fixture.getComparerFactory();
 
@@ -140,8 +140,8 @@ public class ActionComparerFixtureTest {
 
 	@Test
 	public void testTestCheckActionsFromListPermissionsNotOK() {
-		DataRecord dataRecord = new DataRecordSpy();
-		List<DataRecord> dataRecordList = List.of(dataRecord);
+		ClientDataRecord dataRecord = new ClientDataRecordSpy();
+		List<ClientDataRecord> dataRecordList = List.of(dataRecord);
 
 		ComparerFactorySpy comparerFactory = (ComparerFactorySpy) fixture.getComparerFactory();
 		comparerFactory.numberOfErrorsToReturn = 3;

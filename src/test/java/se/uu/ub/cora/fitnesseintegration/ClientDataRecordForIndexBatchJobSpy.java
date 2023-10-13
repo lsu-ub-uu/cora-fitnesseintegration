@@ -21,13 +21,13 @@ package se.uu.ub.cora.fitnesseintegration;
 import java.util.Map;
 import java.util.Set;
 
-import se.uu.ub.cora.clientdata.ActionLink;
+import se.uu.ub.cora.clientdata.ClientActionLink;
 import se.uu.ub.cora.clientdata.ClientData;
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
-import se.uu.ub.cora.clientdata.DataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 
-public class ClientDataRecordForIndexBatchJobSpy implements DataRecord, ClientData {
+public class ClientDataRecordForIndexBatchJobSpy implements ClientDataRecord, ClientData {
 
 	public ClientDataGroup clientDataGroup;
 
@@ -35,7 +35,7 @@ public class ClientDataRecordForIndexBatchJobSpy implements DataRecord, ClientDa
 	public int callsToGetClientDataGroup;
 
 	@Override
-	public ClientDataGroup getClientDataGroup() {
+	public ClientDataGroup getDataRecordGroup() {
 		callsToGetClientDataGroup++;
 		if (clientDataGroup == null) {
 			clientDataGroup = createBatchJobDataGroupWithStatus("notFinished");
@@ -60,7 +60,7 @@ public class ClientDataRecordForIndexBatchJobSpy implements DataRecord, ClientDa
 	}
 
 	@Override
-	public Map<String, ActionLink> getActionLinks() {
+	public Map<String, ClientActionLink> getClientActionLinks() {
 		// TODO Auto-generated method stub
 		return null;
 	}

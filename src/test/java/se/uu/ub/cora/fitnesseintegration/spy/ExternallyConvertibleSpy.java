@@ -2,6 +2,7 @@ package se.uu.ub.cora.fitnesseintegration.spy;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import se.uu.ub.cora.data.DataAtomic;
 import se.uu.ub.cora.data.DataAttribute;
@@ -176,6 +177,49 @@ public class ExternallyConvertibleSpy implements ExternallyConvertible, DataGrou
 	public boolean removeAllChildrenMatchingFilter(DataChildFilter childFilter) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public <T> boolean containsChildOfTypeAndName(Class<T> arg0, String arg1) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public <T extends DataChild> List<T> getChildrenOfTypeAndName(Class<T> arg0, String arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T extends DataChild> T getFirstChildOfTypeAndName(Class<T> arg0, String arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T extends DataChild> boolean removeChildrenWithTypeAndName(Class<T> arg0, String arg1) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public <T extends DataChild> boolean removeFirstChildWithTypeAndName(Class<T> arg0,
+			String arg1) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean hasRepeatId() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Optional<String> getAttributeValue(String arg0) {
+		// TODO Auto-generated method stub
+		return Optional.empty();
 	}
 
 }

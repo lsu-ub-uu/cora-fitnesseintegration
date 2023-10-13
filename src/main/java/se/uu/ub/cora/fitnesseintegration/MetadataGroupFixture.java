@@ -2,9 +2,11 @@ package se.uu.ub.cora.fitnesseintegration;
 
 import java.util.List;
 
-import se.uu.ub.cora.clientdata.ClientDataElement;
+import se.uu.ub.cora.clientdata.ClientDataChild;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
-import se.uu.ub.cora.clientdata.DataRecord;
+import se.uu.ub.cora.clientdata.ClientDataParent;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 
 public class MetadataGroupFixture {
 
@@ -17,15 +19,15 @@ public class MetadataGroupFixture {
 
 	public int numberOfChildrenWithNameInData() {
 		int numOfMatchingChildren = 0;
-		DataRecord dataRecord = DataHolder.getRecord();
+		ClientDataRecord dataRecord = DataHolder.getRecord();
 		if (topLevelGroupExists(dataRecord)) {
 			numOfMatchingChildren = findNumOfMatchingChildren(dataRecord);
 		}
 		return numOfMatchingChildren;
 	}
 
-	private int findNumOfMatchingChildren(DataRecord dataRecord) {
-		ClientDataGroup topLevelDataGroup = dataRecord.getClientDataGroup();
+	private int findNumOfMatchingChildren(ClientDataRecord dataRecord) {
+		ClientDataRecordGroup topLevelDataGroup = dataRecord.getDataRecordGroup();
 		if (shouldFindChildrenInTopLevelDataGroup()) {
 			return getNumberOfMatchingChildren(topLevelDataGroup);
 		}
@@ -37,29 +39,29 @@ public class MetadataGroupFixture {
 	}
 
 	private int possiblyGetNumOfMatchingChildrenFromChildDataGroup(
-			ClientDataGroup topLevelDataGroup) {
+			ClientDataParent topLevelDataGroup) {
 		if (childDataGroupExist(topLevelDataGroup)) {
 			return getNumOfMatchingChildrenFromChildDataGroup(topLevelDataGroup);
 		}
 		return 0;
 	}
 
-	private boolean childDataGroupExist(ClientDataGroup topLevelDataGroup) {
+	private boolean childDataGroupExist(ClientDataParent topLevelDataGroup) {
 		return topLevelDataGroup.containsChildWithNameInData(childDataGroupName);
 	}
 
-	private int getNumOfMatchingChildrenFromChildDataGroup(ClientDataGroup topLevelDataGroup) {
+	private int getNumOfMatchingChildrenFromChildDataGroup(ClientDataParent topLevelDataGroup) {
 		ClientDataGroup childDataGroup = topLevelDataGroup
 				.getFirstGroupWithNameInData(childDataGroupName);
 		return getNumberOfMatchingChildren(childDataGroup);
 	}
 
-	private boolean topLevelGroupExists(DataRecord dataRecord) {
-		return dataRecord != null && dataRecord.getClientDataGroup() != null;
+	private boolean topLevelGroupExists(ClientDataRecord dataRecord) {
+		return dataRecord != null && dataRecord.getDataRecordGroup() != null;
 	}
 
-	private int getNumberOfMatchingChildren(ClientDataGroup topLevelDataGroup) {
-		List<ClientDataElement> matchingChildren = topLevelDataGroup
+	private int getNumberOfMatchingChildren(ClientDataParent topLevelDataGroup) {
+		List<ClientDataChild> matchingChildren = topLevelDataGroup
 				.getAllChildrenWithNameInData(nameInData);
 		return matchingChildren.size();
 	}

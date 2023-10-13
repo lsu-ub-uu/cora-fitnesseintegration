@@ -28,8 +28,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
-import se.uu.ub.cora.clientdata.DataRecord;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToClientDataRecordConverter;
 import se.uu.ub.cora.fitnesseintegration.BasicHttpResponse;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
@@ -51,7 +51,7 @@ public class ComparerFixture {
 	private String type;
 	private String storedListAsJson;
 	protected JsonHandler jsonHandler;
-	private JsonToDataRecordConverter jsonToDataRecordConverter;
+	private JsonToClientDataRecordConverter jsonToClientDataRecordConverter;
 	protected int indexToCompareTo;
 	private HttpHandlerFactory httpHandlerFactory;
 	private String authToken;
@@ -71,27 +71,27 @@ public class ComparerFixture {
 		RestClientFactoryImp restClientFactory = new RestClientFactoryImp(baseUrl);
 		recordHandler = new RecordHandlerImp(httpHandlerFactory, restClientFactory);
 		jsonHandler = DependencyProvider.getJsonHandler();
-		jsonToDataRecordConverter = DependencyProvider.getJsonToDataRecordConverter();
+		jsonToClientDataRecordConverter = DependencyProvider.getJsonToClientDataRecordConverter();
 	}
 
 	public String testReadAndStoreRecord() {
 		BasicHttpResponse readResponse = recordHandler.readRecord(authToken, type, id);
 		JsonObject recordJsonObject = jsonHandler.parseStringAsObject(readResponse.responseText);
-		DataRecord dataRecord = jsonToDataRecordConverter.toInstance(recordJsonObject);
+		ClientDataRecord dataRecord = jsonToClientDataRecordConverter.toInstance(recordJsonObject);
 		DataHolder.setRecord(dataRecord);
 		return readResponse.responseText;
 	}
 
 	public void testReadRecordListAndStoreRecords() throws UnsupportedEncodingException {
 		storedListAsJson = recordHandler.readRecordList(authToken, type, listFilter).responseText;
-		List<DataRecord> convertedRecords = convertToRecords();
+		List<ClientDataRecord> convertedRecords = convertToRecords();
 		DataHolder.setRecord(convertedRecords.get(indexToStore));
 		DataHolder.setRecordList(convertedRecords);
 	}
 
-	private List<DataRecord> convertToRecords() {
+	private List<ClientDataRecord> convertToRecords() {
 		Iterator<JsonValue> iterator = getIteratorFromListOfRecords();
-		List<DataRecord> convertedRecords = new ArrayList<>();
+		List<ClientDataRecord> convertedRecords = new ArrayList<>();
 		while (iterator.hasNext()) {
 			JsonObject dataRecord = (JsonObject) iterator.next();
 			convertAndAddRecord(dataRecord, convertedRecords);
@@ -127,11 +127,11 @@ public class ComparerFixture {
 
 	private boolean compareAndStoreIfFound(Iterator<JsonValue> iterator, boolean recordFound) {
 		JsonObject jsonRecord = (JsonObject) iterator.next();
-		DataRecord recordToStore = jsonToDataRecordConverter.toInstance(jsonRecord);
+		ClientDataRecord recordToStore = jsonToClientDataRecordConverter.toInstance(jsonRecord);
 		return storeRecordIfFound(recordFound, recordToStore);
 	}
 
-	private boolean storeRecordIfFound(boolean recordFound, DataRecord recordToStore) {
+	private boolean storeRecordIfFound(boolean recordFound, ClientDataRecord recordToStore) {
 		if (idToStoreEqualsIdIn(recordToStore)) {
 			recordFound = true;
 			DataHolder.setRecord(recordToStore);
@@ -139,18 +139,18 @@ public class ComparerFixture {
 		return recordFound;
 	}
 
-	private boolean idToStoreEqualsIdIn(DataRecord recordToStore) {
+	private boolean idToStoreEqualsIdIn(ClientDataRecord recordToStore) {
 		return getRecordIdValue(recordToStore).equals(idToStore);
 	}
 
-	private String getRecordIdValue(DataRecord recordToStore) {
-		return recordToStore.getClientDataGroup().getFirstGroupWithNameInData("recordInfo")
+	private String getRecordIdValue(ClientDataRecord recordToStore) {
+		return recordToStore.getDataRecordGroup().getFirstGroupWithNameInData("recordInfo")
 				.getFirstAtomicValueWithNameInData("id");
 	}
 
 	private void convertAndAddRecord(JsonObject recordJsonObject,
-			List<DataRecord> convertedRecords) {
-		DataRecord dataRecord = jsonToDataRecordConverter.toInstance(recordJsonObject);
+			List<ClientDataRecord> convertedRecords) {
+		ClientDataRecord dataRecord = jsonToClientDataRecordConverter.toInstance(recordJsonObject);
 		convertedRecords.add(dataRecord);
 	}
 
@@ -163,10 +163,10 @@ public class ComparerFixture {
 	}
 
 	protected ClientDataGroup getDataGroupFromRecordHolderUsingIndex() {
-		return DataHolder.getRecordList().get(indexToCompareTo).getClientDataGroup();
+		return DataHolder.getRecordList().get(indexToCompareTo).getDataRecordGroup();
 	}
 
-	protected DataRecord getDataRecordFromRecordHolderUsingIndex() {
+	protected ClientDataRecord getClientDataRecordFromRecordHolderUsingIndex() {
 		return DataHolder.getRecordList().get(indexToCompareTo);
 	}
 
@@ -174,7 +174,7 @@ public class ComparerFixture {
 		String url = baseRecordUrl + "searchResult" + "/" + searchId;
 		storedListAsJson = recordHandler.searchRecord(url, authToken, json).responseText;
 
-		List<DataRecord> convertedRecords = convertToRecords();
+		List<ClientDataRecord> convertedRecords = convertToRecords();
 		DataHolder.setRecord(convertedRecords.get(indexToStore));
 		DataHolder.setRecordList(convertedRecords);
 	}
@@ -195,7 +195,7 @@ public class ComparerFixture {
 	}
 
 	private void createRecordFromResponseAndSetInDataHolder(BasicHttpResponse response) {
-		DataRecord dataRecord = createRecordFromResponseText(response.responseText);
+		ClientDataRecord dataRecord = createRecordFromResponseText(response.responseText);
 		DataHolder.setRecord(dataRecord);
 	}
 
@@ -217,13 +217,13 @@ public class ComparerFixture {
 	}
 
 	private void createRecordFromExtendedResponseAndSetInDataHolder(ExtendedHttpResponse response) {
-		DataRecord dataRecord = createRecordFromResponseText(response.responseText);
+		ClientDataRecord dataRecord = createRecordFromResponseText(response.responseText);
 		DataHolder.setRecord(dataRecord);
 	}
 
-	private DataRecord createRecordFromResponseText(String responseText) {
+	private ClientDataRecord createRecordFromResponseText(String responseText) {
 		JsonObject recordJsonObject = jsonHandler.parseStringAsObject(responseText);
-		return jsonToDataRecordConverter.toInstance(recordJsonObject);
+		return jsonToClientDataRecordConverter.toInstance(recordJsonObject);
 	}
 
 	public void setListIndexToCompareTo(int index) {
@@ -234,8 +234,8 @@ public class ComparerFixture {
 		this.jsonHandler = jsonHandler;
 	}
 
-	void onlyForTestSetJsonToDataRecordConverter(JsonToDataRecordConverter jsonToDataConverter) {
-		this.jsonToDataRecordConverter = jsonToDataConverter;
+	void onlyForTestSetJsonToClientDataRecordConverter(JsonToClientDataRecordConverter jsonToDataConverter) {
+		this.jsonToClientDataRecordConverter = jsonToDataConverter;
 	}
 
 	public HttpHandlerFactory onlyForTestGetHttpHandlerFactory() {
@@ -254,8 +254,8 @@ public class ComparerFixture {
 		return jsonHandler;
 	}
 
-	public JsonToDataRecordConverter onlyForTestGetJsonToDataRecordConverter() {
-		return jsonToDataRecordConverter;
+	public JsonToClientDataRecordConverter onlyForTestGetJsonToClientDataRecordConverter() {
+		return jsonToClientDataRecordConverter;
 	}
 
 	public void setId(String id) {

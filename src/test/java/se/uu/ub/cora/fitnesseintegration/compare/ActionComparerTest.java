@@ -26,8 +26,7 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.Action;
-import se.uu.ub.cora.clientdata.ActionLink;
+import se.uu.ub.cora.clientdata.ClientActionLink;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.json.parser.JsonParser;
@@ -54,7 +53,7 @@ public class ActionComparerTest {
 		String actions = "{\"actions\":[ \"read\"]}";
 		JsonValue jsonValue = jsonParser.parseString(actions);
 
-		List<String> results = comparer.checkDataRecordContains(jsonValue);
+		List<String> results = comparer.checkClientDataRecordContains(jsonValue);
 		assertTrue(results.isEmpty());
 	}
 
@@ -65,14 +64,14 @@ public class ActionComparerTest {
 		String actions = "{\"actions\":[ \"read\"]}";
 		JsonValue jsonValue = jsonParser.parseString(actions);
 
-		List<String> results = comparer.checkDataRecordContains(jsonValue);
+		List<String> results = comparer.checkClientDataRecordContains(jsonValue);
 		assertTrue(results.isEmpty());
 	}
 
 	private void addLinkToRecord(String key, Action action) {
-		ActionLink actionLink = ActionLink.withAction(Action.READ);
+		ClientActionLink actionLink = ClientActionLink.withAction(Action.READ);
 
-		dataRecord.addActionLink(key, actionLink);
+		dataRecord.addClientActionLink(key, actionLink);
 	}
 
 	@Test
@@ -81,7 +80,7 @@ public class ActionComparerTest {
 		String actions = "{\"actions\":[ \"read\", \"update\"]}";
 		JsonValue jsonValue = jsonParser.parseString(actions);
 
-		List<String> results = comparer.checkDataRecordContains(jsonValue);
+		List<String> results = comparer.checkClientDataRecordContains(jsonValue);
 		assertEquals(results.size(), 1);
 		assertEquals(results.get(0), "Action update is missing.");
 
@@ -95,7 +94,7 @@ public class ActionComparerTest {
 		String actions = "{\"actions\":[ \"read\", \"delete\",\"update\"]}";
 		JsonValue jsonValue = jsonParser.parseString(actions);
 
-		List<String> results = comparer.checkDataRecordContains(jsonValue);
+		List<String> results = comparer.checkClientDataRecordContains(jsonValue);
 		assertEquals(results.size(), 0);
 
 	}

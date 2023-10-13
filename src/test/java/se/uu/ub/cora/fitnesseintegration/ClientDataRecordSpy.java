@@ -21,17 +21,17 @@ package se.uu.ub.cora.fitnesseintegration;
 import java.util.Map;
 import java.util.Set;
 
-import se.uu.ub.cora.clientdata.ActionLink;
+import se.uu.ub.cora.clientdata.ClientActionLink;
 import se.uu.ub.cora.clientdata.ClientData;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
-import se.uu.ub.cora.clientdata.DataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 
-public class ClientDataRecordSpy implements DataRecord, ClientData {
+public class ClientDataRecordSpy implements ClientDataRecord, ClientData {
 
 	public ClientDataGroup clientDataGroup;
 
 	@Override
-	public ClientDataGroup getClientDataGroup() {
+	public ClientDataGroup getDataRecordGroup() {
 		if (clientDataGroup == null) {
 			clientDataGroup = ClientDataGroup.withNameInData("clientDataGroupSpy");
 		}
@@ -51,7 +51,7 @@ public class ClientDataRecordSpy implements DataRecord, ClientData {
 	}
 
 	@Override
-	public Map<String, ActionLink> getActionLinks() {
+	public Map<String, ClientActionLink> getClientActionLinks() {
 		// TODO Auto-generated method stub
 		return null;
 	}

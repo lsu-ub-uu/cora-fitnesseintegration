@@ -494,11 +494,9 @@ public class DataGroupComparerTest {
 
 	@Test
 	public void testCompareTwoEqualResourceLink() throws Exception {
-		DataResourceLinkSpy resourceLinkWith = createResourceLinkSpy("nameInData", "streamId",
-				"fileName", "fileSize", "mimeType");
+		DataResourceLinkSpy resourceLinkWith = createResourceLinkSpy("nameInData", "mimeType");
 		setReturnChildren(compareWith.MRV, resourceLinkWith);
-		DataResourceLinkSpy resourceLinkAgainst = createResourceLinkSpy("nameInData", "streamId",
-				"fileName", "fileSize", "mimeType");
+		DataResourceLinkSpy resourceLinkAgainst = createResourceLinkSpy("nameInData", "mimeType");
 		setReturnChildren(compareAgainst.MRV, resourceLinkAgainst);
 
 		List<String> report = comparer.compareDataGroupToDataGroup(compareWith, compareAgainst);
@@ -506,106 +504,101 @@ public class DataGroupComparerTest {
 		assertTrue(report.isEmpty());
 	}
 
-	private DataResourceLinkSpy createResourceLinkSpy(String nameInData, String streamId,
-			String fileName, String fileSize, String mimeType, String... attributesPair) {
+	private DataResourceLinkSpy createResourceLinkSpy(String nameInData, String mimeType,
+			String... attributesPair) {
 		DataResourceLinkSpy resourceLink = new DataResourceLinkSpy();
 		MethodReturnValues MRV = resourceLink.MRV;
 		setNameAndAttributes(MRV, nameInData, attributesPair);
 
-		MRV.setDefaultReturnValuesSupplier("getStreamId", (Supplier<String>) () -> streamId);
-		MRV.setDefaultReturnValuesSupplier("getFileName", (Supplier<String>) () -> fileName);
-		MRV.setDefaultReturnValuesSupplier("getFileSize", (Supplier<String>) () -> fileSize);
+		// MRV.setDefaultReturnValuesSupplier("getStreamId", (Supplier<String>) () -> streamId);
+		// MRV.setDefaultReturnValuesSupplier("getFileName", (Supplier<String>) () -> fileName);
+		// MRV.setDefaultReturnValuesSupplier("getFileSize", (Supplier<String>) () -> fileSize);
 		MRV.setDefaultReturnValuesSupplier("getMimeType", (Supplier<String>) () -> mimeType);
 		return resourceLink;
 	}
 
-	@Test
-	public void testCompareTwoResourceLinkDifferentStreamId() throws Exception {
-		DataResourceLinkSpy resourceLinkWith = createResourceLinkSpy("nameInData", "streamId",
-				"fileName", "fileSize", "mimeType");
-		setReturnChildren(compareWith.MRV, resourceLinkWith);
-		DataResourceLinkSpy resourceLinkAgainst = createResourceLinkSpy("nameInData", "streamIdA",
-				"fileName", "fileSize", "mimeType");
-		setReturnChildren(compareAgainst.MRV, resourceLinkAgainst);
-
-		List<String> report = comparer.compareDataGroupToDataGroup(compareWith, compareAgainst);
-
-		assertCompareFoundOnMissmatch(report);
-		assertEquals(report.get(0), "ResourceLink with name: nameInData, streamId: streamId, "
-				+ "fileName: fileName, fileSize: fileSize and mimeType: mimeType not found.");
-	}
-
-	@Test
-	public void testCompareTwoResourceLinkDifferentFileName() throws Exception {
-		DataResourceLinkSpy resourceLinkWith = createResourceLinkSpy("nameInData", "streamId",
-				"fileName", "fileSize", "mimeType");
-		setReturnChildren(compareWith.MRV, resourceLinkWith);
-		DataResourceLinkSpy resourceLinkAgainst = createResourceLinkSpy("nameInData", "streamId",
-				"fileNameA", "fileSize", "mimeType");
-		setReturnChildren(compareAgainst.MRV, resourceLinkAgainst);
-
-		List<String> report = comparer.compareDataGroupToDataGroup(compareWith, compareAgainst);
-
-		assertCompareFoundOnMissmatch(report);
-		assertEquals(report.get(0), "ResourceLink with name: nameInData, streamId: streamId, "
-				+ "fileName: fileName, fileSize: fileSize and mimeType: mimeType not found.");
-	}
-
-	@Test
-	public void testCompareTwoResourceLinkDifferentFileSize() throws Exception {
-		DataResourceLinkSpy resourceLinkWith = createResourceLinkSpy("nameInData", "streamId",
-				"fileName", "fileSize", "mimeType");
-		setReturnChildren(compareWith.MRV, resourceLinkWith);
-		DataResourceLinkSpy resourceLinkAgainst = createResourceLinkSpy("nameInData", "streamId",
-				"fileName", "fileSizeA", "mimeType");
-		setReturnChildren(compareAgainst.MRV, resourceLinkAgainst);
-
-		List<String> report = comparer.compareDataGroupToDataGroup(compareWith, compareAgainst);
-
-		assertCompareFoundOnMissmatch(report);
-		assertEquals(report.get(0), "ResourceLink with name: nameInData, streamId: streamId, "
-				+ "fileName: fileName, fileSize: fileSize and mimeType: mimeType not found.");
-	}
+	// @Test
+	// public void testCompareTwoResourceLinkDifferentStreamId() throws Exception {
+	// DataResourceLinkSpy resourceLinkWith = createResourceLinkSpy("nameInData", "streamId",
+	// "fileName", "fileSize", "mimeType");
+	// setReturnChildren(compareWith.MRV, resourceLinkWith);
+	// DataResourceLinkSpy resourceLinkAgainst = createResourceLinkSpy("nameInData", "streamIdA",
+	// "fileName", "fileSize", "mimeType");
+	// setReturnChildren(compareAgainst.MRV, resourceLinkAgainst);
+	//
+	// List<String> report = comparer.compareDataGroupToDataGroup(compareWith, compareAgainst);
+	//
+	// assertCompareFoundOnMissmatch(report);
+	// assertEquals(report.get(0), "ResourceLink with name: nameInData, streamId: streamId, "
+	// + "fileName: fileName, fileSize: fileSize and mimeType: mimeType not found.");
+	// }
+	//
+	// @Test
+	// public void testCompareTwoResourceLinkDifferentFileName() throws Exception {
+	// DataResourceLinkSpy resourceLinkWith = createResourceLinkSpy("nameInData", "streamId",
+	// "fileName", "fileSize", "mimeType");
+	// setReturnChildren(compareWith.MRV, resourceLinkWith);
+	// DataResourceLinkSpy resourceLinkAgainst = createResourceLinkSpy("nameInData", "streamId",
+	// "fileNameA", "fileSize", "mimeType");
+	// setReturnChildren(compareAgainst.MRV, resourceLinkAgainst);
+	//
+	// List<String> report = comparer.compareDataGroupToDataGroup(compareWith, compareAgainst);
+	//
+	// assertCompareFoundOnMissmatch(report);
+	// assertEquals(report.get(0), "ResourceLink with name: nameInData, streamId: streamId, "
+	// + "fileName: fileName, fileSize: fileSize and mimeType: mimeType not found.");
+	// }
+	//
+	// @Test
+	// public void testCompareTwoResourceLinkDifferentFileSize() throws Exception {
+	// DataResourceLinkSpy resourceLinkWith = createResourceLinkSpy("nameInData", "streamId",
+	// "fileName", "fileSize", "mimeType");
+	// setReturnChildren(compareWith.MRV, resourceLinkWith);
+	// DataResourceLinkSpy resourceLinkAgainst = createResourceLinkSpy("nameInData", "streamId",
+	// "fileName", "fileSizeA", "mimeType");
+	// setReturnChildren(compareAgainst.MRV, resourceLinkAgainst);
+	//
+	// List<String> report = comparer.compareDataGroupToDataGroup(compareWith, compareAgainst);
+	//
+	// assertCompareFoundOnMissmatch(report);
+	// assertEquals(report.get(0), "ResourceLink with name: nameInData, streamId: streamId, "
+	// + "fileName: fileName, fileSize: fileSize and mimeType: mimeType not found.");
+	// }
 
 	@Test
 	public void testCompareTwoResourceLinkDifferentMimeType() throws Exception {
-		DataResourceLinkSpy resourceLinkWith = createResourceLinkSpy("nameInData", "streamId",
-				"fileName", "fileSize", "mimeType");
+		DataResourceLinkSpy resourceLinkWith = createResourceLinkSpy("nameInData", "mimeType");
 		setReturnChildren(compareWith.MRV, resourceLinkWith);
-		DataResourceLinkSpy resourceLinkAgainst = createResourceLinkSpy("nameInData", "streamId",
-				"fileName", "fileSize", "mimeTypeA");
-		setReturnChildren(compareAgainst.MRV, resourceLinkAgainst);
-
-		List<String> report = comparer.compareDataGroupToDataGroup(compareWith, compareAgainst);
-
-		assertCompareFoundOnMissmatch(report);
-		assertEquals(report.get(0), "ResourceLink with name: nameInData, streamId: streamId, "
-				+ "fileName: fileName, fileSize: fileSize and mimeType: mimeType not found.");
-	}
-
-	@Test
-	public void testCompareTwoResourceLinkWithSameAttributesDifferentValues() throws Exception {
-		DataResourceLinkSpy resourceLinkWith = createResourceLinkSpy("nameInData", "streamId",
-				"fileName", "fileSize", "mimeType", "attributeA", "A", "attributeB", "B");
-		setReturnChildren(compareWith.MRV, resourceLinkWith);
-		DataResourceLinkSpy resourceLinkAgainst = createResourceLinkSpy("nameInData", "streamId",
-				"fileName", "fileSize", "mimeType", "attributeA", "A", "attributeB", "C");
+		DataResourceLinkSpy resourceLinkAgainst = createResourceLinkSpy("nameInData", "mimeTypeA");
 		setReturnChildren(compareAgainst.MRV, resourceLinkAgainst);
 
 		List<String> report = comparer.compareDataGroupToDataGroup(compareWith, compareAgainst);
 
 		assertCompareFoundOnMissmatch(report);
 		assertEquals(report.get(0),
-				"ResourceLink with name: nameInData and attribute/s "
-						+ "[name: attributeA and value: A, name: attributeB and value: B], "
-						+ "streamId: streamId, fileName: fileName, fileSize: fileSize and "
-						+ "mimeType: mimeType not found.");
+				"ResourceLink with name: nameInData, and mimeType: mimeType not found.");
+	}
+
+	@Test
+	public void testCompareTwoResourceLinkWithSameAttributesDifferentValues() throws Exception {
+		DataResourceLinkSpy resourceLinkWith = createResourceLinkSpy("nameInData", "mimeType",
+				"attributeA", "A", "attributeB", "B");
+		setReturnChildren(compareWith.MRV, resourceLinkWith);
+		DataResourceLinkSpy resourceLinkAgainst = createResourceLinkSpy("nameInData", "mimeType",
+				"attributeA", "A", "attributeB", "C");
+		setReturnChildren(compareAgainst.MRV, resourceLinkAgainst);
+
+		List<String> report = comparer.compareDataGroupToDataGroup(compareWith, compareAgainst);
+
+		assertCompareFoundOnMissmatch(report);
+		assertEquals(report.get(0),
+				"ResourceLink with name: nameInData and attribute/s [name: attributeA and value: A, "
+						+ "name: attributeB and value: B], and mimeType: mimeType not found.");
 	}
 
 	@Test
 	public void testCompareAResourceLinkAtomicSameNameInData() throws Exception {
-		DataResourceLinkSpy resourceLinkWith = createResourceLinkSpy("nameInData", "streamId",
-				"fileName", "fileSize", "mimeType");
+		DataResourceLinkSpy resourceLinkWith = createResourceLinkSpy("nameInData", "mimeType");
 		setReturnChildren(compareWith.MRV, resourceLinkWith);
 		DataAtomicSpy atomicAgainst = createAtomicSpy("nameInData", "value");
 		setReturnChildren(compareAgainst.MRV, atomicAgainst);
@@ -613,21 +606,19 @@ public class DataGroupComparerTest {
 		List<String> report = comparer.compareDataGroupToDataGroup(compareWith, compareAgainst);
 
 		assertCompareFoundOnMissmatch(report);
-		assertEquals(report.get(0), "ResourceLink with name: nameInData, streamId: streamId, "
-				+ "fileName: fileName, fileSize: fileSize and mimeType: mimeType not found.");
+		assertEquals(report.get(0),
+				"ResourceLink with name: nameInData, and mimeType: mimeType not found.");
 	}
 
 	@Test
 	public void testCompareMoreThanOneChildMissing() throws Exception {
 		DataAtomicSpy atomicWith = createAtomicSpy("nameInData", "value");
-		DataResourceLinkSpy resourceLinkWith = createResourceLinkSpy("nameInData", "streamId",
-				"fileName", "fileSize", "mimeType");
+		DataResourceLinkSpy resourceLinkWith = createResourceLinkSpy("nameInData", "mimeType");
 		DataRecordLinkSpy recordLinkWith = createRecordLinkSpy("nameInData", "linkType", "linkId");
 		setReturnChildren(compareWith.MRV, atomicWith, resourceLinkWith, recordLinkWith);
 
 		DataAtomicSpy atomicAgainst = createAtomicSpy("nameInDataA", "value");
-		DataResourceLinkSpy resourceLinkAgainst = createResourceLinkSpy("nameInData", "streamIdA",
-				"fileName", "fileSize", "mimeType");
+		DataResourceLinkSpy resourceLinkAgainst = createResourceLinkSpy("nameInData2", "mimeType");
 		DataRecordLinkSpy recordLinkAgainst = createRecordLinkSpy("nameInData", "linkType",
 				"linkId");
 		setReturnChildren(compareAgainst.MRV, recordLinkAgainst, resourceLinkAgainst,
@@ -638,8 +629,8 @@ public class DataGroupComparerTest {
 		assertFalse(report.isEmpty());
 		assertTrue(report.size() == 2);
 		assertEquals(report.get(0), "Atomic with name: nameInData and value: value not found.");
-		assertEquals(report.get(1), "ResourceLink with name: nameInData, streamId: streamId, "
-				+ "fileName: fileName, fileSize: fileSize and mimeType: mimeType not found.");
+		assertEquals(report.get(1),
+				"ResourceLink with name: nameInData, and mimeType: mimeType not found.");
 	}
 
 	@Test
@@ -704,8 +695,8 @@ public class DataGroupComparerTest {
 		DataAtomicSpy A32 = createAtomicSpy("A32", "value", "attributeA", "A", "attributeB", "B");
 		setReturnChildren(G22.MRV, RL32, G31, A32);
 
-		DataResourceLinkSpy RS41 = createResourceLinkSpy("RS41", "streamIdA", "fileName",
-				"fileSize", "mimeType", "attributeA", "A", "attributeB", "B");
+		DataResourceLinkSpy RS41 = createResourceLinkSpy("RS41", "mimeType", "attributeA", "A",
+				"attributeB", "B");
 		setReturnChildren(G31.MRV, RS41);
 	}
 
@@ -726,8 +717,8 @@ public class DataGroupComparerTest {
 		DataAtomicSpy A32 = createAtomicSpy("A32", "value", "attributeA", "A", "attributeB", "B");
 		setReturnChildren(G22.MRV, G31, RL32, A32);
 
-		DataResourceLinkSpy RS41 = createResourceLinkSpy("RS41", "streamIdA", "fileName",
-				"fileSize", "mimeType", "attributeA", "A", "attributeB", "B");
+		DataResourceLinkSpy RS41 = createResourceLinkSpy("RS41", "mimeType", "attributeA", "A",
+				"attributeB", "B");
 		setReturnChildren(G31.MRV, RS41);
 
 		DataRecordLinkSpy RL33 = createRecordLinkSpy("RL33", "linkType", "linkId", "attributeA",
@@ -753,8 +744,7 @@ public class DataGroupComparerTest {
 				"RecordLink with name: RL32, linkType: linkType and linkId: linkId not found.");
 		assertEquals(report.get(3),
 				"ResourceLink with name: RS41 and attribute/s [name: attributeA and value: A, "
-						+ "name: attributeB and value: B], streamId: streamIdA, fileName: fileName, "
-						+ "fileSize: fileSize and mimeType: mimeType not found.");
+						+ "name: attributeB and value: B], and mimeType: mimeType not found.");
 		assertEquals(report.get(4),
 				"Atomic with name: A32 and attribute/s [name: attributeA and value: A, "
 						+ "name: attributeB and value: B] and value: value not found.");
@@ -778,8 +768,8 @@ public class DataGroupComparerTest {
 				"B");
 		setReturnChildren(G22.MRV, G31, RL32, A32);
 
-		DataResourceLinkSpy RS41 = createResourceLinkSpy("RS41", "streamId", "fileName", "fileSize",
-				"mimeType", "attributeA", "A", "attributeB", "C");
+		DataResourceLinkSpy RS41 = createResourceLinkSpy("RS41", "mimeType", "attributeA", "A",
+				"attributeB", "C");
 		setReturnChildren(G31.MRV, RS41);
 
 		DataRecordLinkSpy RL33 = createRecordLinkSpy("RL33", "linkType", "linkId");

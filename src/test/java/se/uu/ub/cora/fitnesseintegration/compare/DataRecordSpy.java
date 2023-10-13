@@ -4,19 +4,19 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import se.uu.ub.cora.clientdata.ActionLink;
+import se.uu.ub.cora.clientdata.ClientActionLink;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
-import se.uu.ub.cora.clientdata.DataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
 
-public class DataRecordSpy implements DataRecord {
+public class ClientDataRecordSpy implements ClientDataRecord {
 
 	public MethodCallRecorder MCR = new MethodCallRecorder();
 
 	public ClientDataGroup clientDataGroup;
 
 	@Override
-	public ClientDataGroup getClientDataGroup() {
+	public ClientDataGroup getDataRecordGroup() {
 		MCR.addCall();
 		if (clientDataGroup == null) {
 			clientDataGroup = ClientDataGroup.withNameInData("clientDataGroupSpy");
@@ -44,10 +44,10 @@ public class DataRecordSpy implements DataRecord {
 	}
 
 	@Override
-	public Map<String, ActionLink> getActionLinks() {
+	public Map<String, ClientActionLink> getClientActionLinks() {
 		MCR.addCall();
 
-		Map<String, ActionLink> emptyMap = Collections.emptyMap();
+		Map<String, ClientActionLink> emptyMap = Collections.emptyMap();
 		MCR.addReturned(emptyMap);
 		return emptyMap;
 	}

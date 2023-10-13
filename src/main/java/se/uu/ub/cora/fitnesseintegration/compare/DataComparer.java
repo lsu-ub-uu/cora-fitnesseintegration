@@ -20,18 +20,18 @@ package se.uu.ub.cora.fitnesseintegration.compare;
 
 import java.util.List;
 
-import se.uu.ub.cora.clientdata.DataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.json.parser.JsonValue;
 
 /**
  * PermissionComparer compares the content in a JsonValue with the permissions in a
- * {@link DataRecord}. The {@link DataRecord} is expected to be provided at instance creation.
+ * {@link ClientDataRecord}. The {@link ClientDataRecord} is expected to be provided at instance creation.
  * 
  */
 public interface DataComparer {
 
 	/**
-	 * Checks whether the DataRecord provided at object instantiation contains the permissions
+	 * Checks whether the ClientDataRecord provided at object instantiation contains the permissions
 	 * specified in the provided JsonValue.
 	 * 
 	 * @param jsonValue
@@ -40,6 +40,6 @@ public interface DataComparer {
 	 * @return A List<String> containing messages for potential missing permissions
 	 * 
 	 */
-	List<String> checkDataRecordContains(JsonValue jsonValue);
+	List<String> checkClientDataRecordContains(JsonValue jsonValue);
 
 }

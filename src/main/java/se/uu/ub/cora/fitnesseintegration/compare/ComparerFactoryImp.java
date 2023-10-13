@@ -18,12 +18,12 @@
  */
 package se.uu.ub.cora.fitnesseintegration.compare;
 
-import se.uu.ub.cora.clientdata.DataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 
 public class ComparerFactoryImp implements ComparerFactory {
 
 	@Override
-	public DataComparer factor(String type, DataRecord dataRecord) {
+	public DataComparer factor(String type, ClientDataRecord dataRecord) {
 		if ("permission".equals(type)) {
 			return new PermissionComparer(dataRecord);
 		}

@@ -31,8 +31,8 @@ import javax.ws.rs.core.Response.StatusType;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.DataRecord;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToClientDataRecordConverterImp;
 import se.uu.ub.cora.fitnesseintegration.BasicHttpResponse;
 import se.uu.ub.cora.fitnesseintegration.ClientDataRecordSpy;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
@@ -52,7 +52,7 @@ public class ComparerFixtureTest {
 
 	private ComparerFixture fixture;
 	private RecordHandlerSpy recordHandler;
-	private JsonToDataRecordConverterForComparerSpy jsonToDataConverter;
+	private JsonToClientDataRecordConverterForComparerSpy jsonToDataConverter;
 	private JsonParserSpy jsonParser;
 	private JsonHandlerImp jsonHandler;
 	private String type;
@@ -75,13 +75,13 @@ public class ComparerFixtureTest {
 		recordHandler = new RecordHandlerSpy();
 		jsonParser = new JsonParserSpy();
 		jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
-		jsonToDataConverter = new JsonToDataRecordConverterForComparerSpy();
+		jsonToDataConverter = new JsonToClientDataRecordConverterForComparerSpy();
 
 		type = "someRecordType";
 		fixture.setType(type);
 		fixture.setRecordHandler(recordHandler);
 		fixture.onlyForTestSetJsonHandler(jsonHandler);
-		fixture.onlyForTestSetJsonToDataRecordConverter(jsonToDataConverter);
+		fixture.onlyForTestSetJsonToClientDataRecordConverter(jsonToDataConverter);
 	}
 
 	@Test
@@ -89,7 +89,7 @@ public class ComparerFixtureTest {
 		fixture = new ComparerFixture();
 		assertTrue(fixture.onlyForTestGetJsonHandler() instanceof JsonHandlerImp);
 		assertTrue(fixture
-				.onlyForTestGetJsonToDataRecordConverter() instanceof JsonToDataRecordConverterImp);
+				.onlyForTestGetJsonToClientDataRecordConverter() instanceof JsonToClientDataRecordConverterImp);
 		assertTrue(fixture.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
 
 		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.getRecordHandler();
@@ -197,11 +197,11 @@ public class ComparerFixtureTest {
 
 	@Test
 	public void testReadRecordListAndStoreRecordByIdRecordNotFound() throws Exception {
-		JsonToDataRecordConverterSpy jsonConverterSpy = new JsonToDataRecordConverterSpy();
+		JsonToClientDataRecordConverterSpy jsonConverterSpy = new JsonToClientDataRecordConverterSpy();
 		String authToken = "someAuthToken";
 
 		fixture.setAuthToken(authToken);
-		fixture.onlyForTestSetJsonToDataRecordConverter(jsonConverterSpy);
+		fixture.onlyForTestSetJsonToClientDataRecordConverter(jsonConverterSpy);
 
 		DataHolder.setRecord(new ClientDataRecordSpy());
 
@@ -209,7 +209,7 @@ public class ComparerFixtureTest {
 
 		recordHandler.MCR.assertParameters("readRecordList", 0, authToken, type, null);
 
-		DataRecord record = DataHolder.getRecord();
+		ClientDataRecord record = DataHolder.getRecord();
 
 		assertNull(record);
 
@@ -218,13 +218,13 @@ public class ComparerFixtureTest {
 
 	@Test
 	public void testReadRecordListAndStoreRecordById1750() throws Exception {
-		JsonToDataRecordConverterSpy jsonConverterSpy = new JsonToDataRecordConverterSpy();
+		JsonToClientDataRecordConverterSpy jsonConverterSpy = new JsonToClientDataRecordConverterSpy();
 		String authToken = "someAuthToken";
 		String recordId = "1750";
 
 		fixture.setIdToStore(recordId);
 		fixture.setAuthToken(authToken);
-		fixture.onlyForTestSetJsonToDataRecordConverter(jsonConverterSpy);
+		fixture.onlyForTestSetJsonToClientDataRecordConverter(jsonConverterSpy);
 
 		jsonConverterSpy.returnRecordWithID(recordId);
 
@@ -232,11 +232,11 @@ public class ComparerFixtureTest {
 
 		recordHandler.MCR.assertParameters("readRecordList", 0, authToken, type, null);
 
-		DataRecord record = DataHolder.getRecord();
+		ClientDataRecord record = DataHolder.getRecord();
 
 		jsonConverterSpy.MCR.assertMethodWasCalled("toInstance");
 
-		String recordIdValue = record.getClientDataGroup().getFirstGroupWithNameInData("recordInfo")
+		String recordIdValue = record.getDataRecordGroup().getFirstGroupWithNameInData("recordInfo")
 				.getFirstAtomicValueWithNameInData("id");
 
 		assertEquals(recordIdValue, recordId);
@@ -246,13 +246,13 @@ public class ComparerFixtureTest {
 
 	@Test
 	public void testReadRecordListAndStoreRecordById3333() throws Exception {
-		JsonToDataRecordConverterSpy jsonConverterSpy = new JsonToDataRecordConverterSpy();
+		JsonToClientDataRecordConverterSpy jsonConverterSpy = new JsonToClientDataRecordConverterSpy();
 		String authToken = "someAuthToken";
 		String recordId = "3333";
 
 		fixture.setIdToStore(recordId);
 		fixture.setAuthToken(authToken);
-		fixture.onlyForTestSetJsonToDataRecordConverter(jsonConverterSpy);
+		fixture.onlyForTestSetJsonToClientDataRecordConverter(jsonConverterSpy);
 
 		jsonConverterSpy.returnRecordWithID(recordId);
 
@@ -260,11 +260,11 @@ public class ComparerFixtureTest {
 
 		recordHandler.MCR.assertParameters("readRecordList", 0, authToken, type, null);
 
-		DataRecord record = DataHolder.getRecord();
+		ClientDataRecord record = DataHolder.getRecord();
 
 		jsonConverterSpy.MCR.assertMethodWasCalled("toInstance");
 
-		String recordIdValue = record.getClientDataGroup().getFirstGroupWithNameInData("recordInfo")
+		String recordIdValue = record.getDataRecordGroup().getFirstGroupWithNameInData("recordInfo")
 				.getFirstAtomicValueWithNameInData("id");
 
 		assertEquals(recordIdValue, recordId);
@@ -281,12 +281,12 @@ public class ComparerFixtureTest {
 
 	@Test
 	public void testReadRecordListAndStoreRecordByIdLoopList() throws Exception {
-		JsonToDataRecordConverterSpy jsonConverterSpy = new JsonToDataRecordConverterSpy();
+		JsonToClientDataRecordConverterSpy jsonConverterSpy = new JsonToClientDataRecordConverterSpy();
 		JsonHandlerSpy jsonHandlerSpy = new JsonHandlerSpy();
 		String authToken = "someAuthToken";
 
 		fixture.setAuthToken(authToken);
-		fixture.onlyForTestSetJsonToDataRecordConverter(jsonConverterSpy);
+		fixture.onlyForTestSetJsonToClientDataRecordConverter(jsonConverterSpy);
 		fixture.onlyForTestSetJsonHandler(jsonHandlerSpy);
 
 		fixture.testReadRecordListAndStoreRecordById();

@@ -21,26 +21,34 @@ package se.uu.ub.cora.fitnesseintegration;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.uu.ub.cora.clientdata.DataRecord;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
+import se.uu.ub.cora.clientdata.ClientConvertible;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverter;
 import se.uu.ub.cora.json.parser.JsonObject;
 
-public class JsonToDataRecordConverterForIndexBatchJobSpy implements JsonToDataRecordConverter {
+public class JsonToClientDataRecordConverterForIndexBatchJobSpy
+		implements JsonToClientDataConverter {
 
 	public JsonObject jsonObject;
 	public List<JsonObject> jsonObjects = new ArrayList<>();
-	public ClientDataRecordForIndexBatchJobSpy clientDataRecordSpy;
+	public ClientDataRecordForIndexBatchJobSpy clientClientDataRecordSpy;
 	public List<ClientDataRecordForIndexBatchJobSpy> returnedSpies = new ArrayList<>();
 
 	@Override
-	public DataRecord toInstance(JsonObject jsonObject) {
+	public ClientDataRecord toInstance(JsonObject jsonObject) {
 		this.jsonObject = jsonObject;
 		jsonObjects.add(jsonObject);
-		if (clientDataRecordSpy == null) {
-			clientDataRecordSpy = new ClientDataRecordForIndexBatchJobSpy();
+		if (clientClientDataRecordSpy == null) {
+			clientClientDataRecordSpy = new ClientDataRecordForIndexBatchJobSpy();
 		}
-		returnedSpies.add(clientDataRecordSpy);
-		return clientDataRecordSpy;
+		returnedSpies.add(clientClientDataRecordSpy);
+		return clientClientDataRecordSpy;
+	}
+
+	@Override
+	public ClientConvertible toInstance() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
