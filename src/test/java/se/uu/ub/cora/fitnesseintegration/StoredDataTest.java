@@ -18,61 +18,68 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
-import static org.testng.Assert.assertEquals;
-
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.data.converter.DataToJsonConverterFactory;
-import se.uu.ub.cora.fitnesseintegration.compare.ClientDataRecordSpy;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterProvider;
+import se.uu.ub.cora.clientdata.spies.ClientDataRecordGroupSpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterFactoryCreatorSpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterFactorySpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterSpy;
+import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
 
 public class StoredDataTest {
+	JsonToClientDataConverterFactorySpy converterToClientFactorySpy;
+	ClientDataToJsonConverterFactoryCreatorSpy toJsonFactoryCreator;
 
-	private StoredDataOnlyForTest storedData;
-	private DataToJsonConverterFactorySpy dataToJsonConverterFactorySpy;
+	private StoredData storedData;
 	private ClientDataRecordSpy clientClientDataRecord;
 
 	@BeforeMethod
 	public void beforeMethod() {
-		storedData = new StoredDataOnlyForTest();
-		dataToJsonConverterFactorySpy = new DataToJsonConverterFactorySpy();
+		toJsonFactoryCreator = new ClientDataToJsonConverterFactoryCreatorSpy();
+		ClientDataToJsonConverterProvider
+				.setDataToJsonConverterFactoryCreator(toJsonFactoryCreator);
+
+		ClientDataRecordGroupSpy clientDataRecordGroupSpy = new ClientDataRecordGroupSpy();
 		clientClientDataRecord = new ClientDataRecordSpy();
+		clientClientDataRecord.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup",
+				() -> clientDataRecordGroupSpy);
+
 		DataHolder.setRecord(clientClientDataRecord);
 	}
 
 	@Test
-	public void testDefaultConverter() throws Exception {
-		StoredData storedData = new StoredData();
+	public void testReturnedValueIsConvertedFromRecordStoredInDataHolder() throws Exception {
+		storedData = new StoredData();
+
 		String json = storedData.getStoredRecordDataGroupAsJsonWithoutLinks();
-		assertEquals(json, "{\"name\":\"clientDataGroupSpy\"}");
+
+		ClientDataToJsonConverterFactorySpy toJsonConverterFacotory = (ClientDataToJsonConverterFactorySpy) toJsonFactoryCreator.MCR
+				.getReturnValue("createFactory", 0);
+		toJsonConverterFacotory.MCR.assertParameters("factorUsingConvertible", 0,
+				DataHolder.getRecord().getDataRecordGroup());
+
+		ClientDataToJsonConverterSpy toJsonConverter = (ClientDataToJsonConverterSpy) toJsonConverterFacotory.MCR
+				.getReturnValue("factorUsingConvertible", 0);
+		toJsonConverter.MCR.assertReturn("toJson", 0, json);
 	}
 
 	@Test
-	public void testCallToFactory() throws Exception {
-		storedData.onlyForTestSetDataToJsonConverterFactory(dataToJsonConverterFactorySpy);
+	public void testMultipleReturnedValueUsesTheSameClientDataToJsonConverterFactory()
+			throws Exception {
+		storedData = new StoredData();
+		toJsonFactoryCreator.MCR.assertNumberOfCallsToMethod("createFactory", 0);
 
 		storedData.getStoredRecordDataGroupAsJsonWithoutLinks();
 
-		dataToJsonConverterFactorySpy.MCR.assertParameters(
-				"createForClientDataChildIncludingClientActionLinks", 0,
-				clientClientDataRecord.getDataRecordGroup(), false);
-	}
+		toJsonFactoryCreator.MCR.assertNumberOfCallsToMethod("createFactory", 1);
 
-	@Test
-	public void testCallToConvert() throws Exception {
-		storedData.onlyForTestSetDataToJsonConverterFactory(dataToJsonConverterFactorySpy);
+		storedData.getStoredRecordDataGroupAsJsonWithoutLinks();
+		storedData.getStoredRecordDataGroupAsJsonWithoutLinks();
+		storedData.getStoredRecordDataGroupAsJsonWithoutLinks();
 
-		String json = storedData.getStoredRecordDataGroupAsJsonWithoutLinks();
-
-		DataToJsonConverterSpy converterSpy = (DataToJsonConverterSpy) dataToJsonConverterFactorySpy.MCR
-				.getReturnValue("createForClientDataChildIncludingClientActionLinks", 0);
-		converterSpy.MCR.assertReturn("toJson", 0, json);
-	}
-
-	class StoredDataOnlyForTest extends StoredData {
-		void onlyForTestSetDataToJsonConverterFactory(
-				DataToJsonConverterFactory dataToJsonConverterFactory) {
-			this.dataToJsonConverterFactory = dataToJsonConverterFactory;
-		}
+		toJsonFactoryCreator.MCR.assertNumberOfCallsToMethod("createFactory", 1);
 	}
 }

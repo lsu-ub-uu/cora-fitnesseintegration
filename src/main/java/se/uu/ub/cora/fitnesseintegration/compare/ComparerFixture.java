@@ -20,16 +20,17 @@ package se.uu.ub.cora.fitnesseintegration.compare;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.StringJoiner;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
 
-import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.ClientData;
+import se.uu.ub.cora.clientdata.ClientDataList;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToClientDataRecordConverter;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverter;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
 import se.uu.ub.cora.fitnesseintegration.BasicHttpResponse;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
@@ -39,11 +40,8 @@ import se.uu.ub.cora.fitnesseintegration.RecordHandler;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.SystemUrl;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
+import se.uu.ub.cora.javaclient.rest.RestClientFactory;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
-import se.uu.ub.cora.json.parser.JsonArray;
-import se.uu.ub.cora.json.parser.JsonObject;
-import se.uu.ub.cora.json.parser.JsonParseException;
-import se.uu.ub.cora.json.parser.JsonValue;
 
 public class ComparerFixture {
 
@@ -51,7 +49,6 @@ public class ComparerFixture {
 	private String type;
 	private String storedListAsJson;
 	protected JsonHandler jsonHandler;
-	private JsonToClientDataRecordConverter jsonToClientDataRecordConverter;
 	protected int indexToCompareTo;
 	private HttpHandlerFactory httpHandlerFactory;
 	private String authToken;
@@ -68,90 +65,80 @@ public class ComparerFixture {
 
 	public ComparerFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
-		RestClientFactoryImp restClientFactory = new RestClientFactoryImp(baseUrl);
+		RestClientFactory restClientFactory = RestClientFactoryImp
+				.usingBaseUrlAndAppTokenVerifierUrl(baseUrl, SystemUrl.getAppTokenVerifierUrl());
 		recordHandler = new RecordHandlerImp(httpHandlerFactory, restClientFactory);
-		jsonHandler = DependencyProvider.getJsonHandler();
-		jsonToClientDataRecordConverter = DependencyProvider.getJsonToClientDataRecordConverter();
 	}
 
 	public String testReadAndStoreRecord() {
-		BasicHttpResponse readResponse = recordHandler.readRecord(authToken, type, id);
-		JsonObject recordJsonObject = jsonHandler.parseStringAsObject(readResponse.responseText);
-		ClientDataRecord dataRecord = jsonToClientDataRecordConverter.toInstance(recordJsonObject);
+		String recordAsJson = readRecordAsJsonText();
+		ClientDataRecord dataRecord = convertJsonToClientDataRecord(recordAsJson);
 		DataHolder.setRecord(dataRecord);
+		return recordAsJson;
+	}
+
+	private String readRecordAsJsonText() {
+		BasicHttpResponse readResponse = recordHandler.readRecord(authToken, type, id);
 		return readResponse.responseText;
 	}
 
+	protected ClientDataRecord convertJsonToClientDataRecord(String jsonText) {
+		JsonToClientDataConverter toClientConverter = JsonToClientDataConverterProvider
+				.getConverterUsingJsonString(jsonText);
+		return (ClientDataRecord) toClientConverter.toInstance();
+	}
+
 	public void testReadRecordListAndStoreRecords() throws UnsupportedEncodingException {
-		storedListAsJson = recordHandler.readRecordList(authToken, type, listFilter).responseText;
-		List<ClientDataRecord> convertedRecords = convertToRecords();
+		String recordListAsJson = readRecordListAsJsonText();
+		storedListAsJson = recordListAsJson;
+
+		List<ClientDataRecord> convertedRecords = convertJsonTextToListOfRecords(recordListAsJson);
 		DataHolder.setRecord(convertedRecords.get(indexToStore));
 		DataHolder.setRecordList(convertedRecords);
 	}
 
-	private List<ClientDataRecord> convertToRecords() {
-		Iterator<JsonValue> iterator = getIteratorFromListOfRecords();
+	private String readRecordListAsJsonText() throws UnsupportedEncodingException {
+		BasicHttpResponse httpResponseForList = recordHandler.readRecordList(authToken, type,
+				listFilter);
+		return httpResponseForList.responseText;
+	}
+
+	private List<ClientDataRecord> convertJsonTextToListOfRecords(String recordsAsJson) {
+		ClientDataList clientDataList = convertJsonToClientDataList(recordsAsJson);
 		List<ClientDataRecord> convertedRecords = new ArrayList<>();
-		while (iterator.hasNext()) {
-			JsonObject dataRecord = (JsonObject) iterator.next();
-			convertAndAddRecord(dataRecord, convertedRecords);
+		for (ClientData clientData : clientDataList.getDataList()) {
+			convertedRecords.add((ClientDataRecord) clientData);
 		}
 		return convertedRecords;
 	}
 
-	private JsonArray extractListOfRecords() {
-		JsonObject list = jsonHandler.parseStringAsObject(storedListAsJson);
-		JsonObject dataList = (JsonObject) list.getValue("dataList");
-		return (JsonArray) dataList.getValue("data");
+	protected ClientDataList convertJsonToClientDataList(String jsonText) {
+		JsonToClientDataConverter toClientConverter = JsonToClientDataConverterProvider
+				.getConverterUsingJsonString(jsonText);
+		return (ClientDataList) toClientConverter.toInstance();
 	}
 
 	public String testReadRecordListAndStoreRecordById() throws UnsupportedEncodingException {
 		DataHolder.setRecord(null);
-		storedListAsJson = recordHandler.readRecordList(authToken, type, listFilter).responseText;
-		findAndStoreRecord();
+		String recordListAsJson = readRecordListAsJsonText();
+		storedListAsJson = recordListAsJson;
+
+		List<ClientDataRecord> convertedRecords = convertJsonTextToListOfRecords(recordListAsJson);
+		DataHolder.setRecordList(convertedRecords);
+
+		ClientDataRecord foundRecord = findRecordWithIdInList(convertedRecords, idToStore);
+		DataHolder.setRecord(foundRecord);
 		return storedListAsJson;
 	}
 
-	private void findAndStoreRecord() {
-		Iterator<JsonValue> iterator = getIteratorFromListOfRecords();
-		boolean recordFound = false;
-		while (!recordFound && iterator.hasNext()) {
-			recordFound = compareAndStoreIfFound(iterator, recordFound);
+	private ClientDataRecord findRecordWithIdInList(List<ClientDataRecord> convertedRecords,
+			String idToFind) {
+		for (ClientDataRecord clientRecord : convertedRecords) {
+			if (clientRecord.getId().equals(idToFind)) {
+				return clientRecord;
+			}
 		}
-	}
-
-	private Iterator<JsonValue> getIteratorFromListOfRecords() {
-		JsonArray dataArray = extractListOfRecords();
-		return dataArray.iterator();
-	}
-
-	private boolean compareAndStoreIfFound(Iterator<JsonValue> iterator, boolean recordFound) {
-		JsonObject jsonRecord = (JsonObject) iterator.next();
-		ClientDataRecord recordToStore = jsonToClientDataRecordConverter.toInstance(jsonRecord);
-		return storeRecordIfFound(recordFound, recordToStore);
-	}
-
-	private boolean storeRecordIfFound(boolean recordFound, ClientDataRecord recordToStore) {
-		if (idToStoreEqualsIdIn(recordToStore)) {
-			recordFound = true;
-			DataHolder.setRecord(recordToStore);
-		}
-		return recordFound;
-	}
-
-	private boolean idToStoreEqualsIdIn(ClientDataRecord recordToStore) {
-		return getRecordIdValue(recordToStore).equals(idToStore);
-	}
-
-	private String getRecordIdValue(ClientDataRecord recordToStore) {
-		return recordToStore.getDataRecordGroup().getFirstGroupWithNameInData("recordInfo")
-				.getFirstAtomicValueWithNameInData("id");
-	}
-
-	private void convertAndAddRecord(JsonObject recordJsonObject,
-			List<ClientDataRecord> convertedRecords) {
-		ClientDataRecord dataRecord = jsonToClientDataRecordConverter.toInstance(recordJsonObject);
-		convertedRecords.add(dataRecord);
+		return null;
 	}
 
 	protected String joinErrorMessages(List<String> errorMessages) {
@@ -162,68 +149,43 @@ public class ComparerFixture {
 		return compareError.toString();
 	}
 
-	protected ClientDataGroup getDataGroupFromRecordHolderUsingIndex() {
-		return DataHolder.getRecordList().get(indexToCompareTo).getDataRecordGroup();
-	}
-
 	protected ClientDataRecord getClientDataRecordFromRecordHolderUsingIndex() {
 		return DataHolder.getRecordList().get(indexToCompareTo);
 	}
 
 	public void testSearchAndStoreRecords() throws UnsupportedEncodingException {
 		String url = baseRecordUrl + "searchResult" + "/" + searchId;
-		storedListAsJson = recordHandler.searchRecord(url, authToken, json).responseText;
+		String recordListAsJson = recordHandler.searchRecord(url, authToken, json).responseText;
+		storedListAsJson = recordListAsJson;
 
-		List<ClientDataRecord> convertedRecords = convertToRecords();
-		DataHolder.setRecord(convertedRecords.get(indexToStore));
+		List<ClientDataRecord> convertedRecords = convertJsonTextToListOfRecords(recordListAsJson);
 		DataHolder.setRecordList(convertedRecords);
+		DataHolder.setRecord(convertedRecords.get(indexToStore));
 	}
 
 	public String testUpdateAndStoreRecord() {
+		DataHolder.setRecord(null);
 		BasicHttpResponse response = recordHandler.updateRecord(authToken, type, id, json);
-		tryToCreateRecordFromResponseAndSetInDataHolder(response);
 		statusType = Response.Status.fromStatusCode(response.statusCode);
-		return response.responseText;
-	}
-
-	private void tryToCreateRecordFromResponseAndSetInDataHolder(BasicHttpResponse response) {
-		try {
-			createRecordFromResponseAndSetInDataHolder(response);
-		} catch (JsonParseException e) {
-			DataHolder.setRecord(null);
+		if (200 == (response.statusCode)) {
+			String recordAsJson = response.responseText;
+			ClientDataRecord dataRecord = convertJsonToClientDataRecord(recordAsJson);
+			DataHolder.setRecord(dataRecord);
 		}
-	}
-
-	private void createRecordFromResponseAndSetInDataHolder(BasicHttpResponse response) {
-		ClientDataRecord dataRecord = createRecordFromResponseText(response.responseText);
-		DataHolder.setRecord(dataRecord);
+		return response.responseText;
 	}
 
 	public String testCreateAndStoreRecord() {
+		DataHolder.setRecord(null);
 		ExtendedHttpResponse response = recordHandler.createRecord(authToken, type, json);
-		tryToCreateRecordFromExtendedResponseAndSetInDataHolder(response);
 		statusType = Response.Status.fromStatusCode(response.statusCode);
 		createdId = response.createdId;
-		return response.responseText;
-	}
-
-	private void tryToCreateRecordFromExtendedResponseAndSetInDataHolder(
-			ExtendedHttpResponse response) {
-		try {
-			createRecordFromExtendedResponseAndSetInDataHolder(response);
-		} catch (JsonParseException e) {
-			DataHolder.setRecord(null);
+		if (201 == (response.statusCode)) {
+			String recordAsJson = response.responseText;
+			ClientDataRecord dataRecord = convertJsonToClientDataRecord(recordAsJson);
+			DataHolder.setRecord(dataRecord);
 		}
-	}
-
-	private void createRecordFromExtendedResponseAndSetInDataHolder(ExtendedHttpResponse response) {
-		ClientDataRecord dataRecord = createRecordFromResponseText(response.responseText);
-		DataHolder.setRecord(dataRecord);
-	}
-
-	private ClientDataRecord createRecordFromResponseText(String responseText) {
-		JsonObject recordJsonObject = jsonHandler.parseStringAsObject(responseText);
-		return jsonToClientDataRecordConverter.toInstance(recordJsonObject);
+		return response.responseText;
 	}
 
 	public void setListIndexToCompareTo(int index) {
@@ -232,10 +194,6 @@ public class ComparerFixture {
 
 	void onlyForTestSetJsonHandler(JsonHandler jsonHandler) {
 		this.jsonHandler = jsonHandler;
-	}
-
-	void onlyForTestSetJsonToClientDataRecordConverter(JsonToClientDataRecordConverter jsonToDataConverter) {
-		this.jsonToClientDataRecordConverter = jsonToDataConverter;
 	}
 
 	public HttpHandlerFactory onlyForTestGetHttpHandlerFactory() {
@@ -252,10 +210,6 @@ public class ComparerFixture {
 
 	public JsonHandler onlyForTestGetJsonHandler() {
 		return jsonHandler;
-	}
-
-	public JsonToClientDataRecordConverter onlyForTestGetJsonToClientDataRecordConverter() {
-		return jsonToClientDataRecordConverter;
 	}
 
 	public void setId(String id) {

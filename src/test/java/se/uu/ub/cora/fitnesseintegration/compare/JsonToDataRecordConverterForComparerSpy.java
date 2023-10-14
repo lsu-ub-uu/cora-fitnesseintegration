@@ -23,21 +23,21 @@ import java.util.List;
 
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToClientDataRecordConverter;
-import se.uu.ub.cora.fitnesseintegration.ClientDataRecordSpy;
+import se.uu.ub.cora.fitnesseintegration.ClientDataRecordOLDSpy;
 import se.uu.ub.cora.json.parser.JsonObject;
 
 public class JsonToClientDataRecordConverterForComparerSpy implements JsonToClientDataRecordConverter {
 
 	public JsonObject jsonObject;
 	public List<JsonObject> jsonObjects = new ArrayList<>();
-	public ClientDataRecordSpy clientClientDataRecordSpy;
-	public List<ClientDataRecordSpy> returnedSpies = new ArrayList<>();
+	public ClientDataRecordOLDSpy clientClientDataRecordSpy;
+	public List<ClientDataRecordOLDSpy> returnedSpies = new ArrayList<>();
 
 	@Override
 	public ClientDataRecord toInstance(JsonObject jsonObject) {
 		this.jsonObject = jsonObject;
 		jsonObjects.add(jsonObject);
-		clientClientDataRecordSpy = new ClientDataRecordSpy();
+		clientClientDataRecordSpy = new ClientDataRecordOLDSpy();
 		returnedSpies.add(clientClientDataRecordSpy);
 		return clientClientDataRecordSpy;
 	}

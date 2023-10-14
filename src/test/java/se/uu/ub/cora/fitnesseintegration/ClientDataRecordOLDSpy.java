@@ -26,7 +26,7 @@ import se.uu.ub.cora.clientdata.ClientData;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 
-public class ClientDataRecordSpy implements ClientDataRecord, ClientData {
+public class ClientDataRecordOLDSpy implements ClientDataRecord, ClientData {
 
 	public ClientDataGroup clientDataGroup;
 

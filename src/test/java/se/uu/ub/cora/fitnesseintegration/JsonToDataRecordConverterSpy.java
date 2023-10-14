@@ -29,15 +29,15 @@ public class JsonToClientDataRecordConverterSpy implements JsonToClientDataRecor
 
 	public JsonObject jsonObject;
 	public List<JsonObject> jsonObjects = new ArrayList<>();
-	public ClientDataRecordSpy clientClientDataRecordSpy;
-	public List<ClientDataRecordSpy> returnedSpies = new ArrayList<>();
+	public ClientDataRecordOLDSpy clientClientDataRecordSpy;
+	public List<ClientDataRecordOLDSpy> returnedSpies = new ArrayList<>();
 
 	@Override
 	public ClientDataRecord toInstance(JsonObject jsonObject) {
 		this.jsonObject = jsonObject;
 		jsonObjects.add(jsonObject);
 		if (clientClientDataRecordSpy == null) {
-			clientClientDataRecordSpy = new ClientDataRecordSpy();
+			clientClientDataRecordSpy = new ClientDataRecordOLDSpy();
 		}
 		returnedSpies.add(clientClientDataRecordSpy);
 		return clientClientDataRecordSpy;

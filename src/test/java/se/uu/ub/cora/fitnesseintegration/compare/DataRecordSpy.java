@@ -9,7 +9,7 @@ import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
 
-public class ClientDataRecordSpy implements ClientDataRecord {
+public class ClientDataRecordOLD2Spy implements ClientDataRecord {
 
 	public MethodCallRecorder MCR = new MethodCallRecorder();
 

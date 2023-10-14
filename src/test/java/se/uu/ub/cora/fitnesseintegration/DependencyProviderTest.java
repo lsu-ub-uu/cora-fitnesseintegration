@@ -27,7 +27,6 @@ import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactoryImp;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
-import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public class DependencyProviderTest {
 	@Test
@@ -54,24 +53,6 @@ public class DependencyProviderTest {
 		DependencyProvider.setHttpHandlerFactoryClassName(null);
 	}
 
-	// @Test
-	// public void testFactorJsonToDataConverterFactory() {
-	// DependencyProvider.setJsonToDataFactoryClassName(
-	// "se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp");
-	// JsonToDataConverterFactory factored = DependencyProvider.getJsonToDataConverterFactory();
-	// assertTrue(factored instanceof JsonToDataConverterFactoryImp);
-	// }
-
-	// @Test(expectedExceptions = RuntimeException.class)
-	// public void testFactorJsonToDataConverterFactoryNonExistingClassName() {
-	// DependencyProvider.setJsonToDataFactoryClassName("se.uu.ub.cora.fitnesse.DoesNotExistImp");
-	// }
-
-	// @Test(expectedExceptions = RuntimeException.class)
-	// public void testFactorJsonToDataConverterFactoryClassNameNotSet() {
-	// DependencyProvider.setJsonToDataFactoryClassName(null);
-	// }
-
 	@Test
 	public void testChildComparer() {
 		DependencyProvider.setChildComparerUsingClassName(
@@ -83,21 +64,6 @@ public class DependencyProviderTest {
 	@Test(expectedExceptions = RuntimeException.class)
 	public void testChildComparerNonExistingClassName() {
 		DependencyProvider.setChildComparerUsingClassName("se.uu.ub.cora.fitnesse.DoesNotExistImp");
-	}
-
-	// @Test
-	// public void testGetJsonToClientDataRecordConverter() {
-	// JsonToClientDataRecordConverterImp jsonToClientDataRecordConverter =
-	// (JsonToClientDataRecordConverterImp) DependencyProvider
-	// .getJsonToClientDataRecordConverter();
-	// assertSame(jsonToClientDataRecordConverter.getConverterFactory(),
-	// DependencyProvider.getJsonToDataConverterFactory());
-	// }
-
-	@Test
-	public void testGetJsonHandler() {
-		JsonHandlerImp jsonHandler = (JsonHandlerImp) DependencyProvider.getJsonHandler();
-		assertTrue(jsonHandler.getJsonParser() instanceof OrgJsonParser);
 	}
 
 	@Test

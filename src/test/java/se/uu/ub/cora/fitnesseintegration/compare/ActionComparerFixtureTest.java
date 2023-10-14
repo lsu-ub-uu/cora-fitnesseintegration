@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToClientDataRecordConverterImp;
-import se.uu.ub.cora.fitnesseintegration.ClientDataRecordSpy;
+import se.uu.ub.cora.fitnesseintegration.ClientDataRecordOLDSpy;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy;
@@ -76,7 +76,7 @@ public class ActionComparerFixtureTest {
 
 	@Test
 	public void testCallsAreMadeCorrectly() {
-		ClientDataRecordSpy clientClientDataRecordSpy = new ClientDataRecordSpy();
+		ClientDataRecordOLDSpy clientClientDataRecordSpy = new ClientDataRecordOLDSpy();
 
 		DataHolder.setRecord(clientClientDataRecordSpy);
 		ComparerFactorySpy comparerFactory = (ComparerFactorySpy) fixture.getComparerFactory();
@@ -117,7 +117,7 @@ public class ActionComparerFixtureTest {
 
 	@Test
 	public void testTestCheckActionsFromListPermissionsOK() {
-		ClientDataRecord dataRecord = new ClientDataRecordSpy();
+		ClientDataRecord dataRecord = new ClientDataRecordOLDSpy();
 		List<ClientDataRecord> dataRecordList = List.of(dataRecord);
 
 		ComparerFactorySpy comparerFactory = (ComparerFactorySpy) fixture.getComparerFactory();
@@ -140,7 +140,7 @@ public class ActionComparerFixtureTest {
 
 	@Test
 	public void testTestCheckActionsFromListPermissionsNotOK() {
-		ClientDataRecord dataRecord = new ClientDataRecordSpy();
+		ClientDataRecord dataRecord = new ClientDataRecordOLDSpy();
 		List<ClientDataRecord> dataRecordList = List.of(dataRecord);
 
 		ComparerFactorySpy comparerFactory = (ComparerFactorySpy) fixture.getComparerFactory();

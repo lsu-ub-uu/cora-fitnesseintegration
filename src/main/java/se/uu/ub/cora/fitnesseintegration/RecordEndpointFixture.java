@@ -64,9 +64,6 @@ public class RecordEndpointFixture {
 	protected String baseUrl = SystemUrl.getUrl() + "rest/";
 	protected String baseRecordUrl = baseUrl + "record/";
 	private String token;
-	// private JsonToDataConverterFactory jsonToDataConverterFactory;
-	// private JsonHandler jsonHandler;
-	// private JsonToClientDataRecordConverter jsonToClientDataRecordConverter;
 	private ChildComparer childComparer;
 	private RecordHandler recordHandler;
 	private int maxNumberOfReads;
@@ -75,16 +72,6 @@ public class RecordEndpointFixture {
 	public RecordEndpointFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
 		childComparer = DependencyProvider.getChildComparer();
-		// jsonHandler = DependencyProvider.getJsonHandler();
-
-		// jsonToDataConverterFactory = DependencyProvider.getJsonToDataConverterFactory();
-		// jsonToClientDataRecordConverter =
-		// DependencyProvider.getJsonToClientDataRecordConverter();
-		// jsonToDataConverterFactory = JsonToDataConverterProvider.
-		// jsonToClientDataRecordConverter =
-		// DependencyProvider.getJsonToClientDataRecordConverter();
-
-		// New
 		RestClientFactory restClientFactory = RestClientFactoryImp
 				.usingBaseUrlAndAppTokenVerifierUrl(baseUrl, SystemUrl.getAppTokenVerifierUrl());
 		recordHandler = new RecordHandlerImp(httpHandlerFactory, restClientFactory);
@@ -352,9 +339,9 @@ public class RecordEndpointFixture {
 		DataHolder.setRecord(clientClientDataRecord);
 	}
 
-	protected ClientDataRecord convertJsonToClientDataRecord(String responseText) {
+	protected ClientDataRecord convertJsonToClientDataRecord(String jsonText) {
 		JsonToClientDataConverter toClientConverter = JsonToClientDataConverterProvider
-				.getConverterUsingJsonString(responseText);
+				.getConverterUsingJsonString(jsonText);
 		return (ClientDataRecord) toClientConverter.toInstance();
 	}
 

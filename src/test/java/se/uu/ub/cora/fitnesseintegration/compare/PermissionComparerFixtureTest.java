@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToClientDataRecordConverterImp;
-import se.uu.ub.cora.fitnesseintegration.ClientDataRecordSpy;
+import se.uu.ub.cora.fitnesseintegration.ClientDataRecordOLDSpy;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy;
@@ -89,7 +89,7 @@ public class PermissionComparerFixtureTest {
 
 	@Test
 	public void testCheckContainPermissionValuesPassedCorrectly() {
-		ClientDataRecordSpy clientClientDataRecordSpy = new ClientDataRecordSpy();
+		ClientDataRecordOLDSpy clientClientDataRecordSpy = new ClientDataRecordOLDSpy();
 		DataHolder.setRecord(clientClientDataRecordSpy);
 
 		String permissions = "{\"read\":[\"readPermissionOne\"]}";
@@ -157,8 +157,8 @@ public class PermissionComparerFixtureTest {
 
 	private void addRecordsToDataHolder() {
 		List<ClientDataRecord> dataRecords = new ArrayList<>();
-		dataRecords.add(new ClientDataRecordSpy());
-		dataRecords.add(new ClientDataRecordSpy());
+		dataRecords.add(new ClientDataRecordOLDSpy());
+		dataRecords.add(new ClientDataRecordOLDSpy());
 		DataHolder.setRecordList(dataRecords);
 	}
 
@@ -174,7 +174,7 @@ public class PermissionComparerFixtureTest {
 		ComparerFactorySpy permissionComparerFactory = (ComparerFactorySpy) fixture
 				.getComparerFactory();
 
-		ClientDataRecordSpy recordSpy = (ClientDataRecordSpy) DataHolder.getRecordList().get(0);
+		ClientDataRecordOLDSpy recordSpy = (ClientDataRecordOLDSpy) DataHolder.getRecordList().get(0);
 		assertSame(permissionComparerFactory.dataRecords.get(0), recordSpy);
 
 		ComparerSpy factoredComparer = permissionComparerFactory.factoredComparers.get(0);
@@ -184,7 +184,7 @@ public class PermissionComparerFixtureTest {
 		fixture.setListIndexToCompareTo(1);
 		fixture.testReadFromListCheckPermissions();
 		ComparerSpy factoredComparer2 = permissionComparerFactory.factoredComparers.get(1);
-		ClientDataRecordSpy recordSpy2 = (ClientDataRecordSpy) DataHolder.getRecordList().get(1);
+		ClientDataRecordOLDSpy recordSpy2 = (ClientDataRecordOLDSpy) DataHolder.getRecordList().get(1);
 		assertSame(permissionComparerFactory.dataRecords.get(1), recordSpy2);
 		assertSame(factoredComparer2.jsonValue, jsonParser.jsonObjectSpies.get(1));
 		assertEquals(jsonParser.jsonStringsSentToParser.get(1), permissions);

@@ -23,8 +23,9 @@ import static org.testng.Assert.assertSame;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.ClientDataProvider;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 
 public class ComparerFactoryTest {
 
@@ -34,8 +35,9 @@ public class ComparerFactoryTest {
 	@BeforeMethod
 	public void setUp() {
 		factory = new ComparerFactoryImp();
-		ClientDataGroup dataGroup = ClientDataGroup.withNameInData("someNameInData");
-		dataRecord = ClientDataRecord.withClientDataGroup(dataGroup);
+		ClientDataRecordGroup dataGroup = ClientDataProvider
+				.createRecordGroupUsingNameInData("someNameInData");
+		dataRecord = ClientDataProvider.createRecordWithDataRecordGroup(dataGroup);
 	}
 
 	@Test

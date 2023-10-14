@@ -40,14 +40,12 @@ import org.testng.annotations.Test;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordGroupSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
-import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterFactoryCreatorSpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterSpy;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 
 public class RecordEndpointFixtureTest {
 	JsonToClientDataConverterFactorySpy converterToClientFactorySpy;
-	ClientDataToJsonConverterFactoryCreatorSpy toJsonFactoryCreator;
 	private RecordEndpointFixture fixture;
 	private HttpHandlerFactorySpy httpHandlerFactorySpy;
 	private RecordHandlerSpy recordHandler;
