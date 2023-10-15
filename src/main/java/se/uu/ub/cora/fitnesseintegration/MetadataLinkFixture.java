@@ -178,6 +178,7 @@ public class MetadataLinkFixture {
 	}
 
 	private String readRecordAsJson(RecordIdentifier identfier) {
+		// TODO: this should be a recordLink and not an RecordIdentifier... :(
 		HttpHandler httpHandler = setUpHttpHandlerForReadingChildReference(identfier.type(),
 				identfier.id());
 		return httpHandler.getResponseText();
@@ -193,8 +194,8 @@ public class MetadataLinkFixture {
 	}
 
 	private String getNameInDataFromDataGroupInRecord(ClientDataRecord clientClientDataRecord) {
-		ClientDataRecordGroup dataElement = clientClientDataRecord.getDataRecordGroup();
-		return dataElement.getNameInData();
+		ClientDataRecordGroup recordGroup = clientClientDataRecord.getDataRecordGroup();
+		return recordGroup.getFirstAtomicValueWithNameInData("nameInData");
 	}
 
 	public String getRecordPartConstraint() {

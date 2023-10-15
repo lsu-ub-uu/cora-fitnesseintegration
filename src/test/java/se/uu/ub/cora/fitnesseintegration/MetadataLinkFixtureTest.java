@@ -112,7 +112,10 @@ public class MetadataLinkFixtureTest {
 	private void setUpConverterFromJsonToReturnNameInDataForClientDataRecordGroup(
 			String nameInData) {
 		ClientDataRecordGroupSpy clientDataRecordGroup = new ClientDataRecordGroupSpy();
-		clientDataRecordGroup.MRV.setDefaultReturnValuesSupplier("getNameInData", () -> nameInData);
+		// clientDataRecordGroup.MRV.setDefaultReturnValuesSupplier("getNameInData", () ->
+		// nameInData);
+		clientDataRecordGroup.MRV.setSpecificReturnValuesSupplier(
+				"getFirstAtomicValueWithNameInData", () -> nameInData, "nameInData");
 
 		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
 		clientDataRecordSpy.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup",
