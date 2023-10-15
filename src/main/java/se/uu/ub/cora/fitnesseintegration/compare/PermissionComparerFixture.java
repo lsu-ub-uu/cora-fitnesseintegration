@@ -23,6 +23,8 @@ import java.util.List;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
+import se.uu.ub.cora.fitnesseintegration.JsonHandler;
+import se.uu.ub.cora.fitnesseintegration.JsonHandlerImp;
 import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.json.parser.JsonParseException;
 
@@ -30,10 +32,12 @@ public class PermissionComparerFixture extends ComparerFixture {
 
 	private ComparerFactory comparerFactory;
 	private String permissions;
+	private JsonHandler jsonHandler;
 
 	public PermissionComparerFixture() {
 		super();
 		comparerFactory = DependencyProvider.getComparerFactory();
+		jsonHandler = DependencyProvider.getJsonHandler();
 	}
 
 	public String testCheckPermissions() {
@@ -68,6 +72,14 @@ public class PermissionComparerFixture extends ComparerFixture {
 		DataComparer comparer = comparerFactory.factor("permission", dataRecord);
 		List<String> errorMessages = comparer.checkClientDataRecordContains(permissionObject);
 		return errorMessages.isEmpty() ? "OK" : joinErrorMessages(errorMessages);
+	}
+
+	public void onlyForTestSetJsonHandler(JsonHandlerImp jsonHandler) {
+		this.jsonHandler = jsonHandler;
+	}
+
+	public JsonHandler onlyForTestGetJsonHandler() {
+		return jsonHandler;
 	}
 
 }

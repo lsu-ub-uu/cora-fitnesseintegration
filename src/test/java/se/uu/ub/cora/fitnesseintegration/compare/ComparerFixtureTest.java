@@ -41,7 +41,6 @@ import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterSpy;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy;
-import se.uu.ub.cora.fitnesseintegration.JsonHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.JsonParserSpy;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerSpy;
@@ -54,7 +53,6 @@ public class ComparerFixtureTest {
 	private ComparerFixture fixture;
 	private RecordHandlerSpy recordHandler;
 	private JsonParserSpy jsonParser;
-	private JsonHandlerImp jsonHandler;
 	private String type;
 	private String authToken;
 	private String json;
@@ -78,12 +76,10 @@ public class ComparerFixtureTest {
 	private void setUpFixture() {
 		recordHandler = new RecordHandlerSpy();
 		jsonParser = new JsonParserSpy();
-		jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
 
 		type = "someRecordType";
 		fixture.setType(type);
 		fixture.setRecordHandler(recordHandler);
-		fixture.onlyForTestSetJsonHandler(jsonHandler);
 	}
 
 	@Test

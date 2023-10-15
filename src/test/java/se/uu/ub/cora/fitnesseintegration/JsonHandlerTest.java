@@ -41,7 +41,7 @@ public class JsonHandlerTest {
 
 	@Test
 	public void testGetJsonParser() {
-		assertSame(jsonHandler.getJsonParser(), jsonParser);
+		assertSame(((JsonHandlerImp) jsonHandler).onlyForTestGetJsonParser(), jsonParser);
 	}
 
 	@Test

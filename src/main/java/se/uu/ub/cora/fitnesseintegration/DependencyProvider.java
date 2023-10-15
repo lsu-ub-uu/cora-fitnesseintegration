@@ -23,6 +23,7 @@ import java.lang.reflect.Constructor;
 
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
+import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public final class DependencyProvider {
 
@@ -86,10 +87,10 @@ public final class DependencyProvider {
 	// return new JsonToClientDataRecordConverterImp(getJsonToDataConverterFactory());
 	// }
 
-	// public static JsonHandler getJsonHandler() {
-	// OrgJsonParser jsonParser = new OrgJsonParser();
-	// return JsonHandlerImp.usingJsonParser(jsonParser);
-	// }
+	public static JsonHandler getJsonHandler() {
+		OrgJsonParser jsonParser = new OrgJsonParser();
+		return JsonHandlerImp.usingJsonParser(jsonParser);
+	}
 
 	public static void setComparerFactoryUsingClassName(String className) {
 		Constructor<?> constructor;

@@ -29,14 +29,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.ClientDataRecord;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToClientDataRecordConverterImp;
 import se.uu.ub.cora.fitnesseintegration.ClientDataRecordOLDSpy;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy;
 import se.uu.ub.cora.fitnesseintegration.JsonHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.JsonParserSpy;
-import se.uu.ub.cora.fitnesseintegration.JsonToClientDataRecordConverterSpy;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerSpy;
 import se.uu.ub.cora.fitnesseintegration.SystemUrl;
@@ -46,7 +44,6 @@ public class PermissionComparerFixtureTest {
 	private PermissionComparerFixture fixture;
 	private JsonParserSpy jsonParser;
 	private JsonHandlerImp jsonHandler;
-	private JsonToClientDataRecordConverterSpy jsonToDataConverter;
 	private RecordHandlerSpy recordHandler;
 
 	@BeforeMethod
@@ -65,12 +62,10 @@ public class PermissionComparerFixtureTest {
 		recordHandler = new RecordHandlerSpy();
 		jsonParser = new JsonParserSpy();
 		jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
-		jsonToDataConverter = new JsonToClientDataRecordConverterSpy();
 
 		fixture.setType("someRecordType");
 		fixture.setRecordHandler(recordHandler);
 		fixture.onlyForTestSetJsonHandler(jsonHandler);
-		fixture.onlyForTestSetJsonToClientDataRecordConverter(jsonToDataConverter);
 	}
 
 	@Test
@@ -78,8 +73,6 @@ public class PermissionComparerFixtureTest {
 		fixture = new PermissionComparerFixture();
 		assertTrue(fixture.getComparerFactory() instanceof ComparerFactorySpy);
 		assertTrue(fixture.onlyForTestGetJsonHandler() instanceof JsonHandlerImp);
-		assertTrue(fixture
-				.onlyForTestGetJsonToClientDataRecordConverter() instanceof JsonToClientDataRecordConverterImp);
 		assertTrue(fixture.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
 
 		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.getRecordHandler();
@@ -174,7 +167,8 @@ public class PermissionComparerFixtureTest {
 		ComparerFactorySpy permissionComparerFactory = (ComparerFactorySpy) fixture
 				.getComparerFactory();
 
-		ClientDataRecordOLDSpy recordSpy = (ClientDataRecordOLDSpy) DataHolder.getRecordList().get(0);
+		ClientDataRecordOLDSpy recordSpy = (ClientDataRecordOLDSpy) DataHolder.getRecordList()
+				.get(0);
 		assertSame(permissionComparerFactory.dataRecords.get(0), recordSpy);
 
 		ComparerSpy factoredComparer = permissionComparerFactory.factoredComparers.get(0);
@@ -184,7 +178,8 @@ public class PermissionComparerFixtureTest {
 		fixture.setListIndexToCompareTo(1);
 		fixture.testReadFromListCheckPermissions();
 		ComparerSpy factoredComparer2 = permissionComparerFactory.factoredComparers.get(1);
-		ClientDataRecordOLDSpy recordSpy2 = (ClientDataRecordOLDSpy) DataHolder.getRecordList().get(1);
+		ClientDataRecordOLDSpy recordSpy2 = (ClientDataRecordOLDSpy) DataHolder.getRecordList()
+				.get(1);
 		assertSame(permissionComparerFactory.dataRecords.get(1), recordSpy2);
 		assertSame(factoredComparer2.jsonValue, jsonParser.jsonObjectSpies.get(1));
 		assertEquals(jsonParser.jsonStringsSentToParser.get(1), permissions);

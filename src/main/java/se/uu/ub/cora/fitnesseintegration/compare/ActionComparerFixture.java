@@ -23,16 +23,19 @@ import java.util.List;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
+import se.uu.ub.cora.fitnesseintegration.JsonHandler;
 import se.uu.ub.cora.json.parser.JsonObject;
 
 public class ActionComparerFixture extends ComparerFixture {
 
 	private ComparerFactory comparerFactory;
 	private String actions;
+	private JsonHandler jsonHandler;
 
 	public ActionComparerFixture() {
 		super();
 		comparerFactory = DependencyProvider.getComparerFactory();
+		jsonHandler = DependencyProvider.getJsonHandler();
 	}
 
 	public String testCheckActions() {
@@ -58,6 +61,14 @@ public class ActionComparerFixture extends ComparerFixture {
 
 	public ComparerFactory getComparerFactory() {
 		return comparerFactory;
+	}
+
+	void onlyForTestSetJsonHandler(JsonHandler jsonHandler) {
+		this.jsonHandler = jsonHandler;
+	}
+
+	public JsonHandler onlyForTestGetJsonHandler() {
+		return jsonHandler;
 	}
 
 }

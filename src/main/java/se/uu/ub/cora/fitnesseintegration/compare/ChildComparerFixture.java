@@ -1,6 +1,5 @@
-
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2020, 2022 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -23,10 +22,13 @@ import java.util.List;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataParent;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.fitnesseintegration.ChildComparer;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
+import se.uu.ub.cora.fitnesseintegration.JsonHandler;
+import se.uu.ub.cora.fitnesseintegration.JsonHandlerImp;
 import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.json.parser.JsonParseException;
 
@@ -34,10 +36,13 @@ public class ChildComparerFixture extends ComparerFixture {
 	private ChildComparer childComparer;
 	private String childrenToCompare;
 	private int expectedNumberOfChildren;
+	private JsonHandler jsonHandler;
 
 	public ChildComparerFixture() {
 		super();
 		childComparer = DependencyProvider.getChildComparer();
+		jsonHandler = DependencyProvider.getJsonHandler();
+
 	}
 
 	public String testCheckContain() {
@@ -67,8 +72,6 @@ public class ChildComparerFixture extends ComparerFixture {
 
 	private String compareChildrenWithValuesUsingDataGroup(ClientDataParent clientDataGroup) {
 		JsonObject jsonToBeComparedWith = jsonHandler.parseStringAsObject(childrenToCompare);
-		// ClientDataRecord dataGroupToBeComparedWith =
-		// jsonToClientDataRecordConverter.toInstance(jsonToBeComparedWith);
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildrenWithCorrectValues(
 				clientDataGroup, jsonToBeComparedWith);
 		return errorMessages.isEmpty() ? "OK" : joinErrorMessages(errorMessages);
@@ -76,8 +79,9 @@ public class ChildComparerFixture extends ComparerFixture {
 
 	public String testReadFromListCheckContain() {
 		try {
-			ClientDataGroup clientDataGroup = getDataGroupFromRecordHolderUsingIndex();
-			return compareChildrenUsingDataGroup(clientDataGroup);
+			ClientDataRecord clientDataRecord = getClientDataRecordFromRecordHolderUsingIndex();
+			ClientDataRecordGroup dataRecordGroup = clientDataRecord.getDataRecordGroup();
+			return compareChildrenUsingDataGroup(dataRecordGroup);
 		} catch (JsonParseException exception) {
 			return exception.getMessage();
 		}
@@ -85,8 +89,9 @@ public class ChildComparerFixture extends ComparerFixture {
 
 	public String testReadFromListCheckContainWithValues() {
 		try {
-			ClientDataGroup clientDataGroup = getDataGroupFromRecordHolderUsingIndex();
-			return compareChildrenWithValuesUsingDataGroup(clientDataGroup);
+			ClientDataRecord clientDataRecord = getClientDataRecordFromRecordHolderUsingIndex();
+			ClientDataRecordGroup dataRecordGroup = clientDataRecord.getDataRecordGroup();
+			return compareChildrenWithValuesUsingDataGroup(dataRecordGroup);
 		} catch (JsonParseException exception) {
 			return exception.getMessage();
 		}
@@ -123,6 +128,14 @@ public class ChildComparerFixture extends ComparerFixture {
 
 	public ChildComparer onlyForTestGetChildComparer() {
 		return childComparer;
+	}
+
+	public void onlyForTestSetJsonHandler(JsonHandlerImp jsonHandler) {
+		this.jsonHandler = jsonHandler;
+	}
+
+	public JsonHandler onlyForTestGetJsonHandler() {
+		return jsonHandler;
 	}
 
 }

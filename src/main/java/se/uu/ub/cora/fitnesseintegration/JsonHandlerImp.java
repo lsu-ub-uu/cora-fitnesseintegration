@@ -46,13 +46,11 @@ public class JsonHandlerImp implements JsonHandler {
 	}
 
 	@Override
-	public JsonParser getJsonParser() {
-		return jsonParser;
-	}
-
-	@Override
 	public JsonArray parseStringAsArray(String jsonString) {
 		return jsonParser.parseStringAsArray(jsonString);
 	}
 
+	public JsonParser onlyForTestGetJsonParser() {
+		return jsonParser;
+	}
 }

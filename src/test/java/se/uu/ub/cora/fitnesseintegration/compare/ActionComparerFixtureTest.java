@@ -28,7 +28,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.ClientDataRecord;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToClientDataRecordConverterImp;
 import se.uu.ub.cora.fitnesseintegration.ClientDataRecordOLDSpy;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
@@ -65,8 +64,6 @@ public class ActionComparerFixtureTest {
 		fixture = new ActionComparerFixture();
 		assertTrue(fixture.getComparerFactory() instanceof ComparerFactorySpy);
 		assertTrue(fixture.onlyForTestGetJsonHandler() instanceof JsonHandlerImp);
-		assertTrue(fixture
-				.onlyForTestGetJsonToClientDataRecordConverter() instanceof JsonToClientDataRecordConverterImp);
 		assertTrue(fixture.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
 
 		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.getRecordHandler();

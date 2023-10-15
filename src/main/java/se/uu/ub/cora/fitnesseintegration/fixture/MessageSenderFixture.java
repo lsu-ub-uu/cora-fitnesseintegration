@@ -68,15 +68,6 @@ public class MessageSenderFixture {
 		addHeadersFromJsonObject(headersObject);
 	}
 
-	private MessageSender createMessageSender() {
-		MessageRoutingInfo messageRoutingInfo = MessageRoutingInfoHolder.getMessageRoutingInfo();
-		return MessagingProvider.getTopicMessageSender(messageRoutingInfo);
-	}
-
-	public void setHeaders(String headers) {
-		this.jsonHeaders = headers;
-	}
-
 	private void addHeadersFromJsonObject(JsonObject headersObject) {
 		headers = new HashMap<>();
 		for (Entry<String, JsonValue> entry : headersObject.entrySet()) {
@@ -88,6 +79,15 @@ public class MessageSenderFixture {
 		String key = entry.getKey();
 		JsonString value = (JsonString) entry.getValue();
 		headers.put(key, value.getStringValue());
+	}
+
+	private MessageSender createMessageSender() {
+		MessageRoutingInfo messageRoutingInfo = MessageRoutingInfoHolder.getMessageRoutingInfo();
+		return MessagingProvider.getTopicMessageSender(messageRoutingInfo);
+	}
+
+	public void setHeaders(String headers) {
+		this.jsonHeaders = headers;
 	}
 
 	public void setMessage(String message) {

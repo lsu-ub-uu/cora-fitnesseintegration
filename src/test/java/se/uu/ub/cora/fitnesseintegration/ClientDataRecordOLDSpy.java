@@ -18,22 +18,26 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
-import java.util.Map;
+import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
+import se.uu.ub.cora.clientdata.ClientAction;
 import se.uu.ub.cora.clientdata.ClientActionLink;
 import se.uu.ub.cora.clientdata.ClientData;
-import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.ClientDataProvider;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 
 public class ClientDataRecordOLDSpy implements ClientDataRecord, ClientData {
 
-	public ClientDataGroup clientDataGroup;
+	public ClientDataRecordGroup clientDataGroup;
 
 	@Override
-	public ClientDataGroup getDataRecordGroup() {
+	public ClientDataRecordGroup getDataRecordGroup() {
 		if (clientDataGroup == null) {
-			clientDataGroup = ClientDataGroup.withNameInData("clientDataGroupSpy");
+			clientDataGroup = ClientDataProvider
+					.createRecordGroupUsingNameInData("clientDataGroupSpy");
 		}
 		return clientDataGroup;
 	}
@@ -51,7 +55,73 @@ public class ClientDataRecordOLDSpy implements ClientDataRecord, ClientData {
 	}
 
 	@Override
-	public Map<String, ClientActionLink> getClientActionLinks() {
+	public String getType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setDataRecordGroup(ClientDataRecordGroup dataRecordGroup) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void addActionLink(ClientActionLink actionLink) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public Optional<ClientActionLink> getActionLink(ClientAction action) {
+		// TODO Auto-generated method stub
+		return Optional.empty();
+	}
+
+	@Override
+	public void addReadPermission(String readPermission) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void addReadPermissions(Collection<String> readPermissions) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean hasReadPermissions() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void addWritePermission(String writePermission) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void addWritePermissions(Collection<String> writePermissions) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean hasWritePermissions() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public String getSearchId() {
 		// TODO Auto-generated method stub
 		return null;
 	}

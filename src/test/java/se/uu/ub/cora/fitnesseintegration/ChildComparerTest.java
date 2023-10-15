@@ -29,6 +29,8 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.ClientDataProvider;
+import se.uu.ub.cora.clientdata.ClientDataRecordLink;
 import se.uu.ub.cora.json.parser.JsonParseException;
 import se.uu.ub.cora.json.parser.JsonParser;
 import se.uu.ub.cora.json.parser.JsonValue;
@@ -43,8 +45,9 @@ public class ChildComparerTest {
 	@BeforeMethod
 	public void setUp() {
 		childComparer = new ChildComparerImp();
-		dataGroup = ClientDataGroup.withNameInData("someDataGroup");
-		dataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("workoutName", "cirkelfys"));
+		dataGroup = ClientDataProvider.createGroupUsingNameInData("someDataGroup");
+		dataGroup.addChild(
+				ClientDataProvider.createAtomicUsingNameInDataAndValue("workoutName", "cirkelfys"));
 		jsonParser = new OrgJsonParser();
 	}
 
@@ -69,7 +72,8 @@ public class ChildComparerTest {
 
 	@Test
 	public void testCheckContainOKWhenMoreThanOneChild() {
-		dataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("instructorId", "45"));
+		dataGroup.addChild(
+				ClientDataProvider.createAtomicUsingNameInDataAndValue("instructorId", "45"));
 
 		JsonValue jsonValue = jsonParser.parseString(
 				"{\"children\":[{\"name\":\"workoutName\"},{\"name\":\"instructorId\"}]}");
@@ -80,7 +84,8 @@ public class ChildComparerTest {
 
 	@Test
 	public void testContainOKWhenMoreThanOneChild() {
-		dataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("instructorId", "45"));
+		dataGroup.addChild(
+				ClientDataProvider.createAtomicUsingNameInDataAndValue("instructorId", "45"));
 		JsonValue jsonValue = jsonParser.parseString(
 				"{\"children\":[{\"name\":\"workoutName\"},{\"name\":\"instructorId\"}]}");
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
@@ -90,7 +95,7 @@ public class ChildComparerTest {
 
 	@Test
 	public void testCheckContainNotOKNoChildExistInDataGroup() {
-		dataGroup = ClientDataGroup.withNameInData("someDataGroup");
+		dataGroup = ClientDataProvider.createGroupUsingNameInData("someDataGroup");
 		JsonValue jsonValue = jsonParser.parseString("{\"children\":[{\"name\":\"workoutName\"}]}");
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
@@ -137,7 +142,7 @@ public class ChildComparerTest {
 
 	@Test
 	public void testContainNone() {
-		dataGroup = ClientDataGroup.withNameInData("someDataGroup");
+		dataGroup = ClientDataProvider.createGroupUsingNameInData("someDataGroup");
 		JsonValue jsonValue = jsonParser.parseString(
 				"{\"children\":[{\"name\":\"workoutName\"},{\"name\":\"instructorId\"}]}");
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
@@ -151,9 +156,10 @@ public class ChildComparerTest {
 
 	@Test
 	public void testCheckContainOneGrandChildTestCorrect() {
-		ClientDataGroup instructorName = ClientDataGroup.withNameInData("instructorName");
-		instructorName.addChild(
-				ClientDataAtomic.withNameInDataAndValue("firstName", "someUnimportantValue"));
+		ClientDataGroup instructorName = ClientDataProvider
+				.createGroupUsingNameInData("instructorName");
+		instructorName.addChild(ClientDataProvider.createAtomicUsingNameInDataAndValue("firstName",
+				"someUnimportantValue"));
 		dataGroup.addChild(instructorName);
 
 		JsonValue jsonValue = jsonParser.parseString(
@@ -165,7 +171,8 @@ public class ChildComparerTest {
 
 	@Test
 	public void testCheckContainOneAtomicGrandChildTestMissingGrandChild() {
-		ClientDataGroup instructorName = ClientDataGroup.withNameInData("instructorName");
+		ClientDataGroup instructorName = ClientDataProvider
+				.createGroupUsingNameInData("instructorName");
 		instructorName.setRepeatId("0");
 		dataGroup.addChild(instructorName);
 
@@ -180,11 +187,12 @@ public class ChildComparerTest {
 
 	@Test
 	public void testCompareGroupWithAttributes() {
-		ClientDataGroup topGroup = ClientDataGroup.withNameInData("topGroup");
-		ClientDataGroup childGroupLevel1 = ClientDataGroup.withNameInData("childGroupLevel1");
+		ClientDataGroup topGroup = ClientDataProvider.createGroupUsingNameInData("topGroup");
+		ClientDataGroup childGroupLevel1 = ClientDataProvider
+				.createGroupUsingNameInData("childGroupLevel1");
 		childGroupLevel1.addAttributeByIdWithValue("exampleAttributeChoice", "one");
-		ClientDataAtomic atomicChild1 = ClientDataAtomic.withNameInDataAndValue("atomicChild1",
-				"valueOne");
+		ClientDataAtomic atomicChild1 = ClientDataProvider
+				.createAtomicUsingNameInDataAndValue("atomicChild1", "valueOne");
 		childGroupLevel1.addChild(atomicChild1);
 		topGroup.addChild(childGroupLevel1);
 
@@ -200,11 +208,12 @@ public class ChildComparerTest {
 
 	@Test
 	public void testCompareGroupWithAttributesDifferent() {
-		ClientDataGroup topGroup = ClientDataGroup.withNameInData("topGroup");
-		ClientDataGroup childGroupLevel1 = ClientDataGroup.withNameInData("childGroupLevel1");
+		ClientDataGroup topGroup = ClientDataProvider.createGroupUsingNameInData("topGroup");
+		ClientDataGroup childGroupLevel1 = ClientDataProvider
+				.createGroupUsingNameInData("childGroupLevel1");
 		childGroupLevel1.addAttributeByIdWithValue("exampleAttributeChoice", "oneNOT");
-		ClientDataAtomic atomicChild1 = ClientDataAtomic.withNameInDataAndValue("atomicChild1",
-				"valueOne");
+		ClientDataAtomic atomicChild1 = ClientDataProvider
+				.createAtomicUsingNameInDataAndValue("atomicChild1", "valueOne");
 		childGroupLevel1.addChild(atomicChild1);
 		topGroup.addChild(childGroupLevel1);
 
@@ -222,9 +231,9 @@ public class ChildComparerTest {
 
 	@Test
 	public void testCompareAtomicWithAttributes() {
-		ClientDataGroup aDataGroup = ClientDataGroup.withNameInData("aDataGroup");
-		ClientDataAtomic selectableAttribute = ClientDataAtomic
-				.withNameInDataAndValue("selectableAttribute1", "valueOne");
+		ClientDataGroup aDataGroup = ClientDataProvider.createGroupUsingNameInData("aDataGroup");
+		ClientDataAtomic selectableAttribute = ClientDataProvider
+				.createAtomicUsingNameInDataAndValue("selectableAttribute1", "valueOne");
 		selectableAttribute.addAttributeByIdWithValue("exampleAttributeChoice", "one");
 		aDataGroup.addChild(selectableAttribute);
 
@@ -239,9 +248,9 @@ public class ChildComparerTest {
 
 	@Test
 	public void testCompareAtomicWithAttributesAndAttributesMissing() {
-		ClientDataGroup aDataGroup = ClientDataGroup.withNameInData("aDataGroup");
-		ClientDataAtomic selectableAttribute = ClientDataAtomic
-				.withNameInDataAndValue("selectableAttribute1", "valueOne");
+		ClientDataGroup aDataGroup = ClientDataProvider.createGroupUsingNameInData("aDataGroup");
+		ClientDataAtomic selectableAttribute = ClientDataProvider
+				.createAtomicUsingNameInDataAndValue("selectableAttribute1", "valueOne");
 		aDataGroup.addChild(selectableAttribute);
 
 		JsonValue jsonValue = jsonParser.parseString(
@@ -255,9 +264,9 @@ public class ChildComparerTest {
 
 	@Test
 	public void testCompareAtomicWithAttributesNoMatchingAttributes() {
-		ClientDataGroup aDataGroup = ClientDataGroup.withNameInData("aDataGroup");
-		ClientDataAtomic selectableAttribute = ClientDataAtomic
-				.withNameInDataAndValue("selectableAttribute1", "valueOne");
+		ClientDataGroup aDataGroup = ClientDataProvider.createGroupUsingNameInData("aDataGroup");
+		ClientDataAtomic selectableAttribute = ClientDataProvider
+				.createAtomicUsingNameInDataAndValue("selectableAttribute1", "valueOne");
 		selectableAttribute.addAttributeByIdWithValue("exampleAttributeChoice", "one");
 		aDataGroup.addChild(selectableAttribute);
 
@@ -272,9 +281,9 @@ public class ChildComparerTest {
 
 	@Test
 	public void testCompareAtomicWithAttributesNoMatchingAttributeName() {
-		ClientDataGroup aDataGroup = ClientDataGroup.withNameInData("aDataGroup");
-		ClientDataAtomic selectableAttribute = ClientDataAtomic
-				.withNameInDataAndValue("selectableAttribute1", "valueOne");
+		ClientDataGroup aDataGroup = ClientDataProvider.createGroupUsingNameInData("aDataGroup");
+		ClientDataAtomic selectableAttribute = ClientDataProvider
+				.createAtomicUsingNameInDataAndValue("selectableAttribute1", "valueOne");
 		selectableAttribute.addAttributeByIdWithValue("exampleAttributeChoiceWrong", "one");
 		aDataGroup.addChild(selectableAttribute);
 
@@ -289,9 +298,9 @@ public class ChildComparerTest {
 
 	@Test
 	public void testCompareAtomicWithAttributesNoMatchingAttributeValue() {
-		ClientDataGroup aDataGroup = ClientDataGroup.withNameInData("aDataGroup");
-		ClientDataAtomic selectableAttribute = ClientDataAtomic
-				.withNameInDataAndValue("selectableAttribute1", "valueOne");
+		ClientDataGroup aDataGroup = ClientDataProvider.createGroupUsingNameInData("aDataGroup");
+		ClientDataAtomic selectableAttribute = ClientDataProvider
+				.createAtomicUsingNameInDataAndValue("selectableAttribute1", "valueOne");
 		selectableAttribute.addAttributeByIdWithValue("exampleAttributeChoice", "oneWrong");
 		aDataGroup.addChild(selectableAttribute);
 
@@ -306,7 +315,8 @@ public class ChildComparerTest {
 
 	@Test
 	public void testCheckContainOneGroupGrandChildTestMissingGrandChild() {
-		ClientDataGroup instructorName = ClientDataGroup.withNameInData("instructorName");
+		ClientDataGroup instructorName = ClientDataProvider
+				.createGroupUsingNameInData("instructorName");
 		dataGroup.addChild(instructorName);
 
 		JsonValue jsonValue = jsonParser.parseString(
@@ -320,10 +330,12 @@ public class ChildComparerTest {
 
 	@Test
 	public void testCheckContainOneGroupGrandChildTestMissingOneChildAndGrandChild() {
-		ClientDataGroup instructorName = ClientDataGroup.withNameInData("instructorName");
+		ClientDataGroup instructorName = ClientDataProvider
+				.createGroupUsingNameInData("instructorName");
 		instructorName.setRepeatId("0");
 		dataGroup.addChild(instructorName);
-		ClientDataGroup instructorName1 = ClientDataGroup.withNameInData("instructorName");
+		ClientDataGroup instructorName1 = ClientDataProvider
+				.createGroupUsingNameInData("instructorName");
 		instructorName1.setRepeatId("1");
 		dataGroup.addChild(instructorName1);
 
@@ -447,8 +459,8 @@ public class ChildComparerTest {
 	@Test
 	public void testValuesNonRepeatableAtomicChildTestProblematicValue() {
 		String exampleWithProblematicCharacter = "–-";
-		dataGroup = ClientDataGroup.withNameInData("someDataGroup");
-		dataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("workoutName",
+		dataGroup = ClientDataProvider.createGroupUsingNameInData("someDataGroup");
+		dataGroup.addChild(ClientDataProvider.createAtomicUsingNameInDataAndValue("workoutName",
 				exampleWithProblematicCharacter));
 
 		JsonValue jsonValue = jsonParser
@@ -460,8 +472,8 @@ public class ChildComparerTest {
 	@Test
 	public void testValuesNonRepeatableAtomicChildTestProblematicValueAsUnicode() {
 		String exampleWithProblematicCharacter = "\u2013-";
-		dataGroup = ClientDataGroup.withNameInData("someDataGroup");
-		dataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("workoutName",
+		dataGroup = ClientDataProvider.createGroupUsingNameInData("someDataGroup");
+		dataGroup.addChild(ClientDataProvider.createAtomicUsingNameInDataAndValue("workoutName",
 				exampleWithProblematicCharacter));
 
 		JsonValue jsonValue = jsonParser
@@ -474,8 +486,8 @@ public class ChildComparerTest {
 	public void testValuesNonRepeatableAtomicChildTestProblematicValueAsUnicode2() {
 		String exampleWithProblematicCharacterUnicode = "–-";
 		String exampleWithProblematicCharacter = "\u2013-";
-		dataGroup = ClientDataGroup.withNameInData("someDataGroup");
-		dataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("workoutName",
+		dataGroup = ClientDataProvider.createGroupUsingNameInData("someDataGroup");
+		dataGroup.addChild(ClientDataProvider.createAtomicUsingNameInDataAndValue("workoutName",
 				exampleWithProblematicCharacterUnicode));
 
 		JsonValue jsonValue = jsonParser
@@ -488,8 +500,8 @@ public class ChildComparerTest {
 	public void testValuesNonRepeatableAtomicChildTestProblematicValueAsUnicode3() {
 		String exampleWithProblematicCharacterUnicode = "–-";
 		String exampleWithProblematicCharacter = "\u2013-";
-		dataGroup = ClientDataGroup.withNameInData("someDataGroup");
-		dataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("workoutName",
+		dataGroup = ClientDataProvider.createGroupUsingNameInData("someDataGroup");
+		dataGroup.addChild(ClientDataProvider.createAtomicUsingNameInDataAndValue("workoutName",
 				exampleWithProblematicCharacter));
 
 		JsonValue jsonValue = jsonParser
@@ -616,7 +628,8 @@ public class ChildComparerTest {
 	}
 
 	private void addRepeatableAtomic() {
-		ClientDataAtomic atomic = ClientDataAtomic.withNameInDataAndValue("myName", "myValue");
+		ClientDataAtomic atomic = ClientDataProvider.createAtomicUsingNameInDataAndValue("myName",
+				"myValue");
 		atomic.setRepeatId("myRepeatId");
 		dataGroup.addChild(atomic);
 	}
@@ -723,7 +736,8 @@ public class ChildComparerTest {
 	@Test
 	public void testValuesNotOKWhenOneGrandChildIsMissingOneGrandChildValueDiffers() {
 		ClientDataGroup instructorName = createChildDataGroupInstructorName();
-		instructorName.addChild(ClientDataAtomic.withNameInDataAndValue("lastName", "Ledare"));
+		instructorName.addChild(
+				ClientDataProvider.createAtomicUsingNameInDataAndValue("lastName", "Ledare"));
 		dataGroup.addChild(instructorName);
 		JsonValue jsonValue = jsonParser
 				.parseString("{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"},"
@@ -759,8 +773,10 @@ public class ChildComparerTest {
 	}
 
 	private ClientDataGroup createChildDataGroupInstructorName() {
-		ClientDataGroup instructorName = ClientDataGroup.withNameInData("instructorName");
-		instructorName.addChild(ClientDataAtomic.withNameInDataAndValue("firstName", "Anna"));
+		ClientDataGroup instructorName = ClientDataProvider
+				.createGroupUsingNameInData("instructorName");
+		instructorName.addChild(
+				ClientDataProvider.createAtomicUsingNameInDataAndValue("firstName", "Anna"));
 		return instructorName;
 	}
 
@@ -815,11 +831,13 @@ public class ChildComparerTest {
 	public void testValuesRepeatableAtomicThreePresentNoMatchOnTwo() {
 		ClientDataGroup recordInfo = createRecordInfoInStandardDataGroupWithDomainKTHWithRepeatId0();
 
-		ClientDataAtomic atomicChild2 = ClientDataAtomic.withNameInDataAndValue("domain", "kth");
+		ClientDataAtomic atomicChild2 = ClientDataProvider
+				.createAtomicUsingNameInDataAndValue("domain", "kth");
 		atomicChild2.setRepeatId("1");
 		recordInfo.addChild(atomicChild2);
 
-		ClientDataAtomic atomicChild3 = ClientDataAtomic.withNameInDataAndValue("domain", "test");
+		ClientDataAtomic atomicChild3 = ClientDataProvider
+				.createAtomicUsingNameInDataAndValue("domain", "test");
 		atomicChild3.setRepeatId("2");
 		recordInfo.addChild(atomicChild3);
 
@@ -836,14 +854,15 @@ public class ChildComparerTest {
 	}
 
 	private ClientDataGroup createRecordInfoInStandardDataGroupWithDomainKTHWithRepeatId0() {
-		ClientDataGroup recordInfo = ClientDataGroup.withNameInData("recordInfo");
+		ClientDataGroup recordInfo = ClientDataProvider.createGroupUsingNameInData("recordInfo");
 		dataGroup.addChild(recordInfo);
 		addKthDomainPartWithRepeatId0(recordInfo);
 		return recordInfo;
 	}
 
 	private void addKthDomainPartWithRepeatId0(ClientDataGroup recordInfo) {
-		ClientDataAtomic atomicChild = ClientDataAtomic.withNameInDataAndValue("domain", "kth");
+		ClientDataAtomic atomicChild = ClientDataProvider
+				.createAtomicUsingNameInDataAndValue("domain", "kth");
 		atomicChild.setRepeatId("0");
 		recordInfo.addChild(atomicChild);
 	}
@@ -879,8 +898,9 @@ public class ChildComparerTest {
 	}
 
 	private void createAndAddDomainPart(String linkedRecordId, String repeatId) {
-		ClientDataGroup domainPart = ClientDataGroup.asLinkWithNameInDataAndTypeAndId(
-				"personDomainPart", "personDomainPart", linkedRecordId);
+		ClientDataRecordLink domainPart = ClientDataProvider
+				.createRecordLinkUsingNameInDataAndTypeAndId("personDomainPart", "personDomainPart",
+						linkedRecordId);
 		domainPart.setRepeatId(repeatId);
 		dataGroup.addChild(domainPart);
 	}

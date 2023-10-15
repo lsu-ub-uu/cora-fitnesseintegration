@@ -24,8 +24,9 @@ import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.json.parser.JsonValue;
 
 /**
- * PermissionComparer compares the content in a JsonValue with the permissions in a
- * {@link ClientDataRecord}. The {@link ClientDataRecord} is expected to be provided at instance creation.
+ * DataComparer compares the content in a JsonValue with the permissions in a
+ * {@link ClientDataRecord}. The {@link ClientDataRecord} is expected to be provided at instance
+ * creation.
  * 
  */
 public interface DataComparer {

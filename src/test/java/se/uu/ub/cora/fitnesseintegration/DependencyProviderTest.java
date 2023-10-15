@@ -27,6 +27,7 @@ import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactoryImp;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
+import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public class DependencyProviderTest {
 	@Test
@@ -64,6 +65,12 @@ public class DependencyProviderTest {
 	@Test(expectedExceptions = RuntimeException.class)
 	public void testChildComparerNonExistingClassName() {
 		DependencyProvider.setChildComparerUsingClassName("se.uu.ub.cora.fitnesse.DoesNotExistImp");
+	}
+
+	@Test
+	public void testGetJsonHandler() {
+		JsonHandlerImp jsonHandler = (JsonHandlerImp) DependencyProvider.getJsonHandler();
+		assertTrue(jsonHandler.onlyForTestGetJsonParser() instanceof OrgJsonParser);
 	}
 
 	@Test

@@ -35,7 +35,6 @@ import se.uu.ub.cora.fitnesseintegration.BasicHttpResponse;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.ExtendedHttpResponse;
-import se.uu.ub.cora.fitnesseintegration.JsonHandler;
 import se.uu.ub.cora.fitnesseintegration.RecordHandler;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.SystemUrl;
@@ -48,7 +47,6 @@ public class ComparerFixture {
 	private RecordHandler recordHandler;
 	private String type;
 	private String storedListAsJson;
-	protected JsonHandler jsonHandler;
 	protected int indexToCompareTo;
 	private HttpHandlerFactory httpHandlerFactory;
 	private String authToken;
@@ -192,10 +190,6 @@ public class ComparerFixture {
 		this.indexToCompareTo = index;
 	}
 
-	void onlyForTestSetJsonHandler(JsonHandler jsonHandler) {
-		this.jsonHandler = jsonHandler;
-	}
-
 	public HttpHandlerFactory onlyForTestGetHttpHandlerFactory() {
 		return httpHandlerFactory;
 	}
@@ -206,10 +200,6 @@ public class ComparerFixture {
 
 	public void setListFilter(String listFilter) {
 		this.listFilter = listFilter;
-	}
-
-	public JsonHandler onlyForTestGetJsonHandler() {
-		return jsonHandler;
 	}
 
 	public void setId(String id) {
