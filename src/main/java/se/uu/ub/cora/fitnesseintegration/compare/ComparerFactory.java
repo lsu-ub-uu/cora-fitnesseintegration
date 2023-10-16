@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2020, 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -27,8 +27,9 @@ import se.uu.ub.cora.clientdata.ClientDataRecord;
 public interface ComparerFactory {
 
 	/**
-	 * Creates and returns an instance of {@link DataComparer}. The provided {@link ClientDataRecord} MUST
-	 * be set in the instantiated object, to later be used when comparing permissions.
+	 * Creates and returns an instance of {@link DataComparer}. The provided
+	 * {@link ClientDataRecord} MUST be set in the instantiated object, to later be used when
+	 * comparing permissions.
 	 * 
 	 * @param type
 	 *            the type to use to decide what Comparer to factor

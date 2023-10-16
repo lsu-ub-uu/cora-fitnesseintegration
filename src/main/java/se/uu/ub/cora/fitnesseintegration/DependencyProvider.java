@@ -1,5 +1,6 @@
 /*
- * Copyright 2017 Uppsala University Library
+ * Copyright 2017, 2023 Uppsala University Library
+ * Copyright 2023 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -52,22 +53,6 @@ public final class DependencyProvider {
 		return httpHandlerFactory;
 	}
 
-	// public static synchronized void setJsonToDataFactoryClassName(
-	// String jsonToDataConverterFactoryClassName) {
-	// Constructor<?> constructor;
-	// try {
-	// constructor = Class.forName(jsonToDataConverterFactoryClassName).getConstructor();
-	// jsonToDataConverterFactory = (JsonToDataConverterFactory) constructor.newInstance();
-	// } catch (Exception e) {
-	// throw new RuntimeException(e);
-	// }
-	//
-	// }
-
-	// public static JsonToDataConverterFactory getJsonToDataConverterFactory() {
-	// return jsonToDataConverterFactory;
-	// }
-
 	public static synchronized void setChildComparerUsingClassName(String childComparerClassName) {
 		Constructor<?> constructor;
 		try {
@@ -82,10 +67,6 @@ public final class DependencyProvider {
 	public static ChildComparer getChildComparer() {
 		return childComparer;
 	}
-
-	// public static JsonToClientDataConverter getJsonToClientDataRecordConverter() {
-	// return new JsonToClientDataRecordConverterImp(getJsonToDataConverterFactory());
-	// }
 
 	public static JsonHandler getJsonHandler() {
 		OrgJsonParser jsonParser = new OrgJsonParser();
