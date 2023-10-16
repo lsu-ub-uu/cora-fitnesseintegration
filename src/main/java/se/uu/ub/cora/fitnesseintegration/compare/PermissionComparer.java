@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2020, 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -21,7 +21,7 @@ package se.uu.ub.cora.fitnesseintegration.compare;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.uu.ub.cora.clientdata.DataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.json.parser.JsonString;
@@ -29,14 +29,14 @@ import se.uu.ub.cora.json.parser.JsonValue;
 
 public class PermissionComparer implements DataComparer {
 
-	private DataRecord dataRecord;
+	private ClientDataRecord dataRecord;
 
-	public PermissionComparer(DataRecord dataRecord) {
+	public PermissionComparer(ClientDataRecord dataRecord) {
 		this.dataRecord = dataRecord;
 	}
 
 	@Override
-	public List<String> checkDataRecordContains(JsonValue jsonValue) {
+	public List<String> checkClientDataRecordContains(JsonValue jsonValue) {
 		JsonObject permissions = (JsonObject) jsonValue;
 		List<String> errorMessages = new ArrayList<>();
 		addMessagesIfMissingReadPermissions(errorMessages, permissions);
@@ -68,7 +68,7 @@ public class PermissionComparer implements DataComparer {
 	}
 
 	private boolean readPermissionIsMissing(String permission) {
-		return !getDataRecord().getReadPermissions().contains(permission);
+		return !getClientDataRecord().getReadPermissions().contains(permission);
 	}
 
 	private void addMessagesIfMissingWritePermissions(List<String> errorMessages,
@@ -96,10 +96,10 @@ public class PermissionComparer implements DataComparer {
 	}
 
 	private boolean writePermissionIsMissing(String permission) {
-		return !getDataRecord().getWritePermissions().contains(permission);
+		return !getClientDataRecord().getWritePermissions().contains(permission);
 	}
 
-	public DataRecord getDataRecord() {
+	public ClientDataRecord getClientDataRecord() {
 		// needed for test
 		return dataRecord;
 	}

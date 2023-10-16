@@ -1,5 +1,6 @@
 /*
- * Copyright 2017 Uppsala University Library
+ * Copyright 2017, 2023 Uppsala University Library
+ * Copyright 2023 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -19,14 +20,10 @@
 
 package se.uu.ub.cora.fitnesseintegration;
 
-import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactoryImp;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
@@ -59,24 +56,6 @@ public class DependencyProviderTest {
 	}
 
 	@Test
-	public void testFactorJsonToDataConverterFactory() {
-		DependencyProvider.setJsonToDataFactoryClassName(
-				"se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp");
-		JsonToDataConverterFactory factored = DependencyProvider.getJsonToDataConverterFactory();
-		assertTrue(factored instanceof JsonToDataConverterFactoryImp);
-	}
-
-	@Test(expectedExceptions = RuntimeException.class)
-	public void testFactorJsonToDataConverterFactoryNonExistingClassName() {
-		DependencyProvider.setJsonToDataFactoryClassName("se.uu.ub.cora.fitnesse.DoesNotExistImp");
-	}
-
-	@Test(expectedExceptions = RuntimeException.class)
-	public void testFactorJsonToDataConverterFactoryClassNameNotSet() {
-		DependencyProvider.setJsonToDataFactoryClassName(null);
-	}
-
-	@Test
 	public void testChildComparer() {
 		DependencyProvider.setChildComparerUsingClassName(
 				"se.uu.ub.cora.fitnesseintegration.ChildComparerImp");
@@ -90,17 +69,9 @@ public class DependencyProviderTest {
 	}
 
 	@Test
-	public void testGetJsonToDataRecordConverter() {
-		JsonToDataRecordConverterImp jsonToDataRecordConverter = (JsonToDataRecordConverterImp) DependencyProvider
-				.getJsonToDataRecordConverter();
-		assertSame(jsonToDataRecordConverter.getConverterFactory(),
-				DependencyProvider.getJsonToDataConverterFactory());
-	}
-
-	@Test
 	public void testGetJsonHandler() {
 		JsonHandlerImp jsonHandler = (JsonHandlerImp) DependencyProvider.getJsonHandler();
-		assertTrue(jsonHandler.getJsonParser() instanceof OrgJsonParser);
+		assertTrue(jsonHandler.onlyForTestGetJsonParser() instanceof OrgJsonParser);
 	}
 
 	@Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2020, 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -21,20 +21,20 @@ package se.uu.ub.cora.fitnesseintegration.compare;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.uu.ub.cora.clientdata.DataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 
 public class ComparerFactorySpy implements ComparerFactory {
 
 	public ComparerSpy factoredComparer;
 	public List<ComparerSpy> factoredComparers = new ArrayList<>();
-	public DataRecord dataRecord;
-	public List<DataRecord> dataRecords = new ArrayList<>();
+	public ClientDataRecord dataRecord;
+	public List<ClientDataRecord> dataRecords = new ArrayList<>();
 	public int numberOfErrorsToReturn = 0;
 	public boolean spyShouldThrowError = false;
 	public String type;
 
 	@Override
-	public DataComparer factor(String type, DataRecord dataRecord) {
+	public DataComparer factor(String type, ClientDataRecord dataRecord) {
 		this.type = type;
 		this.dataRecord = dataRecord;
 		dataRecords.add(dataRecord);

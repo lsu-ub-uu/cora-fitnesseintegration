@@ -1,5 +1,6 @@
 /*
- * Copyright 2022 Uppsala University Library
+ * Copyright 2022, 2023 Uppsala University Library
+ * Copyright 2023 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -18,18 +19,35 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
-import se.uu.ub.cora.clientdata.ClientDataGroup;
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverter;
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactoryImp;
+import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverter;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterProvider;
 
 public class StoredData {
-	DataToJsonConverterFactory dataToJsonConverterFactory = new DataToJsonConverterFactoryImp();
+	private ClientDataToJsonConverterFactory dataToJsonConverterFactory;
 
 	public String getStoredRecordDataGroupAsJsonWithoutLinks() {
-		ClientDataGroup dataGroup = DataHolder.getRecord().getClientDataGroup();
-		DataToJsonConverter converter = dataToJsonConverterFactory
-				.createForClientDataElementIncludingActionLinks(dataGroup, false);
-		return converter.toJson();
+		ClientDataRecordGroup dataGroup = DataHolder.getRecord().getDataRecordGroup();
+		return convertToJsonStringFromClientDataGroup(dataGroup);
+	}
+
+	private String convertToJsonStringFromClientDataGroup(
+			ClientDataRecordGroup clientDataRecordGroup) {
+		ensureDataToJsonConverterFactoryIsFetchedFromProvider();
+		return convertToJson(clientDataRecordGroup);
+	}
+
+	private void ensureDataToJsonConverterFactoryIsFetchedFromProvider() {
+		if (null == dataToJsonConverterFactory) {
+			dataToJsonConverterFactory = ClientDataToJsonConverterProvider
+					.createImplementingFactory();
+		}
+	}
+
+	private String convertToJson(ClientDataRecordGroup clientDataRecordGroup) {
+		ClientDataToJsonConverter toJsonConverter = dataToJsonConverterFactory
+				.factorUsingConvertible(clientDataRecordGroup);
+		return toJsonConverter.toJson();
 	}
 }

@@ -1,5 +1,6 @@
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2020, 2023 Uppsala University Library
+ * Copyright 2023 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -26,10 +27,11 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.Action;
-import se.uu.ub.cora.clientdata.ActionLink;
-import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.ClientAction;
+import se.uu.ub.cora.clientdata.ClientActionLink;
+import se.uu.ub.cora.clientdata.ClientDataProvider;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.json.parser.JsonParser;
 import se.uu.ub.cora.json.parser.JsonValue;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
@@ -41,47 +43,47 @@ public class ActionComparerTest {
 
 	@BeforeMethod
 	public void setUp() {
-		ClientDataGroup dataGroup = ClientDataGroup.withNameInData("someDataGroup");
-		dataRecord = ClientDataRecord.withClientDataGroup(dataGroup);
+		ClientDataRecordGroup dataGroup = ClientDataProvider
+				.createRecordGroupUsingNameInData("someDataGroup");
+		dataRecord = ClientDataProvider.createRecordWithDataRecordGroup(dataGroup);
 		jsonParser = new OrgJsonParser();
 		comparer = new ActionComparer(dataRecord);
 	}
 
 	@Test
 	public void testReadAction() {
-		addLinkToRecord("read", Action.READ);
+		addLinkToRecord(ClientAction.READ);
 
 		String actions = "{\"actions\":[ \"read\"]}";
 		JsonValue jsonValue = jsonParser.parseString(actions);
 
-		List<String> results = comparer.checkDataRecordContains(jsonValue);
+		List<String> results = comparer.checkClientDataRecordContains(jsonValue);
 		assertTrue(results.isEmpty());
 	}
 
 	@Test
 	public void testReadActionInJsonTwoActionsInRecordOk() {
-		addLinkToRecord("read", Action.READ);
-		addLinkToRecord("update", Action.UPDATE);
+		addLinkToRecord(ClientAction.READ);
+		addLinkToRecord(ClientAction.UPDATE);
 		String actions = "{\"actions\":[ \"read\"]}";
 		JsonValue jsonValue = jsonParser.parseString(actions);
 
-		List<String> results = comparer.checkDataRecordContains(jsonValue);
+		List<String> results = comparer.checkClientDataRecordContains(jsonValue);
 		assertTrue(results.isEmpty());
 	}
 
-	private void addLinkToRecord(String key, Action action) {
-		ActionLink actionLink = ActionLink.withAction(Action.READ);
-
-		dataRecord.addActionLink(key, actionLink);
+	private void addLinkToRecord(ClientAction action) {
+		ClientActionLink actionLink = ClientDataProvider.createActionLinkUsingAction(action);
+		dataRecord.addActionLink(actionLink);
 	}
 
 	@Test
 	public void testNoUpdateInRecordNOTOk() {
-		addLinkToRecord("read", Action.READ);
+		addLinkToRecord(ClientAction.READ);
 		String actions = "{\"actions\":[ \"read\", \"update\"]}";
 		JsonValue jsonValue = jsonParser.parseString(actions);
 
-		List<String> results = comparer.checkDataRecordContains(jsonValue);
+		List<String> results = comparer.checkClientDataRecordContains(jsonValue);
 		assertEquals(results.size(), 1);
 		assertEquals(results.get(0), "Action update is missing.");
 
@@ -89,13 +91,13 @@ public class ActionComparerTest {
 
 	@Test
 	public void testMultipleActionsOk() {
-		addLinkToRecord("read", Action.READ);
-		addLinkToRecord("update", Action.UPDATE);
-		addLinkToRecord("delete", Action.DELETE);
+		addLinkToRecord(ClientAction.READ);
+		addLinkToRecord(ClientAction.UPDATE);
+		addLinkToRecord(ClientAction.DELETE);
 		String actions = "{\"actions\":[ \"read\", \"delete\",\"update\"]}";
 		JsonValue jsonValue = jsonParser.parseString(actions);
 
-		List<String> results = comparer.checkDataRecordContains(jsonValue);
+		List<String> results = comparer.checkClientDataRecordContains(jsonValue);
 		assertEquals(results.size(), 0);
 
 	}

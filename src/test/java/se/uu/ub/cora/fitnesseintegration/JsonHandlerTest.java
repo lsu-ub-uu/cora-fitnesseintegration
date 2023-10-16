@@ -1,5 +1,6 @@
 /*
  * Copyright 2020 Uppsala University Library
+ * Copyright 2023 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -41,7 +42,7 @@ public class JsonHandlerTest {
 
 	@Test
 	public void testGetJsonParser() {
-		assertSame(jsonHandler.getJsonParser(), jsonParser);
+		assertSame(((JsonHandlerImp) jsonHandler).onlyForTestGetJsonParser(), jsonParser);
 	}
 
 	@Test

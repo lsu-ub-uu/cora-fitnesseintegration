@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2020, 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -19,8 +19,8 @@
 package se.uu.ub.cora.fitnesseintegration;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Optional;
 
-import se.uu.ub.cora.javaclient.rest.ExtendedRestResponse;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 
@@ -31,45 +31,44 @@ public class RestClientInvalidSpy implements RestClient {
 	@Override
 	public RestResponse readRecordAsJson(String recordType, String recordId) {
 		returnedErrorMessage = "Error from spy: " + recordType + " and id: " + recordId;
-		return new RestResponse(500, returnedErrorMessage);
+		return new RestResponse(500, returnedErrorMessage, Optional.empty());
 	}
 
 	@Override
-	public ExtendedRestResponse createRecordFromJson(String recordType, String json) {
+	public RestResponse createRecordFromJson(String recordType, String json) {
 		returnedErrorMessage = "Error from spy: " + recordType;
-		RestResponse restResponse = new RestResponse(500, returnedErrorMessage);
-		return new ExtendedRestResponse(restResponse);
+		return new RestResponse(500, returnedErrorMessage, Optional.empty());
 	}
 
 	@Override
 	public RestResponse updateRecordFromJson(String recordType, String recordId, String json) {
 		returnedErrorMessage = "Error from spy: " + recordType + " and id: " + recordId;
-		return new RestResponse(500, returnedErrorMessage);
+		return new RestResponse(500, returnedErrorMessage, Optional.empty());
 	}
 
 	@Override
 	public RestResponse deleteRecord(String recordType, String recordId) {
 		returnedErrorMessage = "Error from spy: " + recordType + " and id: " + recordId;
-		return new RestResponse(500, returnedErrorMessage);
+		return new RestResponse(500, returnedErrorMessage, Optional.empty());
 	}
 
 	@Override
 	public RestResponse readRecordListAsJson(String recordType) {
 		returnedErrorMessage = "Error from spy: " + recordType;
-		return new RestResponse(500, returnedErrorMessage);
+		return new RestResponse(500, returnedErrorMessage, Optional.empty());
 	}
 
 	@Override
 	public RestResponse readIncomingLinksAsJson(String recordType, String recordId) {
 		returnedErrorMessage = "Error from spy: " + recordType + " and id: " + recordId;
-		return new RestResponse(500, returnedErrorMessage);
+		return new RestResponse(500, returnedErrorMessage, Optional.empty());
 	}
 
 	@Override
 	public RestResponse readRecordListWithFilterAsJson(String recordType, String filter)
 			throws UnsupportedEncodingException {
 		returnedErrorMessage = "Error from spy: " + recordType;
-		return new RestResponse(500, returnedErrorMessage);
+		return new RestResponse(500, returnedErrorMessage, Optional.empty());
 	}
 
 	@Override
@@ -79,10 +78,9 @@ public class RestClientInvalidSpy implements RestClient {
 	}
 
 	@Override
-	public ExtendedRestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson) {
+	public RestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson) {
 		returnedErrorMessage = "Error from spy: " + recordType;
-		RestResponse restResponse = new RestResponse(500, returnedErrorMessage);
-		return new ExtendedRestResponse(restResponse);
+		return new RestResponse(500, returnedErrorMessage, Optional.empty());
 	}
 
 }

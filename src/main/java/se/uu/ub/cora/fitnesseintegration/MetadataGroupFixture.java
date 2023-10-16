@@ -1,10 +1,30 @@
+/*
+ * Copyright 2023 Uppsala University Library
+ *
+ * This file is part of Cora.
+ *
+ *     Cora is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     Cora is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.uu.ub.cora.fitnesseintegration;
 
 import java.util.List;
 
-import se.uu.ub.cora.clientdata.ClientDataElement;
+import se.uu.ub.cora.clientdata.ClientDataChild;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
-import se.uu.ub.cora.clientdata.DataRecord;
+import se.uu.ub.cora.clientdata.ClientDataParent;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 
 public class MetadataGroupFixture {
 
@@ -17,15 +37,15 @@ public class MetadataGroupFixture {
 
 	public int numberOfChildrenWithNameInData() {
 		int numOfMatchingChildren = 0;
-		DataRecord dataRecord = DataHolder.getRecord();
+		ClientDataRecord dataRecord = DataHolder.getRecord();
 		if (topLevelGroupExists(dataRecord)) {
 			numOfMatchingChildren = findNumOfMatchingChildren(dataRecord);
 		}
 		return numOfMatchingChildren;
 	}
 
-	private int findNumOfMatchingChildren(DataRecord dataRecord) {
-		ClientDataGroup topLevelDataGroup = dataRecord.getClientDataGroup();
+	private int findNumOfMatchingChildren(ClientDataRecord dataRecord) {
+		ClientDataRecordGroup topLevelDataGroup = dataRecord.getDataRecordGroup();
 		if (shouldFindChildrenInTopLevelDataGroup()) {
 			return getNumberOfMatchingChildren(topLevelDataGroup);
 		}
@@ -37,29 +57,29 @@ public class MetadataGroupFixture {
 	}
 
 	private int possiblyGetNumOfMatchingChildrenFromChildDataGroup(
-			ClientDataGroup topLevelDataGroup) {
+			ClientDataParent topLevelDataGroup) {
 		if (childDataGroupExist(topLevelDataGroup)) {
 			return getNumOfMatchingChildrenFromChildDataGroup(topLevelDataGroup);
 		}
 		return 0;
 	}
 
-	private boolean childDataGroupExist(ClientDataGroup topLevelDataGroup) {
+	private boolean childDataGroupExist(ClientDataParent topLevelDataGroup) {
 		return topLevelDataGroup.containsChildWithNameInData(childDataGroupName);
 	}
 
-	private int getNumOfMatchingChildrenFromChildDataGroup(ClientDataGroup topLevelDataGroup) {
+	private int getNumOfMatchingChildrenFromChildDataGroup(ClientDataParent topLevelDataGroup) {
 		ClientDataGroup childDataGroup = topLevelDataGroup
 				.getFirstGroupWithNameInData(childDataGroupName);
 		return getNumberOfMatchingChildren(childDataGroup);
 	}
 
-	private boolean topLevelGroupExists(DataRecord dataRecord) {
-		return dataRecord != null && dataRecord.getClientDataGroup() != null;
+	private boolean topLevelGroupExists(ClientDataRecord dataRecord) {
+		return dataRecord != null && dataRecord.getDataRecordGroup() != null;
 	}
 
-	private int getNumberOfMatchingChildren(ClientDataGroup topLevelDataGroup) {
-		List<ClientDataElement> matchingChildren = topLevelDataGroup
+	private int getNumberOfMatchingChildren(ClientDataParent topLevelDataGroup) {
+		List<ClientDataChild> matchingChildren = topLevelDataGroup
 				.getAllChildrenWithNameInData(nameInData);
 		return matchingChildren.size();
 	}

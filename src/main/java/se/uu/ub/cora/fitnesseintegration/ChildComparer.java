@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2020, 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -21,6 +21,7 @@ package se.uu.ub.cora.fitnesseintegration;
 import java.util.List;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.ClientDataParent;
 import se.uu.ub.cora.json.parser.JsonValue;
 
 public interface ChildComparer {
@@ -43,27 +44,27 @@ public interface ChildComparer {
 	 * JsonValue.
 	 * 
 	 * @param dataGroup
-	 *            The ClientDataGroup that is checked
+	 *            The ClientDataParent that is checked
 	 * @param jsonValue
 	 *            The JsonValue that contains the children to look for
 	 * @return A List<String> containing messages for potential missing children. Empty list is
 	 *         returned if all children are found.
 	 * 
 	 */
-	List<String> checkDataGroupContainsChildren(ClientDataGroup dataGroup, JsonValue jsonValue);
+	List<String> checkDataGroupContainsChildren(ClientDataParent dataGroup, JsonValue jsonValue);
 
 	/**
 	 * Checks whether the provided ClientDataGroup contains the children, with correct values,
 	 * specified in the provided JsonValue.
 	 * 
 	 * @param dataGroup
-	 *            The ClientDataGroup that is checked
+	 *            The ClientDataParent that is checked
 	 * @param jsonValue
 	 *            The JsonValue that contains the children to look for
 	 * @return A List<String> containing messages for potential missing children or incorrect
 	 *         values. Empty list is returned if all children with correct values are found.
 	 * 
 	 */
-	List<String> checkDataGroupContainsChildrenWithCorrectValues(ClientDataGroup dataGroup,
+	List<String> checkDataGroupContainsChildrenWithCorrectValues(ClientDataParent dataGroup,
 			JsonValue jsonValue);
 }

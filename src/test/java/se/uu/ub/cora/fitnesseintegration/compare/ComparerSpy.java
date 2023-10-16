@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2020, 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -34,7 +34,7 @@ public class ComparerSpy implements DataComparer {
 	public String type = "";
 
 	@Override
-	public List<String> checkDataRecordContains(JsonValue jsonValue) {
+	public List<String> checkClientDataRecordContains(JsonValue jsonValue) {
 		this.jsonValue = jsonValue;
 		possiblyThrowError();
 		listToReturn = new ArrayList<>();

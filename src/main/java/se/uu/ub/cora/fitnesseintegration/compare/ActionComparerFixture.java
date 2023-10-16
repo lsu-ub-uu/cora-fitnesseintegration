@@ -1,5 +1,6 @@
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2020, 2023 Uppsala University Library
+ * Copyright 2023 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -20,35 +21,38 @@ package se.uu.ub.cora.fitnesseintegration.compare;
 
 import java.util.List;
 
-import se.uu.ub.cora.clientdata.DataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
+import se.uu.ub.cora.fitnesseintegration.JsonHandler;
 import se.uu.ub.cora.json.parser.JsonObject;
 
 public class ActionComparerFixture extends ComparerFixture {
 
 	private ComparerFactory comparerFactory;
 	private String actions;
+	private JsonHandler jsonHandler;
 
 	public ActionComparerFixture() {
 		super();
 		comparerFactory = DependencyProvider.getComparerFactory();
+		jsonHandler = DependencyProvider.getJsonHandler();
 	}
 
 	public String testCheckActions() {
-		DataRecord dataRecord = DataHolder.getRecord();
+		ClientDataRecord dataRecord = DataHolder.getRecord();
 		return checkActions(dataRecord);
 	}
 
 	public String testCheckActionsFromList() {
-		DataRecord dataRecord = getDataRecordFromRecordHolderUsingIndex();
+		ClientDataRecord dataRecord = getClientDataRecordFromRecordHolderUsingIndex();
 		return checkActions(dataRecord);
 	}
 
-	private String checkActions(DataRecord dataRecord) {
+	private String checkActions(ClientDataRecord dataRecord) {
 		DataComparer comparer = comparerFactory.factor("action", dataRecord);
 		JsonObject permissionObject = jsonHandler.parseStringAsObject(actions);
-		List<String> errorMessages = comparer.checkDataRecordContains(permissionObject);
+		List<String> errorMessages = comparer.checkClientDataRecordContains(permissionObject);
 		return errorMessages.isEmpty() ? "OK" : joinErrorMessages(errorMessages);
 	}
 
@@ -58,6 +62,14 @@ public class ActionComparerFixture extends ComparerFixture {
 
 	public ComparerFactory getComparerFactory() {
 		return comparerFactory;
+	}
+
+	void onlyForTestSetJsonHandler(JsonHandler jsonHandler) {
+		this.jsonHandler = jsonHandler;
+	}
+
+	public JsonHandler onlyForTestGetJsonHandler() {
+		return jsonHandler;
 	}
 
 }

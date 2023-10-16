@@ -1,5 +1,6 @@
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2020, 2023 Uppsala University Library
+ * Copyright 2023 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -29,16 +30,17 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
-import se.uu.ub.cora.clientdata.DataRecord;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
+import se.uu.ub.cora.clientdata.ClientDataParent;
+import se.uu.ub.cora.clientdata.ClientDataProvider;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.fitnesseintegration.ChildComparerSpy;
-import se.uu.ub.cora.fitnesseintegration.ClientDataRecordSpy;
+import se.uu.ub.cora.fitnesseintegration.ClientDataRecordOLDSpy;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy;
 import se.uu.ub.cora.fitnesseintegration.JsonHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.JsonParserSpy;
-import se.uu.ub.cora.fitnesseintegration.JsonToDataRecordConverterSpy;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerSpy;
 import se.uu.ub.cora.fitnesseintegration.SystemUrl;
@@ -47,7 +49,6 @@ public class ChildComparerFixtureTest {
 
 	private ChildComparerFixture fixture;
 	private RecordHandlerSpy recordHandler;
-	private JsonToDataRecordConverterSpy jsonToDataRecordConverter;
 	private JsonParserSpy jsonParser;
 	private JsonHandlerImp jsonHandler;
 
@@ -67,12 +68,10 @@ public class ChildComparerFixtureTest {
 		recordHandler = new RecordHandlerSpy();
 		jsonParser = new JsonParserSpy();
 		jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
-		jsonToDataRecordConverter = new JsonToDataRecordConverterSpy();
 
 		fixture.setType("someRecordType");
 		fixture.setRecordHandler(recordHandler);
 		fixture.onlyForTestSetJsonHandler(jsonHandler);
-		fixture.onlyForTestSetJsonToDataRecordConverter(jsonToDataRecordConverter);
 	}
 
 	@Test
@@ -80,8 +79,6 @@ public class ChildComparerFixtureTest {
 		fixture = new ChildComparerFixture();
 		assertTrue(fixture.onlyForTestGetChildComparer() instanceof ChildComparerSpy);
 		assertTrue(fixture.onlyForTestGetJsonHandler() instanceof JsonHandlerImp);
-		assertTrue(fixture
-				.onlyForTestGetJsonToDataRecordConverter() instanceof JsonToDataRecordConverterImp);
 		assertTrue(fixture.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
 
 		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.getRecordHandler();
@@ -90,9 +87,9 @@ public class ChildComparerFixtureTest {
 	}
 
 	private void addRecordsToDataHolder() {
-		List<DataRecord> dataRecords = new ArrayList<>();
-		dataRecords.add(new ClientDataRecordSpy());
-		dataRecords.add(new ClientDataRecordSpy());
+		List<ClientDataRecord> dataRecords = new ArrayList<>();
+		dataRecords.add(new ClientDataRecordOLDSpy());
+		dataRecords.add(new ClientDataRecordOLDSpy());
 		DataHolder.setRecordList(dataRecords);
 	}
 
@@ -133,14 +130,16 @@ public class ChildComparerFixtureTest {
 		assertEquals(jsonParser.jsonStringsSentToParser.get(0), children);
 
 		assertSame(comparerSpy.jsonValue, jsonParser.jsonObjectSpies.get(0));
-		ClientDataRecordSpy recordSpy = (ClientDataRecordSpy) DataHolder.getRecordList().get(0);
+		ClientDataRecordOLDSpy recordSpy = (ClientDataRecordOLDSpy) DataHolder.getRecordList()
+				.get(0);
 		assertSame(comparerSpy.dataGroup, recordSpy.clientDataGroup);
 
 		fixture.setListIndexToCompareTo(1);
 		fixture.testReadFromListCheckContainWithValues();
-		ClientDataRecordSpy recordSpy2 = (ClientDataRecordSpy) DataHolder.getRecordList().get(1);
-		ClientDataGroup dataGroup = comparerSpy.dataGroup;
-		ClientDataGroup clientDataGroup = recordSpy2.clientDataGroup;
+		ClientDataRecordOLDSpy recordSpy2 = (ClientDataRecordOLDSpy) DataHolder.getRecordList()
+				.get(1);
+		ClientDataParent dataGroup = comparerSpy.dataGroup;
+		ClientDataRecordGroup clientDataGroup = recordSpy2.clientDataGroup;
 		assertSame(dataGroup, clientDataGroup);
 
 	}
@@ -195,14 +194,16 @@ public class ChildComparerFixtureTest {
 		assertEquals(jsonParser.jsonStringsSentToParser.get(0), childrenToLookFor);
 
 		assertSame(comparerSpy.jsonValue, jsonParser.jsonObjectSpies.get(0));
-		ClientDataRecordSpy recordSpy = (ClientDataRecordSpy) DataHolder.getRecordList().get(0);
+		ClientDataRecordOLDSpy recordSpy = (ClientDataRecordOLDSpy) DataHolder.getRecordList()
+				.get(0);
 		assertSame(comparerSpy.dataGroup, recordSpy.clientDataGroup);
 
 		fixture.setListIndexToCompareTo(1);
 		fixture.testReadFromListCheckContain();
-		ClientDataRecordSpy recordSpy2 = (ClientDataRecordSpy) DataHolder.getRecordList().get(1);
-		ClientDataGroup dataGroup = comparerSpy.dataGroup;
-		ClientDataGroup clientDataGroup = recordSpy2.clientDataGroup;
+		ClientDataRecordOLDSpy recordSpy2 = (ClientDataRecordOLDSpy) DataHolder.getRecordList()
+				.get(1);
+		ClientDataParent dataGroup = comparerSpy.dataGroup;
+		ClientDataRecordGroup clientDataGroup = recordSpy2.clientDataGroup;
 		assertSame(dataGroup, clientDataGroup);
 
 	}
@@ -221,16 +222,16 @@ public class ChildComparerFixtureTest {
 
 	@Test
 	public void testCheckContainOK() {
-		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
-		DataHolder.setRecord(clientDataRecordSpy);
+		ClientDataRecordOLDSpy clientClientDataRecordSpy = new ClientDataRecordOLDSpy();
+		DataHolder.setRecord(clientClientDataRecordSpy);
 		String result = fixture.testCheckContain();
 		assertEquals(result, "OK");
 	}
 
 	@Test
 	public void testCheckContainResultNotOK() {
-		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
-		DataHolder.setRecord(clientDataRecordSpy);
+		ClientDataRecordOLDSpy clientClientDataRecordSpy = new ClientDataRecordOLDSpy();
+		DataHolder.setRecord(clientClientDataRecordSpy);
 
 		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		childComparer.numberOfErrorsToReturn = 3;
@@ -243,8 +244,8 @@ public class ChildComparerFixtureTest {
 
 	@Test
 	public void testCheckContainSendsResultBetweenObjectsCorrectly() {
-		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
-		DataHolder.setRecord(clientDataRecordSpy);
+		ClientDataRecordOLDSpy clientClientDataRecordSpy = new ClientDataRecordOLDSpy();
+		DataHolder.setRecord(clientClientDataRecordSpy);
 		String childrenToLookFor = "{\"children\":[{\"name\":\"instructorId\"},{\"name\":\"popularity\"}]}";
 		fixture.setChildren(childrenToLookFor);
 		fixture.testCheckContain();
@@ -253,14 +254,14 @@ public class ChildComparerFixtureTest {
 
 		ChildComparerSpy comparerSpy = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		assertSame(comparerSpy.jsonValue, jsonParser.jsonObjectSpies.get(0));
-		ClientDataRecordSpy recordSpy = (ClientDataRecordSpy) DataHolder.getRecord();
+		ClientDataRecordOLDSpy recordSpy = (ClientDataRecordOLDSpy) DataHolder.getRecord();
 		assertSame(comparerSpy.dataGroup, recordSpy.clientDataGroup);
 	}
 
 	@Test
 	public void testCheckContainComparerThrowsError() {
-		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
-		DataHolder.setRecord(clientDataRecordSpy);
+		ClientDataRecordOLDSpy clientClientDataRecordSpy = new ClientDataRecordOLDSpy();
+		DataHolder.setRecord(clientClientDataRecordSpy);
 		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		childComparer.spyShouldThrowError = true;
 
@@ -269,7 +270,7 @@ public class ChildComparerFixtureTest {
 
 	@Test
 	public void testCheckContainWithValuesResultOK() {
-		DataHolder.setRecord(new ClientDataRecordSpy());
+		DataHolder.setRecord(new ClientDataRecordOLDSpy());
 		String childrenToLookFor = "{\"children\":[{\"type\":\"atomic\",\"name\":\"workoutName\",\"value\":\"cirkelfys\"}]}";
 		fixture.setChildren(childrenToLookFor);
 		assertEquals(fixture.testCheckContainWithValues(), "OK");
@@ -277,8 +278,8 @@ public class ChildComparerFixtureTest {
 
 	@Test
 	public void testCheckContainWithValuesResultNotOK() {
-		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
-		DataHolder.setRecord(clientDataRecordSpy);
+		ClientDataRecordOLDSpy clientClientDataRecordSpy = new ClientDataRecordOLDSpy();
+		DataHolder.setRecord(clientClientDataRecordSpy);
 
 		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		childComparer.numberOfErrorsToReturn = 3;
@@ -291,8 +292,8 @@ public class ChildComparerFixtureTest {
 
 	@Test
 	public void testCheckContainWithValuesSendsResultBetweenObjectsCorrectly() {
-		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
-		DataHolder.setRecord(clientDataRecordSpy);
+		ClientDataRecordOLDSpy clientClientDataRecordSpy = new ClientDataRecordOLDSpy();
+		DataHolder.setRecord(clientClientDataRecordSpy);
 		String childrenToLookFor = "{\"children\":[{\"type\":\"atomic\",\"name\":\"workoutName\",\"value\":\"cirkelfys\"}]}";
 		fixture.setChildren(childrenToLookFor);
 		fixture.testCheckContainWithValues();
@@ -301,14 +302,14 @@ public class ChildComparerFixtureTest {
 
 		ChildComparerSpy comparerSpy = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		assertSame(comparerSpy.jsonValue, jsonParser.jsonObjectSpies.get(0));
-		ClientDataRecordSpy recordSpy = (ClientDataRecordSpy) DataHolder.getRecord();
+		ClientDataRecordOLDSpy recordSpy = (ClientDataRecordOLDSpy) DataHolder.getRecord();
 		assertSame(comparerSpy.dataGroup, recordSpy.clientDataGroup);
 	}
 
 	@Test
 	public void testCheckContainWithValuesThrowsError() {
-		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
-		DataHolder.setRecord(clientDataRecordSpy);
+		ClientDataRecordOLDSpy clientClientDataRecordSpy = new ClientDataRecordOLDSpy();
+		DataHolder.setRecord(clientClientDataRecordSpy);
 		ChildComparerSpy childComparer = (ChildComparerSpy) fixture.onlyForTestGetChildComparer();
 		childComparer.spyShouldThrowError = true;
 
@@ -317,19 +318,21 @@ public class ChildComparerFixtureTest {
 
 	@Test
 	public void testCountChildrenOK() {
-		ClientDataGroup clientDataGroup = createDataGroupWithTwoChildReferences();
-		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
-		clientDataRecordSpy.clientDataGroup = clientDataGroup;
-		DataHolder.setRecord(clientDataRecordSpy);
+		ClientDataRecordGroup clientDataGroup = createDataGroupWithTwoChildReferences();
+		ClientDataRecordOLDSpy clientClientDataRecordSpy = new ClientDataRecordOLDSpy();
+		clientClientDataRecordSpy.clientDataGroup = clientDataGroup;
+		DataHolder.setRecord(clientClientDataRecordSpy);
 
 		fixture.setExpectedNumberOfChildren(2);
 		String result = fixture.testCheckNumberOfChildren();
 		assertEquals(result, "OK");
 	}
 
-	private ClientDataGroup createDataGroupWithTwoChildReferences() {
-		ClientDataGroup clientDataGroup = ClientDataGroup.withNameInData("clientDataGroupSpy");
-		ClientDataGroup childReferences = ClientDataGroup.withNameInData("childReferences");
+	private ClientDataRecordGroup createDataGroupWithTwoChildReferences() {
+		ClientDataRecordGroup clientDataGroup = ClientDataProvider
+				.createRecordGroupUsingNameInData("clientDataGroupSpy");
+		ClientDataGroup childReferences = ClientDataProvider
+				.createGroupUsingNameInData("childReferences");
 		addChildRefWithRepeatId(childReferences, "0");
 		addChildRefWithRepeatId(childReferences, "1");
 		clientDataGroup.addChild(childReferences);
@@ -337,17 +340,17 @@ public class ChildComparerFixtureTest {
 	}
 
 	private void addChildRefWithRepeatId(ClientDataGroup childReferences, String repeatId) {
-		ClientDataGroup childRef1 = ClientDataGroup.withNameInData("childReference");
+		ClientDataGroup childRef1 = ClientDataProvider.createGroupUsingNameInData("childReference");
 		childRef1.setRepeatId(repeatId);
 		childReferences.addChild(childRef1);
 	}
 
 	@Test
 	public void testCountChildrenNotOK() {
-		ClientDataGroup clientDataGroup = createDataGroupWithTwoChildReferences();
-		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
-		clientDataRecordSpy.clientDataGroup = clientDataGroup;
-		DataHolder.setRecord(clientDataRecordSpy);
+		ClientDataRecordGroup clientDataGroup = createDataGroupWithTwoChildReferences();
+		ClientDataRecordOLDSpy clientClientDataRecordSpy = new ClientDataRecordOLDSpy();
+		clientClientDataRecordSpy.clientDataGroup = clientDataGroup;
+		DataHolder.setRecord(clientClientDataRecordSpy);
 
 		fixture.setExpectedNumberOfChildren(3);
 		String result = fixture.testCheckNumberOfChildren();

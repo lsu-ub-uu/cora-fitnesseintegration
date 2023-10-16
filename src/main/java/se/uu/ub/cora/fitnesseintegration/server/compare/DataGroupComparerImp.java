@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Uppsala University Library
+ * Copyright 2022, 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -156,7 +156,8 @@ public class DataGroupComparerImp implements DataGroupComparer {
 
 	private boolean recordLinksAreDifferent(DataRecordLink recordLinkChild,
 			DataRecordLink recordLinkAgainst) {
-		return !recordLinkChild.getLinkedRecordType().equals(recordLinkAgainst.getLinkedRecordType())
+		return !recordLinkChild.getLinkedRecordType()
+				.equals(recordLinkAgainst.getLinkedRecordType())
 				|| !recordLinkChild.getLinkedRecordId()
 						.equals(recordLinkAgainst.getLinkedRecordId());
 	}
@@ -183,10 +184,11 @@ public class DataGroupComparerImp implements DataGroupComparer {
 
 	private boolean resourceLinksAreDifferent(DataResourceLink resourceLinkChild,
 			DataResourceLink resourceLinkAgainst) {
-		return !resourceLinkChild.getStreamId().equals(resourceLinkAgainst.getStreamId())
-				|| !resourceLinkChild.getFileName().equals(resourceLinkAgainst.getFileName())
-				|| !resourceLinkChild.getFileSize().equals(resourceLinkAgainst.getFileSize())
-				|| !resourceLinkChild.getMimeType().equals(resourceLinkAgainst.getMimeType());
+		// return !resourceLinkChild.getStreamId().equals(resourceLinkAgainst.getStreamId())
+		// || !resourceLinkChild.getFileName().equals(resourceLinkAgainst.getFileName())
+		// || !resourceLinkChild.getFileSize().equals(resourceLinkAgainst.getFileSize())
+		// || !resourceLinkChild.getMimeType().equals(resourceLinkAgainst.getMimeType());
+		return !resourceLinkChild.getMimeType().equals(resourceLinkAgainst.getMimeType());
 	}
 
 	private String createCompareMessageForChild(DataChild dataChild) {
@@ -238,14 +240,16 @@ public class DataGroupComparerImp implements DataGroupComparer {
 	private String createErrorMessageForResourceLink(DataChild dataChild, String nameInData,
 			String attribute) {
 		DataResourceLink resourceLinkChild = (DataResourceLink) dataChild;
-		String streamId = resourceLinkChild.getStreamId();
-		String fileName = resourceLinkChild.getFileName();
-		String fileSize = resourceLinkChild.getFileSize();
+		// String streamId = resourceLinkChild.getStreamId();
+		// String fileName = resourceLinkChild.getFileName();
+		// String fileSize = resourceLinkChild.getFileSize();
 		String mimeType = resourceLinkChild.getMimeType();
-		return MessageFormat.format(
-				"ResourceLink with name: {0}{1}, streamId: {2}, fileName: {3}"
-						+ ", fileSize: {4} and mimeType: {5} not found.",
-				nameInData, attribute, streamId, fileName, fileSize, mimeType);
+		// return MessageFormat.format(
+		// "ResourceLink with name: {0}{1}, streamId: {2}, fileName: {3}"
+		// + ", fileSize: {4} and mimeType: {5} not found.",
+		// nameInData, attribute, streamId, fileName, fileSize, mimeType);
+		return MessageFormat.format("ResourceLink with name: {0}{1}, and mimeType: {2} not found.",
+				nameInData, attribute, mimeType);
 	}
 
 	private String createErrorMessageForGroup(DataChild dataChild, String attribute) {

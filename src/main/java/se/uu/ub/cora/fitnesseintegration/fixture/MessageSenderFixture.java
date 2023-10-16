@@ -1,5 +1,6 @@
 /*
  * Copyright 2021 Uppsala University Library
+ * Copyright 2023 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -68,15 +69,6 @@ public class MessageSenderFixture {
 		addHeadersFromJsonObject(headersObject);
 	}
 
-	private MessageSender createMessageSender() {
-		MessageRoutingInfo messageRoutingInfo = MessageRoutingInfoHolder.getMessageRoutingInfo();
-		return MessagingProvider.getTopicMessageSender(messageRoutingInfo);
-	}
-
-	public void setHeaders(String headers) {
-		this.jsonHeaders = headers;
-	}
-
 	private void addHeadersFromJsonObject(JsonObject headersObject) {
 		headers = new HashMap<>();
 		for (Entry<String, JsonValue> entry : headersObject.entrySet()) {
@@ -88,6 +80,15 @@ public class MessageSenderFixture {
 		String key = entry.getKey();
 		JsonString value = (JsonString) entry.getValue();
 		headers.put(key, value.getStringValue());
+	}
+
+	private MessageSender createMessageSender() {
+		MessageRoutingInfo messageRoutingInfo = MessageRoutingInfoHolder.getMessageRoutingInfo();
+		return MessagingProvider.getTopicMessageSender(messageRoutingInfo);
+	}
+
+	public void setHeaders(String headers) {
+		this.jsonHeaders = headers;
 	}
 
 	public void setMessage(String message) {

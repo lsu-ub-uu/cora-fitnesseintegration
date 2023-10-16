@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2020, 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -22,12 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.ClientDataParent;
 import se.uu.ub.cora.json.parser.JsonParseException;
 import se.uu.ub.cora.json.parser.JsonValue;
 
 public class ChildComparerSpy implements ChildComparer {
 
-	public ClientDataGroup dataGroup;
+	public ClientDataParent dataGroup;
 	public JsonValue jsonValue;
 	public int numberOfErrorsToReturn = 0;
 	public List<String> listToReturn;
@@ -41,7 +42,7 @@ public class ChildComparerSpy implements ChildComparer {
 	}
 
 	@Override
-	public List<String> checkDataGroupContainsChildren(ClientDataGroup dataGroup,
+	public List<String> checkDataGroupContainsChildren(ClientDataParent dataGroup,
 			JsonValue jsonValue) {
 		this.dataGroup = dataGroup;
 		this.jsonValue = jsonValue;
@@ -66,7 +67,7 @@ public class ChildComparerSpy implements ChildComparer {
 	}
 
 	@Override
-	public List<String> checkDataGroupContainsChildrenWithCorrectValues(ClientDataGroup dataGroup,
+	public List<String> checkDataGroupContainsChildrenWithCorrectValues(ClientDataParent dataGroup,
 			JsonValue jsonValue) {
 		this.dataGroup = dataGroup;
 		this.jsonValue = jsonValue;

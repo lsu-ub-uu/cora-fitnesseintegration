@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2020, 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -18,7 +18,8 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
-import se.uu.ub.cora.javaclient.rest.ExtendedRestResponse;
+import java.util.Optional;
+
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 
@@ -37,15 +38,14 @@ public class RestClientSpy implements RestClient {
 		this.recordId = recordId;
 		readWasCalled = true;
 		returnedJson = "some json returned from RestClientSpy";
-		return new RestResponse(200, returnedJson);
+		return new RestResponse(200, returnedJson, Optional.empty());
 	}
 
 	@Override
-	public ExtendedRestResponse createRecordFromJson(String recordType, String json) {
+	public RestResponse createRecordFromJson(String recordType, String json) {
 		this.recordType = recordType;
-		RestResponse restResponse = new RestResponse(201, returnedJson);
 		createdId = "someCreatedId";
-		return new ExtendedRestResponse(restResponse, createdId);
+		return new RestResponse(201, returnedJson, Optional.of(createdId));
 	}
 
 	@Override
@@ -53,7 +53,7 @@ public class RestClientSpy implements RestClient {
 		this.recordType = recordType;
 		this.recordId = recordId;
 		returnedJson = "some json returned from RestClientSpy";
-		return new RestResponse(200, returnedJson);
+		return new RestResponse(200, returnedJson, Optional.empty());
 	}
 
 	@Override
@@ -61,14 +61,14 @@ public class RestClientSpy implements RestClient {
 		this.recordType = recordType;
 		this.recordId = recordId;
 		returnedJson = "some json returned from RestClientSpy";
-		return new RestResponse(200, returnedJson);
+		return new RestResponse(200, returnedJson, Optional.empty());
 	}
 
 	@Override
 	public RestResponse readRecordListAsJson(String recordType) {
 		this.recordType = recordType;
 		returnedJson = "some json returned from RestClientSpy";
-		return new RestResponse(200, returnedJson);
+		return new RestResponse(200, returnedJson, Optional.empty());
 	}
 
 	@Override
@@ -76,7 +76,7 @@ public class RestClientSpy implements RestClient {
 		this.recordType = recordType;
 		this.recordId = recordId;
 		returnedJson = "some json returned from RestClientSpy";
-		return new RestResponse(200, returnedJson);
+		return new RestResponse(200, returnedJson, Optional.empty());
 	}
 
 	@Override
@@ -84,7 +84,7 @@ public class RestClientSpy implements RestClient {
 		this.recordType = recordType;
 		this.filter = filter;
 		returnedJson = "some json returned from RestClientSpy";
-		return new RestResponse(200, returnedJson);
+		return new RestResponse(200, returnedJson, Optional.empty());
 	}
 
 	@Override
@@ -94,14 +94,12 @@ public class RestClientSpy implements RestClient {
 	}
 
 	@Override
-	public ExtendedRestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson) {
+	public RestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson) {
 		this.recordType = recordType;
 		this.filter = filterAsJson;
 
-		RestResponse restResponse = new RestResponse(201, returnedJson);
 		createdId = "someCreatedId";
-		return new ExtendedRestResponse(restResponse, createdId);
-
+		return new RestResponse(201, returnedJson, Optional.of(createdId));
 	}
 
 }

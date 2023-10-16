@@ -1,5 +1,6 @@
 /*
  * Copyright 2020 Uppsala University Library
+ * Copyright 2023 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -46,13 +47,11 @@ public class JsonHandlerImp implements JsonHandler {
 	}
 
 	@Override
-	public JsonParser getJsonParser() {
-		return jsonParser;
-	}
-
-	@Override
 	public JsonArray parseStringAsArray(String jsonString) {
 		return jsonParser.parseStringAsArray(jsonString);
 	}
 
+	public JsonParser onlyForTestGetJsonParser() {
+		return jsonParser;
+	}
 }

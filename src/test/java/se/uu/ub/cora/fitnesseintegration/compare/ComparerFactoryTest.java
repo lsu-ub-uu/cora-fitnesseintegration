@@ -1,5 +1,6 @@
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2020, 2023 Uppsala University Library
+ * Copyright 2023 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -23,33 +24,34 @@ import static org.testng.Assert.assertSame;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.ClientDataProvider;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
-import se.uu.ub.cora.clientdata.DataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 
 public class ComparerFactoryTest {
 
 	private ComparerFactoryImp factory;
-	private DataRecord dataRecord;
+	private ClientDataRecord dataRecord;
 
 	@BeforeMethod
 	public void setUp() {
 		factory = new ComparerFactoryImp();
-		ClientDataGroup dataGroup = ClientDataGroup.withNameInData("someNameInData");
-		dataRecord = ClientDataRecord.withClientDataGroup(dataGroup);
+		ClientDataRecordGroup dataGroup = ClientDataProvider
+				.createRecordGroupUsingNameInData("someNameInData");
+		dataRecord = ClientDataProvider.createRecordWithDataRecordGroup(dataGroup);
 	}
 
 	@Test
 	public void testFactorPermissionComparer() {
 		PermissionComparer permissionComparer = (PermissionComparer) factory.factor("permission",
 				dataRecord);
-		assertSame(permissionComparer.getDataRecord(), dataRecord);
+		assertSame(permissionComparer.getClientDataRecord(), dataRecord);
 	}
 
 	@Test
 	public void testFactorActionComparer() {
 		ActionComparer actionComparer = (ActionComparer) factory.factor("action", dataRecord);
-		assertSame(actionComparer.getDataRecord(), dataRecord);
+		assertSame(actionComparer.getClientDataRecord(), dataRecord);
 	}
 
 	@Test(expectedExceptions = NotImplementedException.class, expectedExceptionsMessageRegExp = ""

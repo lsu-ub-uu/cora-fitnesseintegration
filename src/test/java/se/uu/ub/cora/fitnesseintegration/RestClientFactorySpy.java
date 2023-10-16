@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2020, 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -29,6 +29,12 @@ public class RestClientFactorySpy implements RestClientFactory {
 	public String jsonToReturn = "";
 
 	@Override
+	public RestClient factorUsingUserIdAndAppToken(String userId, String appToken) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public RestClient factorUsingAuthToken(String authToken) {
 		this.authToken = authToken;
 		if (factorInvalidRestClient) {
@@ -40,12 +46,6 @@ public class RestClientFactorySpy implements RestClientFactory {
 			((RestClientSpy) returnedRestClient).returnedJson = jsonToReturn;
 		}
 		return returnedRestClient;
-	}
-
-	@Override
-	public String getBaseUrl() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
