@@ -40,6 +40,7 @@ public class FileTreeReaderImp implements FileTreeReader {
 
 	@Override
 	public String createFileTreeFromPath(String basePath) {
+		allFileNames = new ArrayList<>();
 		tryToReadFileNamesFromDirectory(basePath);
 		String[] fileNames = allFileNames.toArray(String[]::new);
 		return buildTreeFromFileNames(fileNames);

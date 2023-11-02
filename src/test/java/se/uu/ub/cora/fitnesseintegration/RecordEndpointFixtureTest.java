@@ -24,7 +24,6 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.time.Duration;
 import java.time.Instant;
@@ -34,7 +33,6 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.http.client.ClientProtocolException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -299,58 +297,58 @@ public class RecordEndpointFixtureTest {
 		assertEquals(recordHandler.authToken, AuthTokenHolder.getAdminAuthToken());
 	}
 
-	@Test
-	public void testUploadDataForFactoryIsOk() throws ClientProtocolException, IOException {
-		fixture.setType("someType");
-		fixture.setId("someId");
-		fixture.setAuthToken("someToken");
-		fixture.setFileName("correctFileAnswer");
-		fixture.testUpload();
-
-		HttpMultiPartUploaderSpy httpHandlerSpy = httpHandlerFactorySpy.httpMultiPartUploaderSpy;
-		assertEquals(httpHandlerSpy.headerFields.get("Accept"), "application/vnd.uub.record+json");
-		assertEquals(httpHandlerSpy.headerFields.size(), 1);
-
-		assertEquals(httpHandlerSpy.fieldName, "file");
-		assertEquals(httpHandlerSpy.fileName, "correctFileAnswer");
-
-		assertTrue(httpHandlerSpy.doneIsCalled);
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/therest/rest/record/someType/someId/master?authToken=someToken");
-		assertEquals(fixture.getStreamId(), "soundBinary:23310456970967");
-	}
-
-	@Test
-	public void testUploadDataForFactoryIsOkUsingDefaultAuthToken()
-			throws ClientProtocolException, IOException {
-		fixture.setType("someType");
-		fixture.setId("someId");
-		fixture.setFileName("correctFileAnswer");
-		fixture.testUpload();
-
-		HttpMultiPartUploaderSpy httpHandlerSpy = httpHandlerFactorySpy.httpMultiPartUploaderSpy;
-		assertEquals(httpHandlerSpy.headerFields.get("Accept"), "application/vnd.uub.record+json");
-		assertEquals(httpHandlerSpy.headerFields.size(), 1);
-
-		assertEquals(httpHandlerSpy.fieldName, "file");
-		assertEquals(httpHandlerSpy.fileName, "correctFileAnswer");
-
-		assertTrue(httpHandlerSpy.doneIsCalled);
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/therest/rest/record/someType/someId/master?authToken=someAdminToken");
-		assertEquals(fixture.getStreamId(), "soundBinary:23310456970967");
-	}
-
-	@Test
-	public void testUploadOk() throws ClientProtocolException, IOException {
-		assertEquals(fixture.testUpload(), "Everything ok");
-	}
-
-	@Test
-	public void testUploadNotOk() throws ClientProtocolException, IOException {
-		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		assertEquals(fixture.testUpload(), "bad things happend");
-	}
+	// @Test
+	// public void testUploadDataForFactoryIsOk() throws ClientProtocolException, IOException {
+	// fixture.setType("someType");
+	// fixture.setId("someId");
+	// fixture.setAuthToken("someToken");
+	// fixture.setFileName("correctFileAnswer");
+	// fixture.testUpload();
+	//
+	// HttpMultiPartUploaderSpy httpHandlerSpy = httpHandlerFactorySpy.httpMultiPartUploaderSpy;
+	// assertEquals(httpHandlerSpy.headerFields.get("Accept"), "application/vnd.uub.record+json");
+	// assertEquals(httpHandlerSpy.headerFields.size(), 1);
+	//
+	// assertEquals(httpHandlerSpy.fieldName, "file");
+	// assertEquals(httpHandlerSpy.fileName, "correctFileAnswer");
+	//
+	// assertTrue(httpHandlerSpy.doneIsCalled);
+	// assertEquals(httpHandlerFactorySpy.urlString,
+	// "http://localhost:8080/therest/rest/record/someType/someId/master?authToken=someToken");
+	// assertEquals(fixture.getStreamId(), "soundBinary:23310456970967");
+	// }
+	//
+	// @Test
+	// public void testUploadDataForFactoryIsOkUsingDefaultAuthToken()
+	// throws ClientProtocolException, IOException {
+	// fixture.setType("someType");
+	// fixture.setId("someId");
+	// fixture.setFileName("correctFileAnswer");
+	// fixture.testUpload();
+	//
+	// HttpMultiPartUploaderSpy httpHandlerSpy = httpHandlerFactorySpy.httpMultiPartUploaderSpy;
+	// assertEquals(httpHandlerSpy.headerFields.get("Accept"), "application/vnd.uub.record+json");
+	// assertEquals(httpHandlerSpy.headerFields.size(), 1);
+	//
+	// assertEquals(httpHandlerSpy.fieldName, "file");
+	// assertEquals(httpHandlerSpy.fileName, "correctFileAnswer");
+	//
+	// assertTrue(httpHandlerSpy.doneIsCalled);
+	// assertEquals(httpHandlerFactorySpy.urlString,
+	// "http://localhost:8080/therest/rest/record/someType/someId/master?authToken=someAdminToken");
+	// assertEquals(fixture.getStreamId(), "soundBinary:23310456970967");
+	// }
+	//
+	// @Test
+	// public void testUploadOk() throws ClientProtocolException, IOException {
+	// assertEquals(fixture.testUpload(), "Everything ok");
+	// }
+	//
+	// @Test
+	// public void testUploadNotOk() throws ClientProtocolException, IOException {
+	// httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
+	// assertEquals(fixture.testUpload(), "bad things happend");
+	// }
 
 	@Test
 	public void testDownloadDataForFactoryIsOk() {

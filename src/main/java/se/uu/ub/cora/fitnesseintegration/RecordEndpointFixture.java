@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
@@ -272,7 +274,10 @@ public class RecordEndpointFixture {
 		httpHandler.addHeaderField(ACCEPT, APPLICATION_UUB_RECORD_JSON);
 		InputStream fakeStream = new ByteArrayInputStream(
 				"a string".getBytes(StandardCharsets.UTF_8));
-		httpHandler.addFilePart("file", fileName, fakeStream);
+		Path path = Path.of("FitNesseRoot/files/Images/binary.png");
+		InputStream fileStream = Files.newInputStream(path);
+		// httpHandler.addFilePart("file", fileName, fakeStream);
+		httpHandler.addFilePart("file", fileName, fileStream);
 	}
 
 	protected boolean responseIsOk() {
