@@ -32,6 +32,7 @@ public final class DependencyProvider {
 	// private static JsonToDataConverterFactory jsonToDataConverterFactory;
 	private static ChildComparer childComparer;
 	private static ComparerFactory permissionComparerFactory;
+	private static Waiter waiterSpy;
 
 	public DependencyProvider() {
 		// needs a public constructor for fitnesse to work
@@ -86,5 +87,16 @@ public final class DependencyProvider {
 
 	public static ComparerFactory getComparerFactory() {
 		return permissionComparerFactory;
+	}
+
+	public static Waiter getWaiter() {
+		if (waiterSpy != null) {
+			return waiterSpy;
+		}
+		return new WaiterImp();
+	}
+
+	public static void onlyForTestSetWaiter(Waiter waiterSpy) {
+		DependencyProvider.waiterSpy = waiterSpy;
 	}
 }

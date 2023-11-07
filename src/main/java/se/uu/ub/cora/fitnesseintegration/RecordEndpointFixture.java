@@ -35,6 +35,8 @@ import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverter;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
+import se.uu.ub.cora.fitnesseintegration.Waiter.MethodToRun;
+import se.uu.ub.cora.fitnesseintegration.Waiter.WhatYouAreWaitingFor;
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpMultiPartUploader;
@@ -70,7 +72,7 @@ public class RecordEndpointFixture {
 	private ChildComparer childComparer;
 	private RecordHandler recordHandler;
 	private int maxNumberOfReads;
-	private int sleepTime;
+	public int sleepTime;
 
 	public RecordEndpointFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
@@ -274,7 +276,7 @@ public class RecordEndpointFixture {
 		httpHandler.addHeaderField(ACCEPT, APPLICATION_UUB_RECORD_JSON);
 		InputStream fakeStream = new ByteArrayInputStream(
 				"a string".getBytes(StandardCharsets.UTF_8));
-		Path path = Path.of("FitNesseRoot/files/Images/binary.png");
+		Path path = Path.of("FitNesseRoot/files/testResources/" + fileName);
 		InputStream fileStream = Files.newInputStream(path);
 		// httpHandler.addFilePart("file", fileName, fakeStream);
 		httpHandler.addFilePart("file", fileName, fileStream);
@@ -361,23 +363,69 @@ public class RecordEndpointFixture {
 	}
 
 	public String waitUntilIndexBatchJobIsFinished() throws InterruptedException {
-		int numberOfReads = 0;
-		boolean continueToReadIndexBatchJob = true;
-		while (continueToReadIndexBatchJob) {
-			numberOfReads++;
+		// Runnable methodToRun = this::testReadRecordAndStoreJson;
+		// BooleanSupplier whatYouAreWaitingFor = this::conditionStoredIndexBatchJobIsFinished;
 
-			testReadRecordAndStoreJson();
+		Waiter waiter = DependencyProvider.getWaiter();
+		MethodToRun methodToRun = implementMethodToRun();
+		WhatYouAreWaitingFor whatYouAreWaitingFor = implementWhatYouAreWaitingFor();
 
-			if (storedIndexBatchJobIsFinished() || numberOfReads == maxNumberOfReads) {
-				continueToReadIndexBatchJob = false;
-			} else {
-				Thread.sleep(sleepTime);
-			}
-		}
+		waiter.waitUntilReadGetsTrueForSupplier(methodToRun, whatYouAreWaitingFor, sleepTime,
+				maxNumberOfReads);
 		return generateResponseBasedOnIndexBatchJobStatus();
 	}
 
-	private boolean storedIndexBatchJobIsFinished() {
+	// SPIKE STARTS Different ways to implement the interfaces
+	// FIRST
+	private WhatYouAreWaitingFor implementWhatYouAreWaitingFor() {
+		return this::conditionStoredIndexBatchJobIsFinished;
+	}
+
+	private MethodToRun implementMethodToRun() {
+		return this::testReadRecordAndStoreJson;
+	}
+
+	// SECOND
+	private WhatYouAreWaitingFor implementWhatYouAreWaitingFor2() {
+		return new WhatYouAreWaitingFor() {
+			@Override
+			public boolean completed() {
+				return conditionStoredIndexBatchJobIsFinished();
+			}
+		};
+	}
+
+	private MethodToRun implementMethodToRun2() {
+		return new MethodToRun() {
+			@Override
+			public void run() {
+				testReadRecordAndStoreJson();
+			}
+		};
+	}
+
+	// THIRD
+	class MethodToRunImp implements MethodToRun {
+
+		@Override
+		public void run() {
+			testReadRecordAndStoreJson();
+		}
+	}
+	// SPIKE ENDS
+
+	public String waitUntilImageIsAnalyzed() throws InterruptedException {
+		Waiter waiter = DependencyProvider.getWaiter();
+		waiter.waitUntilReadGetsTrueForSupplier(new MethodToRunImp(), null, sleepTime,
+				maxNumberOfReads);
+		return null;
+	}
+
+	private Boolean conditionImageAnalyzed() {
+		return null;
+	}
+
+	private boolean conditionStoredIndexBatchJobIsFinished() {
 		String status = extractStatusFromIndexBatchJob();
 		return "finished".equals(status);
 	}
@@ -389,7 +437,7 @@ public class RecordEndpointFixture {
 	}
 
 	private String generateResponseBasedOnIndexBatchJobStatus() {
-		if (storedIndexBatchJobIsFinished()) {
+		if (conditionStoredIndexBatchJobIsFinished()) {
 			return "finished";
 		}
 		return "Tried to read indexBatchJob " + maxNumberOfReads + " times, waiting " + sleepTime

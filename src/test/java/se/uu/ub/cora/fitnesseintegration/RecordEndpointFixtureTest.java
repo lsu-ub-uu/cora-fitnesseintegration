@@ -41,6 +41,7 @@ import se.uu.ub.cora.clientdata.spies.ClientDataRecordGroupSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterSpy;
+import se.uu.ub.cora.fitnesseintegration.RecordEndpointFixture.MethodToRunImp;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 
 public class RecordEndpointFixtureTest {
@@ -614,6 +615,23 @@ public class RecordEndpointFixtureTest {
 		clientDataRecordFinishedSpy.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup",
 				() -> clientDataRecordGroupFinished);
 		return clientDataRecordFinishedSpy;
+	}
+
+	@Test
+	public void testWaitUntilImageIsAnalyzed() throws Exception {
+		WaiterSpy waiter = new WaiterSpy();
+		DependencyProvider.onlyForTestSetWaiter(waiter);
+
+		fixture.waitUntilImageIsAnalyzed();
+
+		waiter.MCR.assertMethodWasCalled("waitUntilReadGetsTrueForSupplier");
+		var methodToRun = waiter.MCR.getValueForMethodNameAndCallNumberAndParameterName(
+				"waitUntilReadGetsTrueForSupplier", 0, "methodToRun");
+
+		assertTrue(methodToRun instanceof MethodToRunImp);
+		System.out.println(methodToRun.getClass());
+
+		DependencyProvider.onlyForTestSetWaiter(null);
 	}
 
 }

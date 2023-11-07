@@ -20,6 +20,8 @@
 
 package se.uu.ub.cora.fitnesseintegration;
 
+import static org.testng.Assert.assertNotSame;
+import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
@@ -86,5 +88,27 @@ public class DependencyProviderTest {
 	public void testPermissionComparerFacatoryNonExistingClassName() {
 		DependencyProvider
 				.setComparerFactoryUsingClassName("se.uu.ub.cora.fitnesse.DoesNotExistImp");
+	}
+
+	@Test
+	public void testGetWaiter() throws Exception {
+		Waiter waiter = DependencyProvider.getWaiter();
+		assertTrue(waiter instanceof WaiterImp);
+	}
+
+	@Test
+	public void testGetWaiterNewInstanceOnEachCall() throws Exception {
+		Waiter waiter1 = DependencyProvider.getWaiter();
+		Waiter waiter2 = DependencyProvider.getWaiter();
+		assertNotSame(waiter1, waiter2);
+	}
+
+	@Test
+	public void testSetWaiter() throws Exception {
+		Waiter waiterSpy = new WaiterSpy();
+		DependencyProvider.onlyForTestSetWaiter(waiterSpy);
+		Waiter waiter = DependencyProvider.getWaiter();
+
+		assertSame(waiter, waiterSpy);
 	}
 }
