@@ -23,7 +23,10 @@ package se.uu.ub.cora.fitnesseintegration;
 import java.lang.reflect.Constructor;
 
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
+import se.uu.ub.cora.fitnesseintegration.internal.ReadAndStoreRecord;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
+import se.uu.ub.cora.javaclient.JavaClientProvider;
+import se.uu.ub.cora.javaclient.data.DataClient;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public final class DependencyProvider {
@@ -98,5 +101,16 @@ public final class DependencyProvider {
 
 	public static void onlyForTestSetWaiter(Waiter waiterSpy) {
 		DependencyProvider.waiterSpy = waiterSpy;
+	}
+
+	public static ReadAndStoreRecord factorReadAndStoreRecord(String authToken, String type,
+			String id) {
+		String baseUrl = SystemUrl.getUrl();
+		String appTokenVerifierUrl = SystemUrl.getAppTokenVerifierUrl();
+
+		DataClient dataClient = JavaClientProvider
+				.getDataClientUsingBaseUrlAndApptokenUrlAndAuthToken(baseUrl, appTokenVerifierUrl,
+						authToken);
+		return ReadAndStoreRecord.usingDataClientAndTypeAndId(dataClient, type, id);
 	}
 }

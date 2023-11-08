@@ -54,7 +54,7 @@ public class RecordHandlerTest {
 		recordHandler.readRecord(authToken, recordType, recordId);
 
 		assertEquals(restClientFactory.authToken, authToken);
-		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		OldRestClientSpy restClient = (OldRestClientSpy) restClientFactory.returnedRestClient;
 		assertTrue(restClient.readWasCalled);
 		assertEquals(restClient.recordType, recordType);
 		assertEquals(restClient.recordId, recordId);
@@ -64,7 +64,7 @@ public class RecordHandlerTest {
 	public void testReadRecordOk() {
 		BasicHttpResponse readResponse = recordHandler.readRecord(authToken, recordType, recordId);
 		assertTrue(readResponse.statusCode == 200);
-		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		OldRestClientSpy restClient = (OldRestClientSpy) restClientFactory.returnedRestClient;
 		assertEquals(readResponse.responseText, restClient.returnedJson);
 	}
 
@@ -84,7 +84,7 @@ public class RecordHandlerTest {
 		recordHandler.readRecordList(authToken, recordType, filterAsJson);
 
 		assertEquals(restClientFactory.authToken, authToken);
-		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		OldRestClientSpy restClient = (OldRestClientSpy) restClientFactory.returnedRestClient;
 		assertEquals(restClient.recordType, recordType);
 	}
 
@@ -93,7 +93,7 @@ public class RecordHandlerTest {
 		BasicHttpResponse readResponse = recordHandler.readRecordList(authToken, null,
 				filterAsJson);
 		assertTrue(readResponse.statusCode == 200);
-		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		OldRestClientSpy restClient = (OldRestClientSpy) restClientFactory.returnedRestClient;
 		assertEquals(readResponse.responseText, restClient.returnedJson);
 		assertNull(restClient.filter);
 	}
@@ -104,7 +104,7 @@ public class RecordHandlerTest {
 
 		BasicHttpResponse readResponse = recordHandler.readRecordList(authToken, recordType,
 				filterAsJson);
-		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		OldRestClientSpy restClient = (OldRestClientSpy) restClientFactory.returnedRestClient;
 		assertEquals(readResponse.responseText, restClient.returnedJson);
 		assertEquals(restClient.filter, filterAsJson);
 	}
@@ -166,7 +166,7 @@ public class RecordHandlerTest {
 
 		assertEquals(restClientFactory.authToken, authToken);
 
-		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		OldRestClientSpy restClient = (OldRestClientSpy) restClientFactory.returnedRestClient;
 		assertEquals(restClient.recordType, recordType);
 	}
 
@@ -192,7 +192,7 @@ public class RecordHandlerTest {
 		ExtendedHttpResponse createResponse = recordHandler.createRecord(authToken, recordType,
 				json);
 
-		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		OldRestClientSpy restClient = (OldRestClientSpy) restClientFactory.returnedRestClient;
 		assertEquals(createResponse.responseText, restClient.returnedJson);
 
 		assertEquals(createResponse.statusCode, 201);
@@ -206,7 +206,7 @@ public class RecordHandlerTest {
 		ExtendedHttpResponse createResponse = recordHandler.createRecord(authToken, recordType,
 				json);
 
-		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		OldRestClientSpy restClient = (OldRestClientSpy) restClientFactory.returnedRestClient;
 
 		assertEquals(createResponse.statusCode, 201);
 		assertEquals(createResponse.createdId, restClient.createdId);
@@ -266,7 +266,7 @@ public class RecordHandlerTest {
 		recordHandler.updateRecord(authToken, recordType, recordId, json);
 
 		assertEquals(restClientFactory.authToken, authToken);
-		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		OldRestClientSpy restClient = (OldRestClientSpy) restClientFactory.returnedRestClient;
 		assertEquals(restClient.recordType, recordType);
 		assertEquals(restClient.recordId, recordId);
 
@@ -280,7 +280,7 @@ public class RecordHandlerTest {
 				recordId, json);
 
 		assertTrue(updateResponse.statusCode == 200);
-		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		OldRestClientSpy restClient = (OldRestClientSpy) restClientFactory.returnedRestClient;
 		assertEquals(updateResponse.responseText, restClient.returnedJson);
 	}
 
@@ -302,7 +302,7 @@ public class RecordHandlerTest {
 		recordHandler.deleteRecord(authToken, recordType, recordId);
 
 		assertEquals(restClientFactory.authToken, authToken);
-		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		OldRestClientSpy restClient = (OldRestClientSpy) restClientFactory.returnedRestClient;
 		assertEquals(restClient.recordType, recordType);
 		assertEquals(restClient.recordId, recordId);
 	}
@@ -312,7 +312,7 @@ public class RecordHandlerTest {
 		BasicHttpResponse response = recordHandler.deleteRecord(authToken, recordType, recordId);
 
 		assertTrue(response.statusCode == 200);
-		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		OldRestClientSpy restClient = (OldRestClientSpy) restClientFactory.returnedRestClient;
 		assertEquals(response.responseText, restClient.returnedJson);
 	}
 
@@ -333,7 +333,7 @@ public class RecordHandlerTest {
 		recordHandler.readIncomingLinks(authToken, recordType, recordId);
 
 		assertEquals(restClientFactory.authToken, authToken);
-		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		OldRestClientSpy restClient = (OldRestClientSpy) restClientFactory.returnedRestClient;
 		assertEquals(restClient.recordType, recordType);
 		assertEquals(restClient.recordId, recordId);
 	}
@@ -343,7 +343,7 @@ public class RecordHandlerTest {
 		BasicHttpResponse readResponse = recordHandler.readIncomingLinks(authToken, recordType,
 				recordId);
 		assertTrue(readResponse.statusCode == 200);
-		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		OldRestClientSpy restClient = (OldRestClientSpy) restClientFactory.returnedRestClient;
 		assertEquals(readResponse.responseText, restClient.returnedJson);
 	}
 
@@ -366,7 +366,7 @@ public class RecordHandlerTest {
 
 		assertEquals(restClientFactory.authToken, authToken);
 
-		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		OldRestClientSpy restClient = (OldRestClientSpy) restClientFactory.returnedRestClient;
 
 		assertEquals(restClient.recordType, recordType);
 		assertEquals(restClient.filter, filterAsJson);
@@ -399,7 +399,7 @@ public class RecordHandlerTest {
 
 		assertNotNull(response);
 
-		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		OldRestClientSpy restClient = (OldRestClientSpy) restClientFactory.returnedRestClient;
 		assertEquals(response.responseText, restClient.returnedJson);
 
 		assertEquals(response.statusCode, 201);
@@ -415,7 +415,7 @@ public class RecordHandlerTest {
 		ExtendedHttpResponse response = recordHandler.batchIndex(authToken, recordType,
 				filterAsJson);
 
-		RestClientSpy restClient = (RestClientSpy) restClientFactory.returnedRestClient;
+		OldRestClientSpy restClient = (OldRestClientSpy) restClientFactory.returnedRestClient;
 
 		assertEquals(response.statusCode, 201);
 		assertEquals(response.createdId, restClient.createdId);

@@ -72,7 +72,7 @@ public class RecordEndpointFixture {
 	private ChildComparer childComparer;
 	private RecordHandler recordHandler;
 	private int maxNumberOfReads;
-	public int sleepTime;
+	private int sleepTime;
 
 	public RecordEndpointFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
@@ -368,6 +368,7 @@ public class RecordEndpointFixture {
 
 		Waiter waiter = DependencyProvider.getWaiter();
 		MethodToRun methodToRun = implementMethodToRun();
+		MethodToRun methodToRun2 = new readAndStore(id, type, x, y);
 		WhatYouAreWaitingFor whatYouAreWaitingFor = implementWhatYouAreWaitingFor();
 
 		waiter.waitUntilReadGetsTrueForSupplier(methodToRun, whatYouAreWaitingFor, sleepTime,

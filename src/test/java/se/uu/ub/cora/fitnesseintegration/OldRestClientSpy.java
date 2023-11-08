@@ -23,7 +23,7 @@ import java.util.Optional;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 
-public class RestClientSpy implements RestClient {
+public class OldRestClientSpy implements RestClient {
 
 	public boolean readWasCalled = false;
 	public String recordType;
@@ -85,12 +85,6 @@ public class RestClientSpy implements RestClient {
 		this.filter = filter;
 		returnedJson = "some json returned from RestClientSpy";
 		return new RestResponse(200, returnedJson, Optional.empty());
-	}
-
-	@Override
-	public String getBaseUrl() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

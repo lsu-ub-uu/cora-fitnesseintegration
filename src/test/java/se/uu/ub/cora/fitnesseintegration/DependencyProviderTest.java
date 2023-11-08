@@ -20,6 +20,7 @@
 
 package se.uu.ub.cora.fitnesseintegration;
 
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNotSame;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
@@ -28,8 +29,11 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactoryImp;
+import se.uu.ub.cora.fitnesseintegration.internal.ReadAndStoreRecord;
+import se.uu.ub.cora.fitnesseintegration.spy.DataClientFactorySpy;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
+import se.uu.ub.cora.javaclient.JavaClientProvider;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public class DependencyProviderTest {
@@ -110,5 +114,38 @@ public class DependencyProviderTest {
 		Waiter waiter = DependencyProvider.getWaiter();
 
 		assertSame(waiter, waiterSpy);
+	}
+
+	@Test
+	public void testFactorReadAndStoreRecord() throws Exception {
+
+		DataClientFactorySpy dataClientFactory = new DataClientFactorySpy();
+		JavaClientProvider.onlyForTestSetDataClientFactory(dataClientFactory);
+		RestClientFactorySpy restClientFactory = new RestClientFactorySpy();
+		JavaClientProvider.onlyForTestSetRestClientFactory(restClientFactory);
+
+		String someBaseUrl = "someBaseUrl";
+		String someAppTokenUrl = "someAppTokenUrl";
+		SystemUrl.setUrl(someBaseUrl);
+		SystemUrl.setAppTokenVerifierUrl(someAppTokenUrl);
+
+		String authToken = "someAuthToken";
+		String type = "someType";
+		String id = "someId";
+
+		ReadAndStoreRecord readAndStore = DependencyProvider.factorReadAndStoreRecord(authToken,
+				type, id);
+
+		assertNotNull(readAndStore);
+
+		restClientFactory.MCR.assertParameters(
+				"factorUsingBaseUrlAndAppTokenVerifierUrlAndAuthToken", 0, someBaseUrl,
+				someAppTokenUrl, authToken);
+
+		assertSame(readAndStore.onlyForTestGetDataClient(),
+				dataClientFactory.MCR.getReturnValue("factorUsingRestClient", 0));
+		assertSame(readAndStore.onlyForTestGetType(), type);
+		assertSame(readAndStore.onlyForTestGetId(), id);
+
 	}
 }
