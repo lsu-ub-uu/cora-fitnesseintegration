@@ -109,8 +109,7 @@ public final class DependencyProvider {
 		String appTokenVerifierUrl = SystemUrl.getAppTokenVerifierUrl();
 
 		DataClient dataClient = JavaClientProvider
-				.getDataClientUsingBaseUrlAndApptokenUrlAndAuthToken(baseUrl, appTokenVerifierUrl,
-						authToken);
+				.getDataClientUsingAuthTokenCredentials(baseUrl);
 		return ReadAndStoreRecord.usingDataClientAndTypeAndId(dataClient, type, id);
 	}
 }

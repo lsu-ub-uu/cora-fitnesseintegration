@@ -18,12 +18,14 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
+import se.uu.ub.cora.javaclient.JavaClientAppTokenCredentials;
+import se.uu.ub.cora.javaclient.JavaClientAuthTokenCredentials;
+import se.uu.ub.cora.javaclient.JavaClientFactory;
 import se.uu.ub.cora.javaclient.rest.RestClient;
-import se.uu.ub.cora.javaclient.rest.RestClientFactory;
 import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
 import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 
-public class RestClientFactorySpy implements RestClientFactory {
+public class RestClientFactorySpy implements JavaClientFactory {
 	public String authToken;
 	public RestClient returnedRestClient;
 	public boolean factorInvalidRestClient = false;
@@ -41,16 +43,14 @@ public class RestClientFactorySpy implements RestClientFactory {
 	}
 
 	@Override
-	public RestClient factorUsingBaseUrlAndAppTokenUrlAndUserIdAndAppToken(String baseUrl,
-			String appTokenUrl, String userId, String appToken) {
-		return (RestClient) MCR.addCallAndReturnFromMRV("baseUrl", baseUrl, "appTokenUrl",
+	public RestClient factorRestClientUsingAppTokenCredentials(JavaClientAppTokenCredentials appTokenCredentials) {
+		return (RestClient) MCR.addCallAndReturnFromMRV("baseUrl", appTokenCredentials, "appTokenUrl",
 				appTokenUrl, "userId", userId, "appToken", appToken);
 	}
 
 	@Override
-	public RestClient factorUsingBaseUrlAndAppTokenVerifierUrlAndAuthToken(String baseUrl,
-			String appTokenUrl, String authToken) {
-		return (RestClient) MCR.addCallAndReturnFromMRV("baseUrl", baseUrl, "appTokenUrl",
+	public RestClient factorRestClientUsingAuthTokenCredentials(JavaClientAuthTokenCredentials authTokenCredentials) {
+		return (RestClient) MCR.addCallAndReturnFromMRV("baseUrl", authTokenCredentials, "appTokenUrl",
 				appTokenUrl, "authToken", authToken);
 	}
 

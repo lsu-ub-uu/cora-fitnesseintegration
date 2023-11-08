@@ -122,7 +122,7 @@ public class DependencyProviderTest {
 		DataClientFactorySpy dataClientFactory = new DataClientFactorySpy();
 		JavaClientProvider.onlyForTestSetDataClientFactory(dataClientFactory);
 		RestClientFactorySpy restClientFactory = new RestClientFactorySpy();
-		JavaClientProvider.onlyForTestSetRestClientFactory(restClientFactory);
+		JavaClientProvider.onlyForTestSetJavaClientFactory(restClientFactory);
 
 		String someBaseUrl = "someBaseUrl";
 		String someAppTokenUrl = "someAppTokenUrl";

@@ -27,8 +27,8 @@ import javax.ws.rs.core.Response.StatusType;
 
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
+import se.uu.ub.cora.javaclient.JavaClientFactory;
 import se.uu.ub.cora.javaclient.rest.RestClient;
-import se.uu.ub.cora.javaclient.rest.RestClientFactory;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 
 public class RecordHandlerImp implements RecordHandler {
@@ -37,10 +37,10 @@ public class RecordHandlerImp implements RecordHandler {
 	private HttpHandlerFactory httpHandlerFactory;
 	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.uub.record+json";
 	private static final int DISTANCE_TO_START_OF_TOKEN = 24;
-	private RestClientFactory restClientFactory;
+	private JavaClientFactory restClientFactory;
 
 	public RecordHandlerImp(HttpHandlerFactory httpHandlerFactory,
-			RestClientFactory restClientFactory) {
+			JavaClientFactory restClientFactory) {
 		this.httpHandlerFactory = httpHandlerFactory;
 		this.restClientFactory = restClientFactory;
 	}
@@ -48,7 +48,7 @@ public class RecordHandlerImp implements RecordHandler {
 	@Override
 	public BasicHttpResponse readRecordList(String authToken, String recordType,
 			String filterAsJson) throws UnsupportedEncodingException {
-		RestClient restClient = restClientFactory.factorUsingBaseUrlAndAppTokenVerifierUrlAndAuthToken(null, null, authToken);
+		RestClient restClient = restClientFactory.factorRestClientUsingAuthTokenCredentials(null);
 		RestResponse response = getRecordListResponse(restClient, recordType, filterAsJson);
 		return new BasicHttpResponse(response.responseCode(), response.responseText());
 	}
@@ -80,7 +80,7 @@ public class RecordHandlerImp implements RecordHandler {
 
 	@Override
 	public BasicHttpResponse readRecord(String authToken, String recordType, String recordId) {
-		RestClient restClient = restClientFactory.factorUsingBaseUrlAndAppTokenVerifierUrlAndAuthToken(null, null, authToken);
+		RestClient restClient = restClientFactory.factorRestClientUsingAuthTokenCredentials(null);
 		RestResponse response = restClient.readRecordAsJson(recordType, recordId);
 		return createBasicHttpResponseFromRestResponse(response);
 	}
@@ -107,7 +107,7 @@ public class RecordHandlerImp implements RecordHandler {
 
 	@Override
 	public ExtendedHttpResponse createRecord(String authToken, String recordType, String json) {
-		RestClient restClient = restClientFactory.factorUsingBaseUrlAndAppTokenVerifierUrlAndAuthToken(null, null, authToken);
+		RestClient restClient = restClientFactory.factorRestClientUsingAuthTokenCredentials(null);
 		RestResponse response = restClient.createRecordFromJson(recordType, json);
 
 		return createExtendedHttpResponse(response);
@@ -164,7 +164,7 @@ public class RecordHandlerImp implements RecordHandler {
 	@Override
 	public BasicHttpResponse updateRecord(String authToken, String recordType, String recordId,
 			String json) {
-		RestClient restClient = restClientFactory.factorUsingBaseUrlAndAppTokenVerifierUrlAndAuthToken(null, null, authToken);
+		RestClient restClient = restClientFactory.factorRestClientUsingAuthTokenCredentials(null);
 		RestResponse response = restClient.updateRecordFromJson(recordType, recordId, json);
 		return createBasicHttpResponseFromRestResponse(response);
 	}
@@ -176,12 +176,12 @@ public class RecordHandlerImp implements RecordHandler {
 
 	@Override
 	public BasicHttpResponse deleteRecord(String authToken, String recordType, String recordId) {
-		RestClient restClient = restClientFactory.factorUsingBaseUrlAndAppTokenVerifierUrlAndAuthToken(null, null, authToken);
+		RestClient restClient = restClientFactory.factorRestClientUsingAuthTokenCredentials(null);
 		RestResponse response = restClient.deleteRecord(recordType, recordId);
 		return createBasicHttpResponseFromRestResponse(response);
 	}
 
-	public RestClientFactory getRestClientFactory() {
+	public JavaClientFactory getRestClientFactory() {
 		// needed for test
 		return restClientFactory;
 	}
@@ -189,7 +189,7 @@ public class RecordHandlerImp implements RecordHandler {
 	@Override
 	public BasicHttpResponse readIncomingLinks(String authToken, String recordType,
 			String recordId) {
-		RestClient restClient = restClientFactory.factorUsingBaseUrlAndAppTokenVerifierUrlAndAuthToken(null, null, authToken);
+		RestClient restClient = restClientFactory.factorRestClientUsingAuthTokenCredentials(null);
 		RestResponse response = restClient.readIncomingLinksAsJson(recordType, recordId);
 		return createBasicHttpResponseFromRestResponse(response);
 
@@ -199,7 +199,7 @@ public class RecordHandlerImp implements RecordHandler {
 	public ExtendedHttpResponse batchIndex(String authToken, String recordType,
 			String filterAsJson) {
 
-		RestClient restClient = restClientFactory.factorUsingBaseUrlAndAppTokenVerifierUrlAndAuthToken(null, null, authToken);
+		RestClient restClient = restClientFactory.factorRestClientUsingAuthTokenCredentials(null);
 		RestResponse response = restClient.batchIndexWithFilterAsJson(recordType, filterAsJson);
 
 		return createExtendedHttpResponse(response);

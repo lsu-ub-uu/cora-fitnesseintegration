@@ -40,8 +40,7 @@ import se.uu.ub.cora.fitnesseintegration.Waiter.WhatYouAreWaitingFor;
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpMultiPartUploader;
-import se.uu.ub.cora.javaclient.rest.RestClientFactory;
-import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
+import se.uu.ub.cora.javaclient.JavaClientFactory;
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.json.parser.JsonParser;
@@ -77,7 +76,7 @@ public class RecordEndpointFixture {
 	public RecordEndpointFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
 		childComparer = DependencyProvider.getChildComparer();
-		RestClientFactory restClientFactory = RestClientFactoryImp
+		JavaClientFactory restClientFactory = RestClientFactoryImp
 				.usingBaseUrlAndAppTokenVerifierUrl(baseUrl, SystemUrl.getAppTokenVerifierUrl());
 		recordHandler = new RecordHandlerImp(httpHandlerFactory, restClientFactory);
 

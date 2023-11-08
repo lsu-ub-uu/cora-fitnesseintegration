@@ -40,8 +40,7 @@ import se.uu.ub.cora.fitnesseintegration.RecordHandler;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.SystemUrl;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
-import se.uu.ub.cora.javaclient.rest.RestClientFactory;
-import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
+import se.uu.ub.cora.javaclient.JavaClientFactory;
 
 public class ComparerFixture {
 
@@ -64,7 +63,7 @@ public class ComparerFixture {
 
 	public ComparerFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
-		RestClientFactory restClientFactory = RestClientFactoryImp
+		JavaClientFactory restClientFactory = RestClientFactoryImp
 				.usingBaseUrlAndAppTokenVerifierUrl(baseUrl, SystemUrl.getAppTokenVerifierUrl());
 		recordHandler = new RecordHandlerImp(httpHandlerFactory, restClientFactory);
 	}
