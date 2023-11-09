@@ -78,7 +78,7 @@ public class RecordEndpointFixture {
 		childComparer = DependencyProvider.getChildComparer();
 		JavaClientFactory restClientFactory = RestClientFactoryImp
 				.usingBaseUrlAndAppTokenVerifierUrl(baseUrl, SystemUrl.getAppTokenVerifierUrl());
-		recordHandler = new RecordHandlerImp(httpHandlerFactory, restClientFactory);
+		recordHandler = new RecordHandlerImp(restClientFactory);
 
 	}
 

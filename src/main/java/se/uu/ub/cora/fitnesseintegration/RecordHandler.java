@@ -18,8 +18,6 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
-import java.io.UnsupportedEncodingException;
-
 public interface RecordHandler {
 
 	/**
@@ -35,8 +33,7 @@ public interface RecordHandler {
 	 * 
 	 * @return A {@link BasicHttpResponse} containing the response
 	 */
-	BasicHttpResponse readRecordList(String authToken, String recordType, String filter)
-			throws UnsupportedEncodingException;
+	BasicHttpResponse readRecordList(String authToken, String recordType, String filter);
 
 	/**
 	 * Reads a record using authToken, recordType and recordId. The result is returned as a
@@ -56,17 +53,15 @@ public interface RecordHandler {
 	 * Searches for records using url, authToken and a string to define the search. The result is
 	 * returned as a responseText in the {@link BasicHttpResponse}
 	 * 
-	 * @param url
-	 *            A String used as url to make a http request
-	 * @param authToken
-	 *            A String authToken to use in the http request
+	 * @param searchId
+	 *            A String with the searchId name.
+	 * 
 	 * @param json
 	 *            A String used to define the search
 	 * 
 	 * @return A {@link BasicHttpResponse} containing the response
 	 */
-	BasicHttpResponse searchRecord(String url, String authToken, String json)
-			throws UnsupportedEncodingException;
+	BasicHttpResponse searchRecord(String searchId, String json);
 
 	/**
 	 * Creates a record using authToken, recordType and a string to set as output in the
@@ -102,22 +97,15 @@ public interface RecordHandler {
 			String json);
 
 	/**
-	 * Validates a record using url and authToken, a string to set as output and contentType to set
-	 * in the httpRequest. The result is returned as a responseText in the {@link BasicHttpResponse}
+	 * Validates a record. The result is returned as a responseText in the {@link BasicHttpResponse}
 	 * 
-	 * @param url
-	 *            A String used as url to make a http request * @param authToken A String authToken
-	 *            to use in the http request
-	 * @param authToken
-	 *            A String authToken to use in the http request
 	 * @param json
 	 *            A String used to use as output in the http request
-	 * @param contenType
-	 *            A String to set as contentType in the http request
+	 * 
 	 * 
 	 * @return A {@link BasicHttpResponse} containing the response
 	 */
-	BasicHttpResponse validateRecord(String url, String authToken, String json, String contentType);
+	BasicHttpResponse validateRecord(String json);
 
 	/**
 	 * Deletes a record using authToken, recordType and recordId.

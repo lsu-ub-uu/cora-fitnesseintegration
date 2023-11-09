@@ -90,6 +90,7 @@ public class ComparerFixtureTest {
 		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.getRecordHandler();
 		assertSame(recordHandler.getHttpHandlerFactory(),
 				fixture.onlyForTestGetHttpHandlerFactory());
+
 		RestClientFactoryImp clientFactory = (RestClientFactoryImp) recordHandler
 				.getRestClientFactory();
 		assertEquals(clientFactory.onlyForTestGetBaseUrl(), fixture.baseUrl);

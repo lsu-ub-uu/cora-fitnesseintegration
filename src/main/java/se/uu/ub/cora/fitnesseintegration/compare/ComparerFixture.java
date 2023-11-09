@@ -65,7 +65,7 @@ public class ComparerFixture {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
 		JavaClientFactory restClientFactory = RestClientFactoryImp
 				.usingBaseUrlAndAppTokenVerifierUrl(baseUrl, SystemUrl.getAppTokenVerifierUrl());
-		recordHandler = new RecordHandlerImp(httpHandlerFactory, restClientFactory);
+		recordHandler = new RecordHandlerImp(restClientFactory);
 	}
 
 	public String testReadAndStoreRecord() {
@@ -152,8 +152,8 @@ public class ComparerFixture {
 	}
 
 	public void testSearchAndStoreRecords() throws UnsupportedEncodingException {
-		String url = baseRecordUrl + "searchResult" + "/" + searchId;
-		String recordListAsJson = recordHandler.searchRecord(url, authToken, json).responseText;
+		// String url = baseRecordUrl + "searchResult" + "/" + searchId;
+		String recordListAsJson = recordHandler.searchRecord(searchId, json).responseText;
 		storedListAsJson = recordListAsJson;
 
 		List<ClientDataRecord> convertedRecords = convertJsonTextToListOfRecords(recordListAsJson);

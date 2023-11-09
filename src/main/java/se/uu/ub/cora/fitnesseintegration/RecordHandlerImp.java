@@ -18,69 +18,32 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
 
 import se.uu.ub.cora.httphandler.HttpHandler;
-import se.uu.ub.cora.httphandler.HttpHandlerFactory;
+import se.uu.ub.cora.javaclient.JavaClientAuthTokenCredentials;
 import se.uu.ub.cora.javaclient.JavaClientFactory;
+import se.uu.ub.cora.javaclient.JavaClientProvider;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 
 public class RecordHandlerImp implements RecordHandler {
 
 	private static final int CREATED = 201;
-	private HttpHandlerFactory httpHandlerFactory;
 	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.uub.record+json";
 	private static final int DISTANCE_TO_START_OF_TOKEN = 24;
 	private JavaClientFactory restClientFactory;
+	private JavaClientAuthTokenCredentials javaClientAuthTokenCredential;
 
-	public RecordHandlerImp(HttpHandlerFactory httpHandlerFactory,
-			JavaClientFactory restClientFactory) {
-		this.httpHandlerFactory = httpHandlerFactory;
-		this.restClientFactory = restClientFactory;
-	}
-
-	@Override
-	public BasicHttpResponse readRecordList(String authToken, String recordType,
-			String filterAsJson) throws UnsupportedEncodingException {
-		RestClient restClient = restClientFactory.factorRestClientUsingAuthTokenCredentials(null);
-		RestResponse response = getRecordListResponse(restClient, recordType, filterAsJson);
-		return new BasicHttpResponse(response.responseCode(), response.responseText());
-	}
-
-	private RestResponse getRecordListResponse(RestClient restClient, String recordType,
-			String filterAsJson) throws UnsupportedEncodingException {
-		if (filterAsJson != null) {
-			return restClient.readRecordListWithFilterAsJson(recordType, filterAsJson);
-		}
-		return restClient.readRecordListAsJson(recordType);
-	}
-
-	private BasicHttpResponse createCommonHttpResponseFromHttpHandler(HttpHandler httpHandler) {
-		StatusType statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		String responseText = statusIsOk(statusType) ? httpHandler.getResponseText()
-				: httpHandler.getErrorText();
-		return new BasicHttpResponse(httpHandler.getResponseCode(), responseText);
-	}
-
-	protected boolean statusIsOk(StatusType statusType) {
-		return statusType.equals(Response.Status.OK);
-	}
-
-	private HttpHandler createHttpHandlerWithAuthTokenAndUrl(String url, String authToken) {
-		HttpHandler httpHandler = httpHandlerFactory.factor(url);
-		httpHandler.setRequestProperty("authToken", authToken);
-		return httpHandler;
+	public RecordHandlerImp(JavaClientAuthTokenCredentials javaClientAuthTokenCredential) {
+		this.javaClientAuthTokenCredential = javaClientAuthTokenCredential;
 	}
 
 	@Override
 	public BasicHttpResponse readRecord(String authToken, String recordType, String recordId) {
-		RestClient restClient = restClientFactory.factorRestClientUsingAuthTokenCredentials(null);
+		RestClient restClient = JavaClientProvider
+				.createRestClientUsingAuthTokenCredentials(javaClientAuthTokenCredential);
 		RestResponse response = restClient.readRecordAsJson(recordType, recordId);
 		return createBasicHttpResponseFromRestResponse(response);
 	}
@@ -91,18 +54,33 @@ public class RecordHandlerImp implements RecordHandler {
 	}
 
 	@Override
-	public BasicHttpResponse searchRecord(String url, String authToken, String json)
-			throws UnsupportedEncodingException {
-		url += "?searchData=" + URLEncoder.encode(json, StandardCharsets.UTF_8.name());
-		HttpHandler httpHandler = setupHttpHandlerForSearch(url, authToken);
-
-		return createCommonHttpResponseFromHttpHandler(httpHandler);
+	public BasicHttpResponse readRecordList(String authToken, String recordType,
+			String filterAsJson) {
+		RestClient restClient = JavaClientProvider
+				.createRestClientUsingAuthTokenCredentials(javaClientAuthTokenCredential);
+		RestResponse response = getRecordListResponse(restClient, recordType, filterAsJson);
+		return new BasicHttpResponse(response.responseCode(), response.responseText());
 	}
 
-	private HttpHandler setupHttpHandlerForSearch(String url, String authToken) {
-		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
-		httpHandler.setRequestMethod("GET");
-		return httpHandler;
+	private RestResponse getRecordListResponse(RestClient restClient, String recordType,
+			String filterAsJson) {
+		if (filterAsJson != null) {
+			return restClient.readRecordListWithFilterAsJson(recordType, filterAsJson);
+		}
+		return restClient.readRecordListAsJson(recordType);
+	}
+
+	protected boolean statusIsOk(StatusType statusType) {
+		return statusType.equals(Response.Status.OK);
+	}
+
+	@Override
+	public BasicHttpResponse searchRecord(String searchId, String json) {
+		RestClient restClient = JavaClientProvider
+				.createRestClientUsingAuthTokenCredentials(javaClientAuthTokenCredential);
+		RestResponse response = restClient.searchRecordWithSearchCriteriaAsJson(searchId, json);
+
+		return createBasicHttpResponseFromRestResponse(response);
 	}
 
 	@Override
@@ -140,11 +118,12 @@ public class RecordHandlerImp implements RecordHandler {
 	}
 
 	@Override
-	public BasicHttpResponse validateRecord(String url, String authToken, String json,
-			String contentType) {
-		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url, authToken);
-		addPropertiesToHttpHandler(httpHandler, json, contentType);
-		return createCommonHttpResponseFromHttpHandler(httpHandler);
+	public BasicHttpResponse validateRecord(String json) {
+		RestClient restClient = JavaClientProvider
+				.createRestClientUsingAuthTokenCredentials(javaClientAuthTokenCredential);
+		RestResponse response = restClient.validateRecordAsJson(json);
+
+		return createBasicHttpResponseFromRestResponse(response);
 	}
 
 	private String tryToExtractCreatedTokenFromResponseText(String responseText) {
@@ -167,11 +146,6 @@ public class RecordHandlerImp implements RecordHandler {
 		RestClient restClient = restClientFactory.factorRestClientUsingAuthTokenCredentials(null);
 		RestResponse response = restClient.updateRecordFromJson(recordType, recordId, json);
 		return createBasicHttpResponseFromRestResponse(response);
-	}
-
-	public HttpHandlerFactory getHttpHandlerFactory() {
-		// needed for test
-		return httpHandlerFactory;
 	}
 
 	@Override

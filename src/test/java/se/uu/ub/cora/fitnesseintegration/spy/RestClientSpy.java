@@ -18,7 +18,6 @@
  */
 package se.uu.ub.cora.fitnesseintegration.spy;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Optional;
 
 import se.uu.ub.cora.javaclient.rest.RestClient;
@@ -41,8 +40,12 @@ public class RestClientSpy implements RestClient {
 		MRV.setDefaultReturnValuesSupplier("readRecordListWithFilterAsJson",
 				() -> createRestResponse());
 		MRV.setDefaultReturnValuesSupplier("readIncomingLinksAsJson", () -> createRestResponse());
+		MRV.setDefaultReturnValuesSupplier("validateRecordAsJson", () -> createRestResponse());
+		MRV.setDefaultReturnValuesSupplier("searchRecordWithSearchCriteriaAsJson",
+				() -> createRestResponse());
 		MRV.setDefaultReturnValuesSupplier("batchIndexWithFilterAsJson",
 				() -> createRestResponse());
+		MRV.setDefaultReturnValuesSupplier("getBaseUrl", String::new);
 	}
 
 	private RestResponse createRestResponse() {
@@ -84,8 +87,7 @@ public class RestClientSpy implements RestClient {
 	}
 
 	@Override
-	public RestResponse readRecordListWithFilterAsJson(String recordType, String filter)
-			throws UnsupportedEncodingException {
+	public RestResponse readRecordListWithFilterAsJson(String recordType, String filter) {
 		return (RestResponse) MCR.addCallAndReturnFromMRV("recordType", recordType, "filter",
 				filter);
 	}
@@ -96,4 +98,13 @@ public class RestClientSpy implements RestClient {
 				"indexSettingsAsJson", indexSettingsAsJson);
 	}
 
+	@Override
+	public RestResponse searchRecordWithSearchCriteriaAsJson(String searchId, String json) {
+		return (RestResponse) MCR.addCallAndReturnFromMRV("searchId", searchId, "json", json);
+	}
+
+	@Override
+	public RestResponse validateRecordAsJson(String json) {
+		return (RestResponse) MCR.addCallAndReturnFromMRV("json", json);
+	}
 }
