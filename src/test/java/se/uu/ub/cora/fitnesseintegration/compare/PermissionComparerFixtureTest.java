@@ -33,11 +33,10 @@ import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.fitnesseintegration.ClientDataRecordOLDSpy;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
-import se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy;
 import se.uu.ub.cora.fitnesseintegration.JsonHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.JsonParserSpy;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
-import se.uu.ub.cora.fitnesseintegration.RecordHandlerSpy;
+import se.uu.ub.cora.fitnesseintegration.RecordHandlerOLDSpy;
 import se.uu.ub.cora.fitnesseintegration.SystemUrl;
 
 public class PermissionComparerFixtureTest {
@@ -45,7 +44,7 @@ public class PermissionComparerFixtureTest {
 	private PermissionComparerFixture fixture;
 	private JsonParserSpy jsonParser;
 	private JsonHandlerImp jsonHandler;
-	private RecordHandlerSpy recordHandler;
+	private RecordHandlerOLDSpy recordHandler;
 
 	@BeforeMethod
 	public void setUp() {
@@ -60,12 +59,12 @@ public class PermissionComparerFixtureTest {
 	}
 
 	private void setUpFixture() {
-		recordHandler = new RecordHandlerSpy();
+		recordHandler = new RecordHandlerOLDSpy();
 		jsonParser = new JsonParserSpy();
 		jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
 
 		fixture.setType("someRecordType");
-		fixture.setRecordHandler(recordHandler);
+		fixture.onlyForTestSetRecordHandler(recordHandler);
 		fixture.onlyForTestSetJsonHandler(jsonHandler);
 	}
 
@@ -74,11 +73,8 @@ public class PermissionComparerFixtureTest {
 		fixture = new PermissionComparerFixture();
 		assertTrue(fixture.getComparerFactory() instanceof ComparerFactorySpy);
 		assertTrue(fixture.onlyForTestGetJsonHandler() instanceof JsonHandlerImp);
-		assertTrue(fixture.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
 
-		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.getRecordHandler();
-		assertSame(recordHandler.getHttpHandlerFactory(),
-				fixture.onlyForTestGetHttpHandlerFactory());
+		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.onlyForTestGetRecordHandler();
 	}
 
 	@Test

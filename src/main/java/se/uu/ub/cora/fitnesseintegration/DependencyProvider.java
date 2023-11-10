@@ -25,6 +25,7 @@ import java.lang.reflect.Constructor;
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
 import se.uu.ub.cora.fitnesseintegration.internal.ReadAndStoreRecord;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
+import se.uu.ub.cora.javaclient.JavaClientAuthTokenCredentials;
 import se.uu.ub.cora.javaclient.JavaClientProvider;
 import se.uu.ub.cora.javaclient.data.DataClient;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
@@ -107,9 +108,11 @@ public final class DependencyProvider {
 			String id) {
 		String baseUrl = SystemUrl.getUrl();
 		String appTokenVerifierUrl = SystemUrl.getAppTokenVerifierUrl();
+		JavaClientAuthTokenCredentials authTokenCredentials = new JavaClientAuthTokenCredentials(
+				baseUrl, appTokenVerifierUrl, authToken);
 
 		DataClient dataClient = JavaClientProvider
-				.createDataClientUsingAuthTokenCredentials(baseUrl);
+				.createDataClientUsingAuthTokenCredentials(authTokenCredentials);
 		return ReadAndStoreRecord.usingDataClientAndTypeAndId(dataClient, type, id);
 	}
 }

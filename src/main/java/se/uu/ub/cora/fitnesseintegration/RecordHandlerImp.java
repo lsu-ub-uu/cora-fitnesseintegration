@@ -23,43 +23,37 @@ import javax.ws.rs.core.Response.StatusType;
 
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.javaclient.JavaClientAuthTokenCredentials;
-import se.uu.ub.cora.javaclient.JavaClientFactory;
 import se.uu.ub.cora.javaclient.JavaClientProvider;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 
 public class RecordHandlerImp implements RecordHandler {
-
-	private static final int CREATED = 201;
 	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.uub.record+json";
-	private static final int DISTANCE_TO_START_OF_TOKEN = 24;
-	private JavaClientFactory restClientFactory;
-	private JavaClientAuthTokenCredentials javaClientAuthTokenCredential;
+	private String baseUrl;
+	private String appTokenUrl;
 
-	public RecordHandlerImp(JavaClientAuthTokenCredentials javaClientAuthTokenCredential) {
-		this.javaClientAuthTokenCredential = javaClientAuthTokenCredential;
+	public RecordHandlerImp(String baseUrl, String appTokenUrl) {
+		this.baseUrl = baseUrl;
+		this.appTokenUrl = appTokenUrl;
 	}
 
 	@Override
-	public BasicHttpResponse readRecord(String authToken, String recordType, String recordId) {
-		RestClient restClient = JavaClientProvider
-				.createRestClientUsingAuthTokenCredentials(javaClientAuthTokenCredential);
-		RestResponse response = restClient.readRecordAsJson(recordType, recordId);
-		return createBasicHttpResponseFromRestResponse(response);
+	public RestResponse readRecord(String authToken, String recordType, String recordId) {
+		RestClient restClient = createRestClientForAuthToken(authToken);
+		return restClient.readRecordAsJson(recordType, recordId);
 	}
 
-	private BasicHttpResponse createBasicHttpResponseFromRestResponse(RestResponse response) {
-		String json = response.responseText();
-		return new BasicHttpResponse(response.responseCode(), json);
+	private RestClient createRestClientForAuthToken(String authToken) {
+		JavaClientAuthTokenCredentials authTokenCredentials = new JavaClientAuthTokenCredentials(
+				baseUrl, appTokenUrl, authToken);
+		return JavaClientProvider.createRestClientUsingAuthTokenCredentials(authTokenCredentials);
 	}
 
 	@Override
-	public BasicHttpResponse readRecordList(String authToken, String recordType,
-			String filterAsJson) {
-		RestClient restClient = JavaClientProvider
-				.createRestClientUsingAuthTokenCredentials(javaClientAuthTokenCredential);
-		RestResponse response = getRecordListResponse(restClient, recordType, filterAsJson);
-		return new BasicHttpResponse(response.responseCode(), response.responseText());
+	// TODO do not pass null (filterAsJson)
+	public RestResponse readRecordList(String authToken, String recordType, String filterAsJson) {
+		RestClient restClient = createRestClientForAuthToken(authToken);
+		return getRecordListResponse(restClient, recordType, filterAsJson);
 	}
 
 	private RestResponse getRecordListResponse(RestClient restClient, String recordType,
@@ -75,30 +69,9 @@ public class RecordHandlerImp implements RecordHandler {
 	}
 
 	@Override
-	public BasicHttpResponse searchRecord(String searchId, String json) {
-		RestClient restClient = JavaClientProvider
-				.createRestClientUsingAuthTokenCredentials(javaClientAuthTokenCredential);
-		RestResponse response = restClient.searchRecordWithSearchCriteriaAsJson(searchId, json);
-
-		return createBasicHttpResponseFromRestResponse(response);
-	}
-
-	@Override
-	public ExtendedHttpResponse createRecord(String authToken, String recordType, String json) {
-		RestClient restClient = restClientFactory.factorRestClientUsingAuthTokenCredentials(null);
-		RestResponse response = restClient.createRecordFromJson(recordType, json);
-
-		return createExtendedHttpResponse(response);
-
-	}
-
-	private ExtendedHttpResponse createExtendedHttpResponse(RestResponse response) {
-		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(response.responseCode(),
-				response.responseText());
-
-		return response.responseCode() == CREATED
-				? createCreateResponse(response, basicHttpResponse)
-				: new ExtendedHttpResponse(basicHttpResponse);
+	public RestResponse searchRecord(String authToken, String searchId, String json) {
+		RestClient restClient = createRestClientForAuthToken(authToken);
+		return restClient.searchRecordWithSearchCriteriaAsJson(searchId, json);
 	}
 
 	protected void addPropertiesToHttpHandler(HttpHandler httpHandler, String json,
@@ -109,74 +82,49 @@ public class RecordHandlerImp implements RecordHandler {
 		httpHandler.setOutput(json);
 	}
 
-	private ExtendedHttpResponse createCreateResponse(RestResponse response,
-			BasicHttpResponse readResponse) {
-		String responseText = readResponse.responseText;
-		String createdId = response.createdId().get();
-		String token = tryToExtractCreatedTokenFromResponseText(responseText);
-		return new ExtendedHttpResponse(readResponse, createdId, token);
+	@Override
+	public RestResponse createRecord(String authToken, String recordType, String json) {
+		RestClient restClient = createRestClientForAuthToken(authToken);
+		return restClient.createRecordFromJson(recordType, json);
 	}
 
 	@Override
-	public BasicHttpResponse validateRecord(String json) {
-		RestClient restClient = JavaClientProvider
-				.createRestClientUsingAuthTokenCredentials(javaClientAuthTokenCredential);
-		RestResponse response = restClient.validateRecordAsJson(json);
-
-		return createBasicHttpResponseFromRestResponse(response);
-	}
-
-	private String tryToExtractCreatedTokenFromResponseText(String responseText) {
-		try {
-			return extractCreatedTokenFromResponseText(responseText);
-		} catch (Exception e) {
-			return "";
-		}
-	}
-
-	private String extractCreatedTokenFromResponseText(String responseText) {
-		int tokenIdIndex = responseText.lastIndexOf("\"name\":\"token\"")
-				+ DISTANCE_TO_START_OF_TOKEN;
-		return responseText.substring(tokenIdIndex, responseText.indexOf('"', tokenIdIndex));
+	public RestResponse validateRecord(String authToken, String json) {
+		RestClient restClient = createRestClientForAuthToken(authToken);
+		return restClient.validateRecordAsJson(json);
 	}
 
 	@Override
-	public BasicHttpResponse updateRecord(String authToken, String recordType, String recordId,
+	public RestResponse updateRecord(String authToken, String recordType, String recordId,
 			String json) {
-		RestClient restClient = restClientFactory.factorRestClientUsingAuthTokenCredentials(null);
-		RestResponse response = restClient.updateRecordFromJson(recordType, recordId, json);
-		return createBasicHttpResponseFromRestResponse(response);
+		RestClient restClient = createRestClientForAuthToken(authToken);
+		return restClient.updateRecordFromJson(recordType, recordId, json);
 	}
 
 	@Override
-	public BasicHttpResponse deleteRecord(String authToken, String recordType, String recordId) {
-		RestClient restClient = restClientFactory.factorRestClientUsingAuthTokenCredentials(null);
-		RestResponse response = restClient.deleteRecord(recordType, recordId);
-		return createBasicHttpResponseFromRestResponse(response);
-	}
-
-	public JavaClientFactory getRestClientFactory() {
-		// needed for test
-		return restClientFactory;
+	public RestResponse deleteRecord(String authToken, String recordType, String recordId) {
+		RestClient restClient = createRestClientForAuthToken(authToken);
+		return restClient.deleteRecord(recordType, recordId);
 	}
 
 	@Override
-	public BasicHttpResponse readIncomingLinks(String authToken, String recordType,
-			String recordId) {
-		RestClient restClient = restClientFactory.factorRestClientUsingAuthTokenCredentials(null);
-		RestResponse response = restClient.readIncomingLinksAsJson(recordType, recordId);
-		return createBasicHttpResponseFromRestResponse(response);
-
+	public RestResponse readIncomingLinks(String authToken, String recordType, String recordId) {
+		RestClient restClient = createRestClientForAuthToken(authToken);
+		return restClient.readIncomingLinksAsJson(recordType, recordId);
 	}
 
 	@Override
-	public ExtendedHttpResponse batchIndex(String authToken, String recordType,
-			String filterAsJson) {
+	public RestResponse batchIndex(String authToken, String recordType, String filterAsJson) {
 
-		RestClient restClient = restClientFactory.factorRestClientUsingAuthTokenCredentials(null);
-		RestResponse response = restClient.batchIndexWithFilterAsJson(recordType, filterAsJson);
-
-		return createExtendedHttpResponse(response);
+		RestClient restClient = createRestClientForAuthToken(authToken);
+		return restClient.batchIndexWithFilterAsJson(recordType, filterAsJson);
 	}
 
+	public String onlyForTestGetBaseUrl() {
+		return baseUrl;
+	}
+
+	public String onlyForTestGetAppTokenUrl() {
+		return appTokenUrl;
+	}
 }

@@ -40,7 +40,7 @@ import se.uu.ub.cora.fitnesseintegration.Waiter.WhatYouAreWaitingFor;
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpMultiPartUploader;
-import se.uu.ub.cora.javaclient.JavaClientFactory;
+import se.uu.ub.cora.javaclient.rest.RestResponse;
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.json.parser.JsonParser;
@@ -76,10 +76,7 @@ public class RecordEndpointFixture {
 	public RecordEndpointFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
 		childComparer = DependencyProvider.getChildComparer();
-		JavaClientFactory restClientFactory = RestClientFactoryImp
-				.usingBaseUrlAndAppTokenVerifierUrl(baseUrl, SystemUrl.getAppTokenVerifierUrl());
-		recordHandler = new RecordHandlerImp(restClientFactory);
-
+		recordHandler = new RecordHandlerImp(baseUrl, SystemUrl.getAppTokenVerifierUrl());
 	}
 
 	public void setType(String type) {
@@ -133,9 +130,9 @@ public class RecordEndpointFixture {
 	public String testReadRecord() {
 		String readAuthToken = getSetAuthTokenOrAdminAuthToken();
 
-		BasicHttpResponse readResponse = recordHandler.readRecord(readAuthToken, type, id);
-		statusType = Response.Status.fromStatusCode(readResponse.statusCode);
-		return readResponse.responseText;
+		RestResponse readResponse = recordHandler.readRecord(readAuthToken, type, id);
+		statusType = Response.Status.fromStatusCode(readResponse.responseCode());
+		return readResponse.responseText();
 	}
 
 	protected String getSetAuthTokenOrAdminAuthToken() {
@@ -151,16 +148,16 @@ public class RecordEndpointFixture {
 	public String testReadIncomingLinks() {
 		String readAuthToken = getSetAuthTokenOrAdminAuthToken();
 
-		BasicHttpResponse readResponse = recordHandler.readIncomingLinks(readAuthToken, type, id);
-		statusType = Response.Status.fromStatusCode(readResponse.statusCode);
-		return readResponse.responseText;
+		RestResponse readResponse = recordHandler.readIncomingLinks(readAuthToken, type, id);
+		statusType = Response.Status.fromStatusCode(readResponse.responseCode());
+		return readResponse.responseText();
 	}
 
 	public String testReadRecordList() throws UnsupportedEncodingException {
-		BasicHttpResponse readResponse = recordHandler
-				.readRecordList(getSetAuthTokenOrAdminAuthToken(), type, json);
-		statusType = Response.Status.fromStatusCode(readResponse.statusCode);
-		return readResponse.responseText;
+		RestResponse readResponse = recordHandler.readRecordList(getSetAuthTokenOrAdminAuthToken(),
+				type, json);
+		statusType = Response.Status.fromStatusCode(readResponse.responseCode());
+		return readResponse.responseText();
 	}
 
 	public String testCreateRecord() {
@@ -168,17 +165,19 @@ public class RecordEndpointFixture {
 	}
 
 	private String createRecordAndSetValuesFromResponse() {
-		ExtendedHttpResponse createResponse = recordHandler
-				.createRecord(getSetAuthTokenOrAdminAuthToken(), type, json);
+		RestResponse createResponse = recordHandler.createRecord(getSetAuthTokenOrAdminAuthToken(),
+				type, json);
 
-		setValuesFromResponse(createResponse);
-		return createResponse.responseText;
+		setStatusTypeAndCreatedIdFromResponse(createResponse);
+		return createResponse.responseText();
 	}
 
-	private void setValuesFromResponse(ExtendedHttpResponse createResponse) {
-		statusType = Response.Status.fromStatusCode(createResponse.statusCode);
-		createdId = createResponse.createdId;
-		token = createResponse.token;
+	private void setStatusTypeAndCreatedIdFromResponse(RestResponse response) {
+		statusType = Response.Status.fromStatusCode(response.responseCode());
+		if (response.createdId().isPresent()) {
+			createdId = response.createdId().get();
+		}
+		// token = response.token;
 	}
 
 	public String testCreateRecordCreatedType() {
@@ -241,17 +240,17 @@ public class RecordEndpointFixture {
 	}
 
 	public String testUpdateRecord() {
-		BasicHttpResponse response = recordHandler.updateRecord(getSetAuthTokenOrAdminAuthToken(),
-				type, id, json);
-		statusType = Response.Status.fromStatusCode(response.statusCode);
-		return response.responseText;
+		RestResponse response = recordHandler.updateRecord(getSetAuthTokenOrAdminAuthToken(), type,
+				id, json);
+		statusType = Response.Status.fromStatusCode(response.responseCode());
+		return response.responseText();
 	}
 
 	public String testDeleteRecord() {
-		BasicHttpResponse response = recordHandler.deleteRecord(getSetAuthTokenOrAdminAuthToken(),
-				type, id);
-		statusType = Response.Status.fromStatusCode(response.statusCode);
-		return response.responseText;
+		RestResponse response = recordHandler.deleteRecord(getSetAuthTokenOrAdminAuthToken(), type,
+				id);
+		statusType = Response.Status.fromStatusCode(response.responseCode());
+		return response.responseText();
 	}
 
 	public String testUpload() throws IOException {
@@ -328,15 +327,21 @@ public class RecordEndpointFixture {
 	}
 
 	public String getToken() {
+		// TODO: fix getting token from stored jsonString
+		// private static final int DISTANCE_TO_START_OF_TOKEN = 24;
+		// private String extractCreatedTokenFromResponseText(String responseText) {
+		// int tokenIdIndex = responseText.lastIndexOf("\"name\":\"token\"")
+		// + DISTANCE_TO_START_OF_TOKEN;
+		// return responseText.substring(tokenIdIndex, responseText.indexOf('"', tokenIdIndex));
+		// }
 		return token;
 	}
 
-	public String testSearchRecord() throws UnsupportedEncodingException {
-		String url = baseRecordUrl + "searchResult" + "/" + searchId;
-		BasicHttpResponse readResponse = recordHandler.searchRecord(url,
-				getSetAuthTokenOrAdminAuthToken(), json);
-		statusType = Response.Status.fromStatusCode(readResponse.statusCode);
-		return readResponse.responseText;
+	public String testSearchRecord() {
+		RestResponse readResponse = recordHandler.searchRecord(getSetAuthTokenOrAdminAuthToken(),
+				searchId, json);
+		statusType = Response.Status.fromStatusCode(readResponse.responseCode());
+		return readResponse.responseText();
 	}
 
 	public void testReadRecordAndStoreJson() {
@@ -353,12 +358,10 @@ public class RecordEndpointFixture {
 	}
 
 	public String testBatchIndexing() {
-		ExtendedHttpResponse response = recordHandler.batchIndex(getSetAuthTokenOrAdminAuthToken(),
-				type, json);
-
-		setValuesFromResponse(response);
-
-		return response.responseText;
+		String otherAuthToken = getSetAuthTokenOrAdminAuthToken();
+		RestResponse response = recordHandler.batchIndex(otherAuthToken, type, json);
+		setStatusTypeAndCreatedIdFromResponse(response);
+		return response.responseText();
 	}
 
 	public String waitUntilIndexBatchJobIsFinished() throws InterruptedException {
@@ -367,7 +370,7 @@ public class RecordEndpointFixture {
 
 		Waiter waiter = DependencyProvider.getWaiter();
 		MethodToRun methodToRun = implementMethodToRun();
-		MethodToRun methodToRun2 = new readAndStore(id, type, x, y);
+		// MethodToRun methodToRun2 = new readAndStore(id, type, x, y);
 		WhatYouAreWaitingFor whatYouAreWaitingFor = implementWhatYouAreWaitingFor();
 
 		waiter.waitUntilReadGetsTrueForSupplier(methodToRun, whatYouAreWaitingFor, sleepTime,
@@ -481,16 +484,15 @@ public class RecordEndpointFixture {
 		return recordHandler;
 	}
 
-	public void setRecordHandler(RecordHandler recordHandler) {
-		// needed for test
-		this.recordHandler = recordHandler;
-	}
-
 	public void setMaxNumberOfReads(int maxRepeatCount) {
 		this.maxNumberOfReads = maxRepeatCount;
 	}
 
 	public void setSleepTime(int sleepTime) {
 		this.sleepTime = sleepTime;
+	}
+
+	public void onlyForTestSetRecordHandler(RecordHandler recordHandler) {
+		this.recordHandler = recordHandler;
 	}
 }

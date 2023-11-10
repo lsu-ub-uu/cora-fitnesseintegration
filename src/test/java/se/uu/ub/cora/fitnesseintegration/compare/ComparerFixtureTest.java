@@ -26,6 +26,7 @@ import static org.testng.Assert.assertTrue;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.Optional;
 
 import javax.ws.rs.core.Response.StatusType;
 
@@ -41,18 +42,22 @@ import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterSpy;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
-import se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy;
 import se.uu.ub.cora.fitnesseintegration.JsonParserSpy;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
+import se.uu.ub.cora.fitnesseintegration.RecordHandlerOLDSpy;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerSpy;
 import se.uu.ub.cora.fitnesseintegration.SystemUrl;
-import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
+import se.uu.ub.cora.javaclient.rest.RestResponse;
 
 public class ComparerFixtureTest {
+	private static final String SOME_RECORD_TYPE = "someRecordType";
+
+	private static final String SOME_AUTH_TOKEN = "someAuthToken";
+
 	JsonToClientDataConverterFactorySpy converterToClientFactorySpy;
 
 	private ComparerFixture fixture;
-	private RecordHandlerSpy recordHandler;
+	private RecordHandlerOLDSpy recordHandler;
 	private JsonParserSpy jsonParser;
 	private String type;
 	private String authToken;
@@ -72,34 +77,32 @@ public class ComparerFixtureTest {
 
 		fixture = new ComparerFixture();
 		setUpFixture();
+
+		json = "{\"name\":\"value\"}";
 	}
 
 	private void setUpFixture() {
-		recordHandler = new RecordHandlerSpy();
+		recordHandler = new RecordHandlerOLDSpy();
 		jsonParser = new JsonParserSpy();
 
-		type = "someRecordType";
+		type = SOME_RECORD_TYPE;
 		fixture.setType(type);
-		fixture.setRecordHandler(recordHandler);
+		fixture.onlyForTestSetRecordHandler(recordHandler);
 	}
 
 	@Test
 	public void testInit() {
 		fixture = new ComparerFixture();
-		assertTrue(fixture.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
-		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.getRecordHandler();
-		assertSame(recordHandler.getHttpHandlerFactory(),
-				fixture.onlyForTestGetHttpHandlerFactory());
 
-		RestClientFactoryImp clientFactory = (RestClientFactoryImp) recordHandler
-				.getRestClientFactory();
-		assertEquals(clientFactory.onlyForTestGetBaseUrl(), fixture.baseUrl);
+		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.onlyForTestGetRecordHandler();
+		assertEquals(recordHandler.onlyForTestGetBaseUrl(), SystemUrl.getUrl() + "rest/");
+		assertEquals(recordHandler.onlyForTestGetAppTokenUrl(), SystemUrl.getAppTokenVerifierUrl());
 	}
 
 	@Test
 	public void testReadRecordListAndStoreRecordsNoFilter() throws Exception {
 		ClientDataListSpy clientDataListSpy = setupConverterToClientFactorySpyToReturnClientDataListSpy();
-		String authToken = "someAuthToken";
+		String authToken = SOME_AUTH_TOKEN;
 
 		fixture.setAuthToken(authToken);
 		fixture.testReadRecordListAndStoreRecords();
@@ -151,7 +154,7 @@ public class ComparerFixtureTest {
 	@Test
 	public void testReadRecordListAndStoreRecordsWithFilter() throws Exception {
 		ClientDataListSpy clientDataListSpy = setupConverterToClientFactorySpyToReturnClientDataListSpy();
-		String authToken = "someAuthToken";
+		String authToken = SOME_AUTH_TOKEN;
 		String listFilter = "someFilter";
 
 		fixture.setAuthToken(authToken);
@@ -185,7 +188,7 @@ public class ComparerFixtureTest {
 	@Test
 	public void testReadRecordListAndStoreRecordAsSpecifiedInIndex() throws Exception {
 		ClientDataListSpy clientDataListSpy = setupConverterToClientFactorySpyToReturnClientDataListSpy();
-		String authToken = "someAuthToken";
+		String authToken = SOME_AUTH_TOKEN;
 
 		fixture.setAuthToken(authToken);
 		fixture.setIndexToStore(2);
@@ -201,7 +204,7 @@ public class ComparerFixtureTest {
 	public void testReadRecordListAndStoreRecordWhenNoSpecifiedIndexUsingZeroAsDefault()
 			throws Exception {
 		ClientDataListSpy clientDataListSpy = setupConverterToClientFactorySpyToReturnClientDataListSpy();
-		String authToken = "someAuthToken";
+		String authToken = SOME_AUTH_TOKEN;
 
 		fixture.setAuthToken(authToken);
 		fixture.testReadRecordListAndStoreRecords();
@@ -216,7 +219,7 @@ public class ComparerFixtureTest {
 	public void testReadRecordListAndStoreRecordByIdRecordNotFound() throws Exception {
 		ClientDataListSpy clientDataListSpy = setupConverterToClientFactorySpyToReturnClientDataListSpy();
 		DataHolder.setRecord(new ClientDataRecordSpy());
-		String authToken = "someAuthToken";
+		String authToken = SOME_AUTH_TOKEN;
 
 		fixture.setAuthToken(authToken);
 		String response = fixture.testReadRecordListAndStoreRecordById();
@@ -235,7 +238,7 @@ public class ComparerFixtureTest {
 		clientDataRecord3.MRV.setDefaultReturnValuesSupplier("getId", () -> "1750");
 		ClientDataListSpy clientDataListSpy = setupConverterToClientFactorySpyToReturnClientDataListSpyWithRecords(
 				clientDataRecord1, clientDataRecord2, clientDataRecord3);
-		String authToken = "someAuthToken";
+		String authToken = SOME_AUTH_TOKEN;
 		String recordId = "1750";
 
 		fixture.setIdToStore(recordId);
@@ -254,7 +257,7 @@ public class ComparerFixtureTest {
 	public void testReadRecordAndStoreJson() throws Exception {
 		ClientDataRecordSpy clientDataRecord = new ClientDataRecordSpy();
 		setupConverterToClientFactorySpyToReturnClientRecordSpy(clientDataRecord);
-		String authToken = "someAuthToken";
+		String authToken = SOME_AUTH_TOKEN;
 		String id = "someId";
 
 		fixture.setAuthToken(authToken);
@@ -282,20 +285,16 @@ public class ComparerFixtureTest {
 	@Test
 	public void testSearchAndStoreRecords() throws Exception {
 		ClientDataListSpy clientDataListSpy = setupConverterToClientFactorySpyToReturnClientDataListSpy();
-		String authToken = "someAuthToken";
+		String authToken = SOME_AUTH_TOKEN;
 		String json = "{\"name\":\"value\"}";
-
 		fixture.setAuthToken(authToken);
 		fixture.setSearchId("someSearch");
 		fixture.setJson(json);
+
 		fixture.testSearchAndStoreRecords();
 
-		List<ClientData> listFromSpy = assertListOfRecordsAreConvertedAndStoredInDataHolder(
-				clientDataListSpy);
+		assertListOfRecordsAreConvertedAndStoredInDataHolder(clientDataListSpy);
 		assertTrue(recordHandler.searchRecordWasCalled);
-
-		String expectedUrl = SystemUrl.getUrl() + "rest/record/searchResult/someSearch";
-		assertEquals(recordHandler.url, expectedUrl);
 		assertEquals(recordHandler.authToken, authToken);
 		assertEquals(recordHandler.json, json);
 	}
@@ -303,7 +302,7 @@ public class ComparerFixtureTest {
 	@Test
 	public void testSearchAndStoreRecordAsSpecifiedInIndex() throws Exception {
 		ClientDataListSpy clientDataListSpy = setupConverterToClientFactorySpyToReturnClientDataListSpy();
-		String authToken = "someAuthToken";
+		String authToken = SOME_AUTH_TOKEN;
 
 		fixture.setAuthToken(authToken);
 		fixture.setIndexToStore(2);
@@ -317,7 +316,7 @@ public class ComparerFixtureTest {
 	@Test
 	public void testSearchAndStoreRecordWhenNoSpecifiedIndexUsingZeroAsDefault() throws Exception {
 		ClientDataListSpy clientDataListSpy = setupConverterToClientFactorySpyToReturnClientDataListSpy();
-		String authToken = "someAuthToken";
+		String authToken = SOME_AUTH_TOKEN;
 		fixture.setAuthToken(authToken);
 		fixture.testSearchAndStoreRecords();
 
@@ -330,7 +329,7 @@ public class ComparerFixtureTest {
 	public void testUpdateAndStoreRecord() throws UnsupportedEncodingException {
 		ClientDataRecordSpy clientDataRecord = new ClientDataRecordSpy();
 		setupConverterToClientFactorySpyToReturnClientRecordSpy(clientDataRecord);
-		String authToken = "someAuthToken";
+		String authToken = SOME_AUTH_TOKEN;
 		String json = "{\"name\":\"value\"}";
 
 		fixture.setAuthToken(authToken);
@@ -352,7 +351,7 @@ public class ComparerFixtureTest {
 		ClientDataRecordSpy clientDataRecord = new ClientDataRecordSpy();
 		setupConverterToClientFactorySpyToReturnClientRecordSpy(clientDataRecord);
 		DataHolder.setRecord(clientDataRecord);
-		String authToken = "someAuthToken";
+		String authToken = SOME_AUTH_TOKEN;
 		String json = "Forbidden answer from server";
 		recordHandler.statusTypeReturned = 403;
 
@@ -383,9 +382,9 @@ public class ComparerFixtureTest {
 	}
 
 	private void setupForCreate() {
-		authToken = "someAuthToken";
+		authToken = SOME_AUTH_TOKEN;
 		fixture.setAuthToken(authToken);
-		json = "{\"name\":\"value\"}";
+		// json = "{\"name\":\"value\"}";
 		fixture.setJson(json);
 	}
 
@@ -428,7 +427,7 @@ public class ComparerFixtureTest {
 		setupConverterToClientFactorySpyToReturnClientRecordSpy(clientDataRecord);
 		DataHolder.setRecord(clientDataRecord);
 
-		String authToken = "someAuthToken";
+		String authToken = SOME_AUTH_TOKEN;
 		fixture.setAuthToken(authToken);
 		String json = "Forbidden answer from server";
 		fixture.setJson(json);
@@ -471,16 +470,39 @@ public class ComparerFixtureTest {
 	}
 
 	@Test
-	public void testGetCreatedId() throws Exception {
+	public void testGetCreatedIdOk() throws Exception {
+		RecordHandlerSpy recordHandler = new RecordHandlerSpy();
+		RestResponse restResponseToReturn = new RestResponse(201, "someJson",
+				Optional.of("someCreatedId"));
+		recordHandler.MRV.setDefaultReturnValuesSupplier("createRecord",
+				() -> restResponseToReturn);
+		fixture.onlyForTestSetRecordHandler(recordHandler);
+
 		setupForCreate();
 		ClientDataRecordSpy clientDataRecord = new ClientDataRecordSpy();
 		setupConverterToClientFactorySpyToReturnClientRecordSpy(clientDataRecord);
-		String expectedCreatedId = "myCreatedId";
-		recordHandler.createdId = expectedCreatedId;
 
 		fixture.testCreateAndStoreRecord();
 
-		assertEquals(fixture.getCreatedId(), expectedCreatedId);
+		assertEquals(fixture.getCreatedId(), "someCreatedId");
 	}
 
+	@Test
+	public void testGetCreatedIdAndCreateRecordNotOk() throws Exception {
+		RecordHandlerSpy recordHandler = new RecordHandlerSpy();
+		fixture.onlyForTestSetRecordHandler(recordHandler);
+
+		setupForCreate();
+		ClientDataRecordSpy clientDataRecord = new ClientDataRecordSpy();
+		setupConverterToClientFactorySpyToReturnClientRecordSpy(clientDataRecord);
+
+		fixture.testCreateAndStoreRecord();
+
+		assertNull(fixture.getCreatedId(), null);
+	}
+
+	@Test
+	public void testGetCreatedIdNoRecordCreatedYetOk() throws Exception {
+		assertNull(fixture.getCreatedId(), null);
+	}
 }

@@ -40,7 +40,7 @@ public class MetadataValidationFixtureTest {
 	ClientDataToJsonConverterFactoryCreatorSpy toJsonFactoryCreator;
 
 	private MetadataValidationFixture fixture;
-	private RecordHandlerSpy recordHandler;
+	private RecordHandlerOLDSpy recordHandler;
 
 	@BeforeMethod
 	public void setUp() {
@@ -63,8 +63,8 @@ public class MetadataValidationFixtureTest {
 	private void setUpFixture() {
 		fixture.setType("someType");
 		fixture.setAuthToken("someToken");
-		recordHandler = new RecordHandlerSpy();
-		fixture.setRecordHandler(recordHandler);
+		recordHandler = new RecordHandlerOLDSpy();
+		fixture.onlyForTestSetRecordHandler(recordHandler);
 	}
 
 	@Test
@@ -107,12 +107,9 @@ public class MetadataValidationFixtureTest {
 
 		String responseText = fixture.testValidateRecord();
 
-		String expectedUrl = SystemUrl.getUrl() + "rest/record/workOrder";
 		assertTrue(recordHandler.validateWasCalled);
-		assertEquals(recordHandler.url, expectedUrl);
 		assertEquals(recordHandler.authToken, "someToken");
 		assertEquals(recordHandler.json, json);
-		assertEquals(recordHandler.contentType, "application/vnd.uub.workorder+json");
 		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 	}
 

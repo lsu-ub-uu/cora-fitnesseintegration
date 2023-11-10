@@ -30,9 +30,10 @@ import org.testng.annotations.Test;
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactoryImp;
 import se.uu.ub.cora.fitnesseintegration.internal.ReadAndStoreRecord;
-import se.uu.ub.cora.fitnesseintegration.spy.DataClientFactorySpy;
+import se.uu.ub.cora.fitnesseintegration.spy.JavaClientFactorySpy;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
+import se.uu.ub.cora.javaclient.JavaClientAuthTokenCredentials;
 import se.uu.ub.cora.javaclient.JavaClientProvider;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
@@ -119,10 +120,8 @@ public class DependencyProviderTest {
 	@Test
 	public void testFactorReadAndStoreRecord() throws Exception {
 
-		DataClientFactorySpy dataClientFactory = new DataClientFactorySpy();
-		JavaClientProvider.onlyForTestSetDataClientFactory(dataClientFactory);
-		RestClientFactorySpy restClientFactory = new RestClientFactorySpy();
-		JavaClientProvider.onlyForTestSetJavaClientFactory(restClientFactory);
+		JavaClientFactorySpy javaClientFactory = new JavaClientFactorySpy();
+		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
 
 		String someBaseUrl = "someBaseUrl";
 		String someAppTokenUrl = "someAppTokenUrl";
@@ -137,13 +136,14 @@ public class DependencyProviderTest {
 				type, id);
 
 		assertNotNull(readAndStore);
+		JavaClientAuthTokenCredentials authTokenCredentials = new JavaClientAuthTokenCredentials(
+				someBaseUrl, someAppTokenUrl, authToken);
+		javaClientFactory.MCR.methodWasCalled("factorDataClientUsingAuthTokenCredentials");
+		javaClientFactory.MCR.assertParameterAsEqual("factorDataClientUsingAuthTokenCredentials", 0,
+				"authTokenCredentials", authTokenCredentials);
 
-		restClientFactory.MCR.assertParameters(
-				"factorUsingBaseUrlAndAppTokenVerifierUrlAndAuthToken", 0, someBaseUrl,
-				someAppTokenUrl, authToken);
-
-		assertSame(readAndStore.onlyForTestGetDataClient(),
-				dataClientFactory.MCR.getReturnValue("factorUsingRestClient", 0));
+		assertSame(readAndStore.onlyForTestGetDataClient(), javaClientFactory.MCR
+				.getReturnValue("factorDataClientUsingAuthTokenCredentials", 0));
 		assertSame(readAndStore.onlyForTestGetType(), type);
 		assertSame(readAndStore.onlyForTestGetId(), id);
 

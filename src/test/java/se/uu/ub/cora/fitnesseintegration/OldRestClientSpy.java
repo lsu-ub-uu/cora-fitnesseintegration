@@ -96,4 +96,16 @@ public class OldRestClientSpy implements RestClient {
 		return new RestResponse(201, returnedJson, Optional.of(createdId));
 	}
 
+	@Override
+	public RestResponse searchRecordWithSearchCriteriaAsJson(String searchId, String json) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public RestResponse validateRecordAsJson(String json) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

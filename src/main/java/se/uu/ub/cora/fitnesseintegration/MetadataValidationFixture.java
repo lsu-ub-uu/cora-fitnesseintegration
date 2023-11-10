@@ -29,6 +29,7 @@ import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverter;
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterProvider;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
+import se.uu.ub.cora.javaclient.rest.RestResponse;
 
 public class MetadataValidationFixture extends RecordEndpointFixture {
 
@@ -100,21 +101,23 @@ public class MetadataValidationFixture extends RecordEndpointFixture {
 
 	public String testValidateRecord() {
 		RecordHandler recordHandler = getRecordHandler();
-		BasicHttpResponse response = recordHandler.validateRecord(baseRecordUrl + "workOrder",
-				getSetAuthTokenOrAdminAuthToken(), json, "application/vnd.uub.workorder+json");
-		statusType = Response.Status.fromStatusCode(response.statusCode);
+		// BasicHttpResponse response = recordHandler.validateRecord(baseRecordUrl + "workOrder",
+		// getSetAuthTokenOrAdminAuthToken(), json, "application/vnd.uub.workorder+json");
+		RestResponse response = recordHandler.validateRecord(getSetAuthTokenOrAdminAuthToken(),
+				json);
+		statusType = Response.Status.fromStatusCode(response.responseCode());
 		return getResponseTextFromHttpHandler(response);
 	}
 
-	private String getResponseTextFromHttpHandler(BasicHttpResponse response) {
+	private String getResponseTextFromHttpHandler(RestResponse response) {
 		if (responseIsOk()) {
 			return getValidationResponseText(response);
 		}
-		return response.responseText;
+		return response.responseText();
 	}
 
-	private String getValidationResponseText(BasicHttpResponse response) {
-		String responseText = response.responseText;
+	private String getValidationResponseText(RestResponse response) {
+		String responseText = response.responseText();
 		extractAndSetValidValue(responseText);
 		return responseText;
 	}
