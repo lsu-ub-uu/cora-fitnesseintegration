@@ -18,7 +18,7 @@
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.script;
 
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNotSame;
@@ -27,6 +27,12 @@ import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.fitnesseintegration.ChildComparer;
+import se.uu.ub.cora.fitnesseintegration.ChildComparerImp;
+import se.uu.ub.cora.fitnesseintegration.JsonHandlerImp;
+import se.uu.ub.cora.fitnesseintegration.Waiter;
+import se.uu.ub.cora.fitnesseintegration.WaiterImp;
+import se.uu.ub.cora.fitnesseintegration.WaiterSpy;
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactoryImp;
 import se.uu.ub.cora.fitnesseintegration.internal.ReadAndStoreRecord;
@@ -138,12 +144,14 @@ public class DependencyProviderTest {
 		assertNotNull(readAndStore);
 		JavaClientAuthTokenCredentials authTokenCredentials = new JavaClientAuthTokenCredentials(
 				someBaseUrl, someAppTokenUrl, authToken);
-		javaClientFactory.MCR.methodWasCalled("factorDataClientUsingAuthTokenCredentials");
-		javaClientFactory.MCR.assertParameterAsEqual("factorDataClientUsingAuthTokenCredentials", 0,
-				"authTokenCredentials", authTokenCredentials);
+		javaClientFactory.MCR
+				.methodWasCalled("factorDataClientUsingJavaClientAuthTokenCredentials");
+		javaClientFactory.MCR.assertParameterAsEqual(
+				"factorDataClientUsingJavaClientAuthTokenCredentials", 0,
+				"javaClientAuthTokenCredentials", authTokenCredentials);
 
 		assertSame(readAndStore.onlyForTestGetDataClient(), javaClientFactory.MCR
-				.getReturnValue("factorDataClientUsingAuthTokenCredentials", 0));
+				.getReturnValue("factorDataClientUsingJavaClientAuthTokenCredentials", 0));
 		assertSame(readAndStore.onlyForTestGetType(), type);
 		assertSame(readAndStore.onlyForTestGetId(), id);
 

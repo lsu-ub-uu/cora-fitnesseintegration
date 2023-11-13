@@ -46,7 +46,7 @@ public class RecordHandlerImp implements RecordHandler {
 	private RestClient createRestClientForAuthToken(String authToken) {
 		JavaClientAuthTokenCredentials authTokenCredentials = new JavaClientAuthTokenCredentials(
 				baseUrl, appTokenUrl, authToken);
-		return JavaClientProvider.createRestClientUsingAuthTokenCredentials(authTokenCredentials);
+		return JavaClientProvider.createRestClientUsingJavaClientAuthTokenCredentials(authTokenCredentials);
 	}
 
 	@Override

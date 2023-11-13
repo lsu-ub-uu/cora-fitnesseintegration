@@ -18,10 +18,15 @@
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.script;
 
 import java.lang.reflect.Constructor;
 
+import se.uu.ub.cora.fitnesseintegration.ChildComparer;
+import se.uu.ub.cora.fitnesseintegration.JsonHandler;
+import se.uu.ub.cora.fitnesseintegration.JsonHandlerImp;
+import se.uu.ub.cora.fitnesseintegration.Waiter;
+import se.uu.ub.cora.fitnesseintegration.WaiterImp;
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
 import se.uu.ub.cora.fitnesseintegration.internal.ReadAndStoreRecord;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
@@ -112,7 +117,7 @@ public final class DependencyProvider {
 				baseUrl, appTokenVerifierUrl, authToken);
 
 		DataClient dataClient = JavaClientProvider
-				.createDataClientUsingAuthTokenCredentials(authTokenCredentials);
+				.createDataClientUsingJavaClientAuthTokenCredentials(authTokenCredentials);
 		return ReadAndStoreRecord.usingDataClientAndTypeAndId(dataClient, type, id);
 	}
 }

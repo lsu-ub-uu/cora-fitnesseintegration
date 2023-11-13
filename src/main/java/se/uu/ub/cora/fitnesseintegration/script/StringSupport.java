@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Uppsala University Library
+ * Copyright 2022 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -16,30 +16,25 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.script;
 
-public final class AuthTokenHolder {
-	private static String adminAuthToken;
-	private static String userAuthToken;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-	public AuthTokenHolder() {
-		// needed by fitnesse
-		super();
+public class StringSupport {
+
+	public String concatenate(String string1, String string2) {
+		return string1.concat(string2);
 	}
 
-	public static synchronized String getAdminAuthToken() {
-		return adminAuthToken;
+	public String dateFormat(String pattern) {
+		Date date = new Date();
+		SimpleDateFormat sDateFormat = new SimpleDateFormat(pattern);
+		return sDateFormat.format(date);
 	}
 
-	public static synchronized void setAdminAuthToken(String authTokenIn) {
-		adminAuthToken = authTokenIn;
+	public String replaceAll(String text, String find, String replaceWith) {
+		return text.replace(find, replaceWith);
 	}
 
-	public static synchronized void setUserAuthToken(String authTokenIn) {
-		userAuthToken = authTokenIn;
-	}
-
-	public static synchronized String getUserAuthToken() {
-		return userAuthToken;
-	}
 }

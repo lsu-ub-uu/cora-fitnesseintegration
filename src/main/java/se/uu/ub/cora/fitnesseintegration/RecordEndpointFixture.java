@@ -37,6 +37,9 @@ import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverter;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
 import se.uu.ub.cora.fitnesseintegration.Waiter.MethodToRun;
 import se.uu.ub.cora.fitnesseintegration.Waiter.WhatYouAreWaitingFor;
+import se.uu.ub.cora.fitnesseintegration.script.AuthTokenHolder;
+import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
+import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpMultiPartUploader;
@@ -176,6 +179,7 @@ public class RecordEndpointFixture {
 		statusType = Response.Status.fromStatusCode(response.responseCode());
 		if (response.createdId().isPresent()) {
 			createdId = response.createdId().get();
+			DataHolder.setRecord(null);
 		}
 		// token = response.token;
 	}

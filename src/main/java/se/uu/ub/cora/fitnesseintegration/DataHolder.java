@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverter;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterProvider;
 
 public class DataHolder {
 
@@ -32,6 +35,8 @@ public class DataHolder {
 
 	private static ClientDataRecord clientClientDataRecord;
 	private static List<ClientDataRecord> dataRecords;
+	private static ClientDataRecord createdRecordData;
+	private static String createdRecordJson;
 
 	public static void setRecord(ClientDataRecord clientClientDataRecord) {
 		DataHolder.clientClientDataRecord = clientClientDataRecord;
@@ -50,5 +55,47 @@ public class DataHolder {
 	public static List<ClientDataRecord> getRecordList() {
 		return dataRecords;
 	}
+
+	public static void setCreatedRecordAsData(ClientDataRecord createdRecordData) {
+		DataHolder.createdRecordData = createdRecordData;
+		DataHolder.createdRecordJson = null;
+
+	}
+
+	public static Object getCreatedRecordAsData() {
+		// if (createdRecordData) {
+		// return createdRecordData;
+		// }
+		// if (createdRecordJson) {
+		// createdRecordData = convert();
+		// }
+
+		return createdRecordData;
+	}
+
+	public static void setCreatedRecordAsJson(String createdRecordJson) {
+		DataHolder.createdRecordData = null;
+		DataHolder.createdRecordJson = createdRecordJson;
+	}
+
+	public static String getCreatedRecordAsJson() {
+		if (createdRecordData != null) {
+			// return "";
+			ClientDataToJsonConverterFactory converterFactory = ClientDataToJsonConverterProvider
+					.createImplementingFactory();
+			ClientDataToJsonConverter converter = converterFactory
+					.factorUsingConvertible(createdRecordData);
+			return converter.toJson();
+
+		}
+
+		return createdRecordJson;
+	}
+
+	// protected ClientDataRecord convertJsonToClientDataRecord(String jsonText) {
+	// JsonToClientDataConverter toClientConverter = JsonToClientDataConverterProvider
+	// .getConverterUsingJsonString(jsonText);
+	// return (ClientDataRecord) toClientConverter.toInstance();
+	// }
 
 }

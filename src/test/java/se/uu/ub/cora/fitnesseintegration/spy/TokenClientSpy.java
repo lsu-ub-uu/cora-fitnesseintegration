@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Uppsala University Library
+ * Copyright 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -16,25 +16,24 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.spy;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import se.uu.ub.cora.javaclient.token.TokenClient;
+import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
+import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 
-public class StringSupport {
+public class TokenClientSpy implements TokenClient {
+	public MethodCallRecorder MCR = new MethodCallRecorder();
+	public MethodReturnValues MRV = new MethodReturnValues();
 
-	public String concatenate(String string1, String string2) {
-		return string1.concat(string2);
+	public TokenClientSpy() {
+		MCR.useMRV(MRV);
+		MRV.setDefaultReturnValuesSupplier("getAuthToken", () -> "someAuthTokenfromSpy");
 	}
 
-	public String dateFormat(String pattern) {
-		Date date = new Date();
-		SimpleDateFormat sDateFormat = new SimpleDateFormat(pattern);
-		return sDateFormat.format(date);
-	}
-
-	public String replaceAll(String text, String find, String replaceWith) {
-		return text.replace(find, replaceWith);
+	@Override
+	public String getAuthToken() {
+		return (String) MCR.addCallAndReturnFromMRV();
 	}
 
 }

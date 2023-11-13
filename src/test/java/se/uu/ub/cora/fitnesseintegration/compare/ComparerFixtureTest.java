@@ -41,12 +41,12 @@ import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterSpy;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
-import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.JsonParserSpy;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerOLDSpy;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerSpy;
-import se.uu.ub.cora.fitnesseintegration.SystemUrl;
+import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
+import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 
 public class ComparerFixtureTest {

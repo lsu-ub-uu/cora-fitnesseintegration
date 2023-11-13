@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.script;
 
 import static org.testng.Assert.assertEquals;
 
@@ -24,6 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.testng.annotations.Test;
+
+import se.uu.ub.cora.fitnesseintegration.script.StringSupport;
 
 public class StringSupportTest {
 	@Test

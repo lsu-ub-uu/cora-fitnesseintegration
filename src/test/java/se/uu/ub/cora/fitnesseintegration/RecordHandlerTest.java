@@ -73,10 +73,11 @@ public class RecordHandlerTest {
 	private RestClientSpy assertAndReturnRestClientIsFromProvider() {
 		JavaClientAuthTokenCredentials authTokenCredentials = new JavaClientAuthTokenCredentials(
 				baseUrl, appTokenUrl, authToken);
-		javaClientFactory.MCR.assertParameterAsEqual("factorRestClientUsingAuthTokenCredentials", 0,
-				"authTokenCredentials", authTokenCredentials);
+		javaClientFactory.MCR.assertParameterAsEqual(
+				"factorRestClientUsingJavaClientAuthTokenCredentials", 0,
+				"javaClientAuthTokenCredentials", authTokenCredentials);
 		RestClientSpy restClient = (RestClientSpy) javaClientFactory.MCR
-				.getReturnValue("factorRestClientUsingAuthTokenCredentials", 0);
+				.getReturnValue("factorRestClientUsingJavaClientAuthTokenCredentials", 0);
 		return restClient;
 	}
 

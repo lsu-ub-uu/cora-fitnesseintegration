@@ -17,7 +17,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.script;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -29,6 +29,8 @@ import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterFactoryCreatorSpy
 import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterFactorySpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterSpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
+import se.uu.ub.cora.fitnesseintegration.DataHolder;
+import se.uu.ub.cora.fitnesseintegration.script.StoredData;
 
 public class StoredDataTest {
 	JsonToClientDataConverterFactorySpy converterToClientFactorySpy;
