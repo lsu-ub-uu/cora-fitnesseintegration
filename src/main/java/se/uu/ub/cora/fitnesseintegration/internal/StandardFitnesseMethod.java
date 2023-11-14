@@ -18,7 +18,7 @@
  */
 package se.uu.ub.cora.fitnesseintegration.internal;
 
-public interface StandardFitnesseMethods {
+public interface StandardFitnesseMethod {
 
 	public void run();
 

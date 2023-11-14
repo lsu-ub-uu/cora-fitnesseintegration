@@ -35,7 +35,7 @@ public class CreateAuthTokenForAppTokenFixtureTest {
 
 	@BeforeMethod
 	public void setUp() {
-		SystemUrl.setAppTokenVerifierUrl("someAppTokenVerifierUrl");
+		SystemUrl.setAppTokenVerifierUrl("someAppTokenVerifierUrl/");
 
 		javaClientFactory = new JavaClientFactorySpy();
 		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
@@ -51,7 +51,7 @@ public class CreateAuthTokenForAppTokenFixtureTest {
 		String authToken = fixture.getAuthTokenUsingUserIdAndAppToken();
 
 		AppTokenCredentials expectedAppTokenCredentials = new AppTokenCredentials(
-				"someAppTokenVerifierUrl", "someUserId", "someAppToken");
+				"someAppTokenVerifierUrl/rest/", "someUserId", "someAppToken");
 
 		javaClientFactory.MCR.assertParameterAsEqual("factorTokenClientUsingAppTokenCredentials", 0,
 				"appTokenCredentials", expectedAppTokenCredentials);

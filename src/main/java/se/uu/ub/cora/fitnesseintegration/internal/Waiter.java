@@ -16,20 +16,15 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.internal;
 
 public interface Waiter {
-
-	public interface MethodToRun {
-		void run();
-	}
 
 	public interface WhatYouAreWaitingFor {
 		boolean completed();
 	}
 
-	void waitUntilReadGetsTrueForSupplier(MethodToRun methodToRun,
-			WhatYouAreWaitingFor whatYouAreWaitingFor, int sleepTime, int maxNumberOfReads)
-			throws InterruptedException;
+	boolean waitUntilConditionFullfilled(StandardFitnesseMethod standarFitnesseMethod,
+			WhatYouAreWaitingFor whatYouAreWaitingFor, int sleepTime, int maxNumberOfCalls);
 
 }

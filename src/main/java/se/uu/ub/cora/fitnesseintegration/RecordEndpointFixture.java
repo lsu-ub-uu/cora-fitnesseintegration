@@ -35,8 +35,6 @@ import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverter;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
-import se.uu.ub.cora.fitnesseintegration.Waiter.MethodToRun;
-import se.uu.ub.cora.fitnesseintegration.Waiter.WhatYouAreWaitingFor;
 import se.uu.ub.cora.fitnesseintegration.script.AuthTokenHolder;
 import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
@@ -172,7 +170,9 @@ public class RecordEndpointFixture {
 				type, json);
 
 		setStatusTypeAndCreatedIdFromResponse(createResponse);
-		return createResponse.responseText();
+		String createdRecordAsJson = createResponse.responseText();
+		DataHolder.setRecordAsJson(createdRecordAsJson);
+		return createdRecordAsJson;
 	}
 
 	private void setStatusTypeAndCreatedIdFromResponse(RestResponse response) {
@@ -330,17 +330,6 @@ public class RecordEndpointFixture {
 		return responseText;
 	}
 
-	public String getToken() {
-		// TODO: fix getting token from stored jsonString
-		// private static final int DISTANCE_TO_START_OF_TOKEN = 24;
-		// private String extractCreatedTokenFromResponseText(String responseText) {
-		// int tokenIdIndex = responseText.lastIndexOf("\"name\":\"token\"")
-		// + DISTANCE_TO_START_OF_TOKEN;
-		// return responseText.substring(tokenIdIndex, responseText.indexOf('"', tokenIdIndex));
-		// }
-		return token;
-	}
-
 	public String testSearchRecord() {
 		RestResponse readResponse = recordHandler.searchRecord(getSetAuthTokenOrAdminAuthToken(),
 				searchId, json);
@@ -361,78 +350,42 @@ public class RecordEndpointFixture {
 		return (ClientDataRecord) toClientConverter.toInstance();
 	}
 
+	private void setValuesFromResponse(RestResponse createResponse) {
+		statusType = Response.Status.fromStatusCode(createResponse.responseCode());
+		if (createResponse.createdId().isPresent()) {
+			createdId = createResponse.createdId().get();
+		} else {
+			createdId = null;
+		}
+	}
+
 	public String testBatchIndexing() {
-		String otherAuthToken = getSetAuthTokenOrAdminAuthToken();
-		RestResponse response = recordHandler.batchIndex(otherAuthToken, type, json);
-		setStatusTypeAndCreatedIdFromResponse(response);
+		RestResponse response = recordHandler.batchIndex(getSetAuthTokenOrAdminAuthToken(), type,
+				json);
+
+		setValuesFromResponse(response);
+
 		return response.responseText();
 	}
 
 	public String waitUntilIndexBatchJobIsFinished() throws InterruptedException {
-		// Runnable methodToRun = this::testReadRecordAndStoreJson;
-		// BooleanSupplier whatYouAreWaitingFor = this::conditionStoredIndexBatchJobIsFinished;
+		int numberOfReads = 0;
+		boolean continueToReadIndexBatchJob = true;
+		while (continueToReadIndexBatchJob) {
+			numberOfReads++;
 
-		Waiter waiter = DependencyProvider.getWaiter();
-		MethodToRun methodToRun = implementMethodToRun();
-		// MethodToRun methodToRun2 = new readAndStore(id, type, x, y);
-		WhatYouAreWaitingFor whatYouAreWaitingFor = implementWhatYouAreWaitingFor();
+			testReadRecordAndStoreJson();
 
-		waiter.waitUntilReadGetsTrueForSupplier(methodToRun, whatYouAreWaitingFor, sleepTime,
-				maxNumberOfReads);
+			if (storedIndexBatchJobIsFinished() || numberOfReads == maxNumberOfReads) {
+				continueToReadIndexBatchJob = false;
+			} else {
+				Thread.sleep(sleepTime);
+			}
+		}
 		return generateResponseBasedOnIndexBatchJobStatus();
 	}
 
-	// SPIKE STARTS Different ways to implement the interfaces
-	// FIRST
-	private WhatYouAreWaitingFor implementWhatYouAreWaitingFor() {
-		return this::conditionStoredIndexBatchJobIsFinished;
-	}
-
-	private MethodToRun implementMethodToRun() {
-		return this::testReadRecordAndStoreJson;
-	}
-
-	// SECOND
-	private WhatYouAreWaitingFor implementWhatYouAreWaitingFor2() {
-		return new WhatYouAreWaitingFor() {
-			@Override
-			public boolean completed() {
-				return conditionStoredIndexBatchJobIsFinished();
-			}
-		};
-	}
-
-	private MethodToRun implementMethodToRun2() {
-		return new MethodToRun() {
-			@Override
-			public void run() {
-				testReadRecordAndStoreJson();
-			}
-		};
-	}
-
-	// THIRD
-	class MethodToRunImp implements MethodToRun {
-
-		@Override
-		public void run() {
-			testReadRecordAndStoreJson();
-		}
-	}
-	// SPIKE ENDS
-
-	public String waitUntilImageIsAnalyzed() throws InterruptedException {
-		Waiter waiter = DependencyProvider.getWaiter();
-		waiter.waitUntilReadGetsTrueForSupplier(new MethodToRunImp(), null, sleepTime,
-				maxNumberOfReads);
-		return null;
-	}
-
-	private Boolean conditionImageAnalyzed() {
-		return null;
-	}
-
-	private boolean conditionStoredIndexBatchJobIsFinished() {
+	private boolean storedIndexBatchJobIsFinished() {
 		String status = extractStatusFromIndexBatchJob();
 		return "finished".equals(status);
 	}
@@ -444,12 +397,107 @@ public class RecordEndpointFixture {
 	}
 
 	private String generateResponseBasedOnIndexBatchJobStatus() {
-		if (conditionStoredIndexBatchJobIsFinished()) {
+		if (storedIndexBatchJobIsFinished()) {
 			return "finished";
 		}
 		return "Tried to read indexBatchJob " + maxNumberOfReads + " times, waiting " + sleepTime
 				+ " milliseconds between each read, but it was still not finished.";
 	}
+
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	// public String testBatchIndexing() {
+	// String otherAuthToken = getSetAuthTokenOrAdminAuthToken();
+	// RestResponse response = recordHandler.batchIndex(otherAuthToken, type, json);
+	// setStatusTypeAndCreatedIdFromResponse(response);
+	// return response.responseText();
+	// }
+	//
+	// public String waitUntilIndexBatchJobIsFinished() throws InterruptedException {
+	// // Runnable methodToRun = this::testReadRecordAndStoreJson;
+	// // BooleanSupplier whatYouAreWaitingFor = this::conditionStoredIndexBatchJobIsFinished;
+	//
+	// Waiter waiter = DependencyProvider.getWaiter();
+	// MethodToRun methodToRun = implementMethodToRun();
+	// // MethodToRun methodToRun2 = new readAndStore(id, type, x, y);
+	// WhatYouAreWaitingFor whatYouAreWaitingFor = implementWhatYouAreWaitingFor();
+	//
+	// waiter.waitUntilConditionFullfilled(methodToRun, whatYouAreWaitingFor, sleepTime,
+	// maxNumberOfReads);
+	// return generateResponseBasedOnIndexBatchJobStatus();
+	// }
+	//
+	// // SPIKE STARTS Different ways to implement the interfaces
+	// // FIRST
+	// private WhatYouAreWaitingFor implementWhatYouAreWaitingFor() {
+	// return this::conditionStoredIndexBatchJobIsFinished;
+	// }
+	//
+	// private MethodToRun implementMethodToRun() {
+	// return this::testReadRecordAndStoreJson;
+	// }
+	//
+	// // SECOND
+	// private WhatYouAreWaitingFor implementWhatYouAreWaitingFor2() {
+	// return new WhatYouAreWaitingFor() {
+	// @Override
+	// public boolean completed() {
+	// return conditionStoredIndexBatchJobIsFinished();
+	// }
+	// };
+	// }
+	//
+	// private MethodToRun implementMethodToRun2() {
+	// return new MethodToRun() {
+	// @Override
+	// public void run() {
+	// testReadRecordAndStoreJson();
+	// }
+	// };
+	// }
+	//
+	// // THIRD
+	// class MethodToRunImp implements MethodToRun {
+	//
+	// @Override
+	// public void run() {
+	// testReadRecordAndStoreJson();
+	// }
+	// }
+	// // SPIKE ENDS
+
+	// public String waitUntilImageIsAnalyzed() throws InterruptedException {
+	// Waiter waiter = DependencyProvider.getWaiter();
+	// ReadAndStoreRecord methodToRun = DependencyProvider.factorReadAndStoreRecord(authToken,
+	// type, createdId);
+	// waiter.waitUntilConditionFullfilled(methodToRun, implementWhatYouAreWaitingFor(), sleepTime,
+	// maxNumberOfReads);
+	// return null;
+	// }
+	//
+	// private Boolean conditionImageAnalyzed() {
+	// return null;
+	// }
+
+	// private boolean conditionStoredIndex
+	//
+	// BatchJobIsFinished() {
+	// String status = extractStatusFromIndexBatchJob();
+	// return "finished".equals(status);
+	// }
+
+	// private String extractStatusFromIndexBatchJob() {
+	// ClientDataRecord dataRecord = DataHolder.getRecord();
+	// ClientDataRecordGroup clientDataGroup = dataRecord.getDataRecordGroup();
+	// return clientDataGroup.getFirstAtomicValueWithNameInData("status");
+	// }
+	//
+	// private String generateResponseBasedOnIndexBatchJobStatus() {
+	// if (conditionStoredIndexBatchJobIsFinished()) {
+	// return "finished";
+	// }
+	// return "Tried to read indexBatchJob " + maxNumberOfReads + " times, waiting " + sleepTime
+	// + " milliseconds between each read, but it was still not finished.";
+	// }
 
 	public HttpHandlerFactory getHttpHandlerFactory() {
 		return httpHandlerFactory;

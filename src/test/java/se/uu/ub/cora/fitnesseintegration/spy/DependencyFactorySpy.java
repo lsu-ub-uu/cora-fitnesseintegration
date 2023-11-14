@@ -16,29 +16,35 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.spy;
 
+import se.uu.ub.cora.fitnesseintegration.WaiterSpy;
 import se.uu.ub.cora.fitnesseintegration.internal.StandardFitnesseMethod;
 import se.uu.ub.cora.fitnesseintegration.internal.Waiter;
+import se.uu.ub.cora.fitnesseintegration.script.internal.DependencyFactory;
 import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
 import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 
-public class WaiterSpy implements Waiter {
-
+public class DependencyFactorySpy implements DependencyFactory {
 	public MethodCallRecorder MCR = new MethodCallRecorder();
 	public MethodReturnValues MRV = new MethodReturnValues();
 
-	public WaiterSpy() {
+	public DependencyFactorySpy() {
 		MCR.useMRV(MRV);
-		MRV.setDefaultReturnValuesSupplier("waitUntilConditionFullfilled", () -> false);
+		MRV.setDefaultReturnValuesSupplier("factorReadAndStoreRecord",
+				StandardFitnesseMethodSpy::new);
+		MRV.setDefaultReturnValuesSupplier("factorWaiter", WaiterSpy::new);
 	}
 
 	@Override
-	public boolean waitUntilConditionFullfilled(StandardFitnesseMethod methodToRun,
-			WhatYouAreWaitingFor whatYouAreWaitingFor, int sleepTime, int maxNumberOfCalls) {
-		return (boolean) MCR.addCallAndReturnFromMRV("methodToRun", methodToRun,
-				"whatYouAreWaitingFor", whatYouAreWaitingFor, "sleepTime", sleepTime,
-				"maxNumberOfCalls", maxNumberOfCalls);
+	public StandardFitnesseMethod factorReadAndStoreRecord(String authToken, String type,
+			String id) {
+		return (StandardFitnesseMethod) MCR.addCallAndReturnFromMRV("authToken", authToken, "type",
+				type, "id", id);
+	}
 
+	@Override
+	public Waiter factorWaiter() {
+		return (Waiter) MCR.addCallAndReturnFromMRV();
 	}
 }

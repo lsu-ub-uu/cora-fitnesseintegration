@@ -14,4 +14,6 @@ module se.uu.ub.cora.fitnesseintegration {
 	exports se.uu.ub.cora.fitnesseintegration.fixture;
 	exports se.uu.ub.cora.fitnesseintegration.server.compare.fixtures;
 	exports se.uu.ub.cora.fitnesseintegration.authtoken.fixture;
+	exports se.uu.ub.cora.fitnesseintegration.apptoken.script;
+	exports se.uu.ub.cora.fitnesseintegration.waiter.fixture;
 }

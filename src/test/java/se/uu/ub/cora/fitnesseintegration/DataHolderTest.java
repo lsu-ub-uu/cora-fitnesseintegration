@@ -20,7 +20,6 @@
 package se.uu.ub.cora.fitnesseintegration;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertSame;
 
@@ -72,56 +71,10 @@ public class DataHolderTest {
 	}
 
 	@Test
-	public void testSetAndGetCreatedRecord() throws Exception {
-		ClientDataRecord clientClientDataRecord = createRecordWithDataGroupUsingNameInData(
-				"someName");
-
-		DataHolder.setCreatedRecordAsData(clientClientDataRecord);
-
-		assertEquals(DataHolder.getCreatedRecordAsData(), clientClientDataRecord);
-	}
-
-	@Test
 	public void testSetAndGetCreatedRecordJson() throws Exception {
 		String json = "someJson";
-		DataHolder.setCreatedRecordAsJson(json);
+		DataHolder.setRecordAsJson(json);
 
-		assertEquals(DataHolder.getCreatedRecordAsJson(), json);
-	}
-
-	@Test
-	public void testSettingCreatedDataResetsJson() throws Exception {
-		String json = "someJson";
-		DataHolder.setCreatedRecordAsJson(json);
-		ClientDataRecord clientClientDataRecord = createRecordWithDataGroupUsingNameInData(
-				"someName");
-
-		DataHolder.setCreatedRecordAsData(clientClientDataRecord);
-
-		assertEquals(DataHolder.getCreatedRecordAsData(), clientClientDataRecord);
-		assertNotEquals(DataHolder.getCreatedRecordAsJson(), "someJson");
-	}
-
-	@Test
-	public void testSettingCreatedJsonResetsData() throws Exception {
-		ClientDataRecord clientClientDataRecord = createRecordWithDataGroupUsingNameInData(
-				"someName");
-		DataHolder.setCreatedRecordAsData(clientClientDataRecord);
-		String json = "someJson";
-
-		DataHolder.setCreatedRecordAsJson(json);
-
-		assertEquals(DataHolder.getCreatedRecordAsJson(), "someJson");
-		assertNotEquals(DataHolder.getCreatedRecordAsData(), clientClientDataRecord);
-	}
-
-	@Test
-	public void testSetCreadedRecordGetCreatedRecordAsJson() throws Exception {
-		ClientDataRecord clientClientDataRecord = createRecordWithDataGroupUsingNameInData(
-				"someName");
-		System.out.println(clientClientDataRecord.getClass());
-		DataHolder.setCreatedRecordAsData(clientClientDataRecord);
-
-		assertEquals(DataHolder.getCreatedRecordAsJson(), "someJson");
+		assertEquals(DataHolder.getRecordAsJson(), json);
 	}
 }

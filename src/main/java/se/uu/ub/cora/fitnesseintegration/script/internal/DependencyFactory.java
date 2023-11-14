@@ -16,26 +16,16 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration;
 
-public class WaiterImp implements Waiter {
+package se.uu.ub.cora.fitnesseintegration.script.internal;
 
-	@Override
-	public void waitUntilReadGetsTrueForSupplier(MethodToRun methodToRun,
-			WhatYouAreWaitingFor whatYouAreWaitingFor, int sleepTime, int maxNumberOfReads)
-			throws InterruptedException {
-		int numberOfReads = 0;
-		boolean continueToReadIndexBatchJob = true;
-		while (continueToReadIndexBatchJob) {
-			numberOfReads++;
+import se.uu.ub.cora.fitnesseintegration.internal.StandardFitnesseMethod;
+import se.uu.ub.cora.fitnesseintegration.internal.Waiter;
 
-			methodToRun.run();
-			if (whatYouAreWaitingFor.completed() || numberOfReads == maxNumberOfReads) {
-				continueToReadIndexBatchJob = false;
-			} else {
-				Thread.sleep(sleepTime);
-			}
-		}
+public interface DependencyFactory {
 
-	}
+	StandardFitnesseMethod factorReadAndStoreRecord(String authToken, String type, String id);
+
+	Waiter factorWaiter();
+
 }

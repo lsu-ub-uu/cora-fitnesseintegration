@@ -20,34 +20,43 @@
 
 package se.uu.ub.cora.fitnesseintegration.script;
 
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNotSame;
-import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.fitnesseintegration.ChildComparer;
 import se.uu.ub.cora.fitnesseintegration.ChildComparerImp;
 import se.uu.ub.cora.fitnesseintegration.JsonHandlerImp;
-import se.uu.ub.cora.fitnesseintegration.Waiter;
-import se.uu.ub.cora.fitnesseintegration.WaiterImp;
-import se.uu.ub.cora.fitnesseintegration.WaiterSpy;
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactoryImp;
-import se.uu.ub.cora.fitnesseintegration.internal.ReadAndStoreRecord;
-import se.uu.ub.cora.fitnesseintegration.spy.JavaClientFactorySpy;
+import se.uu.ub.cora.fitnesseintegration.internal.Waiter;
+import se.uu.ub.cora.fitnesseintegration.script.internal.DependencyFactory;
+import se.uu.ub.cora.fitnesseintegration.script.internal.DependencyFactoryImp;
+import se.uu.ub.cora.fitnesseintegration.spy.DependencyFactorySpy;
+import se.uu.ub.cora.fitnesseintegration.spy.StandardFitnesseMethodSpy;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
-import se.uu.ub.cora.javaclient.JavaClientAuthTokenCredentials;
-import se.uu.ub.cora.javaclient.JavaClientProvider;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public class DependencyProviderTest {
+	@AfterMethod
+	private void afterMethod() {
+		DependencyFactory dependencyFactory = new DependencyFactoryImp();
+		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
+
+	}
+
 	@Test
 	public void testConstructor() {
 		DependencyProvider dependencyProvider = new DependencyProvider();
 		assertTrue(dependencyProvider instanceof DependencyProvider);
+	}
+
+	@Test
+	public void testDependencyFactory() throws Exception {
+		DependencyFactory dependencyFactory = DependencyProvider.onlyForTestGetDependencyFactory();
+		assertTrue(dependencyFactory instanceof DependencyFactoryImp);
 	}
 
 	@Test
@@ -102,58 +111,27 @@ public class DependencyProviderTest {
 	}
 
 	@Test
-	public void testGetWaiter() throws Exception {
-		Waiter waiter = DependencyProvider.getWaiter();
-		assertTrue(waiter instanceof WaiterImp);
-	}
-
-	@Test
-	public void testGetWaiterNewInstanceOnEachCall() throws Exception {
-		Waiter waiter1 = DependencyProvider.getWaiter();
-		Waiter waiter2 = DependencyProvider.getWaiter();
-		assertNotSame(waiter1, waiter2);
-	}
-
-	@Test
-	public void testSetWaiter() throws Exception {
-		Waiter waiterSpy = new WaiterSpy();
-		DependencyProvider.onlyForTestSetWaiter(waiterSpy);
-		Waiter waiter = DependencyProvider.getWaiter();
-
-		assertSame(waiter, waiterSpy);
-	}
-
-	@Test
 	public void testFactorReadAndStoreRecord() throws Exception {
-
-		JavaClientFactorySpy javaClientFactory = new JavaClientFactorySpy();
-		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
-
-		String someBaseUrl = "someBaseUrl";
-		String someAppTokenUrl = "someAppTokenUrl";
-		SystemUrl.setUrl(someBaseUrl);
-		SystemUrl.setAppTokenVerifierUrl(someAppTokenUrl);
+		DependencyFactorySpy dependencyFactory = new DependencyFactorySpy();
+		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
 
 		String authToken = "someAuthToken";
 		String type = "someType";
 		String id = "someId";
 
-		ReadAndStoreRecord readAndStore = DependencyProvider.factorReadAndStoreRecord(authToken,
-				type, id);
+		StandardFitnesseMethodSpy readAndStore = (StandardFitnesseMethodSpy) DependencyProvider
+				.factorReadAndStoreRecord(authToken, type, id);
 
-		assertNotNull(readAndStore);
-		JavaClientAuthTokenCredentials authTokenCredentials = new JavaClientAuthTokenCredentials(
-				someBaseUrl, someAppTokenUrl, authToken);
-		javaClientFactory.MCR
-				.methodWasCalled("factorDataClientUsingJavaClientAuthTokenCredentials");
-		javaClientFactory.MCR.assertParameterAsEqual(
-				"factorDataClientUsingJavaClientAuthTokenCredentials", 0,
-				"javaClientAuthTokenCredentials", authTokenCredentials);
+		dependencyFactory.MCR.assertReturn("factorReadAndStoreRecord", 0, readAndStore);
+	}
 
-		assertSame(readAndStore.onlyForTestGetDataClient(), javaClientFactory.MCR
-				.getReturnValue("factorDataClientUsingJavaClientAuthTokenCredentials", 0));
-		assertSame(readAndStore.onlyForTestGetType(), type);
-		assertSame(readAndStore.onlyForTestGetId(), id);
+	@Test
+	public void testFactorWaiter() throws Exception {
+		DependencyFactorySpy dependencyFactory = new DependencyFactorySpy();
+		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
 
+		Waiter waiter = DependencyProvider.factorWaiter();
+
+		dependencyFactory.MCR.assertReturn("factorWaiter", 0, waiter);
 	}
 }

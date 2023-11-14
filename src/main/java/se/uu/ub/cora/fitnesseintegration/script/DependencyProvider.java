@@ -25,23 +25,20 @@ import java.lang.reflect.Constructor;
 import se.uu.ub.cora.fitnesseintegration.ChildComparer;
 import se.uu.ub.cora.fitnesseintegration.JsonHandler;
 import se.uu.ub.cora.fitnesseintegration.JsonHandlerImp;
-import se.uu.ub.cora.fitnesseintegration.Waiter;
-import se.uu.ub.cora.fitnesseintegration.WaiterImp;
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
-import se.uu.ub.cora.fitnesseintegration.internal.ReadAndStoreRecord;
+import se.uu.ub.cora.fitnesseintegration.internal.StandardFitnesseMethod;
+import se.uu.ub.cora.fitnesseintegration.internal.Waiter;
+import se.uu.ub.cora.fitnesseintegration.script.internal.DependencyFactory;
+import se.uu.ub.cora.fitnesseintegration.script.internal.DependencyFactoryImp;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
-import se.uu.ub.cora.javaclient.JavaClientAuthTokenCredentials;
-import se.uu.ub.cora.javaclient.JavaClientProvider;
-import se.uu.ub.cora.javaclient.data.DataClient;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public final class DependencyProvider {
 
 	private static HttpHandlerFactory httpHandlerFactory;
-	// private static JsonToDataConverterFactory jsonToDataConverterFactory;
 	private static ChildComparer childComparer;
 	private static ComparerFactory permissionComparerFactory;
-	private static Waiter waiterSpy;
+	private static DependencyFactory dependencyFactory = new DependencyFactoryImp();
 
 	public DependencyProvider() {
 		// needs a public constructor for fitnesse to work
@@ -98,26 +95,21 @@ public final class DependencyProvider {
 		return permissionComparerFactory;
 	}
 
-	public static Waiter getWaiter() {
-		if (waiterSpy != null) {
-			return waiterSpy;
-		}
-		return new WaiterImp();
+	public static Waiter factorWaiter() {
+		return dependencyFactory.factorWaiter();
 	}
 
-	public static void onlyForTestSetWaiter(Waiter waiterSpy) {
-		DependencyProvider.waiterSpy = waiterSpy;
-	}
-
-	public static ReadAndStoreRecord factorReadAndStoreRecord(String authToken, String type,
+	public static StandardFitnesseMethod factorReadAndStoreRecord(String authToken, String type,
 			String id) {
-		String baseUrl = SystemUrl.getUrl();
-		String appTokenVerifierUrl = SystemUrl.getAppTokenVerifierUrl();
-		JavaClientAuthTokenCredentials authTokenCredentials = new JavaClientAuthTokenCredentials(
-				baseUrl, appTokenVerifierUrl, authToken);
-
-		DataClient dataClient = JavaClientProvider
-				.createDataClientUsingJavaClientAuthTokenCredentials(authTokenCredentials);
-		return ReadAndStoreRecord.usingDataClientAndTypeAndId(dataClient, type, id);
+		return dependencyFactory.factorReadAndStoreRecord(authToken, type, id);
 	}
+
+	public static void onlyForTestSetDependencyFactory(DependencyFactory dependencyFactory) {
+		DependencyProvider.dependencyFactory = dependencyFactory;
+	}
+
+	public static DependencyFactory onlyForTestGetDependencyFactory() {
+		return DependencyProvider.dependencyFactory;
+	}
+
 }

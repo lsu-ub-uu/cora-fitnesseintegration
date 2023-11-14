@@ -44,7 +44,7 @@ public class ReadAndStoreRecordTest {
 
 	@Test
 	public void testInit() throws Exception {
-		assertTrue(readAndStore instanceof StandardFitnesseMethods);
+		assertTrue(readAndStore instanceof StandardFitnesseMethod);
 	}
 
 	@Test

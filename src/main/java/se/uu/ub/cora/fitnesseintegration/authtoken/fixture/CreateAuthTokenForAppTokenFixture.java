@@ -41,7 +41,7 @@ public class CreateAuthTokenForAppTokenFixture {
 
 	public String getAuthTokenUsingUserIdAndAppToken() {
 		try {
-			String appTokenVerifierUrl = SystemUrl.getAppTokenVerifierUrl();
+			String appTokenVerifierUrl = SystemUrl.getAppTokenVerifierUrl() + "rest/";
 			AppTokenCredentials appTokenCredentials = new AppTokenCredentials(appTokenVerifierUrl,
 					userId, appToken);
 			TokenClient tokenClient = JavaClientProvider

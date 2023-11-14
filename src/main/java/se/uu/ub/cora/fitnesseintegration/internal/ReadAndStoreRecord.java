@@ -22,9 +22,13 @@ import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
 import se.uu.ub.cora.javaclient.data.DataClient;
 
-public class ReadAndStoreRecord implements StandardFitnesseMethods {
+public class ReadAndStoreRecord implements StandardFitnesseMethod {
 
 	public static ReadAndStoreRecord usingDataClientAndTypeAndId(DataClient dataClient, String type,
+			String id) {
+		return new ReadAndStoreRecord(dataClient, type, id);
+	}
+	public static ReadAndStoreRecord usingRestClientAndTypeAndId(RestClient dataClient, String type,
 			String id) {
 		return new ReadAndStoreRecord(dataClient, type, id);
 	}
