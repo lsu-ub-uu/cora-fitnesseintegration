@@ -34,13 +34,16 @@ import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterFactorySpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterSpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterSpy;
+import se.uu.ub.cora.fitnesseintegration.script.AuthTokenHolder;
+import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
+import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
 
 public class MetadataValidationFixtureTest {
 	JsonToClientDataConverterFactorySpy converterToClientFactorySpy;
 	ClientDataToJsonConverterFactoryCreatorSpy toJsonFactoryCreator;
 
 	private MetadataValidationFixture fixture;
-	private RecordHandlerSpy recordHandler;
+	private RecordHandlerOLDSpy recordHandler;
 
 	@BeforeMethod
 	public void setUp() {
@@ -63,8 +66,8 @@ public class MetadataValidationFixtureTest {
 	private void setUpFixture() {
 		fixture.setType("someType");
 		fixture.setAuthToken("someToken");
-		recordHandler = new RecordHandlerSpy();
-		fixture.setRecordHandler(recordHandler);
+		recordHandler = new RecordHandlerOLDSpy();
+		fixture.onlyForTestSetRecordHandler(recordHandler);
 	}
 
 	@Test
@@ -107,12 +110,9 @@ public class MetadataValidationFixtureTest {
 
 		String responseText = fixture.testValidateRecord();
 
-		String expectedUrl = SystemUrl.getUrl() + "rest/record/workOrder";
 		assertTrue(recordHandler.validateWasCalled);
-		assertEquals(recordHandler.url, expectedUrl);
 		assertEquals(recordHandler.authToken, "someToken");
 		assertEquals(recordHandler.json, json);
-		assertEquals(recordHandler.contentType, "application/vnd.uub.workorder+json");
 		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 	}
 

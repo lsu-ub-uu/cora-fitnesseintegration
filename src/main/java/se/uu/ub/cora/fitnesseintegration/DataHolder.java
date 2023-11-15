@@ -32,6 +32,7 @@ public class DataHolder {
 
 	private static ClientDataRecord clientClientDataRecord;
 	private static List<ClientDataRecord> dataRecords;
+	private static String recordJson;
 
 	public static void setRecord(ClientDataRecord clientClientDataRecord) {
 		DataHolder.clientClientDataRecord = clientClientDataRecord;
@@ -51,4 +52,11 @@ public class DataHolder {
 		return dataRecords;
 	}
 
+	public static void setRecordAsJson(String createdRecordJson) {
+		DataHolder.recordJson = createdRecordJson;
+	}
+
+	public static String getRecordAsJson() {
+		return recordJson;
+	}
 }

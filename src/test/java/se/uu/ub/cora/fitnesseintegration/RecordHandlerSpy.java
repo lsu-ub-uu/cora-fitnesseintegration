@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -18,192 +18,84 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
+import java.util.Optional;
+
+import se.uu.ub.cora.javaclient.rest.RestResponse;
 import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
+import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 
 public class RecordHandlerSpy implements RecordHandler {
 
-	public boolean readRecordListWasCalled = false;
-	public boolean searchRecordWasCalled = false;
-	public String url;
-	public String filter;
-	public String authToken;
-	public String jsonToReturnDefault = "some json returned from spy";
-	public boolean readRecordWasCalled = false;
-	public String json;
-	/**
-	 * statusTypeReturned set 200 as default. This flag can be used to set the status code for the
-	 * response.
-	 */
-	public int statusTypeReturned = 200;
-	public String createdId = "someCreatedId";
-	public String token;
-	public boolean createRecordWasCalled = false;
-	public boolean updateRecordWasCalled = false;
-	public boolean validateWasCalled = false;
-	public boolean deleteRecordWasCalled = false;
-	public String contentType;
-	public String recordType;
-	public String recordId;
-
 	public MethodCallRecorder MCR = new MethodCallRecorder();
-	private String jsonToReturn = null;
+	public MethodReturnValues MRV = new MethodReturnValues();
 
-	@Override
-	public BasicHttpResponse readRecordList(String authToken, String recordType, String filter) {
-		MCR.addCall("authToken", authToken, "recordType", recordType, "filter", filter);
-		this.recordType = recordType;
-		readRecordListWasCalled = true;
-		this.filter = filter;
-		this.authToken = authToken;
+	RestResponse restResponse = new RestResponse(200, "someResponseText", Optional.empty());
 
-		// statusTypeReturned = new StatusTypeSpy();
-
-		String jsonReturnForReadRecordList = jsonToReturnDefault;
-		if (jsonToReturn != null)
-			jsonReturnForReadRecordList = jsonToReturn;
-
-		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(statusTypeReturned,
-				jsonReturnForReadRecordList);
-		MCR.addReturned(basicHttpResponse);
-		return basicHttpResponse;
+	public RecordHandlerSpy() {
+		MCR.useMRV(MRV);
+		MRV.setDefaultReturnValuesSupplier("readRecordList", () -> restResponse);
+		MRV.setDefaultReturnValuesSupplier("readRecord", () -> restResponse);
+		MRV.setDefaultReturnValuesSupplier("searchRecord", () -> restResponse);
+		MRV.setDefaultReturnValuesSupplier("createRecord", () -> restResponse);
+		MRV.setDefaultReturnValuesSupplier("updateRecord", () -> restResponse);
+		MRV.setDefaultReturnValuesSupplier("validateRecord", () -> restResponse);
+		MRV.setDefaultReturnValuesSupplier("deleteRecord", () -> restResponse);
+		MRV.setDefaultReturnValuesSupplier("readIncomingLinks", () -> restResponse);
+		MRV.setDefaultReturnValuesSupplier("batchIndex", () -> restResponse);
 	}
 
 	@Override
-	public BasicHttpResponse readRecord(String authToken, String recordType, String recordId) {
-		MCR.addCall("authToken", authToken, "recordType", recordType, "recordId", recordId);
-		this.authToken = authToken;
-		this.recordType = recordType;
-		this.recordId = recordId;
-		readRecordWasCalled = true;
-		// statusTypeReturned = new StatusTypeSpy();
-		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(statusTypeReturned,
-				jsonToReturnDefault);
-		MCR.addReturned(basicHttpResponse);
-		return basicHttpResponse;
+	public RestResponse readRecordList(String authToken, String recordType, String filter) {
+		return (RestResponse) MCR.addCallAndReturnFromMRV("authToken", authToken, "recordType",
+				recordType, "filter", filter);
 	}
 
 	@Override
-	public BasicHttpResponse searchRecord(String url, String authToken, String json) {
-		MCR.addCall("url", url, "authToken", authToken, "json", json);
-		searchRecordWasCalled = true;
-		this.url = url;
-		this.authToken = authToken;
-		this.json = json;
-		// statusTypeReturned = new StatusTypeSpy();
-		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(statusTypeReturned,
-				jsonToReturnDefault);
-		MCR.addReturned(basicHttpResponse);
-		return basicHttpResponse;
+	public RestResponse readRecord(String authToken, String recordType, String recordId) {
+		return (RestResponse) MCR.addCallAndReturnFromMRV("authToken", authToken, "recordType",
+				recordType, "recordId", recordId);
 	}
 
 	@Override
-	public ExtendedHttpResponse createRecord(String authToken, String recordType, String json) {
-		createRecordWasCalled = true;
-		this.authToken = authToken;
-		this.json = json;
-		this.recordType = recordType;
-		if (defaultStatusCodeUnchanged()) {
-			statusTypeReturned = 201;
-		}
-		// if (statusTypeReturned == null) {
-		// statusTypeReturned = new StatusTypeSpy();
-		// statusTypeReturned.statusCodeToReturn = 201;
-		// }
-		BasicHttpResponse readResponse = new BasicHttpResponse(statusTypeReturned,
-				jsonToReturnDefault);
-
-		// createdId = "someCreatedId";
-		token = "someToken";
-		return new ExtendedHttpResponse(readResponse, createdId, token);
-	}
-
-	private boolean defaultStatusCodeUnchanged() {
-		return statusTypeReturned == 200;
+	public RestResponse searchRecord(String authToken, String searchId, String json) {
+		return (RestResponse) MCR.addCallAndReturnFromMRV("authToken", authToken, "searchId",
+				searchId, "json", json);
 	}
 
 	@Override
-	public BasicHttpResponse updateRecord(String authToken, String recordType, String recordId,
+	public RestResponse createRecord(String authToken, String recordType, String json) {
+		return (RestResponse) MCR.addCallAndReturnFromMRV("authToken", authToken, "recordType",
+				recordType, "json", json);
+	}
+
+	@Override
+	public RestResponse updateRecord(String authToken, String recordType, String recordId,
 			String json) {
-		MCR.addCall("recordType", recordType, "authToken", authToken, "recordId", recordId);
-		updateRecordWasCalled = true;
-		this.recordType = recordType;
-		this.recordId = recordId;
-		this.authToken = authToken;
-		this.json = json;
-		// statusTypeReturned = new StatusTypeSpy();
-		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(statusTypeReturned,
-				jsonToReturnDefault);
-		MCR.addReturned(basicHttpResponse);
-		return basicHttpResponse;
+		return (RestResponse) MCR.addCallAndReturnFromMRV("authToken", authToken, "recordType",
+				recordType, "recordId", recordId, "json", json);
 	}
 
 	@Override
-	public BasicHttpResponse validateRecord(String url, String authToken, String json,
-			String contentType) {
-		validateWasCalled = true;
-		this.url = url;
-		this.authToken = authToken;
-		this.json = json;
-		this.contentType = contentType;
-		// if (statusTypeReturned == null) {
-		// statusTypeReturned = new StatusTypeSpy();
-		// statusTypeReturned.statusCodeToReturn = 200;
-		// }
-		// createdId = "someCreatedId";
-		token = "someToken";
-		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(statusTypeReturned,
-				jsonToReturnDefault);
-		MCR.addReturned(basicHttpResponse);
-		return basicHttpResponse;
+	public RestResponse validateRecord(String authToken, String json) {
+		return (RestResponse) MCR.addCallAndReturnFromMRV("authToken", authToken, "json", json);
 	}
 
 	@Override
-	public BasicHttpResponse deleteRecord(String authToken, String recordType, String recordId) {
-		this.recordType = recordType;
-		this.recordId = recordId;
-		deleteRecordWasCalled = true;
-		this.authToken = authToken;
-
-		// statusTypeReturned = new StatusTypeSpy();
-		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(statusTypeReturned,
-				jsonToReturnDefault);
-		MCR.addReturned(basicHttpResponse);
-		return basicHttpResponse;
+	public RestResponse deleteRecord(String authToken, String recordType, String recordId) {
+		return (RestResponse) MCR.addCallAndReturnFromMRV("authToken", authToken, "recordType",
+				recordType, "recordId", recordId);
 	}
 
 	@Override
-	public BasicHttpResponse readIncomingLinks(String authToken, String recordType,
-			String recordId) {
-		this.authToken = authToken;
-		this.recordType = recordType;
-		this.recordId = recordId;
-		// statusTypeReturned = new StatusTypeSpy();
-		BasicHttpResponse basicHttpResponse = new BasicHttpResponse(statusTypeReturned,
-				jsonToReturnDefault);
-		MCR.addReturned(basicHttpResponse);
-		return basicHttpResponse;
-	}
-
-	public void setJsonToreturn(String jsonToReturn) {
-		this.jsonToReturn = jsonToReturn;
+	public RestResponse readIncomingLinks(String authToken, String recordType, String recordId) {
+		return (RestResponse) MCR.addCallAndReturnFromMRV("authToken", authToken, "recordType",
+				recordType, "recordId", recordId);
 	}
 
 	@Override
-	public ExtendedHttpResponse batchIndex(String authToken, String recordType,
-			String filterAsJson) {
-		this.authToken = authToken;
-		this.recordType = recordType;
-		this.filter = filterAsJson;
-		if (defaultStatusCodeUnchanged()) {
-			statusTypeReturned = 201;
-		}
-
-		BasicHttpResponse readResponse = new BasicHttpResponse(statusTypeReturned,
-				jsonToReturnDefault);
-
-		// createdId = "someCreatedId";
-		token = "someToken";
-		return new ExtendedHttpResponse(readResponse, createdId, token);
+	public RestResponse batchIndex(String authToken, String recordType, String filterAsJson) {
+		return (RestResponse) MCR.addCallAndReturnFromMRV("authToken", authToken, "recordType",
+				recordType, "filterAsJson", filterAsJson);
 	}
 
 }

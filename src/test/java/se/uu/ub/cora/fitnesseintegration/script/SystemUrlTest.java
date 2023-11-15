@@ -17,12 +17,14 @@
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.script;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
 import org.testng.annotations.Test;
+
+import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
 
 public class SystemUrlTest {
 

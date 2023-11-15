@@ -37,18 +37,17 @@ import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.fitnesseintegration.ChildComparerSpy;
 import se.uu.ub.cora.fitnesseintegration.ClientDataRecordOLDSpy;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
-import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
-import se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy;
 import se.uu.ub.cora.fitnesseintegration.JsonHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.JsonParserSpy;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
-import se.uu.ub.cora.fitnesseintegration.RecordHandlerSpy;
-import se.uu.ub.cora.fitnesseintegration.SystemUrl;
+import se.uu.ub.cora.fitnesseintegration.RecordHandlerOLDSpy;
+import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
+import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
 
 public class ChildComparerFixtureTest {
 
 	private ChildComparerFixture fixture;
-	private RecordHandlerSpy recordHandler;
+	private RecordHandlerOLDSpy recordHandler;
 	private JsonParserSpy jsonParser;
 	private JsonHandlerImp jsonHandler;
 
@@ -65,12 +64,12 @@ public class ChildComparerFixtureTest {
 	}
 
 	private void setUpFixture() {
-		recordHandler = new RecordHandlerSpy();
+		recordHandler = new RecordHandlerOLDSpy();
 		jsonParser = new JsonParserSpy();
 		jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);
 
 		fixture.setType("someRecordType");
-		fixture.setRecordHandler(recordHandler);
+		fixture.onlyForTestSetRecordHandler(recordHandler);
 		fixture.onlyForTestSetJsonHandler(jsonHandler);
 	}
 
@@ -79,11 +78,8 @@ public class ChildComparerFixtureTest {
 		fixture = new ChildComparerFixture();
 		assertTrue(fixture.onlyForTestGetChildComparer() instanceof ChildComparerSpy);
 		assertTrue(fixture.onlyForTestGetJsonHandler() instanceof JsonHandlerImp);
-		assertTrue(fixture.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
 
-		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.getRecordHandler();
-		assertSame(recordHandler.getHttpHandlerFactory(),
-				fixture.onlyForTestGetHttpHandlerFactory());
+		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.onlyForTestGetRecordHandler();
 	}
 
 	private void addRecordsToDataHolder() {

@@ -18,23 +18,49 @@
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.script;
 
 import static org.testng.Assert.assertTrue;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.fitnesseintegration.ChildComparer;
+import se.uu.ub.cora.fitnesseintegration.ChildComparerImp;
+import se.uu.ub.cora.fitnesseintegration.JsonHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactoryImp;
+import se.uu.ub.cora.fitnesseintegration.internal.Waiter;
+import se.uu.ub.cora.fitnesseintegration.script.internal.DependencyFactory;
+import se.uu.ub.cora.fitnesseintegration.script.internal.DependencyFactoryImp;
+import se.uu.ub.cora.fitnesseintegration.spy.DependencyFactorySpy;
+import se.uu.ub.cora.fitnesseintegration.spy.StandardFitnesseMethodSpy;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public class DependencyProviderTest {
+	private static final String SOME_TYPE = "someType";
+	private static final String SOME_ID = "someId";
+	private static final String SOME_AUTH_TOKEN = "someAuthToken";
+
+	@AfterMethod
+	private void afterMethod() {
+		DependencyFactory dependencyFactory = new DependencyFactoryImp();
+		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
+
+	}
+
 	@Test
 	public void testConstructor() {
 		DependencyProvider dependencyProvider = new DependencyProvider();
 		assertTrue(dependencyProvider instanceof DependencyProvider);
+	}
+
+	@Test
+	public void testDependencyFactory() throws Exception {
+		DependencyFactory dependencyFactory = DependencyProvider.onlyForTestGetDependencyFactory();
+		assertTrue(dependencyFactory instanceof DependencyFactoryImp);
 	}
 
 	@Test
@@ -86,5 +112,37 @@ public class DependencyProviderTest {
 	public void testPermissionComparerFacatoryNonExistingClassName() {
 		DependencyProvider
 				.setComparerFactoryUsingClassName("se.uu.ub.cora.fitnesse.DoesNotExistImp");
+	}
+
+	@Test
+	public void testFactorReadAndStoreRecord() throws Exception {
+		DependencyFactorySpy dependencyFactory = new DependencyFactorySpy();
+		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
+
+		StandardFitnesseMethodSpy readAndStore = (StandardFitnesseMethodSpy) DependencyProvider
+				.factorReadAndStoreRecord(SOME_AUTH_TOKEN, SOME_TYPE, SOME_ID);
+
+		dependencyFactory.MCR.assertReturn("factorReadAndStoreRecord", 0, readAndStore);
+	}
+
+	@Test
+	public void testFactorReadAndStoreRecordAsJson() throws Exception {
+		DependencyFactorySpy dependencyFactory = new DependencyFactorySpy();
+		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
+
+		StandardFitnesseMethodSpy readAndStore = (StandardFitnesseMethodSpy) DependencyProvider
+				.factorReadAndStoreRecordAsJson(SOME_AUTH_TOKEN, SOME_TYPE, SOME_ID);
+
+		dependencyFactory.MCR.assertReturn("factorReadAndStoreRecordAsJson", 0, readAndStore);
+	}
+
+	@Test
+	public void testFactorWaiter() throws Exception {
+		DependencyFactorySpy dependencyFactory = new DependencyFactorySpy();
+		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
+
+		Waiter waiter = DependencyProvider.factorWaiter();
+
+		dependencyFactory.MCR.assertReturn("factorWaiter", 0, waiter);
 	}
 }

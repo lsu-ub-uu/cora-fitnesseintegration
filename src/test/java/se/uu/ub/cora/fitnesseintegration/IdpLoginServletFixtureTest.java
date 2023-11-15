@@ -25,6 +25,9 @@ import javax.ws.rs.core.Response.StatusType;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
+import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
+
 public class IdpLoginServletFixtureTest {
 
 	private HttpHandlerFactorySpy httpHandlerFactorySpy;

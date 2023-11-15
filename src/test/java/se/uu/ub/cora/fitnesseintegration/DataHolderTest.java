@@ -69,4 +69,12 @@ public class DataHolderTest {
 				.createRecordGroupUsingNameInData(nameInData);
 		return ClientDataProvider.createRecordWithDataRecordGroup(clientDataGroup);
 	}
+
+	@Test
+	public void testSetAndGetCreatedRecordJson() throws Exception {
+		String json = "someJson";
+		DataHolder.setRecordAsJson(json);
+
+		assertEquals(DataHolder.getRecordAsJson(), json);
+	}
 }

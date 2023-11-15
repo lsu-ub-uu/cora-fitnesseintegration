@@ -23,7 +23,7 @@ import java.util.Optional;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 
-public class RestClientSpy implements RestClient {
+public class OldRestClientSpy implements RestClient {
 
 	public boolean readWasCalled = false;
 	public String recordType;
@@ -88,18 +88,24 @@ public class RestClientSpy implements RestClient {
 	}
 
 	@Override
-	public String getBaseUrl() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public RestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson) {
 		this.recordType = recordType;
 		this.filter = filterAsJson;
 
 		createdId = "someCreatedId";
 		return new RestResponse(201, returnedJson, Optional.of(createdId));
+	}
+
+	@Override
+	public RestResponse searchRecordWithSearchCriteriaAsJson(String searchId, String json) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public RestResponse validateRecordAsJson(String json) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

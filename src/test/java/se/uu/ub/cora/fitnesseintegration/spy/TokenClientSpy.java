@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Uppsala University Library
+ * Copyright 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -16,30 +16,24 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.spy;
 
-public final class AuthTokenHolder {
-	private static String adminAuthToken;
-	private static String userAuthToken;
+import se.uu.ub.cora.javaclient.token.TokenClient;
+import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
+import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 
-	public AuthTokenHolder() {
-		// needed by fitnesse
-		super();
+public class TokenClientSpy implements TokenClient {
+	public MethodCallRecorder MCR = new MethodCallRecorder();
+	public MethodReturnValues MRV = new MethodReturnValues();
+
+	public TokenClientSpy() {
+		MCR.useMRV(MRV);
+		MRV.setDefaultReturnValuesSupplier("getAuthToken", () -> "someAuthTokenfromSpy");
 	}
 
-	public static synchronized String getAdminAuthToken() {
-		return adminAuthToken;
+	@Override
+	public String getAuthToken() {
+		return (String) MCR.addCallAndReturnFromMRV();
 	}
 
-	public static synchronized void setAdminAuthToken(String authTokenIn) {
-		adminAuthToken = authTokenIn;
-	}
-
-	public static synchronized void setUserAuthToken(String authTokenIn) {
-		userAuthToken = authTokenIn;
-	}
-
-	public static synchronized String getUserAuthToken() {
-		return userAuthToken;
-	}
 }

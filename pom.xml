@@ -34,12 +34,12 @@
 		<logger.version>2.10.0</logger.version>
 		<json.version>3.9.0</json.version>
 		<httphandler.version>2.15.0</httphandler.version>
-		<clientdata.version>6.3.0</clientdata.version>
+		<clientdata.version>6.4-SNAPSHOT</clientdata.version>
 		<coradata.version>8.0.0</coradata.version>
 		<converter.version>3.8.0</converter.version>
-		<javaclient.version>2.4.0</javaclient.version>
+		<javaclient.version>3.0-SNAPSHOT</javaclient.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
-		<fitnesse.version>20230503</fitnesse.version>
+		<fitnesse.version>20231029</fitnesse.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
 		<activation.version>1.1.1</activation.version>
 		<javax-activation.version>1.2.0</javax-activation.version>

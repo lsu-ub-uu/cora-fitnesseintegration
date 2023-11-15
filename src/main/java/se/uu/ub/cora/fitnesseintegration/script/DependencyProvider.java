@@ -18,20 +18,27 @@
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package se.uu.ub.cora.fitnesseintegration;
+package se.uu.ub.cora.fitnesseintegration.script;
 
 import java.lang.reflect.Constructor;
 
+import se.uu.ub.cora.fitnesseintegration.ChildComparer;
+import se.uu.ub.cora.fitnesseintegration.JsonHandler;
+import se.uu.ub.cora.fitnesseintegration.JsonHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
+import se.uu.ub.cora.fitnesseintegration.internal.StandardFitnesseMethod;
+import se.uu.ub.cora.fitnesseintegration.internal.Waiter;
+import se.uu.ub.cora.fitnesseintegration.script.internal.DependencyFactory;
+import se.uu.ub.cora.fitnesseintegration.script.internal.DependencyFactoryImp;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public final class DependencyProvider {
 
 	private static HttpHandlerFactory httpHandlerFactory;
-	// private static JsonToDataConverterFactory jsonToDataConverterFactory;
 	private static ChildComparer childComparer;
 	private static ComparerFactory permissionComparerFactory;
+	private static DependencyFactory dependencyFactory = new DependencyFactoryImp();
 
 	public DependencyProvider() {
 		// needs a public constructor for fitnesse to work
@@ -87,4 +94,27 @@ public final class DependencyProvider {
 	public static ComparerFactory getComparerFactory() {
 		return permissionComparerFactory;
 	}
+
+	public static Waiter factorWaiter() {
+		return dependencyFactory.factorWaiter();
+	}
+
+	public static StandardFitnesseMethod factorReadAndStoreRecord(String authToken, String type,
+			String id) {
+		return dependencyFactory.factorReadAndStoreRecord(authToken, type, id);
+	}
+
+	public static StandardFitnesseMethod factorReadAndStoreRecordAsJson(String authToken,
+			String type, String id) {
+		return dependencyFactory.factorReadAndStoreRecordAsJson(authToken, type, id);
+	}
+
+	public static void onlyForTestSetDependencyFactory(DependencyFactory dependencyFactory) {
+		DependencyProvider.dependencyFactory = dependencyFactory;
+	}
+
+	public static DependencyFactory onlyForTestGetDependencyFactory() {
+		return DependencyProvider.dependencyFactory;
+	}
+
 }

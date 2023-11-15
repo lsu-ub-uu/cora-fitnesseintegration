@@ -16,31 +16,30 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
+package se.uu.ub.cora.fitnesseintegration.script;
 
-package se.uu.ub.cora.fitnesseintegration;
+public final class AuthTokenHolder {
+	private static String adminAuthToken;
+	private static String userAuthToken;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-
-import org.testng.annotations.Test;
-
-public class AuthTokenHolderTest {
-
-	@Test
-	public void testInit() {
-		AuthTokenHolder authTokenHolder = new AuthTokenHolder();
-		assertNotNull(authTokenHolder);
+	public AuthTokenHolder() {
+		// needed by fitnesse
+		super();
 	}
 
-	@Test
-	public void testGetAdminAuthToken() {
-		AuthTokenHolder.setAdminAuthToken("someAdminAuthToken");
-		assertEquals(AuthTokenHolder.getAdminAuthToken(), "someAdminAuthToken");
+	public static synchronized String getAdminAuthToken() {
+		return adminAuthToken;
 	}
 
-	@Test
-	public void testGetAuthTokenForUser() {
-		AuthTokenHolder.setUserAuthToken("someUserAuthToken");
-		assertEquals(AuthTokenHolder.getUserAuthToken(), "someUserAuthToken");
+	public static synchronized void setAdminAuthToken(String authTokenIn) {
+		adminAuthToken = authTokenIn;
+	}
+
+	public static synchronized void setUserAuthToken(String authTokenIn) {
+		userAuthToken = authTokenIn;
+	}
+
+	public static synchronized String getUserAuthToken() {
+		return userAuthToken;
 	}
 }
