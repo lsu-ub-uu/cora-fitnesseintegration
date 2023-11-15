@@ -64,11 +64,11 @@ public class WaitForRegExReadResultFixtureTest {
 
 		String result = waiterFixture.waitUntilUntilRegExpFoundInReadRecord();
 
-		dependencyFactory.MCR.assertParameters("factorReadAndStoreRecord", 0, SOME_AUTH_TOKEN,
+		dependencyFactory.MCR.assertParameters("factorReadAndStoreRecordAsJson", 0, SOME_AUTH_TOKEN,
 				SOME_TYPE, SOME_ID);
 
 		StandardFitnesseMethodSpy methodToRun = (StandardFitnesseMethodSpy) dependencyFactory.MCR
-				.getReturnValue("factorReadAndStoreRecord", 0);
+				.getReturnValue("factorReadAndStoreRecordAsJson", 0);
 
 		dependencyFactory.MCR.methodWasCalled("factorWaiter");
 

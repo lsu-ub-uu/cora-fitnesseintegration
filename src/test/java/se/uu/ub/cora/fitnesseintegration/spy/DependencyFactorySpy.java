@@ -33,6 +33,8 @@ public class DependencyFactorySpy implements DependencyFactory {
 		MCR.useMRV(MRV);
 		MRV.setDefaultReturnValuesSupplier("factorReadAndStoreRecord",
 				StandardFitnesseMethodSpy::new);
+		MRV.setDefaultReturnValuesSupplier("factorReadAndStoreRecordAsJson",
+				StandardFitnesseMethodSpy::new);
 		MRV.setDefaultReturnValuesSupplier("factorWaiter", WaiterSpy::new);
 	}
 
@@ -44,7 +46,15 @@ public class DependencyFactorySpy implements DependencyFactory {
 	}
 
 	@Override
+	public StandardFitnesseMethod factorReadAndStoreRecordAsJson(String authToken, String type,
+			String id) {
+		return (StandardFitnesseMethod) MCR.addCallAndReturnFromMRV("authToken", authToken, "type",
+				type, "id", id);
+	}
+
+	@Override
 	public Waiter factorWaiter() {
 		return (Waiter) MCR.addCallAndReturnFromMRV();
 	}
+
 }

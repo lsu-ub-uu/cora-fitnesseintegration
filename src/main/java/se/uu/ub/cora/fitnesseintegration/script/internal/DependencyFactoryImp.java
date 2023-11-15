@@ -19,6 +19,7 @@
 package se.uu.ub.cora.fitnesseintegration.script.internal;
 
 import se.uu.ub.cora.fitnesseintegration.internal.ReadAndStoreRecord;
+import se.uu.ub.cora.fitnesseintegration.internal.ReadAndStoreRecordAsJson;
 import se.uu.ub.cora.fitnesseintegration.internal.Waiter;
 import se.uu.ub.cora.fitnesseintegration.internal.WaiterImp;
 import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
@@ -28,29 +29,31 @@ import se.uu.ub.cora.javaclient.data.DataClient;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 
 public class DependencyFactoryImp implements DependencyFactory {
+
 	@Override
 	public ReadAndStoreRecord factorReadAndStoreRecord(String authToken, String type, String id) {
-		String baseUrl = SystemUrl.getUrl() + "rest/";
-		String appTokenVerifierUrl = SystemUrl.getAppTokenVerifierUrl() + "rest/";
-		JavaClientAuthTokenCredentials authTokenCredentials = new JavaClientAuthTokenCredentials(
-				baseUrl, appTokenVerifierUrl, authToken);
+		JavaClientAuthTokenCredentials authTokenCredentials = createCredentials(authToken);
 
 		DataClient dataClient = JavaClientProvider
 				.createDataClientUsingJavaClientAuthTokenCredentials(authTokenCredentials);
 		return ReadAndStoreRecord.usingDataClientAndTypeAndId(dataClient, type, id);
 	}
 
-	// TODO: add tests and code
-	public ReadAndStoreRecord factorReadAndStoreRecordAsJson(String authToken, String type,
-			String id) {
-		String baseUrl = SystemUrl.getUrl() + "rest/";
-		String appTokenVerifierUrl = SystemUrl.getAppTokenVerifierUrl() + "rest/";
-		JavaClientAuthTokenCredentials authTokenCredentials = new JavaClientAuthTokenCredentials(
-				baseUrl, appTokenVerifierUrl, authToken);
+	private JavaClientAuthTokenCredentials createCredentials(String authToken) {
+		String baseUrl = addRestPartToUrl(SystemUrl.getUrl());
+		String appTokenVerifierUrl = addRestPartToUrl(SystemUrl.getAppTokenVerifierUrl());
+		return new JavaClientAuthTokenCredentials(baseUrl, appTokenVerifierUrl, authToken);
+	}
 
-		// DataClient dataClient = JavaClientProvider
-		// .createDataClientUsingJavaClientAuthTokenCredentials(authTokenCredentials);
-		// return ReadAndStoreRecord.usingDataClientAndTypeAndId(dataClient, type, id);
+	private String addRestPartToUrl(String url) {
+		return url + "rest/";
+	}
+
+	@Override
+	public ReadAndStoreRecordAsJson factorReadAndStoreRecordAsJson(String authToken, String type,
+			String id) {
+		JavaClientAuthTokenCredentials authTokenCredentials = createCredentials(authToken);
+
 		RestClient restClient = JavaClientProvider
 				.createRestClientUsingJavaClientAuthTokenCredentials(authTokenCredentials);
 		return ReadAndStoreRecordAsJson.usingRestClientAndTypeAndId(restClient, type, id);

@@ -18,35 +18,35 @@
  */
 package se.uu.ub.cora.fitnesseintegration.internal;
 
-import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
-import se.uu.ub.cora.javaclient.data.DataClient;
+import se.uu.ub.cora.javaclient.rest.RestClient;
+import se.uu.ub.cora.javaclient.rest.RestResponse;
 
-public class ReadAndStoreRecord implements StandardFitnesseMethod {
+public class ReadAndStoreRecordAsJson implements StandardFitnesseMethod {
 
-	public static ReadAndStoreRecord usingDataClientAndTypeAndId(DataClient dataClient, String type,
-			String id) {
-		return new ReadAndStoreRecord(dataClient, type, id);
+	public static ReadAndStoreRecordAsJson usingRestClientAndTypeAndId(RestClient restClient,
+			String type, String id) {
+		return new ReadAndStoreRecordAsJson(restClient, type, id);
 	}
 
-	private DataClient dataClient;
+	private RestClient restClient;
 	private String type;
 	private String id;
 
-	private ReadAndStoreRecord(DataClient dataClient, String type, String id) {
-		this.dataClient = dataClient;
+	private ReadAndStoreRecordAsJson(RestClient restClient, String type, String id) {
+		this.restClient = restClient;
 		this.type = type;
 		this.id = id;
 	}
 
 	@Override
 	public void run() {
-		ClientDataRecord clientDataRecord = dataClient.read(type, id);
-		DataHolder.setRecord(clientDataRecord);
+		RestResponse response = restClient.readRecordAsJson(type, id);
+		DataHolder.setRecordAsJson(response.responseText());
 	}
 
-	public DataClient onlyForTestGetDataClient() {
-		return dataClient;
+	public RestClient onlyForTestGetRestClient() {
+		return restClient;
 	}
 
 	public String onlyForTestGetType() {

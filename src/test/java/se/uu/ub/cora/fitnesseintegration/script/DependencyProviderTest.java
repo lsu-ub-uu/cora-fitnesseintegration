@@ -40,6 +40,10 @@ import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public class DependencyProviderTest {
+	private static final String SOME_TYPE = "someType";
+	private static final String SOME_ID = "someId";
+	private static final String SOME_AUTH_TOKEN = "someAuthToken";
+
 	@AfterMethod
 	private void afterMethod() {
 		DependencyFactory dependencyFactory = new DependencyFactoryImp();
@@ -115,14 +119,21 @@ public class DependencyProviderTest {
 		DependencyFactorySpy dependencyFactory = new DependencyFactorySpy();
 		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
 
-		String authToken = "someAuthToken";
-		String type = "someType";
-		String id = "someId";
-
 		StandardFitnesseMethodSpy readAndStore = (StandardFitnesseMethodSpy) DependencyProvider
-				.factorReadAndStoreRecord(authToken, type, id);
+				.factorReadAndStoreRecord(SOME_AUTH_TOKEN, SOME_TYPE, SOME_ID);
 
 		dependencyFactory.MCR.assertReturn("factorReadAndStoreRecord", 0, readAndStore);
+	}
+
+	@Test
+	public void testFactorReadAndStoreRecordAsJson() throws Exception {
+		DependencyFactorySpy dependencyFactory = new DependencyFactorySpy();
+		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
+
+		StandardFitnesseMethodSpy readAndStore = (StandardFitnesseMethodSpy) DependencyProvider
+				.factorReadAndStoreRecordAsJson(SOME_AUTH_TOKEN, SOME_TYPE, SOME_ID);
+
+		dependencyFactory.MCR.assertReturn("factorReadAndStoreRecordAsJson", 0, readAndStore);
 	}
 
 	@Test

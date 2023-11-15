@@ -41,8 +41,8 @@ public class WaitForRegExReadResultFixture {
 
 	public String waitUntilUntilRegExpFoundInReadRecord() {
 		Waiter waiter = DependencyProvider.factorWaiter();
-		StandardFitnesseMethod methodToRun = DependencyProvider.factorReadAndStoreRecord(authToken,
-				recordType, recordId);
+		StandardFitnesseMethod methodToRun = DependencyProvider
+				.factorReadAndStoreRecordAsJson(authToken, recordType, recordId);
 		boolean found = waiter.waitUntilConditionFullfilled(methodToRun, this::condition, millis,
 				maxNoOfCalls);
 		if (found) {

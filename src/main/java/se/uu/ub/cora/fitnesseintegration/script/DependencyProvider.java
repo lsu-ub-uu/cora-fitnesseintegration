@@ -104,6 +104,11 @@ public final class DependencyProvider {
 		return dependencyFactory.factorReadAndStoreRecord(authToken, type, id);
 	}
 
+	public static StandardFitnesseMethod factorReadAndStoreRecordAsJson(String authToken,
+			String type, String id) {
+		return dependencyFactory.factorReadAndStoreRecordAsJson(authToken, type, id);
+	}
+
 	public static void onlyForTestSetDependencyFactory(DependencyFactory dependencyFactory) {
 		DependencyProvider.dependencyFactory = dependencyFactory;
 	}

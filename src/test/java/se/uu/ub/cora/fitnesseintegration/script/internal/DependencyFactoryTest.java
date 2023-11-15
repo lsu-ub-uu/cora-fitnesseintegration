@@ -26,6 +26,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.fitnesseintegration.internal.ReadAndStoreRecord;
+import se.uu.ub.cora.fitnesseintegration.internal.ReadAndStoreRecordAsJson;
 import se.uu.ub.cora.fitnesseintegration.internal.Waiter;
 import se.uu.ub.cora.fitnesseintegration.internal.WaiterImp;
 import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
@@ -35,10 +36,18 @@ import se.uu.ub.cora.javaclient.JavaClientProvider;
 
 public class DependencyFactoryTest {
 
+	private static final String SOME_BASE_URL = "someBaseUrl/";
+	private static final String SOME_APP_TOKEN_URL = "someAppTokenUrl/";
+	private static final String SOME_TYPE = "someType";
+	private static final String SOME_AUTH_TOKEN = "someAuthToken";
+	private static final String SOME_ID = "someId";
 	private DependencyFactory factory;
 
 	@BeforeMethod
 	private void beforeMethod() {
+		SystemUrl.setUrl(SOME_BASE_URL);
+		SystemUrl.setAppTokenVerifierUrl(SOME_APP_TOKEN_URL);
+
 		factory = new DependencyFactoryImp();
 	}
 
@@ -48,21 +57,12 @@ public class DependencyFactoryTest {
 		JavaClientFactorySpy javaClientFactory = new JavaClientFactorySpy();
 		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
 
-		String someBaseUrl = "someBaseUrl/";
-		String someAppTokenUrl = "someAppTokenUrl/";
-		SystemUrl.setUrl(someBaseUrl);
-		SystemUrl.setAppTokenVerifierUrl(someAppTokenUrl);
-
-		String authToken = "someAuthToken";
-		String type = "someType";
-		String id = "someId";
-
 		ReadAndStoreRecord readAndStore = (ReadAndStoreRecord) factory
-				.factorReadAndStoreRecord(authToken, type, id);
+				.factorReadAndStoreRecord(SOME_AUTH_TOKEN, SOME_TYPE, SOME_ID);
 
 		assertNotNull(readAndStore);
 		JavaClientAuthTokenCredentials authTokenCredentials = new JavaClientAuthTokenCredentials(
-				someBaseUrl + "rest/", someAppTokenUrl + "rest/", authToken);
+				SOME_BASE_URL + "rest/", SOME_APP_TOKEN_URL + "rest/", SOME_AUTH_TOKEN);
 		javaClientFactory.MCR
 				.methodWasCalled("factorDataClientUsingJavaClientAuthTokenCredentials");
 		javaClientFactory.MCR.assertParameterAsEqual(
@@ -71,8 +71,32 @@ public class DependencyFactoryTest {
 
 		assertSame(readAndStore.onlyForTestGetDataClient(), javaClientFactory.MCR
 				.getReturnValue("factorDataClientUsingJavaClientAuthTokenCredentials", 0));
-		assertSame(readAndStore.onlyForTestGetType(), type);
-		assertSame(readAndStore.onlyForTestGetId(), id);
+		assertSame(readAndStore.onlyForTestGetType(), SOME_TYPE);
+		assertSame(readAndStore.onlyForTestGetId(), SOME_ID);
+	}
+
+	@Test
+	public void testFactorReadAndStoreRecordAsJson() throws Exception {
+
+		JavaClientFactorySpy javaClientFactory = new JavaClientFactorySpy();
+		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
+
+		ReadAndStoreRecordAsJson readAndStoreAsJson = (ReadAndStoreRecordAsJson) factory
+				.factorReadAndStoreRecordAsJson(SOME_AUTH_TOKEN, SOME_TYPE, SOME_ID);
+
+		assertNotNull(readAndStoreAsJson);
+		JavaClientAuthTokenCredentials authTokenCredentials = new JavaClientAuthTokenCredentials(
+				SOME_BASE_URL + "rest/", SOME_APP_TOKEN_URL + "rest/", SOME_AUTH_TOKEN);
+		javaClientFactory.MCR
+				.methodWasCalled("factorRestClientUsingJavaClientAuthTokenCredentials");
+		javaClientFactory.MCR.assertParameterAsEqual(
+				"factorRestClientUsingJavaClientAuthTokenCredentials", 0,
+				"javaClientAuthTokenCredentials", authTokenCredentials);
+
+		assertSame(readAndStoreAsJson.onlyForTestGetRestClient(), javaClientFactory.MCR
+				.getReturnValue("factorRestClientUsingJavaClientAuthTokenCredentials", 0));
+		assertSame(readAndStoreAsJson.onlyForTestGetType(), SOME_TYPE);
+		assertSame(readAndStoreAsJson.onlyForTestGetId(), SOME_ID);
 	}
 
 	@Test

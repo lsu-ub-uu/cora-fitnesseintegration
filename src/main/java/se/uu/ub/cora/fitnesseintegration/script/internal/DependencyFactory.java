@@ -24,8 +24,28 @@ import se.uu.ub.cora.fitnesseintegration.internal.Waiter;
 
 public interface DependencyFactory {
 
+	/**
+	 * 
+	 * @param authToken
+	 * @param type
+	 * @param id
+	 * @return
+	 */
 	StandardFitnesseMethod factorReadAndStoreRecord(String authToken, String type, String id);
 
+	/**
+	 * 
+	 * @param authToken
+	 * @param type
+	 * @param id
+	 * @return
+	 */
+	StandardFitnesseMethod factorReadAndStoreRecordAsJson(String authToken, String type, String id);
+
+	/**
+	 * 
+	 * @return
+	 */
 	Waiter factorWaiter();
 
 }
