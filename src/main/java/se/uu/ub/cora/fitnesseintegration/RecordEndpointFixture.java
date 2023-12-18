@@ -20,11 +20,8 @@
 
 package se.uu.ub.cora.fitnesseintegration;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -68,7 +65,6 @@ public class RecordEndpointFixture {
 	private HttpHandlerFactory httpHandlerFactory;
 	protected String baseUrl = SystemUrl.getUrl() + "rest/";
 	protected String baseRecordUrl = baseUrl + "record/";
-	private String token;
 	private ChildComparer childComparer;
 	private RecordHandler recordHandler;
 	private int maxNumberOfReads;
@@ -154,7 +150,7 @@ public class RecordEndpointFixture {
 		return readResponse.responseText();
 	}
 
-	public String testReadRecordList() throws UnsupportedEncodingException {
+	public String testReadRecordList() {
 		RestResponse readResponse = recordHandler.readRecordList(getSetAuthTokenOrAdminAuthToken(),
 				type, json);
 		statusType = Response.Status.fromStatusCode(readResponse.responseCode());
@@ -276,11 +272,8 @@ public class RecordEndpointFixture {
 
 	private void addStreamInfoToHttpHandler(HttpMultiPartUploader httpHandler) throws IOException {
 		httpHandler.addHeaderField(ACCEPT, APPLICATION_UUB_RECORD_JSON);
-		InputStream fakeStream = new ByteArrayInputStream(
-				"a string".getBytes(StandardCharsets.UTF_8));
 		Path path = Path.of("FitNesseRoot/files/testResources/" + fileName);
 		InputStream fileStream = Files.newInputStream(path);
-		// httpHandler.addFilePart("file", fileName, fakeStream);
 		httpHandler.addFilePart("file", fileName, fileStream);
 	}
 
@@ -306,6 +299,7 @@ public class RecordEndpointFixture {
 		return entity.substring(streamIdIndex, entity.indexOf('"', streamIdIndex));
 	}
 
+	@Deprecated
 	public String testDownload() {
 		HttpHandler httpHandler = setupHttpHandlerForDownload();
 		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
@@ -404,133 +398,14 @@ public class RecordEndpointFixture {
 				+ " milliseconds between each read, but it was still not finished.";
 	}
 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// public String testBatchIndexing() {
-	// String otherAuthToken = getSetAuthTokenOrAdminAuthToken();
-	// RestResponse response = recordHandler.batchIndex(otherAuthToken, type, json);
-	// setStatusTypeAndCreatedIdFromResponse(response);
-	// return response.responseText();
-	// }
-	//
-	// public String waitUntilIndexBatchJobIsFinished() throws InterruptedException {
-	// // Runnable methodToRun = this::testReadRecordAndStoreJson;
-	// // BooleanSupplier whatYouAreWaitingFor = this::conditionStoredIndexBatchJobIsFinished;
-	//
-	// Waiter waiter = DependencyProvider.getWaiter();
-	// MethodToRun methodToRun = implementMethodToRun();
-	// // MethodToRun methodToRun2 = new readAndStore(id, type, x, y);
-	// WhatYouAreWaitingFor whatYouAreWaitingFor = implementWhatYouAreWaitingFor();
-	//
-	// waiter.waitUntilConditionFullfilled(methodToRun, whatYouAreWaitingFor, sleepTime,
-	// maxNumberOfReads);
-	// return generateResponseBasedOnIndexBatchJobStatus();
-	// }
-	//
-	// // SPIKE STARTS Different ways to implement the interfaces
-	// // FIRST
-	// private WhatYouAreWaitingFor implementWhatYouAreWaitingFor() {
-	// return this::conditionStoredIndexBatchJobIsFinished;
-	// }
-	//
-	// private MethodToRun implementMethodToRun() {
-	// return this::testReadRecordAndStoreJson;
-	// }
-	//
-	// // SECOND
-	// private WhatYouAreWaitingFor implementWhatYouAreWaitingFor2() {
-	// return new WhatYouAreWaitingFor() {
-	// @Override
-	// public boolean completed() {
-	// return conditionStoredIndexBatchJobIsFinished();
-	// }
-	// };
-	// }
-	//
-	// private MethodToRun implementMethodToRun2() {
-	// return new MethodToRun() {
-	// @Override
-	// public void run() {
-	// testReadRecordAndStoreJson();
-	// }
-	// };
-	// }
-	//
-	// // THIRD
-	// class MethodToRunImp implements MethodToRun {
-	//
-	// @Override
-	// public void run() {
-	// testReadRecordAndStoreJson();
-	// }
-	// }
-	// // SPIKE ENDS
-
-	// public String waitUntilImageIsAnalyzed() throws InterruptedException {
-	// Waiter waiter = DependencyProvider.getWaiter();
-	// ReadAndStoreRecord methodToRun = DependencyProvider.factorReadAndStoreRecord(authToken,
-	// type, createdId);
-	// waiter.waitUntilConditionFullfilled(methodToRun, implementWhatYouAreWaitingFor(), sleepTime,
-	// maxNumberOfReads);
-	// return null;
-	// }
-	//
-	// private Boolean conditionImageAnalyzed() {
-	// return null;
-	// }
-
-	// private boolean conditionStoredIndex
-	//
-	// BatchJobIsFinished() {
-	// String status = extractStatusFromIndexBatchJob();
-	// return "finished".equals(status);
-	// }
-
-	// private String extractStatusFromIndexBatchJob() {
-	// ClientDataRecord dataRecord = DataHolder.getRecord();
-	// ClientDataRecordGroup clientDataGroup = dataRecord.getDataRecordGroup();
-	// return clientDataGroup.getFirstAtomicValueWithNameInData("status");
-	// }
-	//
-	// private String generateResponseBasedOnIndexBatchJobStatus() {
-	// if (conditionStoredIndexBatchJobIsFinished()) {
-	// return "finished";
-	// }
-	// return "Tried to read indexBatchJob " + maxNumberOfReads + " times, waiting " + sleepTime
-	// + " milliseconds between each read, but it was still not finished.";
-	// }
-
 	public HttpHandlerFactory getHttpHandlerFactory() {
 		return httpHandlerFactory;
 	}
-
-	// public JsonToDataConverterFactory getJsonToDataConverterFactory() {
-	// return jsonToDataConverterFactory;
-	// }
 
 	public ChildComparer getChildComparer() {
 		// needed for test
 		return childComparer;
 	}
-
-	// JsonToClientDataRecordConverter getJsonToClientDataRecordConverter() {
-	// // needed for test
-	// return jsonToClientDataRecordConverter;
-	// }
-	//
-	// void setJsonToClientDataRecordConverter(
-	// JsonToClientDataRecordConverter jsonToClientDataRecordConverter) {
-	// // needed for test
-	// this.jsonToClientDataRecordConverter = jsonToClientDataRecordConverter;
-	// }
-
-	// public JsonHandler getJsonHandler() {
-	// // needed for test
-	// return jsonHandler;
-	// }
-
-	// void setJsonHandler(JsonHandler jsonHandler) {
-	// this.jsonHandler = jsonHandler;
-	// }
 
 	public RecordHandler getRecordHandler() {
 		return recordHandler;

@@ -185,7 +185,7 @@ public class RecordEndpointFixtureTest {
 	public void testCreateRecordDataOk() {
 		RecordHandlerSpy recordHandler = new RecordHandlerSpy();
 
-		RestResponse restResponseToReturn = new RestResponse(201, "someJson",
+		RestResponse restResponseToReturn = new RestResponse(201, "someJson", Optional.empty(),
 				Optional.of("someCreatedId"));
 		recordHandler.MRV.setDefaultReturnValuesSupplier("createRecord",
 				() -> restResponseToReturn);
@@ -230,7 +230,7 @@ public class RecordEndpointFixtureTest {
 	public void testCreatRecordStoreInDataHolder() throws Exception {
 		RecordHandlerSpy recordHandler = new RecordHandlerSpy();
 
-		RestResponse restResponseToReturn = new RestResponse(201, "someJson",
+		RestResponse restResponseToReturn = new RestResponse(201, "someJson", Optional.empty(),
 				Optional.of("someCreatedId"));
 		recordHandler.MRV.setDefaultReturnValuesSupplier("createRecord",
 				() -> restResponseToReturn);
@@ -295,7 +295,7 @@ public class RecordEndpointFixtureTest {
 								""";
 
 		RestResponse restResponseToReturn = new RestResponse(201, jsonToReturnDefault,
-				Optional.of("someCreatedId"));
+				Optional.empty(), Optional.of("someCreatedId"));
 		recordHandler.MRV.setDefaultReturnValuesSupplier("createRecord",
 				() -> restResponseToReturn);
 
@@ -318,7 +318,7 @@ public class RecordEndpointFixtureTest {
 	public void testBatchIndexingFetchesDataFromRecordHandle3333r() {
 		RecordHandlerSpy recordHandler = new RecordHandlerSpy();
 		RestResponse restResponseToReturn = new RestResponse(200, "someResponseText",
-				Optional.of("someCreatedId"));
+				Optional.empty(), Optional.of("someCreatedId"));
 		recordHandler.MRV.setDefaultReturnValuesSupplier("batchIndex", () -> restResponseToReturn);
 		fixture.onlyForTestSetRecordHandler(recordHandler);
 
@@ -423,59 +423,6 @@ public class RecordEndpointFixtureTest {
 		assertEquals(oldRecordHandlerSpy.authToken, AuthTokenHolder.getAdminAuthToken());
 	}
 
-	// @Test
-	// public void testUploadDataForFactoryIsOk() throws ClientProtocolException, IOException {
-	// fixture.setType("someType");
-	// fixture.setId("someId");
-	// fixture.setAuthToken("someToken");
-	// fixture.setFileName("correctFileAnswer");
-	// fixture.testUpload();
-	//
-	// HttpMultiPartUploaderSpy httpHandlerSpy = httpHandlerFactorySpy.httpMultiPartUploaderSpy;
-	// assertEquals(httpHandlerSpy.headerFields.get("Accept"), "application/vnd.uub.record+json");
-	// assertEquals(httpHandlerSpy.headerFields.size(), 1);
-	//
-	// assertEquals(httpHandlerSpy.fieldName, "file");
-	// assertEquals(httpHandlerSpy.fileName, "correctFileAnswer");
-	//
-	// assertTrue(httpHandlerSpy.doneIsCalled);
-	// assertEquals(httpHandlerFactorySpy.urlString,
-	// "http://localhost:8080/therest/rest/record/someType/someId/master?authToken=someToken");
-	// assertEquals(fixture.getStreamId(), "soundBinary:23310456970967");
-	// }
-
-	// @Test
-	// public void testUploadDataForFactoryIsOkUsingDefaultAuthToken()
-	// throws ClientProtocolException, IOException {
-	// fixture.setType("someType");
-	// fixture.setId("someId");
-	// fixture.setFileName("correctFileAnswer");
-	// fixture.testUpload();
-	//
-	// HttpMultiPartUploaderSpy httpHandlerSpy = httpHandlerFactorySpy.httpMultiPartUploaderSpy;
-	// assertEquals(httpHandlerSpy.headerFields.get("Accept"), "application/vnd.uub.record+json");
-	// assertEquals(httpHandlerSpy.headerFields.size(), 1);
-	//
-	// assertEquals(httpHandlerSpy.fieldName, "file");
-	// assertEquals(httpHandlerSpy.fileName, "correctFileAnswer");
-	//
-	// assertTrue(httpHandlerSpy.doneIsCalled);
-	// assertEquals(httpHandlerFactorySpy.urlString,
-	// "http://localhost:8080/therest/rest/record/someType/someId/master?authToken=someAdminToken");
-	// assertEquals(fixture.getStreamId(), "soundBinary:23310456970967");
-	// }
-	//
-	// @Test
-	// public void testUploadOk() throws ClientProtocolException, IOException {
-	// assertEquals(fixture.testUpload(), "Everything ok");
-	// }
-	//
-	// @Test
-	// public void testUploadNotOk() throws ClientProtocolException, IOException {
-	// httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-	// assertEquals(fixture.testUpload(), "bad things happend");
-	// }
-
 	@Test
 	public void testDownloadDataForFactoryIsOk() {
 		fixture.setType(SOME_RECORD_TYPE);
@@ -568,7 +515,7 @@ public class RecordEndpointFixtureTest {
 	public void testBatchIndexingFetchesDataFromRecordHandler() {
 		RecordHandlerSpy recordHandler = new RecordHandlerSpy();
 		RestResponse restResponseToReturn = new RestResponse(200, "someResponseText",
-				Optional.of("someCreatedId"));
+				Optional.empty(), Optional.of("someCreatedId"));
 		recordHandler.MRV.setDefaultReturnValuesSupplier("batchIndex", () -> restResponseToReturn);
 		fixture.onlyForTestSetRecordHandler(recordHandler);
 
@@ -590,7 +537,7 @@ public class RecordEndpointFixtureTest {
 	@Test
 	public void testBatchIndexingAdminAuthTokenUsedWhenNoAuthTokenSet() {
 		recordHandler.MRV.setDefaultReturnValuesSupplier("batchIndex",
-				() -> new RestResponse(500, "someText", Optional.empty()));
+				() -> new RestResponse(500, "someText", Optional.empty(), Optional.empty()));
 		fixture.onlyForTestSetRecordHandler(recordHandler);
 
 		fixture.testBatchIndexing();
@@ -603,7 +550,7 @@ public class RecordEndpointFixtureTest {
 	public void testBatchIndexingReturnsResponseText() {
 
 		recordHandler.MRV.setDefaultReturnValuesSupplier("batchIndex",
-				() -> new RestResponse(201, "someText", Optional.of("someId")));
+				() -> new RestResponse(201, "someText", Optional.empty(), Optional.of("someId")));
 		fixture.onlyForTestSetRecordHandler(recordHandler);
 
 		String responseText = fixture.testBatchIndexing();

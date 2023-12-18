@@ -29,7 +29,8 @@ public class RecordHandlerSpy implements RecordHandler {
 	public MethodCallRecorder MCR = new MethodCallRecorder();
 	public MethodReturnValues MRV = new MethodReturnValues();
 
-	RestResponse restResponse = new RestResponse(200, "someResponseText", Optional.empty());
+	RestResponse restResponse = new RestResponse(200, "someResponseText", Optional.empty(),
+			Optional.empty());
 
 	public RecordHandlerSpy() {
 		MCR.useMRV(MRV);
