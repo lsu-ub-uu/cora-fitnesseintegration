@@ -43,6 +43,7 @@ public class RecordHandlerSpy implements RecordHandler {
 		MRV.setDefaultReturnValuesSupplier("deleteRecord", () -> restResponse);
 		MRV.setDefaultReturnValuesSupplier("readIncomingLinks", () -> restResponse);
 		MRV.setDefaultReturnValuesSupplier("batchIndex", () -> restResponse);
+		MRV.setDefaultReturnValuesSupplier("download", () -> restResponse);
 	}
 
 	@Override
@@ -97,6 +98,13 @@ public class RecordHandlerSpy implements RecordHandler {
 	public RestResponse batchIndex(String authToken, String recordType, String filterAsJson) {
 		return (RestResponse) MCR.addCallAndReturnFromMRV("authToken", authToken, "recordType",
 				recordType, "filterAsJson", filterAsJson);
+	}
+
+	@Override
+	public RestResponse download(String authToken, String recordType, String recordId,
+			String representation) {
+		return (RestResponse) MCR.addCallAndReturnFromMRV("authToken", authToken, "recordType",
+				recordType, "recordId", recordId, "representation", representation);
 	}
 
 }

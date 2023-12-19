@@ -185,4 +185,11 @@ public class RecordHandlerOLDSpy implements RecordHandler {
 		MCR.addReturned(restResponse);
 		return restResponse;
 	}
+
+	@Override
+	public RestResponse download(String authToken, String recordType, String recordId,
+			String representation) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
