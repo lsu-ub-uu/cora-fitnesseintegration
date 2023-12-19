@@ -171,4 +171,15 @@ public class RecordHandlerTest {
 		restClient.MCR.assertReturn("batchIndexWithFilterAsJson", 0, restResponse);
 	}
 
+	@Test
+	public void testDownload() throws Exception {
+		String representation = "someRepresentation";
+		RestResponse restResponse = recordHandler.download(authToken, recordType, recordId,
+				representation);
+
+		RestClientSpy restClient = assertAndReturnRestClientIsFromProvider();
+		restClient.MCR.assertParameters("download", 0, recordType, recordId, representation);
+		restClient.MCR.assertReturn("download", 0, restResponse);
+	}
+
 }

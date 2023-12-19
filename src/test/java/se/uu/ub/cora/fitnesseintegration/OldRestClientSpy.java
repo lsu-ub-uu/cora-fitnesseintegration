@@ -38,14 +38,14 @@ public class OldRestClientSpy implements RestClient {
 		this.recordId = recordId;
 		readWasCalled = true;
 		returnedJson = "some json returned from RestClientSpy";
-		return new RestResponse(200, returnedJson, Optional.empty());
+		return new RestResponse(200, returnedJson, Optional.empty(), Optional.empty());
 	}
 
 	@Override
 	public RestResponse createRecordFromJson(String recordType, String json) {
 		this.recordType = recordType;
 		createdId = "someCreatedId";
-		return new RestResponse(201, returnedJson, Optional.of(createdId));
+		return new RestResponse(201, returnedJson, Optional.empty(), Optional.of(createdId));
 	}
 
 	@Override
@@ -53,7 +53,7 @@ public class OldRestClientSpy implements RestClient {
 		this.recordType = recordType;
 		this.recordId = recordId;
 		returnedJson = "some json returned from RestClientSpy";
-		return new RestResponse(200, returnedJson, Optional.empty());
+		return new RestResponse(200, returnedJson, Optional.empty(), Optional.empty());
 	}
 
 	@Override
@@ -61,14 +61,14 @@ public class OldRestClientSpy implements RestClient {
 		this.recordType = recordType;
 		this.recordId = recordId;
 		returnedJson = "some json returned from RestClientSpy";
-		return new RestResponse(200, returnedJson, Optional.empty());
+		return new RestResponse(200, returnedJson, Optional.empty(), Optional.empty());
 	}
 
 	@Override
 	public RestResponse readRecordListAsJson(String recordType) {
 		this.recordType = recordType;
 		returnedJson = "some json returned from RestClientSpy";
-		return new RestResponse(200, returnedJson, Optional.empty());
+		return new RestResponse(200, returnedJson, Optional.empty(), Optional.empty());
 	}
 
 	@Override
@@ -76,7 +76,7 @@ public class OldRestClientSpy implements RestClient {
 		this.recordType = recordType;
 		this.recordId = recordId;
 		returnedJson = "some json returned from RestClientSpy";
-		return new RestResponse(200, returnedJson, Optional.empty());
+		return new RestResponse(200, returnedJson, Optional.empty(), Optional.empty());
 	}
 
 	@Override
@@ -84,7 +84,7 @@ public class OldRestClientSpy implements RestClient {
 		this.recordType = recordType;
 		this.filter = filter;
 		returnedJson = "some json returned from RestClientSpy";
-		return new RestResponse(200, returnedJson, Optional.empty());
+		return new RestResponse(200, returnedJson, Optional.empty(), Optional.empty());
 	}
 
 	@Override
@@ -93,7 +93,7 @@ public class OldRestClientSpy implements RestClient {
 		this.filter = filterAsJson;
 
 		createdId = "someCreatedId";
-		return new RestResponse(201, returnedJson, Optional.of(createdId));
+		return new RestResponse(201, returnedJson, Optional.empty(), Optional.of(createdId));
 	}
 
 	@Override
@@ -104,6 +104,12 @@ public class OldRestClientSpy implements RestClient {
 
 	@Override
 	public RestResponse validateRecordAsJson(String json) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public RestResponse download(String type, String id, String representation) {
 		// TODO Auto-generated method stub
 		return null;
 	}

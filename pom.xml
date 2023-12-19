@@ -34,6 +34,7 @@
 		<logger.version>2.10.0</logger.version>
 		<json.version>3.9.0</json.version>
 		<httphandler.version>2.15.0</httphandler.version>
+		<httphandlerspies.version>1.5.0</httphandlerspies.version>
 		<clientdata.version>6.4-SNAPSHOT</clientdata.version>
 		<coradata.version>8.0.0</coradata.version>
 		<converter.version>3.8.0</converter.version>
@@ -82,6 +83,12 @@
 			<groupId>se.uu.ub.cora</groupId>
 			<artifactId>httphandler</artifactId>
 			<version>${httphandler.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>se.uu.ub.cora</groupId>
+			<artifactId>httphandler-spies</artifactId>
+			<version>${httphandlerspies.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>

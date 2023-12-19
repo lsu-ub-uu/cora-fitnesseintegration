@@ -63,7 +63,7 @@ public class RecordHandlerOLDSpy implements RecordHandler {
 			jsonReturnForReadRecordList = jsonToReturn;
 
 		RestResponse restResponse = new RestResponse(statusTypeReturned,
-				jsonReturnForReadRecordList, Optional.empty());
+				jsonReturnForReadRecordList, Optional.empty(), Optional.empty());
 		MCR.addReturned(restResponse);
 		return restResponse;
 	}
@@ -76,7 +76,7 @@ public class RecordHandlerOLDSpy implements RecordHandler {
 		this.recordId = recordId;
 		readRecordWasCalled = true;
 		RestResponse restResponse = new RestResponse(statusTypeReturned, jsonToReturnDefault,
-				Optional.empty());
+				Optional.empty(), Optional.empty());
 		MCR.addReturned(restResponse);
 		return restResponse;
 	}
@@ -88,7 +88,7 @@ public class RecordHandlerOLDSpy implements RecordHandler {
 		this.authToken = authToken;
 		this.json = json;
 		RestResponse restResponse = new RestResponse(statusTypeReturned, jsonToReturnDefault,
-				Optional.empty());
+				Optional.empty(), Optional.empty());
 		MCR.addReturned(restResponse);
 		return restResponse;
 	}
@@ -103,7 +103,7 @@ public class RecordHandlerOLDSpy implements RecordHandler {
 			statusTypeReturned = 201;
 		}
 		RestResponse restResponse = new RestResponse(statusTypeReturned, jsonToReturnDefault,
-				Optional.empty());
+				Optional.empty(), Optional.empty());
 		MCR.addReturned(restResponse);
 		return restResponse;
 	}
@@ -122,7 +122,7 @@ public class RecordHandlerOLDSpy implements RecordHandler {
 		this.authToken = authToken;
 		this.json = json;
 		RestResponse restResponse = new RestResponse(statusTypeReturned, jsonToReturnDefault,
-				Optional.empty());
+				Optional.empty(), Optional.empty());
 		MCR.addReturned(restResponse);
 		return restResponse;
 	}
@@ -138,7 +138,7 @@ public class RecordHandlerOLDSpy implements RecordHandler {
 		// }
 		// createdId = "someCreatedId";
 		RestResponse restResponse = new RestResponse(statusTypeReturned, jsonToReturnDefault,
-				Optional.empty());
+				Optional.empty(), Optional.empty());
 		MCR.addReturned(restResponse);
 		return restResponse;
 	}
@@ -151,7 +151,7 @@ public class RecordHandlerOLDSpy implements RecordHandler {
 		this.authToken = authToken;
 
 		RestResponse restResponse = new RestResponse(statusTypeReturned, jsonToReturnDefault,
-				Optional.empty());
+				Optional.empty(), Optional.empty());
 		MCR.addReturned(restResponse);
 		return restResponse;
 	}
@@ -162,7 +162,7 @@ public class RecordHandlerOLDSpy implements RecordHandler {
 		this.recordType = recordType;
 		this.recordId = recordId;
 		RestResponse restResponse = new RestResponse(statusTypeReturned, jsonToReturnDefault,
-				Optional.empty());
+				Optional.empty(), Optional.empty());
 		MCR.addReturned(restResponse);
 		return restResponse;
 	}
@@ -181,8 +181,15 @@ public class RecordHandlerOLDSpy implements RecordHandler {
 		}
 
 		RestResponse restResponse = new RestResponse(statusTypeReturned, jsonToReturnDefault,
-				Optional.empty());
+				Optional.empty(), Optional.empty());
 		MCR.addReturned(restResponse);
 		return restResponse;
+	}
+
+	@Override
+	public RestResponse download(String authToken, String recordType, String recordId,
+			String representation) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

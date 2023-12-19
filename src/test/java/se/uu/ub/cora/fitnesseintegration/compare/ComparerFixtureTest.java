@@ -41,7 +41,6 @@ import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterSpy;
 import se.uu.ub.cora.fitnesseintegration.DataHolder;
-import se.uu.ub.cora.fitnesseintegration.JsonParserSpy;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerOLDSpy;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerSpy;
@@ -58,7 +57,6 @@ public class ComparerFixtureTest {
 
 	private ComparerFixture fixture;
 	private RecordHandlerOLDSpy recordHandler;
-	private JsonParserSpy jsonParser;
 	private String type;
 	private String authToken;
 	private String json;
@@ -83,7 +81,6 @@ public class ComparerFixtureTest {
 
 	private void setUpFixture() {
 		recordHandler = new RecordHandlerOLDSpy();
-		jsonParser = new JsonParserSpy();
 
 		type = SOME_RECORD_TYPE;
 		fixture.setType(type);
@@ -112,8 +109,7 @@ public class ComparerFixtureTest {
 		assertEquals(fixture.getStoredListAsJson(), recordHandler.jsonToReturnDefault);
 		assertEquals(recordHandler.authToken, authToken);
 		assertNull(recordHandler.filter);
-		List<ClientData> listFromSpy = assertListOfRecordsAreConvertedAndStoredInDataHolder(
-				clientDataListSpy);
+		assertListOfRecordsAreConvertedAndStoredInDataHolder(clientDataListSpy);
 	}
 
 	private ClientDataListSpy setupConverterToClientFactorySpyToReturnClientDataListSpy() {
@@ -166,8 +162,7 @@ public class ComparerFixtureTest {
 		assertEquals(fixture.getStoredListAsJson(), recordHandler.jsonToReturnDefault);
 		assertEquals(recordHandler.authToken, authToken);
 		assertEquals(recordHandler.filter, listFilter);
-		List<ClientData> listFromSpy = assertListOfRecordsAreConvertedAndStoredInDataHolder(
-				clientDataListSpy);
+		assertListOfRecordsAreConvertedAndStoredInDataHolder(clientDataListSpy);
 	}
 
 	@Test
@@ -222,10 +217,9 @@ public class ComparerFixtureTest {
 		String authToken = SOME_AUTH_TOKEN;
 
 		fixture.setAuthToken(authToken);
-		String response = fixture.testReadRecordListAndStoreRecordById();
+		fixture.testReadRecordListAndStoreRecordById();
 
-		List<ClientData> listFromSpy = assertListOfRecordsAreConvertedAndStoredInDataHolder(
-				clientDataListSpy);
+		assertListOfRecordsAreConvertedAndStoredInDataHolder(clientDataListSpy);
 		ClientDataRecord record = DataHolder.getRecord();
 		assertNull(record);
 	}
@@ -243,12 +237,11 @@ public class ComparerFixtureTest {
 
 		fixture.setIdToStore(recordId);
 		fixture.setAuthToken(authToken);
-		String recordListAsJson = fixture.testReadRecordListAndStoreRecordById();
+		fixture.testReadRecordListAndStoreRecordById();
 
 		recordHandler.MCR.assertParameters("readRecordList", 0, authToken, type, null);
 
-		List<ClientData> listFromSpy = assertListOfRecordsAreConvertedAndStoredInDataHolder(
-				clientDataListSpy);
+		assertListOfRecordsAreConvertedAndStoredInDataHolder(clientDataListSpy);
 		ClientDataRecord record = DataHolder.getRecord();
 		assertSame(clientDataRecord3, record);
 	}
@@ -472,7 +465,7 @@ public class ComparerFixtureTest {
 	@Test
 	public void testGetCreatedIdOk() throws Exception {
 		RecordHandlerSpy recordHandler = new RecordHandlerSpy();
-		RestResponse restResponseToReturn = new RestResponse(201, "someJson",
+		RestResponse restResponseToReturn = new RestResponse(201, "someJson", Optional.empty(),
 				Optional.of("someCreatedId"));
 		recordHandler.MRV.setDefaultReturnValuesSupplier("createRecord",
 				() -> restResponseToReturn);

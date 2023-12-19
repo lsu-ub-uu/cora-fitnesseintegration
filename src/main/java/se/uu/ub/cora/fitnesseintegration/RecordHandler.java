@@ -152,7 +152,26 @@ public interface RecordHandler {
 	 * @param filter
 	 *            A JSON-formatted String used to filter the result
 	 * 
+	 * @return A {@link RestResponse} containing the response
 	 */
 	RestResponse batchIndex(String authToken, String recordType, String filterAsJson);
+
+	/**
+	 * Downloads a resource given type, id and representation
+	 * 
+	 * @param authToken
+	 *            A String authToken to use in the http request
+	 * @param recordType
+	 *            A String recordType representing the type of record to batch index
+	 * @param recordId
+	 *            A String recordId, the id of the record to read incoming links for
+	 * @param representation
+	 *            The representation to be downloaded
+	 * 
+	 * @return A {@link RestResponse} containing the response with the resoure in it.
+	 * 
+	 */
+	RestResponse download(String authToken, String recordType, String recordId,
+			String representation);
 
 }
