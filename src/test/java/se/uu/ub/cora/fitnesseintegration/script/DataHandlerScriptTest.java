@@ -15,31 +15,10 @@ public class DataHandlerScriptTest {
 	@Test
 	public void testExtractData() throws Exception {
 		script = new DataHandlerScript();
-		String json = """
-				{
-				  "record": {
-				    "data": {
-				      "children": [
-				        {
-				          "name": "fitnesseTextVar",
-				          "value": "hejsan"
-				        }
-				      ],
-				      "name": "fitnesseExample"
-				    },
-				    "actionLinks": {
-				      "read": {
-				        "requestMethod": "GET",
-				        "rel": "read",
-				        "url": "http://localhost:8080/systemone/rest/record/fitnesseRecordType/fitnesseRecordType:18696185347863",
-				        "accept": "application/vnd.uub.record+json"
-				      }
-				    }
-				  }
-				}
-				""";
+		String fullJson = getTestJson();
 
-		String extractDataElement = script.extractDataElement(json);
+		String extractDataElement = script.extractDataElement(fullJson);
+		assertFalse(extractDataElement.contains("actionLinks"));
 
 		OrgJsonParser jsonParser = new OrgJsonParser();
 		JsonObject parseStringAsObject = jsonParser.parseStringAsObject(extractDataElement);
@@ -47,6 +26,119 @@ public class DataHandlerScriptTest {
 		assertFalse(parseStringAsObject.containsKey("data"));
 		assertTrue(parseStringAsObject.containsKey("children"));
 		assertTrue(parseStringAsObject.containsKey("name"));
+	}
+
+	private String getTestJson() {
+		return """
+				{
+				  "record": {
+				    "data": {
+				      "children": [
+				        {
+				          "children": [
+				            {
+				              "children": [
+				                {
+				                  "name": "linkedRecordType",
+				                  "value": "system"
+				                },
+				                {
+				                  "name": "linkedRecordId",
+				                  "value": "systemOne"
+				                }
+				              ],
+				              "actionLinks": {
+				                "read": {
+				                  "requestMethod": "GET",
+				                  "rel": "read",
+				                  "url": "https://cora.epc.ub.uu.se/systemone/rest/record/system/systemOne",
+				                  "accept": "application/vnd.uub.record+json"
+				                }
+				              },
+				              "name": "dataDivider"
+				            },
+				            {
+				              "children": [
+				                {
+				                  "name": "linkedRecordType",
+				                  "value": "user"
+				                },
+				                {
+				                  "name": "linkedRecordId",
+				                  "value": "141414"
+				                }
+				              ],
+				              "actionLinks": {
+				                "read": {
+				                  "requestMethod": "GET",
+				                  "rel": "read",
+				                  "url": "https://cora.epc.ub.uu.se/systemone/rest/record/user/141414",
+				                  "accept": "application/vnd.uub.record+json"
+				                }
+				              }
+				            }
+				          ],
+				          "name": "recordInfo"
+				        },
+				        {
+				          "children": [
+				            {
+				              "name": "resourceId",
+				              "value": "binary:3622353869664222-master"
+				            },
+				            {
+				              "actionLinks": {
+				                "read": {
+				                  "requestMethod": "GET",
+				                  "rel": "read",
+				                  "url": "https://cora.epc.ub.uu.se/systemone/rest/record/binary/binary:3622353869664222/master",
+				                  "accept": "image/jpeg"
+				                }
+				              },
+				              "name": "master",
+				              "mimeType": "image/jpeg"
+				            }
+				          ],
+				          "name": "master"
+				        },
+				        {
+				          "children": [
+				            {
+				              "name": "resourceId",
+				              "value": "binary:3622353869664222-jp2"
+				            },
+				            {
+				              "actionLinks": {
+				                "read": {
+				                  "requestMethod": "GET",
+				                  "rel": "read",
+				                  "url": "https://cora.epc.ub.uu.se/systemone/rest/record/binary/binary:3622353869664222/jp2",
+				                  "accept": "image/jp2"
+				                }
+				              },
+				              "name": "jp2",
+				              "mimeType": "image/jp2"
+				            }
+				          ],
+				          "name": "jp2"
+				        }
+				      ],
+				      "name": "binary",
+				      "attributes": {
+				        "type": "image"
+				      }
+				    },
+				    "actionLinks": {
+				      "read": {
+				        "requestMethod": "GET",
+				        "rel": "read",
+				        "url": "https://cora.epc.ub.uu.se/systemone/rest/record/binary/binary:3622353869664222",
+				        "accept": "application/vnd.uub.record+json"
+				      }
+				    }
+				  }
+				}
+				""";
 	}
 
 }

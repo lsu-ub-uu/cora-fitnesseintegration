@@ -10,32 +10,35 @@ import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public class DataHandlerScript {
 
-	public String extractDataElement(String json) {
+	private static final String CHILDREN = "children";
+
+	public String extractDataElement(String fullJson) {
 		OrgJsonParser jsonParser = new OrgJsonParser();
 
-		JsonObject parseStringAsObject = jsonParser.parseStringAsObject(json);
+		JsonObject fullJsonObject = jsonParser.parseStringAsObject(fullJson);
+		JsonObject processedJsonObject = removeTopLevels(fullJsonObject);
+		removeAllActionLinksFromData(processedJsonObject);
 
-		JsonObject valueAsJsonObject = parseStringAsObject.getValueAsJsonObject("record")
-				.getValueAsJsonObject("data");
-
-		removeAllActionLinksFromJson(valueAsJsonObject);
-
-		return valueAsJsonObject.toJsonFormattedString();
+		return processedJsonObject.toJsonFormattedString();
 	}
 
-	private void removeAllActionLinksFromJson(JsonObject valueAsJsonObject) {
-		valueAsJsonObject.removeKey("actionLinks");
-		traverseAnyChildren(valueAsJsonObject);
+	private JsonObject removeTopLevels(JsonObject fullJsonObject) {
+		return fullJsonObject.getValueAsJsonObject("record").getValueAsJsonObject("data");
 	}
 
-	private void traverseAnyChildren(JsonObject valueAsJsonObject) {
-		if (valueAsJsonObject.containsKey("children")) {
-			JsonArray valueAsJsonArray = valueAsJsonObject.getValueAsJsonArray("children");
-			Iterator<JsonValue> iterator = valueAsJsonArray.iterator();
-			while (iterator.hasNext()) {
-				JsonValue next = iterator.next();
-				if (next.getValueType() == JsonValueType.OBJECT) {
-					removeAllActionLinksFromJson((JsonObject) next);
+	private void removeAllActionLinksFromData(JsonObject data) {
+		data.removeKey("actionLinks");
+		possiblyTraverseAndProcessChildren(data);
+	}
+
+	private void possiblyTraverseAndProcessChildren(JsonObject data) {
+		if (data.containsKey(CHILDREN)) {
+			JsonArray valueAsJsonArray = data.getValueAsJsonArray(CHILDREN);
+			Iterator<JsonValue> jsonArrayIterator = valueAsJsonArray.iterator();
+			while (jsonArrayIterator.hasNext()) {
+				JsonValue nextJsonValue = jsonArrayIterator.next();
+				if (nextJsonValue.getValueType() == JsonValueType.OBJECT) {
+					removeAllActionLinksFromData((JsonObject) nextJsonValue);
 				}
 			}
 		}
