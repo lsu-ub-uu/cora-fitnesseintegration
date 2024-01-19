@@ -28,19 +28,23 @@ public class DataHandlerScript {
 
 	private void removeAllActionLinksFromData(JsonObject data) {
 		data.removeKey("actionLinks");
-		possiblyTraverseAndProcessChildren(data);
+		if (data.containsKey(CHILDREN)) {
+			traverseAndProcessChildren(data);
+		}
 	}
 
-	private void possiblyTraverseAndProcessChildren(JsonObject data) {
-		if (data.containsKey(CHILDREN)) {
-			JsonArray valueAsJsonArray = data.getValueAsJsonArray(CHILDREN);
-			Iterator<JsonValue> jsonArrayIterator = valueAsJsonArray.iterator();
-			while (jsonArrayIterator.hasNext()) {
-				JsonValue nextJsonValue = jsonArrayIterator.next();
-				if (nextJsonValue.getValueType() == JsonValueType.OBJECT) {
-					removeAllActionLinksFromData((JsonObject) nextJsonValue);
-				}
-			}
+	private void traverseAndProcessChildren(JsonObject data) {
+		JsonArray valueAsJsonArray = data.getValueAsJsonArray(CHILDREN);
+		Iterator<JsonValue> jsonArrayIterator = valueAsJsonArray.iterator();
+		while (jsonArrayIterator.hasNext()) {
+			traverseAnyObjects(jsonArrayIterator);
+		}
+	}
+
+	private void traverseAnyObjects(Iterator<JsonValue> jsonArrayIterator) {
+		JsonValue nextJsonValue = jsonArrayIterator.next();
+		if (nextJsonValue.getValueType() == JsonValueType.OBJECT) {
+			removeAllActionLinksFromData((JsonObject) nextJsonValue);
 		}
 	}
 }
