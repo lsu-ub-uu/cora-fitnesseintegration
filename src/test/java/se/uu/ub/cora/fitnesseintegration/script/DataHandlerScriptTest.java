@@ -17,15 +17,23 @@ public class DataHandlerScriptTest {
 		script = new DataHandlerScript();
 		String fullJson = getTestJson();
 
-		String extractDataElement = script.extractDataElement(fullJson);
-		assertFalse(extractDataElement.contains("actionLinks"));
+		String extractDataElement = assertActionLinksRemoved(fullJson);
+		assertCorrectJsonAndTopLevelsRemoved(extractDataElement);
+	}
 
+	private void assertCorrectJsonAndTopLevelsRemoved(String extractDataElement) {
 		OrgJsonParser jsonParser = new OrgJsonParser();
 		JsonObject parseStringAsObject = jsonParser.parseStringAsObject(extractDataElement);
 		assertFalse(parseStringAsObject.containsKey("record"));
 		assertFalse(parseStringAsObject.containsKey("data"));
 		assertTrue(parseStringAsObject.containsKey("children"));
 		assertTrue(parseStringAsObject.containsKey("name"));
+	}
+
+	private String assertActionLinksRemoved(String fullJson) {
+		String extractDataElement = script.extractDataElement(fullJson);
+		assertFalse(extractDataElement.contains("actionLinks"));
+		return extractDataElement;
 	}
 
 	private String getTestJson() {
