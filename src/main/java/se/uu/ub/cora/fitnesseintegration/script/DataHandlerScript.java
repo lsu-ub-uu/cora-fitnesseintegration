@@ -5,7 +5,6 @@ import java.util.Iterator;
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.json.parser.JsonValue;
-import se.uu.ub.cora.json.parser.JsonValueType;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public class DataHandlerScript {
@@ -43,8 +42,6 @@ public class DataHandlerScript {
 
 	private void traverseAnyObjects(Iterator<JsonValue> jsonArrayIterator) {
 		JsonValue nextJsonValue = jsonArrayIterator.next();
-		if (nextJsonValue.getValueType() == JsonValueType.OBJECT) {
-			removeAllActionLinksFromData((JsonObject) nextJsonValue);
-		}
+		removeAllActionLinksFromData((JsonObject) nextJsonValue);
 	}
 }
