@@ -32,7 +32,7 @@
 
 	<properties>
 		<logger.version>2.10.0</logger.version>
-		<json.version>3.9.0</json.version>
+		<json.version>3.10-SNAPSHOT</json.version>
 		<httphandler.version>2.15.0</httphandler.version>
 		<httphandlerspies.version>1.5.0</httphandlerspies.version>
 		<clientdata.version>6.4-SNAPSHOT</clientdata.version>
