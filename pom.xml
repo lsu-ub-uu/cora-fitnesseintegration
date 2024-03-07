@@ -32,13 +32,13 @@
 
 	<properties>
 		<logger.version>2.10.0</logger.version>
-		<json.version>3.10-SNAPSHOT</json.version>
+		<json.version>3.10.0</json.version>
 		<httphandler.version>2.16.0</httphandler.version>
 		<httphandlerspies.version>1.6.0</httphandlerspies.version>
-		<clientdata.version>6.4.0</clientdata.version>
-		<coradata.version>8.0.0</coradata.version>
-		<converter.version>3.8.0</converter.version>
-		<javaclient.version>3.2.0</javaclient.version>
+		<clientdata.version>6.5.0</clientdata.version>
+		<coradata.version>9.0.0</coradata.version>
+		<converter.version>4.0.0</converter.version>
+		<javaclient.version>3.3.0</javaclient.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 		<fitnesse.version>20240219</fitnesse.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
@@ -49,8 +49,8 @@
 		<junit.version>4.13.2</junit.version>
 		<indexmessenger.version>1.14.0</indexmessenger.version>
 		<testutils.version>1.11.0</testutils.version>
-		<dataspies.version>1.6.0</dataspies.version>
-		<clientdata-spies.version>1.5.0</clientdata-spies.version>
+		<dataspies.version>1.7.0</dataspies.version>
+		<clientdata-spies.version>1.6.0</clientdata-spies.version>
 		<loggerspies.version>1.5.0</loggerspies.version>
 	</properties>
 
