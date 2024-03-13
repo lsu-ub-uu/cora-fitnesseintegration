@@ -59,21 +59,6 @@ public class DownloadFixture {
 				response.responseText());
 	}
 
-	public String getMimeType() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getContentLength() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getContentDisposition() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public RecordHandler onlyForTestgetRecordHandler() {
 		return recordHandler;
 	}
