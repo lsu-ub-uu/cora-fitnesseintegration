@@ -19,7 +19,6 @@
  */
 package se.uu.ub.cora.fitnesseintegration.compare;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
@@ -57,21 +56,34 @@ public class ComparerFixture {
 	private String createdId;
 
 	public ComparerFixture() {
-		// JavaClientFactory restClientFactory = RestClientFactoryImp
-		// .usingBaseUrlAndAppTokenVerifierUrl(baseUrl, SystemUrl.getAppTokenVerifierUrl());
 		recordHandler = new RecordHandlerImp(baseUrl, SystemUrl.getAppTokenVerifierUrl());
 	}
 
 	public String testReadAndStoreRecord() {
-		String recordAsJson = readRecordAsJsonText();
+		RestResponse response = recordHandler.readRecord(authToken, type, id);
+		setStatusTypeUsingResponseCode(response.responseCode());
+		return handleResponseText(response.responseText());
+	}
+
+	private String handleResponseText(String responseText) {
+		if (readNotOk()) {
+			return responseText;
+		}
+		return transformRecordToClientDataAndStoreItInDataHolder(responseText);
+	}
+
+	private boolean readNotOk() {
+		return statusType.getStatusCode() != 200;
+	}
+
+	private void setStatusTypeUsingResponseCode(int responseCode) {
+		statusType = Response.Status.fromStatusCode(responseCode);
+	}
+
+	private String transformRecordToClientDataAndStoreItInDataHolder(String recordAsJson) {
 		ClientDataRecord dataRecord = convertJsonToClientDataRecord(recordAsJson);
 		DataHolder.setRecord(dataRecord);
 		return recordAsJson;
-	}
-
-	private String readRecordAsJsonText() {
-		RestResponse readResponse = recordHandler.readRecord(authToken, type, id);
-		return readResponse.responseText();
 	}
 
 	protected ClientDataRecord convertJsonToClientDataRecord(String jsonText) {
@@ -80,7 +92,7 @@ public class ComparerFixture {
 		return (ClientDataRecord) toClientConverter.toInstance();
 	}
 
-	public void testReadRecordListAndStoreRecords() throws UnsupportedEncodingException {
+	public void testReadRecordListAndStoreRecords() {
 		String recordListAsJson = readRecordListAsJsonText();
 		storedListAsJson = recordListAsJson;
 
@@ -110,7 +122,7 @@ public class ComparerFixture {
 		return (ClientDataList) toClientConverter.toInstance();
 	}
 
-	public String testReadRecordListAndStoreRecordById() throws UnsupportedEncodingException {
+	public String testReadRecordListAndStoreRecordById() {
 		DataHolder.setRecord(null);
 		String recordListAsJson = readRecordListAsJsonText();
 		storedListAsJson = recordListAsJson;
@@ -157,7 +169,7 @@ public class ComparerFixture {
 	public String testUpdateAndStoreRecord() {
 		DataHolder.setRecord(null);
 		RestResponse response = recordHandler.updateRecord(authToken, type, id, json);
-		statusType = Response.Status.fromStatusCode(response.responseCode());
+		setStatusTypeUsingResponseCode(response.responseCode());
 		if (200 == (response.responseCode())) {
 			String recordAsJson = response.responseText();
 			ClientDataRecord dataRecord = convertJsonToClientDataRecord(recordAsJson);
@@ -169,7 +181,7 @@ public class ComparerFixture {
 	public String testCreateAndStoreRecord() {
 		DataHolder.setRecord(null);
 		RestResponse response = recordHandler.createRecord(authToken, type, json);
-		statusType = Response.Status.fromStatusCode(response.responseCode());
+		setStatusTypeUsingResponseCode(response.responseCode());
 		if (201 == (response.responseCode())) {
 			if (response.createdId().isPresent()) {
 				createdId = response.createdId().get();
