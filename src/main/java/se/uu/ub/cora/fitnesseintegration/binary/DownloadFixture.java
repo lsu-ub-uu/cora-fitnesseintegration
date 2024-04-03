@@ -1,6 +1,7 @@
 package se.uu.ub.cora.fitnesseintegration.binary;
 
-import java.text.MessageFormat;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import se.uu.ub.cora.fitnesseintegration.RecordHandler;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
@@ -14,6 +15,7 @@ public class DownloadFixture {
 	private String recordType;
 	private String recordId;
 	private String representation;
+	private Status statusType;
 
 	public DownloadFixture() {
 		recordHandler = new RecordHandlerImp(SystemUrl.getUrl() + "rest/",
@@ -34,29 +36,14 @@ public class DownloadFixture {
 
 	public void setRepresentation(String representation) {
 		this.representation = representation;
-
 	}
 
 	public String testDownload() {
 		RestResponse response = recordHandler.download(authToken, recordType, recordId,
 				representation);
-		if (downloadOk(response)) {
-			return responseCodeAsString(response);
-		}
-		return buildErrorResponse(response);
-	}
+		statusType = Response.Status.fromStatusCode(response.responseCode());
 
-	private boolean downloadOk(RestResponse response) {
-		return response.responseCode() == 200;
-	}
-
-	private String responseCodeAsString(RestResponse response) {
-		return String.valueOf(response.responseCode());
-	}
-
-	private String buildErrorResponse(RestResponse response) {
-		return MessageFormat.format("Code: {0} Message: {1}", responseCodeAsString(response),
-				response.responseText());
+		return response.responseText();
 	}
 
 	public RecordHandler onlyForTestgetRecordHandler() {
@@ -65,5 +52,9 @@ public class DownloadFixture {
 
 	public void onlyForTestSetRecordHandler(RecordHandler recordHandler) {
 		this.recordHandler = recordHandler;
+	}
+
+	public Status getStatusType() {
+		return statusType;
 	}
 }
