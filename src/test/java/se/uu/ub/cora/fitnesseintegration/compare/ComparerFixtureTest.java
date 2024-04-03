@@ -20,6 +20,7 @@
 package se.uu.ub.cora.fitnesseintegration.compare;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
@@ -247,9 +248,42 @@ public class ComparerFixtureTest {
 	}
 
 	@Test
-	public void testReadRecordAndStoreJson() throws Exception {
+	public void testReadRecordAndStoreJson_OK() throws Exception {
+		ClientDataRecordSpy clientDataRecord = new ClientDataRecordSpy();
+		JsonToClientDataConverterSpy jsonConverter = setupConverterToClientFactorySpyToReturnClientRecordSpy(
+				clientDataRecord);
+		String authToken = SOME_AUTH_TOKEN;
+		String id = "someId";
+		fixture.setAuthToken(authToken);
+		fixture.setId(id);
+
+		String responseText = fixture.testReadAndStoreRecord();
+
+		jsonConverter.MCR.assertMethodWasCalled("toInstance");
+		assertTrue(recordHandler.readRecordWasCalled);
+		assertEquals(recordHandler.recordType, type);
+		assertEquals(recordHandler.recordId, id);
+		assertEquals(recordHandler.authToken, authToken);
+		assertEquals(responseText, recordHandler.jsonToReturnDefault);
+		assertEquals(fixture.getStatusType().toString(), "OK");
+		assertEquals(clientDataRecord, DataHolder.getRecord());
+	}
+
+	private JsonToClientDataConverterSpy setupConverterToClientFactorySpyToReturnClientRecordSpy(
+			ClientDataRecordSpy clientDataRecord) {
+		JsonToClientDataConverterSpy converterSpy = new JsonToClientDataConverterSpy();
+		converterSpy.MRV.setDefaultReturnValuesSupplier("toInstance", () -> clientDataRecord);
+
+		converterToClientFactorySpy.MRV.setDefaultReturnValuesSupplier("factorUsingString",
+				() -> converterSpy);
+		return converterSpy;
+	}
+
+	@Test
+	public void testReadRecordAndStoreJson_NOT_OK() throws Exception {
 		ClientDataRecordSpy clientDataRecord = new ClientDataRecordSpy();
 		setupConverterToClientFactorySpyToReturnClientRecordSpy(clientDataRecord);
+		recordHandler.statusTypeReturned = 403;
 		String authToken = SOME_AUTH_TOKEN;
 		String id = "someId";
 
@@ -257,22 +291,12 @@ public class ComparerFixtureTest {
 		fixture.setId(id);
 		String responseText = fixture.testReadAndStoreRecord();
 
-		assertTrue(recordHandler.readRecordWasCalled);
-		assertEquals(recordHandler.recordType, type);
-		assertEquals(recordHandler.recordId, id);
-		assertEquals(recordHandler.authToken, authToken);
+		converterToClientFactorySpy.MCR.assertMethodNotCalled("factorUsingString");
+		assertNotEquals(clientDataRecord, DataHolder.getRecord());
+
+		assertEquals(fixture.getStatusType().toString(), "Forbidden");
 		assertEquals(responseText, recordHandler.jsonToReturnDefault);
 
-		assertEquals(clientDataRecord, DataHolder.getRecord());
-	}
-
-	private void setupConverterToClientFactorySpyToReturnClientRecordSpy(
-			ClientDataRecordSpy clientDataRecord) {
-		JsonToClientDataConverterSpy converterSpy = new JsonToClientDataConverterSpy();
-		converterSpy.MRV.setDefaultReturnValuesSupplier("toInstance", () -> clientDataRecord);
-
-		converterToClientFactorySpy.MRV.setDefaultReturnValuesSupplier("factorUsingString",
-				() -> converterSpy);
 	}
 
 	@Test
