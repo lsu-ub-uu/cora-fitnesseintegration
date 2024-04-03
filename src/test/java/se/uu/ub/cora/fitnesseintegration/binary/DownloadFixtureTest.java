@@ -50,13 +50,11 @@ public class DownloadFixtureTest {
 
 		String status = fixture.testDownload();
 
-		assertEquals(status, "200");
 		recordHandlerSpy.MCR.assertParameters("download", 0, SOME_AUTH_TOKEN, SOME_TYPE, SOME_ID,
 				SOME_REPRESENTATION);
 
-		// assertEquals(fixture.getMimeType(), "someMimeType");
-		// assertEquals(fixture.getContentLength(), "100");
-		// assertEquals(fixture.getContentDisposition(), "someContentDisposition");
+		assertEquals(fixture.getStatusType().toString(), "OK");
+		assertEquals(status, "someResponseText");
 	}
 
 	@Test
@@ -67,7 +65,8 @@ public class DownloadFixtureTest {
 
 		String status = fixture.testDownload();
 
-		assertEquals(status, "Code: 500 Message: someErrorText");
+		assertEquals(fixture.getStatusType().toString(), "Internal Server Error");
+		assertEquals(status, "someErrorText");
 
 	}
 
