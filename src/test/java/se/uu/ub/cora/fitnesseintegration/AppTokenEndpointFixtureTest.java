@@ -16,7 +16,7 @@ public class AppTokenEndpointFixtureTest {
 
 	@BeforeMethod
 	public void setUp() {
-		SystemUrl.setAppTokenVerifierUrl("http://localhost:8080/apptokenverifier/");
+		SystemUrl.setAppTokenVerifierUrl("http://localhost:8080/login/");
 		DependencyProvider.setHttpHandlerFactoryClassName(
 				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy");
 		httpHandlerFactorySpy = (HttpHandlerFactorySpy) DependencyProvider.getHttpHandlerFactory();
@@ -33,7 +33,7 @@ public class AppTokenEndpointFixtureTest {
 		assertEquals(httpHandlerSpy.requestMetod, "POST");
 		assertEquals(httpHandlerSpy.outputString, "02a89fd5-c768-4209-9ecc-d80bd793b01e");
 		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/apptokenverifier/rest/apptoken/someUserId");
+				"http://localhost:8080/login/rest/apptoken/someUserId");
 		assertEquals(json,
 				"{\"children\":[{\"name\":\"id\",\"value\":\"a1acff95-5849-4e10-9ee9-4b192aef17fd\"}"
 						+ ",{\"name\":\"validForNoSeconds\",\"value\":\"600\"}],\"name\":\"authToken\"}");
@@ -51,7 +51,7 @@ public class AppTokenEndpointFixtureTest {
 		assertEquals(httpHandlerSpy.requestMetod, "POST");
 		assertEquals(httpHandlerSpy.outputString, "44c17361-ead7-43b5-a938-038765873037");
 		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/apptokenverifier/rest/apptoken/131313");
+				"http://localhost:8080/login/rest/apptoken/131313");
 		assertEquals(json,
 				"{\"children\":[{\"name\":\"id\",\"value\":\"a1acff95-5849-4e10-9ee9-4b192aef17fd\"}"
 						+ ",{\"name\":\"validForNoSeconds\",\"value\":\"600\"}],\"name\":\"authToken\"}");
@@ -69,7 +69,7 @@ public class AppTokenEndpointFixtureTest {
 		assertEquals(httpHandlerSpy.requestMetod, "POST");
 		assertEquals(httpHandlerSpy.outputString, "a5b9871f-1610-44e1-b838-c37ace6757d6");
 		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/apptokenverifier/rest/apptoken/121212");
+				"http://localhost:8080/login/rest/apptoken/121212");
 		assertEquals(json,
 				"{\"children\":[{\"name\":\"id\",\"value\":\"a1acff95-5849-4e10-9ee9-4b192aef17fd\"}"
 						+ ",{\"name\":\"validForNoSeconds\",\"value\":\"600\"}],\"name\":\"authToken\"}");
@@ -92,7 +92,7 @@ public class AppTokenEndpointFixtureTest {
 		assertEquals(httpHandlerSpy.requestMetod, "DELETE");
 		assertEquals(httpHandlerSpy.outputString, "02a89fd5-c768-4209-9ecc-d80bd793b01e");
 		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/apptokenverifier/rest/apptoken/someUserId22");
+				"http://localhost:8080/login/rest/apptoken/someUserId22");
 		assertEquals(fixture.getStatusType(), Response.Status.OK);
 	}
 
@@ -106,7 +106,7 @@ public class AppTokenEndpointFixtureTest {
 		assertEquals(httpHandlerSpy.requestMetod, "DELETE");
 		assertEquals(httpHandlerSpy.outputString, "02a89fd5-c768-4209-9ecc-d80bd793b01e");
 		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/apptokenverifier/rest/apptoken/someUserId22");
+				"http://localhost:8080/login/rest/apptoken/someUserId22");
 		assertEquals(fixture.getStatusType(), Response.Status.NOT_FOUND);
 	}
 }

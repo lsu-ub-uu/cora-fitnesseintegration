@@ -173,7 +173,7 @@ public class IdpLoginServletFixtureTest {
 	public void testIdInUserStorageIsFromServerAnswer() throws Exception {
 		idpFixture.getAuthTokenForEPPN();
 		String deleteURL = idpFixture.getDeleteUrl();
-		assertEquals(deleteURL, "http://localhost:8180/apptokenverifier/rest/apptoken/141414");
+		assertEquals(deleteURL, "http://localhost:8180/login/rest/apptoken/141414");
 	}
 
 	@Test
