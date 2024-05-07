@@ -31,7 +31,8 @@ public class AppTokenEndpointFixture {
 	private static final int DISTANCE_TO_START_OF_TOKEN = 21;
 	private String appToken;
 	private HttpHandlerFactory factory;
-	private String baseUrl = SystemUrl.getAppTokenVerifierUrl() + "rest/apptoken/";
+	private String baseUrlApptoken = SystemUrl.getAppTokenVerifierUrl() + "rest/apptoken/";
+	private String baseUrlAuthToken = SystemUrl.getAppTokenVerifierUrl() + "rest/authToken/";
 	private String userId;
 	private Status statusType;
 	private String authToken;
@@ -46,7 +47,7 @@ public class AppTokenEndpointFixture {
 	}
 
 	public String getAuthTokenForAppToken() {
-		String url = baseUrl + userId;
+		String url = baseUrlApptoken + userId;
 
 		HttpHandler httpHandler = factory.factor(url);
 		httpHandler.setRequestMethod("POST");
@@ -91,7 +92,7 @@ public class AppTokenEndpointFixture {
 	}
 
 	public void removeAuthTokenForUser() {
-		String url = baseUrl + userId;
+		String url = baseUrlAuthToken + userId;
 
 		HttpHandler httpHandler = factory.factor(url);
 		httpHandler.setRequestMethod("DELETE");

@@ -92,7 +92,7 @@ public class AppTokenEndpointFixtureTest {
 		assertEquals(httpHandlerSpy.requestMetod, "DELETE");
 		assertEquals(httpHandlerSpy.outputString, "02a89fd5-c768-4209-9ecc-d80bd793b01e");
 		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/login/rest/apptoken/someUserId22");
+				"http://localhost:8080/login/rest/authToken/someUserId22");
 		assertEquals(fixture.getStatusType(), Response.Status.OK);
 	}
 
@@ -106,7 +106,7 @@ public class AppTokenEndpointFixtureTest {
 		assertEquals(httpHandlerSpy.requestMetod, "DELETE");
 		assertEquals(httpHandlerSpy.outputString, "02a89fd5-c768-4209-9ecc-d80bd793b01e");
 		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/login/rest/apptoken/someUserId22");
+				"http://localhost:8080/login/rest/authToken/someUserId22");
 		assertEquals(fixture.getStatusType(), Response.Status.NOT_FOUND);
 	}
 }
