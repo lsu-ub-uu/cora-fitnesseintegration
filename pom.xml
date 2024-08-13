@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>se.uu.ub.cora</groupId>
 		<artifactId>cora-parent</artifactId>
-		<version>2.5.0</version>
+		<version>2.6.0</version>
 	</parent>
 
 	<artifactId>fitnesseintegration</artifactId>
@@ -40,7 +40,7 @@
 		<converter.version>4.0.0</converter.version>
 		<javaclient.version>3.4.0</javaclient.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
-		<fitnesse.version>20240219</fitnesse.version>
+		<fitnesse.version>20240707</fitnesse.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
 		<activation.version>1.1.1</activation.version>
 		<javax-activation.version>1.2.0</javax-activation.version>
@@ -48,7 +48,7 @@
 		<httpclient.version>4.5.14</httpclient.version>
 		<junit.version>4.13.2</junit.version>
 		<indexmessenger.version>1.14.0</indexmessenger.version>
-		<testutils.version>1.11.0</testutils.version>
+		<testutils.version>1.13.0</testutils.version>
 		<dataspies.version>1.7.0</dataspies.version>
 		<clientdata-spies.version>1.6.0</clientdata-spies.version>
 		<loggerspies.version>1.5.0</loggerspies.version>
