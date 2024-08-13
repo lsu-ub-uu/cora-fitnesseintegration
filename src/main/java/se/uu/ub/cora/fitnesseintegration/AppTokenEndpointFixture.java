@@ -52,10 +52,10 @@ public class AppTokenEndpointFixture {
 		HttpHandler httpHandler = factory.factor(url);
 		httpHandler.setRequestMethod("POST");
 		if (appToken == null || "".equals(appToken)) {
-			if ("131313".equals(userId)) {
-				appToken = "44c17361-ead7-43b5-a938-038765873037";
-			} else if ("121212".equals(userId)) {
-				appToken = "a5b9871f-1610-44e1-b838-c37ace6757d6";
+			if ("fitnesseAdmin@system.cora.uu.se".equals(userId)) {
+				appToken = "29c30232-d514-4559-b60b-6de47175c1df";
+			} else if ("fitnesseUser@system.cora.uu.se".equals(userId)) {
+				appToken = "bd699488-f9d1-419d-a79d-9fa8a0f3bb9d";
 			}
 		}
 		httpHandler.setOutput(appToken);

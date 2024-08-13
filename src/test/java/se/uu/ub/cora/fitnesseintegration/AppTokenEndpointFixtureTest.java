@@ -44,14 +44,14 @@ public class AppTokenEndpointFixtureTest {
 	@Test
 	public void testGetAuthTokenForFitnesseAdmin() {
 		httpHandlerFactorySpy.setResponseCode(201);
-		fixture.setUserId("131313");
+		fixture.setUserId("fitnesseAdmin@system.cora.uu.se");
 		fixture.setAppToken("");
 		String json = fixture.getAuthTokenForAppToken();
 		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
 		assertEquals(httpHandlerSpy.requestMetod, "POST");
-		assertEquals(httpHandlerSpy.outputString, "44c17361-ead7-43b5-a938-038765873037");
+		assertEquals(httpHandlerSpy.outputString, "29c30232-d514-4559-b60b-6de47175c1df");
 		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/login/rest/apptoken/131313");
+				"http://localhost:8080/login/rest/apptoken/fitnesseAdmin@system.cora.uu.se");
 		assertEquals(json,
 				"{\"children\":[{\"name\":\"id\",\"value\":\"a1acff95-5849-4e10-9ee9-4b192aef17fd\"}"
 						+ ",{\"name\":\"validForNoSeconds\",\"value\":\"600\"}],\"name\":\"authToken\"}");
@@ -62,14 +62,14 @@ public class AppTokenEndpointFixtureTest {
 	@Test
 	public void testGetAuthTokenForFitnesseUser() {
 		httpHandlerFactorySpy.setResponseCode(201);
-		fixture.setUserId("121212");
+		fixture.setUserId("fitnesseUser@system.cora.uu.se");
 		fixture.setAppToken("");
 		String json = fixture.getAuthTokenForAppToken();
 		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
 		assertEquals(httpHandlerSpy.requestMetod, "POST");
-		assertEquals(httpHandlerSpy.outputString, "a5b9871f-1610-44e1-b838-c37ace6757d6");
+		assertEquals(httpHandlerSpy.outputString, "bd699488-f9d1-419d-a79d-9fa8a0f3bb9d");
 		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/login/rest/apptoken/121212");
+				"http://localhost:8080/login/rest/apptoken/fitnesseUser@system.cora.uu.se");
 		assertEquals(json,
 				"{\"children\":[{\"name\":\"id\",\"value\":\"a1acff95-5849-4e10-9ee9-4b192aef17fd\"}"
 						+ ",{\"name\":\"validForNoSeconds\",\"value\":\"600\"}],\"name\":\"authToken\"}");
