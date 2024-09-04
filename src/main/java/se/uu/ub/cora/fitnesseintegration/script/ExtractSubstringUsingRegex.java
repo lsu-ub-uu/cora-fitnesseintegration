@@ -10,4 +10,11 @@ public class ExtractSubstringUsingRegex {
 		Matcher matcher = pattern.matcher(text);
 		return matcher.find() ? matcher.group() : "No match found";
 	}
+
+	public boolean matchFoundUsingTextAndRegex(String text, String regex) {
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(text);
+		return matcher.find() ? true : false;
+	}
+
 }
