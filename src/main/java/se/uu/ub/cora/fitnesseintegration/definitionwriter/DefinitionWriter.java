@@ -8,20 +8,16 @@ import se.uu.ub.cora.data.DataGroup;
 
 public class DefinitionWriter {
 
+	private static final String NEW_LINE = "\n";
+	private static final String TAB = "\t";
+	private String definition = "";
+
 	public String writeDefinitionFromUsingDataChild(DataChild dataChild) {
-		String definition = "";
 		if (isGroup(dataChild)) {
 			DataGroup dataGroup = (DataGroup) dataChild;
 			definition = definition + writeGroup(dataGroup);
 
-			if (dataGroup.hasChildren()) {
-				definition = definition + "\\n\\t";
-
-				List<DataChild> children = dataGroup.getChildren();
-				for (DataChild child : children) {
-					writeDefinitionFromUsingDataChild(child);
-				}
-			}
+			continueWritingDefinitionIfChildrenExists(dataGroup);
 		}
 		if (isAtomic(dataChild)) {
 			DataAtomic dataAtomic = (DataAtomic) dataChild;
@@ -31,8 +27,31 @@ public class DefinitionWriter {
 		return definition;
 	}
 
+	private void continueWritingDefinitionIfChildrenExists(DataGroup dataGroup) {
+		if (dataGroup.hasChildren()) {
+			List<DataChild> children = dataGroup.getChildren();
+			for (DataChild child : children) {
+				addNewLine();
+				addTab();
+				writeDefinitionFromUsingDataChild(child);
+			}
+		}
+	}
+
+	private void addTab() {
+		definition = definition + TAB;
+	}
+
+	private void addNewLine() {
+		definition = definition + NEW_LINE;
+	}
+
 	private boolean isAtomic(DataChild dataChild) {
 		return dataChild instanceof DataAtomic;
+	}
+
+	private String writeGroup(DataGroup dataGroup) {
+		return dataGroup.getNameInData() + "(group)";
 	}
 
 	private String writeAtomic(DataAtomic dataAtomic) {
@@ -41,12 +60,6 @@ public class DefinitionWriter {
 
 	private boolean isGroup(DataChild dataChild) {
 		return dataChild instanceof DataGroup;
-	}
-
-	private String writeGroup(DataGroup dataGroup) {
-
-		// dataGroup.getallc§
-		return dataGroup.getNameInData() + "(group)";
 	}
 
 }
