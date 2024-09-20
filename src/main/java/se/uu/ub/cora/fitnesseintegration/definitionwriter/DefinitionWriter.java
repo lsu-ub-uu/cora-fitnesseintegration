@@ -33,22 +33,52 @@ public class DefinitionWriter {
 	private static final String NEW_LINE = "\n";
 	private static final String TAB = "\t";
 	private String definition = "";
-	private int childDepth = 0;
 
 	public String writeDefinitionFromUsingDataChild(DataChild dataChild) {
+		writeDefinition(dataChild, 0);
+		return definition;
+	}
+
+	public void writeDefinition(DataChild dataChild, int currentLevel) {
+		addTab(currentLevel);
+		possiblyTraverseAndWriteGroup(dataChild, currentLevel);
+		possiblyWriteDataChild(dataChild);
+	}
+
+	private void addTab(int level) {
+		for (int i = 0; i < level; i++) {
+			definition += TAB;
+		}
+	}
+
+	private void possiblyTraverseAndWriteGroup(DataChild dataChild, int currentLevel) {
 		if (isGroup(dataChild)) {
-			// todo: collect all child groups (per level) and process them indiviually to handle all
-			// nested group levels
-			childDepth += 1;
 			DataGroup dataGroup = (DataGroup) dataChild;
 			definition += writeGroup(dataGroup);
-
-			possiblyTraverseAndWriteChildren(dataGroup);
+			possiblyTraverseChildren(dataGroup, currentLevel);
 		}
+	}
 
-		possiblyWriteDataChild(dataChild);
+	private boolean isGroup(DataChild dataChild) {
+		return dataChild instanceof DataGroup;
+	}
 
-		return definition;
+	private String writeGroup(DataGroup dataGroup) {
+		return dataGroup.getNameInData() + "(group)";
+	}
+
+	private void possiblyTraverseChildren(DataGroup dataGroup, int currentLevel) {
+		if (dataGroup.hasChildren()) {
+			List<DataChild> children = dataGroup.getChildren();
+			for (DataChild child : children) {
+				addNewLine();
+				writeDefinition(child, currentLevel + 1);
+			}
+		}
+	}
+
+	private void addNewLine() {
+		definition += NEW_LINE;
 	}
 
 	private void possiblyWriteDataChild(DataChild dataChild) {
@@ -68,42 +98,12 @@ public class DefinitionWriter {
 		}
 	}
 
-	private boolean isGroup(DataChild dataChild) {
-		return dataChild instanceof DataGroup;
-	}
-
 	private boolean isRecordLink(DataChild dataChild) {
 		return dataChild instanceof DataRecordLink;
 	}
 
 	private boolean isResourceLink(DataChild dataChild) {
 		return dataChild instanceof DataResourceLink;
-	}
-
-	private String writeGroup(DataGroup dataGroup) {
-		return dataGroup.getNameInData() + "(group)";
-	}
-
-	private void possiblyTraverseAndWriteChildren(DataGroup dataGroup) {
-		if (dataGroup.hasChildren()) {
-			List<DataChild> children = dataGroup.getChildren();
-			for (DataChild child : children) {
-				addNewLine();
-				addTab();
-				writeDefinitionFromUsingDataChild(child);
-			}
-			childDepth = 0;
-		}
-	}
-
-	private void addNewLine() {
-		definition += NEW_LINE;
-	}
-
-	private void addTab() {
-		for (int i = 0; i < childDepth; i++) {
-			definition += TAB;
-		}
 	}
 
 	private boolean isAtomic(DataChild dataChild) {

@@ -158,4 +158,56 @@ public class DefinitionWriterTest {
 		assertEquals(definition, expectedDefinition);
 	}
 
+	@Test
+	public void testNestedGroupsOnSameLevelsWithOneChildEach() throws Exception {
+		DataGroupSpy childGroup5 = createDataGroupSpy("childGroup5");
+		DataAtomicSpy textVariable5 = createAtomicUsingNameInDataAndType("someTextVariable5",
+				"textVariable");
+		addChildrenToGroup(childGroup5, textVariable5);
+		DataGroupSpy childGroup4 = createDataGroupSpy("childGroup4");
+		DataAtomicSpy textVariable4 = createAtomicUsingNameInDataAndType("someTextVariable4",
+				"textVariable");
+		addChildrenToGroup(childGroup4, textVariable4);
+		DataGroupSpy childGroup3 = createDataGroupSpy("childGroup3");
+		DataAtomicSpy textVariable3 = createAtomicUsingNameInDataAndType("someTextVariable3",
+				"textVariable");
+		addChildrenToGroup(childGroup3, textVariable3);
+		DataGroupSpy childGroup2 = createDataGroupSpy("childGroup2");
+		DataAtomicSpy textVariable2 = createAtomicUsingNameInDataAndType("someTextVariable2",
+				"textVariable");
+		addChildrenToGroup(childGroup2, textVariable2);
+		DataGroupSpy childGroup = createDataGroupSpy("childGroup");
+		DataAtomicSpy textVariable = createAtomicUsingNameInDataAndType("someTextVariable",
+				"textVariable");
+		DataAtomicSpy textVariable6 = createAtomicUsingNameInDataAndType("someTextVariable6",
+				"textVariable");
+		DataAtomicSpy textVariable7 = createAtomicUsingNameInDataAndType("someTextVariable7",
+				"textVariable");
+		addChildrenToGroup(childGroup, textVariable, textVariable6, childGroup2, childGroup3,
+				textVariable7);
+		DataResourceLinkSpy resourceLink = createResourceLinkUsingNameInData();
+		DataGroupSpy dataGroup = createDataGroupSpy("someGroup");
+		addChildrenToGroup(dataGroup, resourceLink, childGroup, childGroup4, childGroup5);
+
+		String definition = writer.writeDefinitionFromUsingDataChild(dataGroup);
+
+		String expectedDefinition = """
+				someGroup(group)
+					someResourceLink(resourceLink, 1-1, noConstraint)
+					childGroup(group)
+						someTextVariable(textVariable, 1-1, noConstraint)
+						someTextVariable6(textVariable, 1-1, noConstraint)
+						childGroup2(group)
+							someTextVariable2(textVariable, 1-1, noConstraint)
+						childGroup3(group)
+							someTextVariable3(textVariable, 1-1, noConstraint)
+						someTextVariable7(textVariable, 1-1, noConstraint)
+					childGroup4(group)
+						someTextVariable4(textVariable, 1-1, noConstraint)
+					childGroup5(group)
+						someTextVariable5(textVariable, 1-1, noConstraint)""";
+
+		assertEquals(definition, expectedDefinition);
+	}
+
 }
