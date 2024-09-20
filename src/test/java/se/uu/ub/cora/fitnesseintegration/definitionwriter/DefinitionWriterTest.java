@@ -1,12 +1,32 @@
+/*
+ * Copyright 2024 Uppsala University Library
+ *
+ * This file is part of Cora.
+ *
+ *     Cora is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     Cora is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.uu.ub.cora.fitnesseintegration.definitionwriter;
 
 import static org.testng.Assert.assertEquals;
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.Optional;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.data.DataChild;
 import se.uu.ub.cora.data.spies.DataAtomicSpy;
 import se.uu.ub.cora.data.spies.DataGroupSpy;
 import se.uu.ub.cora.data.spies.DataRecordLinkSpy;
@@ -15,12 +35,9 @@ import se.uu.ub.cora.data.spies.DataResourceLinkSpy;
 public class DefinitionWriterTest {
 
 	private DefinitionWriter writer;
-	private DataGroupSpy dataGroup;
 
 	@BeforeMethod
 	private void beforeMethod() {
-		dataGroup = createDataGroupSpy("someGroup");
-
 		writer = new DefinitionWriter();
 	}
 
@@ -32,7 +49,10 @@ public class DefinitionWriterTest {
 
 	@Test
 	public void writeOneGroupOnlyNameInData() throws Exception {
+		DataGroupSpy dataGroup = createDataGroupSpy("someGroup");
+
 		String definition = writer.writeDefinitionFromUsingDataChild(dataGroup);
+
 		String expectedDefinition = """
 				someGroup(group)""";
 		assertEquals(definition, expectedDefinition);
@@ -40,39 +60,68 @@ public class DefinitionWriterTest {
 
 	@Test
 	public void testOneGroupOneTextVariable() throws Exception {
-		DataAtomicSpy textVariable = new DataAtomicSpy();
-		textVariable.MRV.setDefaultReturnValuesSupplier("getNameInData", () -> "someTextVariable");
-		dataGroup.MRV.setDefaultReturnValuesSupplier("hasChildren", () -> true);
-		dataGroup.MRV.setDefaultReturnValuesSupplier("getChildren", () -> List.of(textVariable));
+		DataGroupSpy dataGroup = createDataGroupSpy("someGroup");
+		DataAtomicSpy textVariable = createAtomicUsingNameInDataAndType("someTextVariable",
+				"textVariable");
+		addChildrenToGroup(dataGroup, textVariable);
 
 		String definition = writer.writeDefinitionFromUsingDataChild(dataGroup);
+
 		String expectedDefinition = """
 				someGroup(group)
 					someTextVariable(textVariable, 1-1, noConstraint)""";
 		assertEquals(definition, expectedDefinition);
 	}
 
+	private void addChildrenToGroup(DataGroupSpy group, DataChild... textVariable) {
+		group.MRV.setDefaultReturnValuesSupplier("hasChildren", () -> true);
+		group.MRV.setDefaultReturnValuesSupplier("getChildren", () -> Arrays.asList(textVariable));
+	}
+
+	private DataAtomicSpy createAtomicUsingNameInDataAndType(String nameInData, String type) {
+		DataAtomicSpy atomic = new DataAtomicSpy();
+		addAttributeType(atomic, type);
+		atomic.MRV.setDefaultReturnValuesSupplier("getNameInData", () -> nameInData);
+		return atomic;
+	}
+
+	private void addAttributeType(DataAtomicSpy dataChild, String typeValue) {
+		dataChild.MRV.setDefaultReturnValuesSupplier("hasAttributes", () -> true);
+		dataChild.MRV.setSpecificReturnValuesSupplier("getAttributeValue",
+				() -> Optional.of(typeValue), "type");
+	}
+
+	private DataRecordLinkSpy createRecordLinkUsingNameInData(String nameInData) {
+		DataRecordLinkSpy recordLink = new DataRecordLinkSpy();
+		recordLink.MRV.setDefaultReturnValuesSupplier("getNameInData", () -> nameInData);
+		return recordLink;
+	}
+
+	private DataResourceLinkSpy createResourceLinkUsingNameInData() {
+		DataResourceLinkSpy resourceLink = new DataResourceLinkSpy();
+		resourceLink.MRV.setDefaultReturnValuesSupplier("getNameInData", () -> "someResourceLink");
+		return resourceLink;
+	}
+
 	@Test
 	public void testOneGroupOneRecordLink() throws Exception {
-		DataRecordLinkSpy recordLink = new DataRecordLinkSpy();
-		recordLink.MRV.setDefaultReturnValuesSupplier("getNameInData", () -> "someRecordLink");
-		dataGroup.MRV.setDefaultReturnValuesSupplier("hasChildren", () -> true);
-		dataGroup.MRV.setDefaultReturnValuesSupplier("getChildren", () -> List.of(recordLink));
+		DataGroupSpy dataGroup = createDataGroupSpy("someGroup");
+		DataRecordLinkSpy recordLink = createRecordLinkUsingNameInData("someRecordLink");
+		addChildrenToGroup(dataGroup, recordLink);
 
 		String definition = writer.writeDefinitionFromUsingDataChild(dataGroup);
+
 		String expectedDefinition = """
 				someGroup(group)
 					someRecordLink(recordLink, 1-1, noConstraint)""";
-
 		assertEquals(definition, expectedDefinition);
 	}
 
 	@Test
 	public void testOneGroupOneResourceLink() throws Exception {
-		DataResourceLinkSpy resourceLink = new DataResourceLinkSpy();
-		resourceLink.MRV.setDefaultReturnValuesSupplier("getNameInData", () -> "someResourceLink");
-		dataGroup.MRV.setDefaultReturnValuesSupplier("hasChildren", () -> true);
-		dataGroup.MRV.setDefaultReturnValuesSupplier("getChildren", () -> List.of(resourceLink));
+		DataGroupSpy dataGroup = createDataGroupSpy("someGroup");
+		DataResourceLinkSpy resourceLink = createResourceLinkUsingNameInData();
+		addChildrenToGroup(dataGroup, resourceLink);
 
 		String definition = writer.writeDefinitionFromUsingDataChild(dataGroup);
 		String expectedDefinition = """
@@ -84,28 +133,20 @@ public class DefinitionWriterTest {
 
 	@Test
 	public void testNestedGroupsWithOneChildEach() throws Exception {
-		DataResourceLinkSpy resourceLink = new DataResourceLinkSpy();
-		resourceLink.MRV.setDefaultReturnValuesSupplier("getNameInData", () -> "someResourceLink");
-		dataGroup.MRV.setDefaultReturnValuesSupplier("hasChildren", () -> true);
-
-		DataGroupSpy childGroup = createDataGroupSpy("childGroup");
-		DataAtomicSpy textVariable = new DataAtomicSpy();
-		textVariable.MRV.setDefaultReturnValuesSupplier("getNameInData", () -> "someTextVariable");
-		childGroup.MRV.setDefaultReturnValuesSupplier("hasChildren", () -> true);
-
 		DataGroupSpy childGroup2 = createDataGroupSpy("childGroup2");
-		DataAtomicSpy textVariable2 = new DataAtomicSpy();
-		textVariable2.MRV.setDefaultReturnValuesSupplier("getNameInData",
-				() -> "someTextVariable2");
-		childGroup2.MRV.setDefaultReturnValuesSupplier("hasChildren", () -> true);
-		childGroup2.MRV.setDefaultReturnValuesSupplier("getChildren", () -> List.of(textVariable2));
-
-		childGroup.MRV.setDefaultReturnValuesSupplier("getChildren",
-				() -> List.of(textVariable, childGroup2));
-		dataGroup.MRV.setDefaultReturnValuesSupplier("getChildren",
-				() -> List.of(resourceLink, childGroup));
+		DataAtomicSpy textVariable2 = createAtomicUsingNameInDataAndType("someTextVariable2",
+				"textVariable");
+		addChildrenToGroup(childGroup2, textVariable2);
+		DataGroupSpy childGroup = createDataGroupSpy("childGroup");
+		DataAtomicSpy textVariable = createAtomicUsingNameInDataAndType("someTextVariable",
+				"textVariable");
+		addChildrenToGroup(childGroup, textVariable, childGroup2);
+		DataResourceLinkSpy resourceLink = createResourceLinkUsingNameInData();
+		DataGroupSpy dataGroup = createDataGroupSpy("someGroup");
+		addChildrenToGroup(dataGroup, resourceLink, childGroup);
 
 		String definition = writer.writeDefinitionFromUsingDataChild(dataGroup);
+
 		String expectedDefinition = """
 				someGroup(group)
 					someResourceLink(resourceLink, 1-1, noConstraint)

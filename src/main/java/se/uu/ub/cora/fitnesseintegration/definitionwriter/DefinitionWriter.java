@@ -1,6 +1,26 @@
+/*
+ * Copyright 2024 Uppsala University Library
+ *
+ * This file is part of Cora.
+ *
+ *     Cora is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     Cora is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.uu.ub.cora.fitnesseintegration.definitionwriter;
 
+import java.text.MessageFormat;
 import java.util.List;
+import java.util.Optional;
 
 import se.uu.ub.cora.data.DataAtomic;
 import se.uu.ub.cora.data.DataChild;
@@ -21,7 +41,7 @@ public class DefinitionWriter {
 			// nested group levels
 			childDepth += 1;
 			DataGroup dataGroup = (DataGroup) dataChild;
-			definition = definition + writeGroup(dataGroup);
+			definition += writeGroup(dataGroup);
 
 			possiblyTraverseAndWriteChildren(dataGroup);
 		}
@@ -34,17 +54,17 @@ public class DefinitionWriter {
 	private void possiblyWriteDataChild(DataChild dataChild) {
 		if (isAtomic(dataChild)) {
 			DataAtomic dataAtomic = (DataAtomic) dataChild;
-			definition = definition + writeAtomic(dataAtomic);
+			definition += writeAtomic(dataAtomic);
 		}
 
 		if (isRecordLink(dataChild)) {
 			DataRecordLink recordLink = (DataRecordLink) dataChild;
-			definition = definition + writeRecordLink(recordLink);
+			definition += writeRecordLink(recordLink);
 		}
 
 		if (isResourceLink(dataChild)) {
 			DataResourceLink resourceLink = (DataResourceLink) dataChild;
-			definition = definition + writeResourceLink(resourceLink);
+			definition += writeResourceLink(resourceLink);
 		}
 	}
 
@@ -77,12 +97,12 @@ public class DefinitionWriter {
 	}
 
 	private void addNewLine() {
-		definition = definition + NEW_LINE;
+		definition += NEW_LINE;
 	}
 
 	private void addTab() {
 		for (int i = 0; i < childDepth; i++) {
-			definition = definition + TAB;
+			definition += TAB;
 		}
 	}
 
@@ -91,7 +111,9 @@ public class DefinitionWriter {
 	}
 
 	private String writeAtomic(DataAtomic dataAtomic) {
-		return dataAtomic.getNameInData() + "(textVariable, 1-1, noConstraint)";
+		String nameInData = dataAtomic.getNameInData();
+		Optional<String> attributeType = dataAtomic.getAttributeValue("type");
+		return MessageFormat.format("{0}({1}, 1-1, noConstraint)", nameInData, attributeType.get());
 	}
 
 	private String writeRecordLink(DataRecordLink dataRecordLink) {
