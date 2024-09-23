@@ -55,6 +55,7 @@ public class DefinitionWriterTest {
 
 		String expectedDefinition = """
 				someGroup(group)""";
+
 		assertEquals(definition, expectedDefinition);
 	}
 
@@ -70,6 +71,7 @@ public class DefinitionWriterTest {
 		String expectedDefinition = """
 				someGroup(group)
 					someTextVariable(textVariable, 1-1, noConstraint)""";
+
 		assertEquals(definition, expectedDefinition);
 	}
 
@@ -114,6 +116,7 @@ public class DefinitionWriterTest {
 		String expectedDefinition = """
 				someGroup(group)
 					someRecordLink(recordLink, 1-1, noConstraint)""";
+
 		assertEquals(definition, expectedDefinition);
 	}
 
@@ -159,7 +162,7 @@ public class DefinitionWriterTest {
 	}
 
 	@Test
-	public void testNestedGroupsOnSameLevelsWithOneChildEach() throws Exception {
+	public void testNestedGroupsWithChildrenOnVariousLevels() throws Exception {
 		DataGroupSpy childGroup5 = createDataGroupSpy("childGroup5");
 		DataAtomicSpy textVariable5 = createAtomicUsingNameInDataAndType("someTextVariable5",
 				"textVariable");
@@ -179,11 +182,10 @@ public class DefinitionWriterTest {
 		DataGroupSpy childGroup = createDataGroupSpy("childGroup");
 		DataAtomicSpy textVariable = createAtomicUsingNameInDataAndType("someTextVariable",
 				"textVariable");
-		DataAtomicSpy textVariable6 = createAtomicUsingNameInDataAndType("someTextVariable6",
-				"textVariable");
+		DataRecordLinkSpy recordLink = createRecordLinkUsingNameInData("someRecordLink");
 		DataAtomicSpy textVariable7 = createAtomicUsingNameInDataAndType("someTextVariable7",
 				"textVariable");
-		addChildrenToGroup(childGroup, textVariable, textVariable6, childGroup2, childGroup3,
+		addChildrenToGroup(childGroup, textVariable, recordLink, childGroup2, childGroup3,
 				textVariable7);
 		DataResourceLinkSpy resourceLink = createResourceLinkUsingNameInData();
 		DataGroupSpy dataGroup = createDataGroupSpy("someGroup");
@@ -196,7 +198,7 @@ public class DefinitionWriterTest {
 					someResourceLink(resourceLink, 1-1, noConstraint)
 					childGroup(group)
 						someTextVariable(textVariable, 1-1, noConstraint)
-						someTextVariable6(textVariable, 1-1, noConstraint)
+						someRecordLink(recordLink, 1-1, noConstraint)
 						childGroup2(group)
 							someTextVariable2(textVariable, 1-1, noConstraint)
 						childGroup3(group)

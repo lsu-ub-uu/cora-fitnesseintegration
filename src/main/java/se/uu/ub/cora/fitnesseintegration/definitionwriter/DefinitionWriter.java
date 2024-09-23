@@ -98,14 +98,6 @@ public class DefinitionWriter {
 		}
 	}
 
-	private boolean isRecordLink(DataChild dataChild) {
-		return dataChild instanceof DataRecordLink;
-	}
-
-	private boolean isResourceLink(DataChild dataChild) {
-		return dataChild instanceof DataResourceLink;
-	}
-
 	private boolean isAtomic(DataChild dataChild) {
 		return dataChild instanceof DataAtomic;
 	}
@@ -116,11 +108,20 @@ public class DefinitionWriter {
 		return MessageFormat.format("{0}({1}, 1-1, noConstraint)", nameInData, attributeType.get());
 	}
 
+	private boolean isRecordLink(DataChild dataChild) {
+		return dataChild instanceof DataRecordLink;
+	}
+
 	private String writeRecordLink(DataRecordLink dataRecordLink) {
 		return dataRecordLink.getNameInData() + "(recordLink, 1-1, noConstraint)";
+	}
+
+	private boolean isResourceLink(DataChild dataChild) {
+		return dataChild instanceof DataResourceLink;
 	}
 
 	private String writeResourceLink(DataResourceLink dataResourcedLink) {
 		return dataResourcedLink.getNameInData() + "(resourceLink, 1-1, noConstraint)";
 	}
+
 }
