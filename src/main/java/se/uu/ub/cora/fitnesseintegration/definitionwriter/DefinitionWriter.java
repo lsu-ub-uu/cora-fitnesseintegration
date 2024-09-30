@@ -60,11 +60,16 @@ public class DefinitionWriter {
 	}
 
 	private boolean isGroup(DataChild dataChild) {
-		return dataChild instanceof DataGroup;
+		if (dataChild.hasAttributes()) {
+			Optional<String> type = dataChild.getAttributeValue("type");
+			return type.isPresent() && "group".equals(type.get());
+		}
+		return false;
 	}
 
 	private String writeGroup(DataGroup dataGroup) {
-		return dataGroup.getNameInData() + "(group)";
+		String dataGroupName = dataGroup.getFirstAtomicValueWithNameInData("nameInData");
+		return dataGroupName + "(group)";
 	}
 
 	private void possiblyTraverseChildren(DataGroup dataGroup, int currentLevel) {
