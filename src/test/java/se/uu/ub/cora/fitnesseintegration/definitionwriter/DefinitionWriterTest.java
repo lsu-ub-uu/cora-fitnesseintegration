@@ -26,6 +26,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.data.spies.DataGroupSpy;
+import se.uu.ub.cora.data.spies.DataRecordGroupSpy;
+import se.uu.ub.cora.data.spies.DataRecordLinkSpy;
 
 public class DefinitionWriterTest {
 
@@ -40,10 +42,17 @@ public class DefinitionWriterTest {
 	public void writeOneGroupOnlyNameInData() throws Exception {
 		DataGroupSpy dataGroup = createMetadataGroupSpy("someRootGroup", "group");
 		DataGroupSpy attributeRefs = createMetadataGroupSpy("attributeReferences", "group");
-		// DataGroupSpy attributeRef = createMetadataGroupSpy("ref", "recordLink"); create
-		// datarecordlink for this
-		DataGroupSpy someCollectionVar = createMetadataGroupSpy("someCollectionVar",
-				"collectionVariable");
+
+		DataRecordGroupSpy someCollectionVar = new DataRecordGroupSpy();
+		someCollectionVar.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
+				() -> "someCollectionVar", "nameInData");
+
+		DataRecordLinkSpy someAttributeRef = new DataRecordLinkSpy();
+		someAttributeRef.MRV.setSpecificReturnValuesSupplier("getLinkedRecordId",
+				() -> "someCollectionVar", "someCollectionVar");
+		someAttributeRef.MRV.setSpecificReturnValuesSupplier("getLinkedRecordType",
+				() -> "metadata", "getLinkedRecordType");
+
 		DataGroupSpy someItemCollection = createMetadataGroupSpy("someCollection",
 				"itemCollection");
 

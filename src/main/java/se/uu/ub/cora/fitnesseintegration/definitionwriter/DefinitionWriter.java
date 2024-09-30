@@ -69,6 +69,7 @@ public class DefinitionWriter {
 
 	private String writeGroup(DataGroup dataGroup) {
 		String dataGroupName = dataGroup.getFirstAtomicValueWithNameInData("nameInData");
+		// read link from storage and process
 		return dataGroupName + "(group)";
 	}
 
