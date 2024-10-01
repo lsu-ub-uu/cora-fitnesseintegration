@@ -18,31 +18,50 @@
  */
 package se.uu.ub.cora.fitnesseintegration.definitionwriter;
 
-import java.text.MessageFormat;
-import java.util.List;
 import java.util.Optional;
 
-import se.uu.ub.cora.data.DataAtomic;
-import se.uu.ub.cora.data.DataChild;
-import se.uu.ub.cora.data.DataGroup;
-import se.uu.ub.cora.data.DataRecordLink;
-import se.uu.ub.cora.data.DataResourceLink;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
+import se.uu.ub.cora.javaclient.JavaClientAuthTokenCredentials;
+import se.uu.ub.cora.javaclient.JavaClientProvider;
+import se.uu.ub.cora.javaclient.data.DataClient;
 
 public class DefinitionWriter {
 
+	private static final String NAME_IN_DATA = "nameInData";
+	private static final String TYPE = "type";
+	private static final String METADATA = "metadata";
 	private static final String NEW_LINE = "\n";
 	private static final String TAB = "\t";
-	private String definition = "";
 
-	public String writeDefinitionFromUsingDataChild(DataChild dataChild) {
-		writeDefinition(dataChild, 0);
+	private String definition = "";
+	private String baseUrl;
+	private String appTokenUrl;
+	private DataClient dataClient;
+
+	public DefinitionWriter(String baseUrl, String appTokenUrl) {
+		this.baseUrl = baseUrl;
+		this.appTokenUrl = appTokenUrl;
+	}
+
+	public String writeDefinitionFromUsingDataChild(String authToken, String recordId) {
+		dataClient = createDataClientUsingAuthToken(authToken);
+		ClientDataRecord dataRecord = dataClient.read(METADATA, recordId);
+		writeDefinition(dataRecord.getDataRecordGroup(), 0);
 		return definition;
 	}
 
-	public void writeDefinition(DataChild dataChild, int currentLevel) {
-		addTab(currentLevel);
-		possiblyTraverseAndWriteGroup(dataChild, currentLevel);
-		possiblyWriteDataChild(dataChild);
+	private DataClient createDataClientUsingAuthToken(String authToken) {
+		JavaClientAuthTokenCredentials authTokenCredentials = new JavaClientAuthTokenCredentials(
+				baseUrl, appTokenUrl, authToken);
+		return JavaClientProvider
+				.createDataClientUsingJavaClientAuthTokenCredentials(authTokenCredentials);
+	}
+
+	private void writeDefinition(ClientDataRecordGroup clientDataRecordGroup, int currentIndent) {
+		addTab(currentIndent);
+		definition += writeElement(clientDataRecordGroup);
+		possiblyTraverseGroup(clientDataRecordGroup, currentIndent);
 	}
 
 	private void addTab(int level) {
@@ -51,83 +70,74 @@ public class DefinitionWriter {
 		}
 	}
 
-	private void possiblyTraverseAndWriteGroup(DataChild dataChild, int currentLevel) {
-		if (isGroup(dataChild)) {
-			DataGroup dataGroup = (DataGroup) dataChild;
-			definition += writeGroup(dataGroup);
-			possiblyTraverseChildren(dataGroup, currentLevel);
+	private void possiblyTraverseGroup(ClientDataRecordGroup clientDataRecordGroup,
+			int currentIndent) {
+		if (isGroup(clientDataRecordGroup)) {
+			// possiblyTraverseChildren(clientDataRecordGroup, currentIndent);
 		}
 	}
 
-	private boolean isGroup(DataChild dataChild) {
-		if (dataChild.hasAttributes()) {
-			Optional<String> type = dataChild.getAttributeValue("type");
+	private boolean isGroup(ClientDataRecordGroup clientDataRecordGroup) {
+		if (clientDataRecordGroup.hasAttributes()) {
+			Optional<String> type = clientDataRecordGroup.getAttributeValue(TYPE);
 			return type.isPresent() && "group".equals(type.get());
 		}
 		return false;
 	}
 
-	private String writeGroup(DataGroup dataGroup) {
-		String dataGroupName = dataGroup.getFirstAtomicValueWithNameInData("nameInData");
-		// read link from storage and process
-		return dataGroupName + "(group)";
+	private String writeElement(ClientDataRecordGroup clientDataRecordGroup) {
+		String metadataNameInData = clientDataRecordGroup
+				.getFirstAtomicValueWithNameInData(NAME_IN_DATA);
+		String metadataType = getMetadataType(clientDataRecordGroup);
+
+		return metadataNameInData + "(" + metadataType + ")";
 	}
 
-	private void possiblyTraverseChildren(DataGroup dataGroup, int currentLevel) {
-		if (dataGroup.hasChildren()) {
-			List<DataChild> children = dataGroup.getChildren();
-			for (DataChild child : children) {
-				addNewLine();
-				writeDefinition(child, currentLevel + 1);
-			}
-		}
+	private String getMetadataType(ClientDataRecordGroup clientDataRecordGroup) {
+		Optional<String> attributeValue = clientDataRecordGroup.getAttributeValue(TYPE);
+		return attributeValue.isPresent() ? attributeValue.get() : "";
 	}
 
-	private void addNewLine() {
-		definition += NEW_LINE;
+	// private void possiblyTraverseChildren(ClientDataRecordGroup clientDataRecordGroup,
+	// int currentIndent) {
+	// if (clientDataRecordGroup.hasChildren()) {
+	// List<ClientDataGroup> childReferences = getChildReferences(clientDataRecordGroup);
+	// for (ClientDataGroup child : childReferences) {
+	// addNewLine();
+	// ClientDataRecord ref = readChildReferenceLink(child);
+	// writeDefinition(ref.getDataRecordGroup(), currentIndent + 1);
+	// }
+	// }
+	// }
+
+	// private List<ClientDataGroup> getChildReferences(ClientDataRecordGroup clientDataRecordGroup)
+	// {
+	// ClientDataGroup childReferencesGroup = clientDataRecordGroup
+	// .getFirstGroupWithNameInData("childReferences");
+	// return childReferencesGroup.getChildrenOfTypeAndName(ClientDataGroup.class,
+	// "childReference");
+	// }
+	//
+	// private ClientDataRecord readChildReferenceLink(ClientDataGroup child) {
+	// ClientDataRecordLink refLink = child.getFirstChildOfTypeAndName(ClientDataRecordLink.class,
+	// "ref");
+	// return dataClient.read(METADATA, refLink.getLinkedRecordId());
+	// }
+
+	// private void addNewLine() {
+	// definition += NEW_LINE;
+	// }
+
+	public String onlyForTestGetBaseUrl() {
+		return baseUrl;
 	}
 
-	private void possiblyWriteDataChild(DataChild dataChild) {
-		if (isAtomic(dataChild)) {
-			DataAtomic dataAtomic = (DataAtomic) dataChild;
-			definition += writeAtomic(dataAtomic);
-		}
-
-		if (isRecordLink(dataChild)) {
-			DataRecordLink recordLink = (DataRecordLink) dataChild;
-			definition += writeRecordLink(recordLink);
-		}
-
-		if (isResourceLink(dataChild)) {
-			DataResourceLink resourceLink = (DataResourceLink) dataChild;
-			definition += writeResourceLink(resourceLink);
-		}
+	public String onlyForTestGetAppTokenUrl() {
+		return appTokenUrl;
 	}
 
-	private boolean isAtomic(DataChild dataChild) {
-		return dataChild instanceof DataAtomic;
-	}
-
-	private String writeAtomic(DataAtomic dataAtomic) {
-		String nameInData = dataAtomic.getNameInData();
-		Optional<String> attributeType = dataAtomic.getAttributeValue("type");
-		return MessageFormat.format("{0}({1}, 1-1, noConstraint)", nameInData, attributeType.get());
-	}
-
-	private boolean isRecordLink(DataChild dataChild) {
-		return dataChild instanceof DataRecordLink;
-	}
-
-	private String writeRecordLink(DataRecordLink dataRecordLink) {
-		return dataRecordLink.getNameInData() + "(recordLink, 1-1, noConstraint)";
-	}
-
-	private boolean isResourceLink(DataChild dataChild) {
-		return dataChild instanceof DataResourceLink;
-	}
-
-	private String writeResourceLink(DataResourceLink dataResourcedLink) {
-		return dataResourcedLink.getNameInData() + "(resourceLink, 1-1, noConstraint)";
+	public DataClient onlyForTestGetDataClient() {
+		return dataClient;
 	}
 
 }

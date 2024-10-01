@@ -25,38 +25,63 @@ import java.util.Optional;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.data.spies.DataGroupSpy;
-import se.uu.ub.cora.data.spies.DataRecordGroupSpy;
-import se.uu.ub.cora.data.spies.DataRecordLinkSpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataRecordGroupSpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
+import se.uu.ub.cora.fitnesseintegration.spy.DataClientSpy;
+import se.uu.ub.cora.fitnesseintegration.spy.JavaClientFactorySpy;
+import se.uu.ub.cora.javaclient.JavaClientProvider;
 
 public class DefinitionWriterTest {
 
+	private static final String RECORD_ID = "someRecordId";
 	private DefinitionWriter writer;
+	private JavaClientFactorySpy javaClientFactory;
+	private String baseUrl = "someBaseUrl";
+	private String appTokenUrl = "someAppTokenUrl";
+	private String authToken = "someAuthToken";
+	private DataClientSpy dataClient;
+	private ClientDataRecordSpy dataRecord;
 
 	@BeforeMethod
 	private void beforeMethod() {
-		writer = new DefinitionWriter();
+		javaClientFactory = new JavaClientFactorySpy();
+		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
+		dataClient = new DataClientSpy();
+		javaClientFactory.MRV.setDefaultReturnValuesSupplier(
+				"factorDataClientUsingJavaClientAuthTokenCredentials", () -> dataClient);
+
+		dataRecord = new ClientDataRecordSpy();
+		dataClient.MRV.setSpecificReturnValuesSupplier("read", () -> dataRecord, "metadata",
+				RECORD_ID);
+
+		writer = new DefinitionWriter(baseUrl, appTokenUrl);
+	}
+
+	@Test
+	public void testOnlyForTestGetBaseUrl() throws Exception {
+		assertEquals(writer.onlyForTestGetBaseUrl(), baseUrl);
+	}
+
+	@Test
+	public void testOnlyForTestGetAppTokenUrl() throws Exception {
+		assertEquals(writer.onlyForTestGetAppTokenUrl(), appTokenUrl);
+	}
+
+	@Test
+	public void testDataClientIsFactored() throws Exception {
+		writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+		javaClientFactory.MCR
+				.assertMethodWasCalled("factorDataClientUsingJavaClientAuthTokenCredentials");
+		assertEquals(dataClient, writer.onlyForTestGetDataClient());
 	}
 
 	@Test
 	public void writeOneGroupOnlyNameInData() throws Exception {
-		DataGroupSpy dataGroup = createMetadataGroupSpy("someRootGroup", "group");
-		DataGroupSpy attributeRefs = createMetadataGroupSpy("attributeReferences", "group");
+		ClientDataRecordGroupSpy dataRecordGroup = createMetadataGroupSpy("someRootGroup", "group");
+		dataRecord.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup", () -> dataRecordGroup);
 
-		DataRecordGroupSpy someCollectionVar = new DataRecordGroupSpy();
-		someCollectionVar.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
-				() -> "someCollectionVar", "nameInData");
-
-		DataRecordLinkSpy someAttributeRef = new DataRecordLinkSpy();
-		someAttributeRef.MRV.setSpecificReturnValuesSupplier("getLinkedRecordId",
-				() -> "someCollectionVar", "someCollectionVar");
-		someAttributeRef.MRV.setSpecificReturnValuesSupplier("getLinkedRecordType",
-				() -> "metadata", "getLinkedRecordType");
-
-		DataGroupSpy someItemCollection = createMetadataGroupSpy("someCollection",
-				"itemCollection");
-
-		String definition = writer.writeDefinitionFromUsingDataChild(dataGroup);
+		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
 
 		String expectedDefinition = """
 				someRootGroup(group)""";
@@ -64,17 +89,60 @@ public class DefinitionWriterTest {
 		assertEquals(definition, expectedDefinition);
 	}
 
-	private DataGroupSpy createMetadataGroupSpy(String name, String type) {
-		DataGroupSpy dataGroupSpy = new DataGroupSpy();
+	private ClientDataRecordGroupSpy createMetadataGroupSpy(String name, String type) {
+		ClientDataRecordGroupSpy dataRecordGroupSpy = new ClientDataRecordGroupSpy();
 
-		dataGroupSpy.MRV.setDefaultReturnValuesSupplier("hasAttributes", () -> true);
-		dataGroupSpy.MRV.setSpecificReturnValuesSupplier("getAttributeValue",
+		dataRecordGroupSpy.MRV.setDefaultReturnValuesSupplier("hasAttributes", () -> true);
+		dataRecordGroupSpy.MRV.setSpecificReturnValuesSupplier("getAttributeValue",
 				() -> Optional.of(type), "type");
-		dataGroupSpy.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
+		dataRecordGroupSpy.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
 				() -> name, "nameInData");
 
-		return dataGroupSpy;
+		return dataRecordGroupSpy;
 	}
+
+	@Test
+	public void writeOneGroupOnlyNameInData2() throws Exception {
+		ClientDataRecordGroupSpy dataRecordGroup = createMetadataGroupSpy("someRootGroup", "group");
+		dataRecord.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup", () -> dataRecordGroup);
+
+		createMetadataGroupSpy("childReferences", "group");
+		createMetadataGroupSpy("childReference", "group");
+
+		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
+
+		String expectedDefinition = """
+				someRootGroup(group)""";
+
+		assertEquals(definition, expectedDefinition);
+	}
+
+	// @Test
+	// public void writeOneGroupOnlyNameInData2() throws Exception {
+	// DataGroupSpy dataGroup = createMetadataGroupSpy("someRootGroup", "group");
+	// DataGroupSpy attributeRefs = createMetadataGroupSpy("attributeReferences", "group");
+	//
+	// DataRecordGroupSpy someCollectionVar = new DataRecordGroupSpy();
+	// someCollectionVar.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
+	// () -> "someCollectionVar", "nameInData");
+	//
+	// DataRecordLinkSpy someAttributeRef = new DataRecordLinkSpy();
+	// someAttributeRef.MRV.setSpecificReturnValuesSupplier("getLinkedRecordId",
+	// () -> "someCollectionVar", "someCollectionVar");
+	// someAttributeRef.MRV.setSpecificReturnValuesSupplier("getLinkedRecordType",
+	// () -> "metadata", "getLinkedRecordType");
+	//
+	// DataGroupSpy someItemCollection = createMetadataGroupSpy("someCollection",
+	// "itemCollection");
+	//
+	// String definition = writer.writeDefinitionFromUsingDataChild(authToken, dataGroup);
+	//
+	// String expectedDefinition = """
+	// someRootGroup(group)""";
+	//
+	// assertEquals(definition, expectedDefinition);
+	// }
 
 	// @Test
 	// public void testOneGroupOneTextVariable() throws Exception {
