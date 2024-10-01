@@ -36,8 +36,8 @@
 		<httphandler.version>2.16.0</httphandler.version>
 		<httphandlerspies.version>1.6.0</httphandlerspies.version>
 		<clientdata.version>6.5.0</clientdata.version>
-		<coradata.version>10.0-SNAPSHOT</coradata.version>
-		<converter.version>4.0.0</converter.version>
+		<coradata.version>10.0.0</coradata.version>
+		<converter.version>4.1.0</converter.version>
 		<javaclient.version>3.7.0</javaclient.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 		<fitnesse.version>20240707</fitnesse.version>
@@ -48,8 +48,8 @@
 		<httpclient.version>4.5.14</httpclient.version>
 		<junit.version>4.13.2</junit.version>
 		<indexmessenger.version>1.14.0</indexmessenger.version>
-		<testutils.version>1.13.0</testutils.version>
-		<coradata-spies.version>2.0-SNAPSHOT</coradata-spies.version>
+		<testutils.version>1.14.0</testutils.version>
+		<coradata-spies.version>2.0.0</coradata-spies.version>
 		<clientdata-spies.version>1.6.0</clientdata-spies.version>
 		<loggerspies.version>1.5.0</loggerspies.version>
 	</properties>
