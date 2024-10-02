@@ -36,7 +36,7 @@ public class HttpHandlerSpy implements HttpHandler {
 	public int responseCode = 200;
 	public String responseText = "Everything ok";
 
-	public String idFromLogin = "other@user.domain.org";
+	public String loginId = "other@user.domain.org";
 	public String authTokenJsEscaped = "a8675062\\-a00d\\-4f6b\\-ada3\\-510934ad779d";
 	public String validForNoSeconds = "600";
 	public String deleteUrlJsEscaped = "http:\\/\\/localhost:8180\\/login\\/rest\\/apptoken\\/141414";
@@ -108,12 +108,12 @@ public class HttpHandlerSpy implements HttpHandler {
 		answer.append("window.onload = start;");
 		answer.append("function start() {");
 		answer.append("var authInfo = {");
-		answer.append("\"userId\" : \"" + idFromLogin + "\",");
+		answer.append("\"userId\" : \"" + loginId + "\",");
 		answer.append("\"token\" : \"");
 		answer.append(authTokenJsEscaped);
 		answer.append("\",");
-		answer.append("\"idFromLogin\" : \"");
-		answer.append(idFromLogin);
+		answer.append("\"loginId\" : \"");
+		answer.append(loginId);
 		answer.append("\",");
 		answer.append("\"validForNoSeconds\" : \"");
 		answer.append(validForNoSeconds);
