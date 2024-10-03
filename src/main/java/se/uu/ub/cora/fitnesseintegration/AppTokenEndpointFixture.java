@@ -28,7 +28,7 @@ import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 
 public class AppTokenEndpointFixture {
-	private static final int DISTANCE_TO_START_OF_TOKEN = 21;
+	private static final int DISTANCE_TO_START_OF_TOKEN = 24;
 	private String appToken;
 	private HttpHandlerFactory factory;
 	private String baseUrlApptoken = SystemUrl.getAppTokenVerifierUrl() + "rest/apptoken/";
@@ -71,7 +71,7 @@ public class AppTokenEndpointFixture {
 	}
 
 	private String extractCreatedTokenFromResponseText(String responseText) {
-		int idIndex = responseText.lastIndexOf("\"name\":\"id\"") + DISTANCE_TO_START_OF_TOKEN;
+		int idIndex = responseText.lastIndexOf("\"name\":\"token\"") + DISTANCE_TO_START_OF_TOKEN;
 		return responseText.substring(idIndex, responseText.indexOf('"', idIndex));
 	}
 

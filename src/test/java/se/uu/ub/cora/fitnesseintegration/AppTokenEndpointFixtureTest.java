@@ -35,7 +35,7 @@ public class AppTokenEndpointFixtureTest {
 		assertEquals(httpHandlerFactorySpy.urlString,
 				"http://localhost:8080/login/rest/apptoken/someUserId");
 		assertEquals(json,
-				"{\"children\":[{\"name\":\"id\",\"value\":\"a1acff95-5849-4e10-9ee9-4b192aef17fd\"}"
+				"{\"children\":[{\"name\":\"token\",\"value\":\"a1acff95-5849-4e10-9ee9-4b192aef17fd\"}"
 						+ ",{\"name\":\"validForNoSeconds\",\"value\":\"600\"}],\"name\":\"authToken\"}");
 		assertEquals(fixture.getAuthToken(), "a1acff95-5849-4e10-9ee9-4b192aef17fd");
 		assertEquals(fixture.getStatusType(), Response.Status.CREATED);
@@ -53,7 +53,7 @@ public class AppTokenEndpointFixtureTest {
 		assertEquals(httpHandlerFactorySpy.urlString,
 				"http://localhost:8080/login/rest/apptoken/fitnesseAdmin@system.cora.uu.se");
 		assertEquals(json,
-				"{\"children\":[{\"name\":\"id\",\"value\":\"a1acff95-5849-4e10-9ee9-4b192aef17fd\"}"
+				"{\"children\":[{\"name\":\"token\",\"value\":\"a1acff95-5849-4e10-9ee9-4b192aef17fd\"}"
 						+ ",{\"name\":\"validForNoSeconds\",\"value\":\"600\"}],\"name\":\"authToken\"}");
 		assertEquals(fixture.getAuthToken(), "a1acff95-5849-4e10-9ee9-4b192aef17fd");
 		assertEquals(fixture.getStatusType(), Response.Status.CREATED);
@@ -71,7 +71,7 @@ public class AppTokenEndpointFixtureTest {
 		assertEquals(httpHandlerFactorySpy.urlString,
 				"http://localhost:8080/login/rest/apptoken/fitnesseUser@system.cora.uu.se");
 		assertEquals(json,
-				"{\"children\":[{\"name\":\"id\",\"value\":\"a1acff95-5849-4e10-9ee9-4b192aef17fd\"}"
+				"{\"children\":[{\"name\":\"token\",\"value\":\"a1acff95-5849-4e10-9ee9-4b192aef17fd\"}"
 						+ ",{\"name\":\"validForNoSeconds\",\"value\":\"600\"}],\"name\":\"authToken\"}");
 		assertEquals(fixture.getAuthToken(), "a1acff95-5849-4e10-9ee9-4b192aef17fd");
 		assertEquals(fixture.getStatusType(), Response.Status.CREATED);
