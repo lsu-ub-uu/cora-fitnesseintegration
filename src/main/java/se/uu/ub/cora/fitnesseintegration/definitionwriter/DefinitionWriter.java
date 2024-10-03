@@ -18,16 +18,20 @@
  */
 package se.uu.ub.cora.fitnesseintegration.definitionwriter;
 
+import java.util.List;
 import java.util.Optional;
 
+import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
+import se.uu.ub.cora.clientdata.ClientDataRecordLink;
 import se.uu.ub.cora.javaclient.JavaClientAuthTokenCredentials;
 import se.uu.ub.cora.javaclient.JavaClientProvider;
 import se.uu.ub.cora.javaclient.data.DataClient;
 
 public class DefinitionWriter {
 
+	private static final String COMMA = ", ";
 	private static final String NAME_IN_DATA = "nameInData";
 	private static final String TYPE = "type";
 	private static final String METADATA = "metadata";
@@ -47,7 +51,8 @@ public class DefinitionWriter {
 	public String writeDefinitionFromUsingDataChild(String authToken, String recordId) {
 		dataClient = createDataClientUsingAuthToken(authToken);
 		ClientDataRecord dataRecord = dataClient.read(METADATA, recordId);
-		writeDefinition(dataRecord.getDataRecordGroup(), 0);
+		ClientDataRecordGroup dataRecordGroup = dataRecord.getDataRecordGroup();
+		writeDefinition(dataRecordGroup, Optional.empty(), 0);
 		return definition;
 	}
 
@@ -58,22 +63,19 @@ public class DefinitionWriter {
 				.createDataClientUsingJavaClientAuthTokenCredentials(authTokenCredentials);
 	}
 
-	private void writeDefinition(ClientDataRecordGroup clientDataRecordGroup, int currentIndent) {
+	private void writeDefinition(ClientDataRecordGroup clientDataRecordGroup,
+			Optional<MetadataInfo> info, int currentIndent) {
 		addTab(currentIndent);
-		definition += writeElement(clientDataRecordGroup);
-		possiblyTraverseGroup(clientDataRecordGroup, currentIndent);
+		if (clientDataRecordGroup.containsChildWithNameInData("attributeReferences")) {
+			// collect types
+		}
+		writeElement(clientDataRecordGroup, info);
+		possiblyTraverseGroupAndChildren(clientDataRecordGroup, currentIndent);
 	}
 
 	private void addTab(int level) {
 		for (int i = 0; i < level; i++) {
 			definition += TAB;
-		}
-	}
-
-	private void possiblyTraverseGroup(ClientDataRecordGroup clientDataRecordGroup,
-			int currentIndent) {
-		if (isGroup(clientDataRecordGroup)) {
-			// possiblyTraverseChildren(clientDataRecordGroup, currentIndent);
 		}
 	}
 
@@ -85,12 +87,17 @@ public class DefinitionWriter {
 		return false;
 	}
 
-	private String writeElement(ClientDataRecordGroup clientDataRecordGroup) {
+	private void writeElement(ClientDataRecordGroup clientDataRecordGroup,
+			Optional<MetadataInfo> info) {
 		String metadataNameInData = clientDataRecordGroup
 				.getFirstAtomicValueWithNameInData(NAME_IN_DATA);
 		String metadataType = getMetadataType(clientDataRecordGroup);
-
-		return metadataNameInData + "(" + metadataType + ")";
+		definition += metadataNameInData + "(" + metadataType;
+		if (info.isPresent()) {
+			constructInfoPrintOut(info.get());
+		}
+		definition += ")";
+		addNewLine();
 	}
 
 	private String getMetadataType(ClientDataRecordGroup clientDataRecordGroup) {
@@ -98,35 +105,62 @@ public class DefinitionWriter {
 		return attributeValue.isPresent() ? attributeValue.get() : "";
 	}
 
-	// private void possiblyTraverseChildren(ClientDataRecordGroup clientDataRecordGroup,
-	// int currentIndent) {
-	// if (clientDataRecordGroup.hasChildren()) {
-	// List<ClientDataGroup> childReferences = getChildReferences(clientDataRecordGroup);
-	// for (ClientDataGroup child : childReferences) {
-	// addNewLine();
-	// ClientDataRecord ref = readChildReferenceLink(child);
-	// writeDefinition(ref.getDataRecordGroup(), currentIndent + 1);
-	// }
-	// }
-	// }
+	private void constructInfoPrintOut(MetadataInfo info) {
+		definition += COMMA;
+		definition += info.repeatMin() + "-" + info.repeatMax();
+		definition += COMMA;
+		definition += info.constraints();
+	}
 
-	// private List<ClientDataGroup> getChildReferences(ClientDataRecordGroup clientDataRecordGroup)
-	// {
-	// ClientDataGroup childReferencesGroup = clientDataRecordGroup
-	// .getFirstGroupWithNameInData("childReferences");
-	// return childReferencesGroup.getChildrenOfTypeAndName(ClientDataGroup.class,
-	// "childReference");
-	// }
-	//
-	// private ClientDataRecord readChildReferenceLink(ClientDataGroup child) {
-	// ClientDataRecordLink refLink = child.getFirstChildOfTypeAndName(ClientDataRecordLink.class,
-	// "ref");
-	// return dataClient.read(METADATA, refLink.getLinkedRecordId());
-	// }
+	private void possiblyTraverseGroupAndChildren(ClientDataRecordGroup clientDataRecordGroup,
+			int currentIndent) {
+		if (isGroup(clientDataRecordGroup)) {
+			possiblyTraverseChildren(clientDataRecordGroup, currentIndent);
+		}
+	}
 
-	// private void addNewLine() {
-	// definition += NEW_LINE;
-	// }
+	private void possiblyTraverseChildren(ClientDataRecordGroup clientDataRecordGroup,
+			int currentIndent) {
+		if (clientDataRecordGroup.hasChildren()) {
+			List<ClientDataGroup> childReferences = getChildReferences(clientDataRecordGroup);
+			for (ClientDataGroup child : childReferences) {
+				Optional<MetadataInfo> metadataInfo = collectMetadataInfoAsRecord(child);
+				ClientDataRecord ref = readChildReferenceLink(child);
+				writeDefinition(ref.getDataRecordGroup(), metadataInfo, currentIndent + 1);
+			}
+		}
+	}
+
+	private void addNewLine() {
+		definition += NEW_LINE;
+	}
+
+	private List<ClientDataGroup> getChildReferences(ClientDataRecordGroup clientDataRecordGroup) {
+		ClientDataGroup childReferencesGroup = clientDataRecordGroup
+				.getFirstGroupWithNameInData("childReferences");
+		return childReferencesGroup.getChildrenOfTypeAndName(ClientDataGroup.class,
+				"childReference");
+	}
+
+	private ClientDataRecord readChildReferenceLink(ClientDataGroup child) {
+		ClientDataRecordLink refLink = child.getFirstChildOfTypeAndName(ClientDataRecordLink.class,
+				"ref");
+		return dataClient.read(METADATA, refLink.getLinkedRecordId());
+	}
+
+	private Optional<MetadataInfo> collectMetadataInfoAsRecord(ClientDataGroup dataGroup) {
+		String repeatMin = dataGroup.getFirstAtomicValueWithNameInData("repeatMin");
+		String repeatMax = dataGroup.getFirstAtomicValueWithNameInData("repeatMax");
+		String constraints = getContraint(dataGroup);
+
+		return Optional.of(new MetadataInfo(repeatMin, repeatMax, constraints));
+	}
+
+	private String getContraint(ClientDataGroup dataGroup) {
+		return dataGroup.containsChildWithNameInData("recordPartConstraint")
+				? dataGroup.getFirstAtomicValueWithNameInData("recordPartConstraint")
+				: "noConstraint";
+	}
 
 	public String onlyForTestGetBaseUrl() {
 		return baseUrl;
@@ -139,5 +173,8 @@ public class DefinitionWriter {
 	public DataClient onlyForTestGetDataClient() {
 		return dataClient;
 	}
+
+	private record MetadataInfo(String repeatMin, String repeatMax, String constraints) {
+	};
 
 }

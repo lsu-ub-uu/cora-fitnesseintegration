@@ -20,12 +20,19 @@ package se.uu.ub.cora.fitnesseintegration.definitionwriter;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.ClientDataRecordLink;
+import se.uu.ub.cora.clientdata.spies.ClientDataAtomicSpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataGroupSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordGroupSpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataRecordLinkSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
 import se.uu.ub.cora.fitnesseintegration.spy.DataClientSpy;
 import se.uu.ub.cora.fitnesseintegration.spy.JavaClientFactorySpy;
@@ -41,6 +48,9 @@ public class DefinitionWriterTest {
 	private String authToken = "someAuthToken";
 	private DataClientSpy dataClient;
 	private ClientDataRecordSpy dataRecord;
+	private ClientDataRecordGroupSpy dataRecordGroup;
+	private ClientDataGroupSpy childReferencesGroup;
+	private List<ClientDataGroupSpy> childRefs;
 
 	@BeforeMethod
 	private void beforeMethod() {
@@ -55,6 +65,17 @@ public class DefinitionWriterTest {
 				RECORD_ID);
 
 		writer = new DefinitionWriter(baseUrl, appTokenUrl);
+
+		setUpFirstGroupAndChildReferences();
+	}
+
+	private void setUpFirstGroupAndChildReferences() {
+		dataRecordGroup = createDataRecordGroupWithAttributesSpy("someRootGroup", "group");
+		dataRecord.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup", () -> dataRecordGroup);
+
+		childReferencesGroup = createChildReferencesGroupForRecordGroup(dataRecordGroup);
+		childRefs = new ArrayList<>();
+		addChildReferenceListToChildReferencesGroup(childReferencesGroup, childRefs);
 	}
 
 	@Test
@@ -77,19 +98,21 @@ public class DefinitionWriterTest {
 
 	@Test
 	public void writeOneGroupOnlyNameInData() throws Exception {
-		ClientDataRecordGroupSpy dataRecordGroup = createMetadataGroupSpy("someRootGroup", "group");
+		ClientDataRecordGroupSpy dataRecordGroup = createDataRecordGroupWithAttributesSpy(
+				"someRootGroup", "group");
 		dataRecord.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup", () -> dataRecordGroup);
 
 		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+
 		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
-
 		String expectedDefinition = """
-				someRootGroup(group)""";
-
+				someRootGroup(group)
+				""";
 		assertEquals(definition, expectedDefinition);
 	}
 
-	private ClientDataRecordGroupSpy createMetadataGroupSpy(String name, String type) {
+	private ClientDataRecordGroupSpy createDataRecordGroupWithAttributesSpy(String name,
+			String type) {
 		ClientDataRecordGroupSpy dataRecordGroupSpy = new ClientDataRecordGroupSpy();
 
 		dataRecordGroupSpy.MRV.setDefaultReturnValuesSupplier("hasAttributes", () -> true);
@@ -102,199 +125,154 @@ public class DefinitionWriterTest {
 	}
 
 	@Test
-	public void writeOneGroupOnlyNameInData2() throws Exception {
-		ClientDataRecordGroupSpy dataRecordGroup = createMetadataGroupSpy("someRootGroup", "group");
-		dataRecord.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup", () -> dataRecordGroup);
-
-		createMetadataGroupSpy("childReferences", "group");
-		createMetadataGroupSpy("childReference", "group");
+	public void writeTwoGroupsWithMinMax() throws Exception {
+		ClientDataGroupSpy childRefrence1 = createChildReferenceElement("0", "X",
+				"someLinkedRecordId", "someChildGroup");
+		childRefs.add(childRefrence1);
 
 		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+
+		dataClient.MCR.assertNumberOfCallsToMethod("read", 2);
 		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
-
+		dataClient.MCR.assertParameters("read", 1, "metadata", "someLinkedRecordId");
 		String expectedDefinition = """
-				someRootGroup(group)""";
-
+				someRootGroup(group)
+					someChildGroup(group, 0-X, noConstraint)
+					""";
 		assertEquals(definition, expectedDefinition);
 	}
 
-	// @Test
-	// public void writeOneGroupOnlyNameInData2() throws Exception {
-	// DataGroupSpy dataGroup = createMetadataGroupSpy("someRootGroup", "group");
-	// DataGroupSpy attributeRefs = createMetadataGroupSpy("attributeReferences", "group");
-	//
-	// DataRecordGroupSpy someCollectionVar = new DataRecordGroupSpy();
-	// someCollectionVar.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
-	// () -> "someCollectionVar", "nameInData");
-	//
-	// DataRecordLinkSpy someAttributeRef = new DataRecordLinkSpy();
-	// someAttributeRef.MRV.setSpecificReturnValuesSupplier("getLinkedRecordId",
-	// () -> "someCollectionVar", "someCollectionVar");
-	// someAttributeRef.MRV.setSpecificReturnValuesSupplier("getLinkedRecordType",
-	// () -> "metadata", "getLinkedRecordType");
-	//
-	// DataGroupSpy someItemCollection = createMetadataGroupSpy("someCollection",
-	// "itemCollection");
-	//
-	// String definition = writer.writeDefinitionFromUsingDataChild(authToken, dataGroup);
-	//
-	// String expectedDefinition = """
-	// someRootGroup(group)""";
-	//
-	// assertEquals(definition, expectedDefinition);
-	// }
+	@Test
+	public void writeTwoGroupsWithMinMaxAndNoConstraints() throws Exception {
+		ClientDataGroupSpy childRefrence1 = createChildReferenceElement("0", "X",
+				"someLinkedRecordId", "someChildGroup");
+		childRefs.add(childRefrence1);
 
-	// @Test
-	// public void testOneGroupOneTextVariable() throws Exception {
-	// DataGroupSpy dataGroup = createDataGroupSpy("someGroup");
-	// DataAtomicSpy textVariable = createAtomicUsingNameInDataAndType("someTextVariable",
-	// "textVariable");
-	// addChildrenToGroup(dataGroup, textVariable);
-	//
-	// String definition = writer.writeDefinitionFromUsingDataChild(dataGroup);
-	//
-	// String expectedDefinition = """
-	// someGroup(group)
-	// someTextVariable(textVariable, 1-1, noConstraint)""";
-	//
-	// assertEquals(definition, expectedDefinition);
-	// }
-	//
-	// private void addChildrenToGroup(DataGroupSpy group, DataChild... textVariable) {
-	// group.MRV.setDefaultReturnValuesSupplier("hasChildren", () -> true);
-	// group.MRV.setDefaultReturnValuesSupplier("getChildren", () -> Arrays.asList(textVariable));
-	// }
-	//
-	// private DataAtomicSpy createAtomicUsingNameInDataAndType(String nameInData, String type) {
-	// DataAtomicSpy atomic = new DataAtomicSpy();
-	// addAttributeType(atomic, type);
-	// atomic.MRV.setDefaultReturnValuesSupplier("getNameInData", () -> nameInData);
-	// return atomic;
-	// }
-	//
-	// private void addAttributeType(DataAtomicSpy dataChild, String typeValue) {
-	// dataChild.MRV.setDefaultReturnValuesSupplier("hasAttributes", () -> true);
-	// dataChild.MRV.setSpecificReturnValuesSupplier("getAttributeValue",
-	// () -> Optional.of(typeValue), "type");
-	// }
-	//
-	// private DataRecordLinkSpy createRecordLinkUsingNameInData(String nameInData) {
-	// DataRecordLinkSpy recordLink = new DataRecordLinkSpy();
-	// recordLink.MRV.setDefaultReturnValuesSupplier("getNameInData", () -> nameInData);
-	// return recordLink;
-	// }
-	//
-	// private DataResourceLinkSpy createResourceLinkUsingNameInData() {
-	// DataResourceLinkSpy resourceLink = new DataResourceLinkSpy();
-	// resourceLink.MRV.setDefaultReturnValuesSupplier("getNameInData", () -> "someResourceLink");
-	// return resourceLink;
-	// }
-	//
-	// @Test
-	// public void testOneGroupOneRecordLink() throws Exception {
-	// DataGroupSpy dataGroup = createDataGroupSpy("someGroup");
-	// DataRecordLinkSpy recordLink = createRecordLinkUsingNameInData("someRecordLink");
-	// addChildrenToGroup(dataGroup, recordLink);
-	//
-	// String definition = writer.writeDefinitionFromUsingDataChild(dataGroup);
-	//
-	// String expectedDefinition = """
-	// someGroup(group)
-	// someRecordLink(recordLink, 1-1, noConstraint)""";
-	//
-	// assertEquals(definition, expectedDefinition);
-	// }
-	//
-	// @Test
-	// public void testOneGroupOneResourceLink() throws Exception {
-	// DataGroupSpy dataGroup = createDataGroupSpy("someGroup");
-	// DataResourceLinkSpy resourceLink = createResourceLinkUsingNameInData();
-	// addChildrenToGroup(dataGroup, resourceLink);
-	//
-	// String definition = writer.writeDefinitionFromUsingDataChild(dataGroup);
-	// String expectedDefinition = """
-	// someGroup(group)
-	// someResourceLink(resourceLink, 1-1, noConstraint)""";
-	//
-	// assertEquals(definition, expectedDefinition);
-	// }
-	//
-	// @Test
-	// public void testNestedGroupsWithOneChildEach() throws Exception {
-	// DataGroupSpy childGroup2 = createDataGroupSpy("childGroup2");
-	// DataAtomicSpy textVariable2 = createAtomicUsingNameInDataAndType("someTextVariable2",
-	// "textVariable");
-	// addChildrenToGroup(childGroup2, textVariable2);
-	// DataGroupSpy childGroup = createDataGroupSpy("childGroup");
-	// DataAtomicSpy textVariable = createAtomicUsingNameInDataAndType("someTextVariable",
-	// "textVariable");
-	// addChildrenToGroup(childGroup, textVariable, childGroup2);
-	// DataResourceLinkSpy resourceLink = createResourceLinkUsingNameInData();
-	// DataGroupSpy dataGroup = createDataGroupSpy("someGroup");
-	// addChildrenToGroup(dataGroup, resourceLink, childGroup);
-	//
-	// String definition = writer.writeDefinitionFromUsingDataChild(dataGroup);
-	//
-	// String expectedDefinition = """
-	// someGroup(group)
-	// someResourceLink(resourceLink, 1-1, noConstraint)
-	// childGroup(group)
-	// someTextVariable(textVariable, 1-1, noConstraint)
-	// childGroup2(group)
-	// someTextVariable2(textVariable, 1-1, noConstraint)""";
-	//
-	// assertEquals(definition, expectedDefinition);
-	// }
-	//
-	// @Test
-	// public void testNestedGroupsWithChildrenOnVariousLevels() throws Exception {
-	// DataGroupSpy childGroup5 = createDataGroupSpy("childGroup5");
-	// DataAtomicSpy textVariable5 = createAtomicUsingNameInDataAndType("someTextVariable5",
-	// "textVariable");
-	// addChildrenToGroup(childGroup5, textVariable5);
-	// DataGroupSpy childGroup4 = createDataGroupSpy("childGroup4");
-	// DataAtomicSpy textVariable4 = createAtomicUsingNameInDataAndType("someTextVariable4",
-	// "textVariable");
-	// addChildrenToGroup(childGroup4, textVariable4);
-	// DataGroupSpy childGroup3 = createDataGroupSpy("childGroup3");
-	// DataAtomicSpy textVariable3 = createAtomicUsingNameInDataAndType("someTextVariable3",
-	// "textVariable");
-	// addChildrenToGroup(childGroup3, textVariable3);
-	// DataGroupSpy childGroup2 = createDataGroupSpy("childGroup2");
-	// DataAtomicSpy textVariable2 = createAtomicUsingNameInDataAndType("someTextVariable2",
-	// "textVariable");
-	// addChildrenToGroup(childGroup2, textVariable2);
-	// DataGroupSpy childGroup = createDataGroupSpy("childGroup");
-	// DataAtomicSpy textVariable = createAtomicUsingNameInDataAndType("someTextVariable",
-	// "textVariable");
-	// DataRecordLinkSpy recordLink = createRecordLinkUsingNameInData("someRecordLink");
-	// DataAtomicSpy textVariable7 = createAtomicUsingNameInDataAndType("someTextVariable7",
-	// "textVariable");
-	// addChildrenToGroup(childGroup, textVariable, recordLink, childGroup2, childGroup3,
-	// textVariable7);
-	// DataResourceLinkSpy resourceLink = createResourceLinkUsingNameInData();
-	// DataGroupSpy dataGroup = createDataGroupSpy("someGroup");
-	// addChildrenToGroup(dataGroup, resourceLink, childGroup, childGroup4, childGroup5);
-	//
-	// String definition = writer.writeDefinitionFromUsingDataChild(dataGroup);
-	//
-	// String expectedDefinition = """
-	// someGroup(group)
-	// someResourceLink(resourceLink, 1-1, noConstraint)
-	// childGroup(group)
-	// someTextVariable(textVariable, 1-1, noConstraint)
-	// someRecordLink(recordLink, 1-1, noConstraint)
-	// childGroup2(group)
-	// someTextVariable2(textVariable, 1-1, noConstraint)
-	// childGroup3(group)
-	// someTextVariable3(textVariable, 1-1, noConstraint)
-	// someTextVariable7(textVariable, 1-1, noConstraint)
-	// childGroup4(group)
-	// someTextVariable4(textVariable, 1-1, noConstraint)
-	// childGroup5(group)
-	// someTextVariable5(textVariable, 1-1, noConstraint)""";
-	//
-	// assertEquals(definition, expectedDefinition);
-	// }
+		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
 
+		String expectedDefinition = """
+				someRootGroup(group)
+					someChildGroup(group, 0-X, noConstraint)
+					""";
+		assertEquals(definition, expectedDefinition);
+	}
+
+	@Test
+	public void testTwoLevelsWithConstraint() throws Exception {
+		ClientDataGroupSpy childRefrence1 = createChildReferenceElement("0", "X",
+				"someLinkedRecordId", "someChildGroup");
+		childRefs.add(childRefrence1);
+		addConstraintToChildReference(childRefrence1, "write");
+
+		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+
+		String expectedDefinition = """
+				someRootGroup(group)
+					someChildGroup(group, 0-X, write)
+					""";
+		assertEquals(definition, expectedDefinition);
+	}
+
+	@Test
+	public void testThreeLevels() throws Exception {
+		ClientDataGroupSpy childRefrence1 = createChildReferenceElement("0", "X",
+				"someLinkedRecordId", "someChildGroup");
+		childRefs.add(childRefrence1);
+
+		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+
+		String expectedDefinition = """
+				someRootGroup(group)
+					someChildGroup(group, 0-X, noConstraint)
+						someTextChild(textVariable, 0-1, noConstraint)
+						someLinkChild(recordLink, 1-1, noConstraint)
+					""";
+		assertEquals(definition, expectedDefinition);
+	}
+
+	private void addConstraintToChildReference(ClientDataGroupSpy childRefrence1,
+			String constraint) {
+		ClientDataAtomicSpy recordPartConstraint = createAtomicSpy("recordPartConstraint",
+				constraint);
+		childRefrence1.MRV.setSpecificReturnValuesSupplier("containsChildWithNameInData",
+				() -> true, "recordPartConstraint");
+		addAtomicToGroup(childRefrence1, "recordPartConstraint", recordPartConstraint);
+	}
+
+	private ClientDataGroupSpy createChildReferenceElement(String repeatMin, String repeatMax,
+			String linkedRecordIdId, String linkedRecordNameInData) {
+		ClientDataGroupSpy childReference = new ClientDataGroupSpy();
+		ClientDataAtomicSpy repeatMinAtomic = createAtomicSpy("repeatMin", repeatMin);
+		ClientDataAtomicSpy repeatMaxAtomic = createAtomicSpy("repeatMax", repeatMax);
+
+		addAtomicToGroup(childReference, "repeatMin", repeatMinAtomic);
+		addAtomicToGroup(childReference, "repeatMax", repeatMaxAtomic);
+
+		addLinkToGroup(childReference, "ref", linkedRecordIdId);
+
+		createRecordInStorage(linkedRecordIdId, linkedRecordNameInData);
+		return childReference;
+	}
+
+	private void createRecordInStorage(String recordId, String nameInData) {
+		ClientDataRecordSpy childRecord = new ClientDataRecordSpy();
+		dataClient.MRV.setSpecificReturnValuesSupplier("read", () -> childRecord, "metadata",
+				recordId);
+		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(nameInData,
+				"group");
+		childRecord.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup", () -> someChildGroup);
+	}
+
+	private void addChildReferenceListToChildReferencesGroup(ClientDataGroupSpy dataGroup,
+			List<ClientDataGroupSpy> childRefs) {
+		dataGroup.MRV.setSpecificReturnValuesSupplier("getChildrenOfTypeAndName", () -> childRefs,
+				ClientDataGroup.class, "childReference");
+	}
+
+	private void addLinkToGroup(ClientDataGroupSpy childReference, String nameInData,
+			String linkedRecordId) {
+		ClientDataRecordLinkSpy recordLinkRefSpy = createDataRecordLinkRef(linkedRecordId);
+		childReference.MRV.setSpecificReturnValuesSupplier("getFirstChildOfTypeAndName",
+				() -> recordLinkRefSpy, ClientDataRecordLink.class, nameInData);
+	}
+
+	private ClientDataRecordLinkSpy createDataRecordLinkRef(String linkedRecordId) {
+		ClientDataRecordLinkSpy recordLinkSpy = new ClientDataRecordLinkSpy();
+		recordLinkSpy.MRV.setDefaultReturnValuesSupplier("getLinkedRecordId", () -> linkedRecordId);
+		return recordLinkSpy;
+	}
+
+	private void addAtomicToGroup(ClientDataGroupSpy someChildReference, String nameInData,
+			ClientDataAtomicSpy atomic) {
+		someChildReference.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
+				() -> atomic.getValue(), nameInData);
+	}
+
+	private ClientDataGroupSpy createChildReferencesGroupForRecordGroup(
+			ClientDataRecordGroupSpy dataRecordGroup) {
+		ClientDataGroupSpy someChildReferences = createDataGroupSpy("childReferences", "group");
+		dataRecordGroup.MRV.setSpecificReturnValuesSupplier("getFirstGroupWithNameInData",
+				() -> someChildReferences, "childReferences");
+		return someChildReferences;
+	}
+
+	private ClientDataGroupSpy createDataGroupSpy(String name, String type) {
+		ClientDataGroupSpy dataRecordGroupSpy = new ClientDataGroupSpy();
+
+		dataRecordGroupSpy.MRV.setDefaultReturnValuesSupplier("hasAttributes", () -> true);
+		dataRecordGroupSpy.MRV.setSpecificReturnValuesSupplier("getAttributeValue",
+				() -> Optional.of(type), "type");
+		dataRecordGroupSpy.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
+				() -> name, "nameInData");
+
+		return dataRecordGroupSpy;
+	}
+
+	private ClientDataAtomicSpy createAtomicSpy(String nameInData, String value) {
+		ClientDataAtomicSpy someAtomic = new ClientDataAtomicSpy();
+		someAtomic.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
+				() -> nameInData, "nameInData");
+		someAtomic.MRV.setDefaultReturnValuesSupplier("getValue", () -> value);
+		return someAtomic;
+	}
 }
