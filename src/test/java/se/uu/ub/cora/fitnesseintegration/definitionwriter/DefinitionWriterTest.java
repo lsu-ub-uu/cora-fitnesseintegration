@@ -129,6 +129,9 @@ public class DefinitionWriterTest {
 		ClientDataGroupSpy childRefrence1 = createChildReferenceElement("0", "X",
 				"someLinkedRecordId", "someChildGroup");
 		childRefs.add(childRefrence1);
+		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(
+				"someChildGroup", "group");
+		createRecordInStorageAndAddDataRecordGroup("someLinkedRecordId", someChildGroup);
 
 		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
 
@@ -138,7 +141,7 @@ public class DefinitionWriterTest {
 		String expectedDefinition = """
 				someRootGroup(group)
 					someChildGroup(group, 0-X, noConstraint)
-					""";
+				""";
 		assertEquals(definition, expectedDefinition);
 	}
 
@@ -147,13 +150,16 @@ public class DefinitionWriterTest {
 		ClientDataGroupSpy childRefrence1 = createChildReferenceElement("0", "X",
 				"someLinkedRecordId", "someChildGroup");
 		childRefs.add(childRefrence1);
+		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(
+				"someChildGroup", "group");
+		createRecordInStorageAndAddDataRecordGroup("someLinkedRecordId", someChildGroup);
 
 		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
 
 		String expectedDefinition = """
 				someRootGroup(group)
 					someChildGroup(group, 0-X, noConstraint)
-					""";
+				""";
 		assertEquals(definition, expectedDefinition);
 	}
 
@@ -163,21 +169,47 @@ public class DefinitionWriterTest {
 				"someLinkedRecordId", "someChildGroup");
 		childRefs.add(childRefrence1);
 		addConstraintToChildReference(childRefrence1, "write");
+		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(
+				"someChildGroup", "group");
+		createRecordInStorageAndAddDataRecordGroup("someLinkedRecordId", someChildGroup);
 
 		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
 
 		String expectedDefinition = """
 				someRootGroup(group)
 					someChildGroup(group, 0-X, write)
-					""";
+				""";
 		assertEquals(definition, expectedDefinition);
 	}
 
 	@Test
 	public void testThreeLevels() throws Exception {
-		ClientDataGroupSpy childRefrence1 = createChildReferenceElement("0", "X",
+		ClientDataGroupSpy childReference1 = createChildReferenceElement("0", "X",
 				"someLinkedRecordId", "someChildGroup");
-		childRefs.add(childRefrence1);
+		childRefs.add(childReference1);
+		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(
+				"someChildGroup", "group");
+		createRecordInStorageAndAddDataRecordGroup("someLinkedRecordId", someChildGroup);
+
+		List<ClientDataGroupSpy> childRefs2 = new ArrayList<>();
+
+		ClientDataGroupSpy textChildReference = createChildReferenceElement("0", "1",
+				"someLinkedTextChildId", "someTextChild");
+		ClientDataRecordGroupSpy someTextChildGroup = createDataRecordGroupWithAttributesSpy(
+				"someTextChild", "textVariable");
+		createRecordInStorageAndAddDataRecordGroup("someLinkedTextChildId", someTextChildGroup);
+		childRefs2.add(textChildReference);
+
+		ClientDataGroupSpy linkChildReference = createChildReferenceElement("1", "1",
+				"someLinkedRecordLinkId", "someLinkChild");
+		ClientDataRecordGroupSpy someLinkChildGroup = createDataRecordGroupWithAttributesSpy(
+				"someLinkChild", "recordLink");
+		createRecordInStorageAndAddDataRecordGroup("someLinkedRecordLinkId", someLinkChildGroup);
+		childRefs2.add(linkChildReference);
+
+		ClientDataGroupSpy childReferencesGroup2 = createChildReferencesGroupForRecordGroup(
+				someChildGroup);
+		addChildReferenceListToChildReferencesGroup(childReferencesGroup2, childRefs2);
 
 		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
 
@@ -186,8 +218,49 @@ public class DefinitionWriterTest {
 					someChildGroup(group, 0-X, noConstraint)
 						someTextChild(textVariable, 0-1, noConstraint)
 						someLinkChild(recordLink, 1-1, noConstraint)
-					""";
+				""";
 		assertEquals(definition, expectedDefinition);
+	}
+
+	@Test
+	public void testThreeLevelsWithFinalValue() throws Exception {
+		ClientDataGroupSpy childReference1 = createChildReferenceElement("0", "X",
+				"someLinkedRecordId", "someChildGroup");
+		childRefs.add(childReference1);
+		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(
+				"someChildGroup", "group");
+		createRecordInStorageAndAddDataRecordGroup("someLinkedRecordId", someChildGroup);
+
+		List<ClientDataGroupSpy> childRefs2 = new ArrayList<>();
+
+		ClientDataGroupSpy textChildReference = createChildReferenceElement("0", "1",
+				"someLinkedTextChildId", "someTextChild");
+		ClientDataRecordGroupSpy someTextChildGroup = createDataRecordGroupWithAttributesSpy(
+				"someTextChild", "textVariable");
+		addFinalValueToGroup("someFinalValue", someTextChildGroup);
+		createRecordInStorageAndAddDataRecordGroup("someLinkedTextChildId", someTextChildGroup);
+		childRefs2.add(textChildReference);
+
+		ClientDataGroupSpy childReferencesGroup2 = createChildReferencesGroupForRecordGroup(
+				someChildGroup);
+		addChildReferenceListToChildReferencesGroup(childReferencesGroup2, childRefs2);
+
+		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+
+		String expectedDefinition = """
+				someRootGroup(group)
+					someChildGroup(group, 0-X, noConstraint)
+						someTextChild{someFinalValue}(textVariable, 0-1, noConstraint)
+				""";
+		assertEquals(definition, expectedDefinition);
+	}
+
+	private void addFinalValueToGroup(String finalValue,
+			ClientDataRecordGroupSpy someTextChildGroup) {
+		someTextChildGroup.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
+				() -> finalValue, "finalValue");
+		someTextChildGroup.MRV.setSpecificReturnValuesSupplier("containsChildWithNameInData",
+				() -> true, "finalValue");
 	}
 
 	private void addConstraintToChildReference(ClientDataGroupSpy childRefrence1,
@@ -210,17 +283,17 @@ public class DefinitionWriterTest {
 
 		addLinkToGroup(childReference, "ref", linkedRecordIdId);
 
-		createRecordInStorage(linkedRecordIdId, linkedRecordNameInData);
 		return childReference;
 	}
 
-	private void createRecordInStorage(String recordId, String nameInData) {
+	private ClientDataRecordSpy createRecordInStorageAndAddDataRecordGroup(String recordId,
+			ClientDataRecordGroupSpy someChildGroup) {
 		ClientDataRecordSpy childRecord = new ClientDataRecordSpy();
 		dataClient.MRV.setSpecificReturnValuesSupplier("read", () -> childRecord, "metadata",
 				recordId);
-		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(nameInData,
-				"group");
+
 		childRecord.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup", () -> someChildGroup);
+		return childRecord;
 	}
 
 	private void addChildReferenceListToChildReferencesGroup(ClientDataGroupSpy dataGroup,

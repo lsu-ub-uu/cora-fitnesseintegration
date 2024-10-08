@@ -24,10 +24,10 @@ public class DefinitionWriterRealTest {
 
 	private DefinitionWriter writer;
 
-	private String apptokenUrl = "https://cora.epc.ub.uu.se/systemone/login/rest/";
-	private String baseUrl = "https://cora.epc.ub.uu.se/systemone/rest/";
+	private String apptokenUrl = "http://localhost:8180/login/rest/";
+	private String baseUrl = "http://localhost:8080/systemone/rest/";
 
-	private String authToken = "d1aa70ec-4d87-4e5d-8e23-edc47e208e4d";
+	private String authToken = "dde13f43-fb6e-4ae5-8d5b-2d36913376fa";
 
 	@Test(enabled = true)
 	public void testName() throws Exception {

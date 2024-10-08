@@ -31,6 +31,7 @@ import se.uu.ub.cora.javaclient.data.DataClient;
 
 public class DefinitionWriter {
 
+	private static final String FINAL_VALUE = "finalValue";
 	private static final String COMMA = ", ";
 	private static final String NAME_IN_DATA = "nameInData";
 	private static final String TYPE = "type";
@@ -89,20 +90,38 @@ public class DefinitionWriter {
 
 	private void writeElement(ClientDataRecordGroup clientDataRecordGroup,
 			Optional<MetadataInfo> info) {
-		String metadataNameInData = clientDataRecordGroup
-				.getFirstAtomicValueWithNameInData(NAME_IN_DATA);
-		String metadataType = getMetadataType(clientDataRecordGroup);
-		definition += metadataNameInData + "(" + metadataType;
+		writeNameInData(clientDataRecordGroup);
+		possiblyWriteFinalValue(clientDataRecordGroup);
+
+		definition += "(";
+
+		possiblyWriteMetadataType(clientDataRecordGroup);
 		if (info.isPresent()) {
 			constructInfoPrintOut(info.get());
 		}
+
 		definition += ")";
 		addNewLine();
 	}
 
-	private String getMetadataType(ClientDataRecordGroup clientDataRecordGroup) {
+	private void possiblyWriteFinalValue(ClientDataRecordGroup clientDataRecordGroup) {
+		if (clientDataRecordGroup.containsChildWithNameInData(FINAL_VALUE)) {
+			String finalValue = clientDataRecordGroup
+					.getFirstAtomicValueWithNameInData(FINAL_VALUE);
+			if (!finalValue.isBlank())
+				definition += "{" + finalValue + "}";
+		}
+	}
+
+	private void writeNameInData(ClientDataRecordGroup clientDataRecordGroup) {
+		String metadataNameInData = clientDataRecordGroup
+				.getFirstAtomicValueWithNameInData(NAME_IN_DATA);
+		definition += metadataNameInData;
+	}
+
+	private void possiblyWriteMetadataType(ClientDataRecordGroup clientDataRecordGroup) {
 		Optional<String> attributeValue = clientDataRecordGroup.getAttributeValue(TYPE);
-		return attributeValue.isPresent() ? attributeValue.get() : "";
+		definition += attributeValue.isPresent() ? attributeValue.get() : "";
 	}
 
 	private void constructInfoPrintOut(MetadataInfo info) {
@@ -151,12 +170,12 @@ public class DefinitionWriter {
 	private Optional<MetadataInfo> collectMetadataInfoAsRecord(ClientDataGroup dataGroup) {
 		String repeatMin = dataGroup.getFirstAtomicValueWithNameInData("repeatMin");
 		String repeatMax = dataGroup.getFirstAtomicValueWithNameInData("repeatMax");
-		String constraints = getContraint(dataGroup);
+		String constraints = getConstraint(dataGroup);
 
 		return Optional.of(new MetadataInfo(repeatMin, repeatMax, constraints));
 	}
 
-	private String getContraint(ClientDataGroup dataGroup) {
+	private String getConstraint(ClientDataGroup dataGroup) {
 		return dataGroup.containsChildWithNameInData("recordPartConstraint")
 				? dataGroup.getFirstAtomicValueWithNameInData("recordPartConstraint")
 				: "noConstraint";
