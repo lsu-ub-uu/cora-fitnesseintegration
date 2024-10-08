@@ -31,9 +31,11 @@ public class AppTokenEndpointFixtureTest {
 		String json = fixture.getAuthTokenForAppToken();
 		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
 		assertEquals(httpHandlerSpy.requestMetod, "POST");
-		assertEquals(httpHandlerSpy.outputString, "02a89fd5-c768-4209-9ecc-d80bd793b01e");
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/login/rest/apptoken/someUserId");
+		String credentials = """
+				someUserId
+				02a89fd5-c768-4209-9ecc-d80bd793b01e""";
+		assertEquals(httpHandlerSpy.outputString, credentials);
+		assertEquals(httpHandlerFactorySpy.urlString, "http://localhost:8080/login/rest/apptoken");
 		assertEquals(json,
 				"{\"children\":[{\"name\":\"token\",\"value\":\"a1acff95-5849-4e10-9ee9-4b192aef17fd\"}"
 						+ ",{\"name\":\"validForNoSeconds\",\"value\":\"600\"}],\"name\":\"authToken\"}");
@@ -49,9 +51,11 @@ public class AppTokenEndpointFixtureTest {
 		String json = fixture.getAuthTokenForAppToken();
 		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
 		assertEquals(httpHandlerSpy.requestMetod, "POST");
-		assertEquals(httpHandlerSpy.outputString, "29c30232-d514-4559-b60b-6de47175c1df");
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/login/rest/apptoken/fitnesseAdmin@system.cora.uu.se");
+		String credentials = """
+				fitnesseAdmin@system.cora.uu.se
+				29c30232-d514-4559-b60b-6de47175c1df""";
+		assertEquals(httpHandlerSpy.outputString, credentials);
+		assertEquals(httpHandlerFactorySpy.urlString, "http://localhost:8080/login/rest/apptoken");
 		assertEquals(json,
 				"{\"children\":[{\"name\":\"token\",\"value\":\"a1acff95-5849-4e10-9ee9-4b192aef17fd\"}"
 						+ ",{\"name\":\"validForNoSeconds\",\"value\":\"600\"}],\"name\":\"authToken\"}");
@@ -67,9 +71,11 @@ public class AppTokenEndpointFixtureTest {
 		String json = fixture.getAuthTokenForAppToken();
 		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
 		assertEquals(httpHandlerSpy.requestMetod, "POST");
-		assertEquals(httpHandlerSpy.outputString, "bd699488-f9d1-419d-a79d-9fa8a0f3bb9d");
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/login/rest/apptoken/fitnesseUser@system.cora.uu.se");
+		String credentials = """
+				fitnesseUser@system.cora.uu.se
+				bd699488-f9d1-419d-a79d-9fa8a0f3bb9d""";
+		assertEquals(httpHandlerSpy.outputString, credentials);
+		assertEquals(httpHandlerFactorySpy.urlString, "http://localhost:8080/login/rest/apptoken");
 		assertEquals(json,
 				"{\"children\":[{\"name\":\"token\",\"value\":\"a1acff95-5849-4e10-9ee9-4b192aef17fd\"}"
 						+ ",{\"name\":\"validForNoSeconds\",\"value\":\"600\"}],\"name\":\"authToken\"}");

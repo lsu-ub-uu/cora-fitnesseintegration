@@ -28,12 +28,13 @@ import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 
 public class AppTokenEndpointFixture {
+	private static final String NEW_LINE = "\n";
 	private static final int DISTANCE_TO_START_OF_TOKEN = 24;
 	private String appToken;
 	private HttpHandlerFactory factory;
-	private String baseUrlApptoken = SystemUrl.getAppTokenVerifierUrl() + "rest/apptoken/";
-	private String baseUrlAuthToken = SystemUrl.getAppTokenVerifierUrl() + "rest/authToken/";
-	private String userId;
+	private String baseUrlApptoken = SystemUrl.getAppTokenVerifierUrl() + "rest/apptoken";
+	private String baseUrlAuthToken = SystemUrl.getAppTokenVerifierUrl() + "rest/authToken";
+	private String loginId;
 	private Status statusType;
 	private String authToken;
 	private String authTokenToLogOut;
@@ -47,18 +48,18 @@ public class AppTokenEndpointFixture {
 	}
 
 	public String getAuthTokenForAppToken() {
-		String url = baseUrlApptoken + userId;
+		String url = baseUrlApptoken;
 
 		HttpHandler httpHandler = factory.factor(url);
 		httpHandler.setRequestMethod("POST");
 		if (appToken == null || "".equals(appToken)) {
-			if ("fitnesseAdmin@system.cora.uu.se".equals(userId)) {
+			if ("fitnesseAdmin@system.cora.uu.se".equals(loginId)) {
 				appToken = "29c30232-d514-4559-b60b-6de47175c1df";
-			} else if ("fitnesseUser@system.cora.uu.se".equals(userId)) {
+			} else if ("fitnesseUser@system.cora.uu.se".equals(loginId)) {
 				appToken = "bd699488-f9d1-419d-a79d-9fa8a0f3bb9d";
 			}
 		}
-		httpHandler.setOutput(appToken);
+		httpHandler.setOutput(loginId + NEW_LINE + appToken);
 
 		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
 		if (statusType == Response.Status.CREATED) {
@@ -76,7 +77,7 @@ public class AppTokenEndpointFixture {
 	}
 
 	public void setUserId(String userId) {
-		this.userId = userId;
+		this.loginId = userId;
 	}
 
 	public String getAuthToken() {
@@ -92,7 +93,7 @@ public class AppTokenEndpointFixture {
 	}
 
 	public void removeAuthTokenForUser() {
-		String url = baseUrlAuthToken + userId;
+		String url = baseUrlAuthToken + "/" + loginId;
 
 		HttpHandler httpHandler = factory.factor(url);
 		httpHandler.setRequestMethod("DELETE");
