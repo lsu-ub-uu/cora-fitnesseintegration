@@ -40,7 +40,17 @@ import se.uu.ub.cora.javaclient.JavaClientProvider;
 
 public class DefinitionWriterTest {
 
+	private static final String LINKED_RECORD_LINK_CHILD_NiD = "someLinkChild";
+	private static final String GROUP_TYPE = "group";
+	private static final String TEXT_VARIABLE_TYPE = "textVariable";
+	private static final String RECORD_LINK_TYPE = "recordLink";
+	private static final String LINKED_CHILD_GROUP_ID = "someLinkedRecordId";
+	private static final String CHILD_GROUP_NiD = "someChildGroup";
+	private static final String LINKED_TEXT_CHILD_ID = "someLinkedTextChildId";
+	private static final String LINKED_TEXT_CHILD_RECORD_NiD = "someTextChild";
+	private static final String LINKED_RECORD_LINK_ID = "someLinkedRecordLinkId";
 	private static final String RECORD_ID = "someRecordId";
+
 	private DefinitionWriter writer;
 	private JavaClientFactorySpy javaClientFactory;
 	private String baseUrl = "someBaseUrl";
@@ -70,7 +80,7 @@ public class DefinitionWriterTest {
 	}
 
 	private void setUpFirstGroupAndChildReferences() {
-		dataRecordGroup = createDataRecordGroupWithAttributesSpy("someRootGroup", "group");
+		dataRecordGroup = createDataRecordGroupWithAttributesSpy("someRootGroup", GROUP_TYPE);
 		dataRecord.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup", () -> dataRecordGroup);
 
 		childReferencesGroup = createChildReferencesGroupForRecordGroup(dataRecordGroup);
@@ -99,15 +109,178 @@ public class DefinitionWriterTest {
 	@Test
 	public void writeOneGroupOnlyNameInData() throws Exception {
 		ClientDataRecordGroupSpy dataRecordGroup = createDataRecordGroupWithAttributesSpy(
-				"someRootGroup", "group");
+				"someRootGroup", GROUP_TYPE);
 		dataRecord.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup", () -> dataRecordGroup);
 
 		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
 
 		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
 		String expectedDefinition = """
-				someRootGroup(group)
-				""";
+				someRootGroup (group)""";
+		assertEquals(definition, expectedDefinition);
+	}
+
+	@Test
+	public void writeTwoGroupsWithMinMax() throws Exception {
+		ClientDataGroupSpy childReference1 = createChildReferenceElement("0", "X",
+				LINKED_CHILD_GROUP_ID, CHILD_GROUP_NiD);
+		childRefs.add(childReference1);
+		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(
+				CHILD_GROUP_NiD, GROUP_TYPE);
+		createRecordInStorageAndAddDataRecordGroup(LINKED_CHILD_GROUP_ID, someChildGroup);
+
+		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+
+		dataClient.MCR.assertNumberOfCallsToMethod("read", 2);
+		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
+		dataClient.MCR.assertParameters("read", 1, "metadata", LINKED_CHILD_GROUP_ID);
+		String expectedDefinition = """
+				someRootGroup (group)
+					someChildGroup (group, 0-X, noConstraint)""";
+		assertEquals(definition, expectedDefinition);
+	}
+
+	@Test
+	public void writeTwoGroupsWithMinMaxAndNoConstraints() throws Exception {
+		ClientDataGroupSpy childReference1 = createChildReferenceElement("0", "X",
+				LINKED_CHILD_GROUP_ID, CHILD_GROUP_NiD);
+		childRefs.add(childReference1);
+		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(
+				CHILD_GROUP_NiD, GROUP_TYPE);
+		createRecordInStorageAndAddDataRecordGroup(LINKED_CHILD_GROUP_ID, someChildGroup);
+
+		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+
+		String expectedDefinition = """
+				someRootGroup (group)
+					someChildGroup (group, 0-X, noConstraint)""";
+		assertEquals(definition, expectedDefinition);
+	}
+
+	@Test
+	public void testTwoLevelsWithConstraint() throws Exception {
+		ClientDataGroupSpy childReference1 = createChildReferenceElement("0", "X",
+				LINKED_CHILD_GROUP_ID, CHILD_GROUP_NiD);
+		childRefs.add(childReference1);
+		addConstraintToChildReference(childReference1, "write");
+		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(
+				CHILD_GROUP_NiD, GROUP_TYPE);
+		createRecordInStorageAndAddDataRecordGroup(LINKED_CHILD_GROUP_ID, someChildGroup);
+
+		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+
+		String expectedDefinition = """
+				someRootGroup (group)
+					someChildGroup (group, 0-X, write)""";
+		assertEquals(definition, expectedDefinition);
+	}
+
+	@Test
+	public void testThreeLevels() throws Exception {
+		ClientDataGroupSpy childReference1 = createChildReferenceElement("0", "X",
+				LINKED_CHILD_GROUP_ID, CHILD_GROUP_NiD);
+		childRefs.add(childReference1);
+		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(
+				CHILD_GROUP_NiD, GROUP_TYPE);
+		createRecordInStorageAndAddDataRecordGroup(LINKED_CHILD_GROUP_ID, someChildGroup);
+
+		List<ClientDataGroupSpy> childRefs2 = new ArrayList<>();
+
+		ClientDataGroupSpy textChildReference = createChildReferenceElement("0", "1",
+				LINKED_TEXT_CHILD_ID, LINKED_TEXT_CHILD_RECORD_NiD);
+		ClientDataRecordGroupSpy someTextChildGroup = createDataRecordGroupWithAttributesSpy(
+				LINKED_TEXT_CHILD_RECORD_NiD, TEXT_VARIABLE_TYPE);
+		createRecordInStorageAndAddDataRecordGroup(LINKED_TEXT_CHILD_ID, someTextChildGroup);
+
+		ClientDataGroupSpy linkChildReference = createChildReferenceElement("1", "1",
+				LINKED_RECORD_LINK_ID, LINKED_RECORD_LINK_CHILD_NiD);
+		ClientDataRecordGroupSpy someLinkChildGroup = createDataRecordGroupWithAttributesSpy(
+				LINKED_RECORD_LINK_CHILD_NiD, RECORD_LINK_TYPE);
+		createRecordInStorageAndAddDataRecordGroup(LINKED_RECORD_LINK_ID, someLinkChildGroup);
+
+		childRefs2.add(textChildReference);
+		childRefs2.add(linkChildReference);
+
+		ClientDataGroupSpy childReferencesGroup2 = createChildReferencesGroupForRecordGroup(
+				someChildGroup);
+		addChildReferenceListToChildReferencesGroup(childReferencesGroup2, childRefs2);
+
+		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+
+		String expectedDefinition = """
+				someRootGroup (group)
+					someChildGroup (group, 0-X, noConstraint)
+						someTextChild (textVariable, 0-1, noConstraint)
+						someLinkChild (recordLink, 1-1, noConstraint)""";
+		assertEquals(definition, expectedDefinition);
+	}
+
+	@Test
+	public void testThreeLevelsWithFinalValue() throws Exception {
+		ClientDataGroupSpy childReference1 = createChildReferenceElement("0", "X",
+				LINKED_CHILD_GROUP_ID, CHILD_GROUP_NiD);
+		childRefs.add(childReference1);
+		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(
+				CHILD_GROUP_NiD, GROUP_TYPE);
+		createRecordInStorageAndAddDataRecordGroup(LINKED_CHILD_GROUP_ID, someChildGroup);
+
+		List<ClientDataGroupSpy> childRefs2 = new ArrayList<>();
+
+		ClientDataGroupSpy textChildReference = createChildReferenceElement("0", "1",
+				LINKED_TEXT_CHILD_ID, LINKED_TEXT_CHILD_RECORD_NiD);
+		ClientDataRecordGroupSpy someTextChildGroup = createDataRecordGroupWithAttributesSpy(
+				LINKED_TEXT_CHILD_RECORD_NiD, TEXT_VARIABLE_TYPE);
+		addFinalValueToGroup("someFinalValue", someTextChildGroup);
+		createRecordInStorageAndAddDataRecordGroup(LINKED_TEXT_CHILD_ID, someTextChildGroup);
+
+		childRefs2.add(textChildReference);
+
+		ClientDataGroupSpy childReferencesGroup2 = createChildReferencesGroupForRecordGroup(
+				someChildGroup);
+		addChildReferenceListToChildReferencesGroup(childReferencesGroup2, childRefs2);
+
+		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+
+		String expectedDefinition = """
+				someRootGroup (group)
+					someChildGroup (group, 0-X, noConstraint)
+						someTextChild {someFinalValue} (textVariable, 0-1, noConstraint)""";
+		assertEquals(definition, expectedDefinition);
+	}
+
+	@Test
+	public void testThreeLevelsWithCollectTerms() throws Exception {
+		ClientDataGroupSpy childReference1 = createChildReferenceElement("0", "X",
+				LINKED_CHILD_GROUP_ID, CHILD_GROUP_NiD);
+		childRefs.add(childReference1);
+		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(
+				CHILD_GROUP_NiD, GROUP_TYPE);
+		createRecordInStorageAndAddDataRecordGroup(LINKED_CHILD_GROUP_ID, someChildGroup);
+
+		List<ClientDataGroupSpy> childRefs2 = new ArrayList<>();
+
+		ClientDataGroupSpy textChildReference = createChildReferenceElement("0", "1",
+				LINKED_TEXT_CHILD_ID, LINKED_TEXT_CHILD_RECORD_NiD);
+		ClientDataRecordGroupSpy someTextChildGroup = createDataRecordGroupWithAttributesSpy(
+				LINKED_TEXT_CHILD_RECORD_NiD, TEXT_VARIABLE_TYPE);
+
+		textChildReference.MRV.setDefaultReturnValuesSupplier("getAllChildrenMatchingFilter",
+				() -> List.of(new Object()));
+
+		createRecordInStorageAndAddDataRecordGroup(LINKED_TEXT_CHILD_ID, someTextChildGroup);
+
+		childRefs2.add(textChildReference);
+
+		ClientDataGroupSpy childReferencesGroup2 = createChildReferencesGroupForRecordGroup(
+				someChildGroup);
+		addChildReferenceListToChildReferencesGroup(childReferencesGroup2, childRefs2);
+
+		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+
+		String expectedDefinition = """
+				someRootGroup (group)
+					someChildGroup (group, 0-X, noConstraint)
+						someTextChild (textVariable, 0-1, noConstraint, S, P, I)""";
 		assertEquals(definition, expectedDefinition);
 	}
 
@@ -122,137 +295,6 @@ public class DefinitionWriterTest {
 				() -> name, "nameInData");
 
 		return dataRecordGroupSpy;
-	}
-
-	@Test
-	public void writeTwoGroupsWithMinMax() throws Exception {
-		ClientDataGroupSpy childRefrence1 = createChildReferenceElement("0", "X",
-				"someLinkedRecordId", "someChildGroup");
-		childRefs.add(childRefrence1);
-		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(
-				"someChildGroup", "group");
-		createRecordInStorageAndAddDataRecordGroup("someLinkedRecordId", someChildGroup);
-
-		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
-
-		dataClient.MCR.assertNumberOfCallsToMethod("read", 2);
-		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
-		dataClient.MCR.assertParameters("read", 1, "metadata", "someLinkedRecordId");
-		String expectedDefinition = """
-				someRootGroup(group)
-					someChildGroup(group, 0-X, noConstraint)
-				""";
-		assertEquals(definition, expectedDefinition);
-	}
-
-	@Test
-	public void writeTwoGroupsWithMinMaxAndNoConstraints() throws Exception {
-		ClientDataGroupSpy childRefrence1 = createChildReferenceElement("0", "X",
-				"someLinkedRecordId", "someChildGroup");
-		childRefs.add(childRefrence1);
-		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(
-				"someChildGroup", "group");
-		createRecordInStorageAndAddDataRecordGroup("someLinkedRecordId", someChildGroup);
-
-		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
-
-		String expectedDefinition = """
-				someRootGroup(group)
-					someChildGroup(group, 0-X, noConstraint)
-				""";
-		assertEquals(definition, expectedDefinition);
-	}
-
-	@Test
-	public void testTwoLevelsWithConstraint() throws Exception {
-		ClientDataGroupSpy childRefrence1 = createChildReferenceElement("0", "X",
-				"someLinkedRecordId", "someChildGroup");
-		childRefs.add(childRefrence1);
-		addConstraintToChildReference(childRefrence1, "write");
-		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(
-				"someChildGroup", "group");
-		createRecordInStorageAndAddDataRecordGroup("someLinkedRecordId", someChildGroup);
-
-		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
-
-		String expectedDefinition = """
-				someRootGroup(group)
-					someChildGroup(group, 0-X, write)
-				""";
-		assertEquals(definition, expectedDefinition);
-	}
-
-	@Test
-	public void testThreeLevels() throws Exception {
-		ClientDataGroupSpy childReference1 = createChildReferenceElement("0", "X",
-				"someLinkedRecordId", "someChildGroup");
-		childRefs.add(childReference1);
-		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(
-				"someChildGroup", "group");
-		createRecordInStorageAndAddDataRecordGroup("someLinkedRecordId", someChildGroup);
-
-		List<ClientDataGroupSpy> childRefs2 = new ArrayList<>();
-
-		ClientDataGroupSpy textChildReference = createChildReferenceElement("0", "1",
-				"someLinkedTextChildId", "someTextChild");
-		ClientDataRecordGroupSpy someTextChildGroup = createDataRecordGroupWithAttributesSpy(
-				"someTextChild", "textVariable");
-		createRecordInStorageAndAddDataRecordGroup("someLinkedTextChildId", someTextChildGroup);
-		childRefs2.add(textChildReference);
-
-		ClientDataGroupSpy linkChildReference = createChildReferenceElement("1", "1",
-				"someLinkedRecordLinkId", "someLinkChild");
-		ClientDataRecordGroupSpy someLinkChildGroup = createDataRecordGroupWithAttributesSpy(
-				"someLinkChild", "recordLink");
-		createRecordInStorageAndAddDataRecordGroup("someLinkedRecordLinkId", someLinkChildGroup);
-		childRefs2.add(linkChildReference);
-
-		ClientDataGroupSpy childReferencesGroup2 = createChildReferencesGroupForRecordGroup(
-				someChildGroup);
-		addChildReferenceListToChildReferencesGroup(childReferencesGroup2, childRefs2);
-
-		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
-
-		String expectedDefinition = """
-				someRootGroup(group)
-					someChildGroup(group, 0-X, noConstraint)
-						someTextChild(textVariable, 0-1, noConstraint)
-						someLinkChild(recordLink, 1-1, noConstraint)
-				""";
-		assertEquals(definition, expectedDefinition);
-	}
-
-	@Test
-	public void testThreeLevelsWithFinalValue() throws Exception {
-		ClientDataGroupSpy childReference1 = createChildReferenceElement("0", "X",
-				"someLinkedRecordId", "someChildGroup");
-		childRefs.add(childReference1);
-		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(
-				"someChildGroup", "group");
-		createRecordInStorageAndAddDataRecordGroup("someLinkedRecordId", someChildGroup);
-
-		List<ClientDataGroupSpy> childRefs2 = new ArrayList<>();
-
-		ClientDataGroupSpy textChildReference = createChildReferenceElement("0", "1",
-				"someLinkedTextChildId", "someTextChild");
-		ClientDataRecordGroupSpy someTextChildGroup = createDataRecordGroupWithAttributesSpy(
-				"someTextChild", "textVariable");
-		addFinalValueToGroup("someFinalValue", someTextChildGroup);
-		createRecordInStorageAndAddDataRecordGroup("someLinkedTextChildId", someTextChildGroup);
-		childRefs2.add(textChildReference);
-
-		ClientDataGroupSpy childReferencesGroup2 = createChildReferencesGroupForRecordGroup(
-				someChildGroup);
-		addChildReferenceListToChildReferencesGroup(childReferencesGroup2, childRefs2);
-
-		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
-
-		String expectedDefinition = """
-				someRootGroup(group)
-					someChildGroup(group, 0-X, noConstraint)
-						someTextChild{someFinalValue}(textVariable, 0-1, noConstraint)
-				""";
-		assertEquals(definition, expectedDefinition);
 	}
 
 	private void addFinalValueToGroup(String finalValue,
@@ -323,7 +365,7 @@ public class DefinitionWriterTest {
 
 	private ClientDataGroupSpy createChildReferencesGroupForRecordGroup(
 			ClientDataRecordGroupSpy dataRecordGroup) {
-		ClientDataGroupSpy someChildReferences = createDataGroupSpy("childReferences", "group");
+		ClientDataGroupSpy someChildReferences = createDataGroupSpy("childReferences", GROUP_TYPE);
 		dataRecordGroup.MRV.setSpecificReturnValuesSupplier("getFirstGroupWithNameInData",
 				() -> someChildReferences, "childReferences");
 		return someChildReferences;
