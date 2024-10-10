@@ -18,6 +18,7 @@
  */
 package se.uu.ub.cora.fitnesseintegration.definitionwriter;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -35,14 +36,17 @@ import se.uu.ub.cora.javaclient.data.DataClient;
 
 public class DefinitionWriter {
 
-	private static final String SPACE = " ";
-	private static final String ATTRIBUTE_REFERENCES = "attributeReferences";
-	private static final String REF = "ref";
-	private static final String FINAL_VALUE = "finalValue";
-	private static final String COMMA_SPACE = ", ";
 	private static final String NAME_IN_DATA = "nameInData";
-	private static final String TYPE = "type";
+	private static final String REF = "ref";
+	private static final String CHILD_REFERENCE = "childReference";
+	private static final String ATTRIBUTE_REFERENCES = "attributeReferences";
+	private static final String COLLECTION_ITEM_REFERENCES = "collectionItemReferences";
+	private static final String REF_COLLECTION = "refCollection";
+	private static final String FINAL_VALUE = "finalValue";
 	private static final String METADATA = "metadata";
+	private static final String SPACE = " ";
+	private static final String COMMA_SPACE = ", ";
+	private static final String TYPE = "type";
 	private static final String NEW_LINE = "\n";
 	private static final String TAB = "\t";
 
@@ -50,6 +54,7 @@ public class DefinitionWriter {
 	private String baseUrl;
 	private String appTokenUrl;
 	private DataClient dataClient;
+	private StringBuilder stringBuilder = new StringBuilder();
 
 	public DefinitionWriter(String baseUrl, String appTokenUrl) {
 		this.baseUrl = baseUrl;
@@ -75,15 +80,21 @@ public class DefinitionWriter {
 
 	private void writeDefinition(ClientDataRecordGroup clientDataRecordGroup,
 			Optional<ChildReferenceDetails> childReferenceDetails, int currentIndent) {
-		addTab(currentIndent);
+		addIndentation(currentIndent);
 		writeElement(clientDataRecordGroup, childReferenceDetails);
-		possiblyTraverseGroupAndChildren(clientDataRecordGroup, currentIndent);
+		possiblyTraverseGroup(clientDataRecordGroup, currentIndent);
 	}
 
-	private void addTab(int level) {
+	private void addIndentation(int level) {
+		clearBuilder();
 		for (int i = 0; i < level; i++) {
-			definition += TAB;
+			stringBuilder.append(TAB);
 		}
+		definition += stringBuilder.toString();
+	}
+
+	private void clearBuilder() {
+		stringBuilder.setLength(0);
 	}
 
 	private void writeElement(ClientDataRecordGroup clientDataRecordGroup,
@@ -96,67 +107,6 @@ public class DefinitionWriter {
 		possiblyWriteMetadataType(clientDataRecordGroup);
 		possiblyWriteChildReferenceDetails(details);
 		definition += ")";
-	}
-
-	private void possiblyWriteAttributeReferences(ClientDataRecordGroup clientDataRecordGroup) {
-		if (clientDataRecordGroup.containsChildWithNameInData(ATTRIBUTE_REFERENCES)) {
-			ClientDataGroup attributeReferences = clientDataRecordGroup
-					.getFirstChildOfTypeAndName(ClientDataGroup.class, ATTRIBUTE_REFERENCES);
-
-			List<String> attributes = new ArrayList<>();
-			readAttributeReferences(attributeReferences, attributes);
-		}
-	}
-
-	private void readAttributeReferences(ClientDataGroup attributeReferences,
-			List<String> attributes) {
-		List<ClientDataRecordLink> refs = attributeReferences
-				.getChildrenOfTypeAndName(ClientDataRecordLink.class, REF);
-
-		for (ClientDataRecordLink ref : refs) {
-			ClientDataRecordGroup metadataCollectionVariable = getFromMetadataRecordGroupFromServer(
-					ref.getLinkedRecordId());
-			if (metadataCollectionVariable.containsChildWithNameInData(FINAL_VALUE)) {
-				String finalValue = metadataCollectionVariable
-						.getFirstAtomicValueWithNameInData(FINAL_VALUE);
-				attributes.add(finalValue);
-			} else {
-				List<String> possibleValues = getPossibleValuesFromCollectionVariable(
-						metadataCollectionVariable);
-				attributes.addAll(possibleValues);
-			}
-		}
-	}
-
-	private ClientDataRecordGroup getFromMetadataRecordGroupFromServer(String linkedRecordId) {
-		return dataClient.read(METADATA, linkedRecordId).getDataRecordGroup();
-	}
-
-	private List<String> getPossibleValuesFromCollectionVariable(
-			ClientDataRecordGroup metadataCollectionVariable) {
-		ClientDataRecordLink linkToCollection = metadataCollectionVariable
-				.getFirstChildOfTypeAndName(ClientDataRecordLink.class, "refCollection");
-		ClientDataRecordGroup collection = getFromMetadataRecordGroupFromServer(
-				linkToCollection.getLinkedRecordId());
-		ClientDataGroup itemRefrences = collection
-				.getFirstGroupWithNameInData("collectionItemReferences");
-		List<ClientDataRecordLink> linkToCollectionItems = itemRefrences
-				.getChildrenOfTypeAndName(ClientDataRecordLink.class, REF);
-		List<String> attributeValues = new ArrayList<>();
-		for (ClientDataRecordLink clientDataRecordLink : linkToCollectionItems) {
-			ClientDataRecordGroup collectionItem = getFromMetadataRecordGroupFromServer(
-					clientDataRecordLink.getLinkedRecordId());
-			String attributeValue = collectionItem.getFirstAtomicValueWithNameInData(NAME_IN_DATA);
-			attributeValues.add(attributeValue);
-		}
-
-		return attributeValues;
-	}
-
-	private void possiblyWriteChildReferenceDetails(Optional<ChildReferenceDetails> details) {
-		if (details.isPresent()) {
-			writeChildReferenceDetails(details.get());
-		}
 	}
 
 	private void writeNameInData(ClientDataRecordGroup clientDataRecordGroup) {
@@ -174,16 +124,88 @@ public class DefinitionWriter {
 		}
 	}
 
+	private void possiblyWriteAttributeReferences(ClientDataRecordGroup clientDataRecordGroup) {
+		if (clientDataRecordGroup.containsChildWithNameInData(ATTRIBUTE_REFERENCES)) {
+			clearBuilder();
+			List<Attribute> attributes = readAttributeReferences(clientDataRecordGroup);
+			for (Attribute attribute : attributes) {
+				stringBuilder.append(MessageFormat.format("{0}:'{'{1}'}' ", attribute.nameInData(),
+						String.join(COMMA_SPACE, attribute.values())));
+			}
+			definition += stringBuilder.toString();
+		}
+	}
+
+	private List<Attribute> readAttributeReferences(ClientDataRecordGroup clientDataRecordGroup) {
+		List<Attribute> attributes = new ArrayList<>();
+		List<ClientDataRecordLink> refs = getAttributeReferencesRefLinks(clientDataRecordGroup);
+		for (ClientDataRecordLink ref : refs) {
+			collectAttributes(attributes, ref);
+		}
+		return attributes;
+	}
+
+	private List<ClientDataRecordLink> getAttributeReferencesRefLinks(
+			ClientDataRecordGroup clientDataRecordGroup) {
+		ClientDataGroup attributeReferences = clientDataRecordGroup
+				.getFirstChildOfTypeAndName(ClientDataGroup.class, ATTRIBUTE_REFERENCES);
+		return attributeReferences.getChildrenOfTypeAndName(ClientDataRecordLink.class, REF);
+	}
+
+	private void collectAttributes(List<Attribute> attributes, ClientDataRecordLink ref) {
+		ClientDataRecordGroup collectionVar = readLink(ref.getLinkedRecordId());
+		String attributeNameInData = collectionVar.getFirstAtomicValueWithNameInData(NAME_IN_DATA);
+		if (collectionVar.containsChildWithNameInData(FINAL_VALUE)) {
+			String finalValue = collectionVar.getFirstAtomicValueWithNameInData(FINAL_VALUE);
+			Attribute attribute = new Attribute(attributeNameInData, List.of(finalValue));
+			attributes.add(attribute);
+		} else {
+			List<String> collectionItemValues = getCollectionItemValues(collectionVar);
+			Attribute attribute = new Attribute(attributeNameInData, collectionItemValues);
+			attributes.add(attribute);
+		}
+	}
+
+	private ClientDataRecordGroup readLink(String linkedRecordId) {
+		return dataClient.read(METADATA, linkedRecordId).getDataRecordGroup();
+	}
+
+	private List<String> getCollectionItemValues(ClientDataRecordGroup metadataCollectionVariable) {
+		List<ClientDataRecordLink> collectionItemLinks = getCollectionItemLinks(
+				metadataCollectionVariable);
+		List<String> attributeValues = new ArrayList<>();
+		for (ClientDataRecordLink dataRecordLink : collectionItemLinks) {
+			ClientDataRecordGroup collectionItem = readLink(dataRecordLink.getLinkedRecordId());
+			String attributeValue = collectionItem.getFirstAtomicValueWithNameInData(NAME_IN_DATA);
+			attributeValues.add(attributeValue);
+		}
+
+		return attributeValues;
+	}
+
+	private List<ClientDataRecordLink> getCollectionItemLinks(
+			ClientDataRecordGroup metadataCollectionVariable) {
+		ClientDataRecordGroup refCollection = readRefCollection(metadataCollectionVariable);
+		ClientDataGroup itemReferences = refCollection
+				.getFirstGroupWithNameInData(COLLECTION_ITEM_REFERENCES);
+		return itemReferences.getChildrenOfTypeAndName(ClientDataRecordLink.class, REF);
+	}
+
+	private ClientDataRecordGroup readRefCollection(
+			ClientDataRecordGroup metadataCollectionVariable) {
+		ClientDataRecordLink linkToCollection = metadataCollectionVariable
+				.getFirstChildOfTypeAndName(ClientDataRecordLink.class, REF_COLLECTION);
+		return readLink(linkToCollection.getLinkedRecordId());
+	}
+
 	private void possiblyWriteMetadataType(ClientDataRecordGroup clientDataRecordGroup) {
 		Optional<String> attributeValue = clientDataRecordGroup.getAttributeValue(TYPE);
 		definition += attributeValue.isPresent() ? attributeValue.get() : "";
 	}
 
 	private void writeChildReferenceDetails(ChildReferenceDetails details) {
-		definition += COMMA_SPACE;
-		definition += details.repeatMin() + "-" + details.repeatMax();
-		definition += COMMA_SPACE;
-		definition += details.constraints();
+		definition += MessageFormat.format(COMMA_SPACE + "{0}-{1}" + COMMA_SPACE + "{2}",
+				details.repeatMin(), details.repeatMax(), details.constraints());
 		possiblyWriteCollectTerms(details);
 	}
 
@@ -199,15 +221,11 @@ public class DefinitionWriter {
 		}
 	}
 
-	private void possiblyTraverseGroupAndChildren(ClientDataRecordGroup clientDataRecordGroup,
+	private void possiblyTraverseGroup(ClientDataRecordGroup clientDataRecordGroup,
 			int currentIndent) {
 		if (isGroup(clientDataRecordGroup)) {
 			possiblyTraverseChildren(clientDataRecordGroup, currentIndent);
 		}
-	}
-
-	private void addNewLine() {
-		definition += NEW_LINE;
 	}
 
 	private boolean isGroup(ClientDataRecordGroup clientDataRecordGroup) {
@@ -224,11 +242,10 @@ public class DefinitionWriter {
 			List<ClientDataGroup> childReferences = getChildReferences(clientDataRecordGroup);
 			for (ClientDataGroup child : childReferences) {
 				addNewLine();
-				Optional<ChildReferenceDetails> childReferenceDetails = collectChildReferenceDetailsAsRecord(
+				ClientDataRecordGroup dataGroup = readRefLink(child);
+				Optional<ChildReferenceDetails> details = collectChildReferenceDetailsAsRecord(
 						child);
-				ClientDataRecord ref = readChildReferenceLink(child);
-				writeDefinition(ref.getDataRecordGroup(), childReferenceDetails, currentIndent + 1);
-
+				writeDefinition(dataGroup, details, currentIndent + 1);
 			}
 		}
 	}
@@ -237,13 +254,17 @@ public class DefinitionWriter {
 		ClientDataGroup childReferencesGroup = clientDataRecordGroup
 				.getFirstGroupWithNameInData("childReferences");
 		return childReferencesGroup.getChildrenOfTypeAndName(ClientDataGroup.class,
-				"childReference");
+				CHILD_REFERENCE);
 	}
 
-	private ClientDataRecord readChildReferenceLink(ClientDataGroup child) {
-		ClientDataRecordLink refLink = child.getFirstChildOfTypeAndName(ClientDataRecordLink.class,
-				REF);
-		return dataClient.read(METADATA, refLink.getLinkedRecordId());
+	private void addNewLine() {
+		definition += NEW_LINE;
+	}
+
+	private void possiblyWriteChildReferenceDetails(Optional<ChildReferenceDetails> details) {
+		if (details.isPresent()) {
+			writeChildReferenceDetails(details.get());
+		}
 	}
 
 	private Optional<ChildReferenceDetails> collectChildReferenceDetailsAsRecord(
@@ -257,6 +278,12 @@ public class DefinitionWriter {
 
 		return Optional.of(new ChildReferenceDetails(repeatMin, repeatMax, constraints, storageTerm,
 				permissionTerm, indexTerm));
+	}
+
+	private ClientDataRecordGroup readRefLink(ClientDataGroup child) {
+		ClientDataRecordLink refLink = child.getFirstChildOfTypeAndName(ClientDataRecordLink.class,
+				REF);
+		return readLink(refLink.getLinkedRecordId());
 	}
 
 	private boolean hasCollectTermType(String type, ClientDataGroup dataGroup) {
@@ -287,4 +314,7 @@ public class DefinitionWriter {
 	private record ChildReferenceDetails(String repeatMin, String repeatMax, String constraints,
 			boolean storageTerm, boolean permissionTerm, boolean indexTerm) {
 	};
+
+	private record Attribute(String nameInData, List<String> values) {
+	}
 }

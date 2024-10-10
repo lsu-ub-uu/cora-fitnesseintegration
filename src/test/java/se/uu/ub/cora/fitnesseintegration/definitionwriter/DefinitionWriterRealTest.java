@@ -32,7 +32,7 @@ public class DefinitionWriterRealTest {
 	@Test(enabled = true)
 	public void testName() throws Exception {
 		writer = new DefinitionWriter(baseUrl, apptokenUrl);
-		String definition = writer.writeDefinitionFromUsingDataChild(authToken, "metadataGroup");
+		String definition = writer.writeDefinitionFromUsingDataChild(authToken, "binaryGroup");
 
 		System.out.println(definition);
 	}

@@ -284,6 +284,22 @@ public class DefinitionWriterTest {
 		assertEquals(definition, expectedDefinition);
 	}
 
+	@Test
+	public void writeGroupWithAttributes() throws Exception {
+		ClientDataRecordGroupSpy dataRecordGroup = createDataRecordGroupWithAttributesSpy(
+				"someRootGroup", GROUP_TYPE);
+		dataRecord.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup", () -> dataRecordGroup);
+		// ---
+		// construct attribute stuff
+		// ---
+		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+
+		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
+		String expectedDefinition = """
+				someRootGroup type:{someAttributeValue} (group)""";
+		assertEquals(definition, expectedDefinition);
+	}
+
 	private ClientDataRecordGroupSpy createDataRecordGroupWithAttributesSpy(String name,
 			String type) {
 		ClientDataRecordGroupSpy dataRecordGroupSpy = new ClientDataRecordGroupSpy();
