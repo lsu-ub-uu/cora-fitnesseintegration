@@ -61,7 +61,7 @@ public class IdpLoginServletFixture {
 	}
 
 	private void parseInformationFromAnswer() {
-		loginId = tryToGetFirstMatchFromAnswerUsingRegEx("userId\" : \"");
+		loginId = tryToGetFirstMatchFromAnswerUsingRegEx("loginId\" : \"");
 		authToken = tryToGetFirstMatchFromAnswerUsingRegEx("token\" : \"");
 		validForNoSeconds = tryToGetFirstMatchFromAnswerUsingRegEx("validForNoSeconds\" : \"");
 		deleteUrl = tryToGetFirstMatchFromAnswerUsingRegEx("url\" : \"");

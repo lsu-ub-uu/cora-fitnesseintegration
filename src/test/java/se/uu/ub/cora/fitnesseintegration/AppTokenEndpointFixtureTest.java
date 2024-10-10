@@ -26,7 +26,7 @@ public class AppTokenEndpointFixtureTest {
 	@Test
 	public void testGetAuthTokenForAppToken() {
 		httpHandlerFactorySpy.setResponseCode(201);
-		fixture.setUserId("someUserId");
+		fixture.setLoginId("someUserId");
 		fixture.setAppToken("02a89fd5-c768-4209-9ecc-d80bd793b01e");
 		String json = fixture.getAuthTokenForAppToken();
 		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
@@ -46,7 +46,7 @@ public class AppTokenEndpointFixtureTest {
 	@Test
 	public void testGetAuthTokenForFitnesseAdmin() {
 		httpHandlerFactorySpy.setResponseCode(201);
-		fixture.setUserId("fitnesseAdmin@system.cora.uu.se");
+		fixture.setLoginId("fitnesseAdmin@system.cora.uu.se");
 		fixture.setAppToken("");
 		String json = fixture.getAuthTokenForAppToken();
 		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
@@ -66,7 +66,7 @@ public class AppTokenEndpointFixtureTest {
 	@Test
 	public void testGetAuthTokenForFitnesseUser() {
 		httpHandlerFactorySpy.setResponseCode(201);
-		fixture.setUserId("fitnesseUser@system.cora.uu.se");
+		fixture.setLoginId("fitnesseUser@system.cora.uu.se");
 		fixture.setAppToken("");
 		String json = fixture.getAuthTokenForAppToken();
 		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
@@ -91,28 +91,32 @@ public class AppTokenEndpointFixtureTest {
 
 	@Test
 	public void testRemoveAuthTokenForUser() {
-		fixture.setUserId("someUserId22");
-		fixture.setAuthTokenToLogOut("02a89fd5-c768-4209-9ecc-d80bd793b01e");
+		fixture.setAuthTokenToLogOut("someAuthToken");
+		fixture.setDeleteUrl("http://localhost:8180/login/rest/someTokenId");
+
 		fixture.removeAuthTokenForUser();
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		assertEquals(httpHandlerSpy.requestMetod, "DELETE");
-		assertEquals(httpHandlerSpy.outputString, "02a89fd5-c768-4209-9ecc-d80bd793b01e");
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/login/rest/authToken/someUserId22");
+
+		assertCallToDeleteAuthToken();
 		assertEquals(fixture.getStatusType(), Response.Status.OK);
 	}
 
 	@Test
 	public void testRemoveAuthTokenForUserNotOk() {
 		httpHandlerFactorySpy.setResponseCode(404);
-		fixture.setUserId("someUserId22");
-		fixture.setAuthTokenToLogOut("02a89fd5-c768-4209-9ecc-d80bd793b01e");
+		fixture.setAuthTokenToLogOut("someAuthToken");
+		fixture.setDeleteUrl("http://localhost:8180/login/rest/someTokenId");
+
 		fixture.removeAuthTokenForUser();
+
+		assertCallToDeleteAuthToken();
+		assertEquals(fixture.getStatusType(), Response.Status.NOT_FOUND);
+	}
+
+	private void assertCallToDeleteAuthToken() {
 		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
 		assertEquals(httpHandlerSpy.requestMetod, "DELETE");
-		assertEquals(httpHandlerSpy.outputString, "02a89fd5-c768-4209-9ecc-d80bd793b01e");
+		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), "someAuthToken");
 		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/login/rest/authToken/someUserId22");
-		assertEquals(fixture.getStatusType(), Response.Status.NOT_FOUND);
+				"http://localhost:8180/login/rest/someTokenId");
 	}
 }
