@@ -27,7 +27,7 @@ public class DefinitionWriterRealTest {
 	private String apptokenUrl = "http://localhost:8180/login/rest/";
 	private String baseUrl = "http://localhost:8080/systemone/rest/";
 
-	private String authToken = "dde13f43-fb6e-4ae5-8d5b-2d36913376fa";
+	private String authToken = "f316a0f3-262f-4413-8b77-209c81d602dd";
 
 	@Test(enabled = true)
 	public void testName() throws Exception {

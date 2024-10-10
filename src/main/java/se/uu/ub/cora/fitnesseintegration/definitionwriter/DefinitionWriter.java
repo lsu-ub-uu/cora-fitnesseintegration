@@ -147,23 +147,23 @@ public class DefinitionWriter {
 
 	private List<ClientDataRecordLink> getAttributeReferencesRefLinks(
 			ClientDataRecordGroup clientDataRecordGroup) {
-		ClientDataGroup attributeReferences = clientDataRecordGroup
+		ClientDataGroup attributeReferencesGroup = clientDataRecordGroup
 				.getFirstChildOfTypeAndName(ClientDataGroup.class, ATTRIBUTE_REFERENCES);
-		return attributeReferences.getChildrenOfTypeAndName(ClientDataRecordLink.class, REF);
+		return attributeReferencesGroup.getChildrenOfTypeAndName(ClientDataRecordLink.class, REF);
 	}
 
 	private void collectAttributes(List<Attribute> attributes, ClientDataRecordLink ref) {
 		ClientDataRecordGroup collectionVar = readLink(ref.getLinkedRecordId());
 		String attributeNameInData = collectionVar.getFirstAtomicValueWithNameInData(NAME_IN_DATA);
-		if (collectionVar.containsChildWithNameInData(FINAL_VALUE)) {
-			String finalValue = collectionVar.getFirstAtomicValueWithNameInData(FINAL_VALUE);
-			Attribute attribute = new Attribute(attributeNameInData, List.of(finalValue));
-			attributes.add(attribute);
-		} else {
-			List<String> collectionItemValues = getCollectionItemValues(collectionVar);
-			Attribute attribute = new Attribute(attributeNameInData, collectionItemValues);
-			attributes.add(attribute);
-		}
+		// if (collectionVar.containsChildWithNameInData(FINAL_VALUE)) {
+		String finalValue = collectionVar.getFirstAtomicValueWithNameInData(FINAL_VALUE);
+		Attribute attribute = new Attribute(attributeNameInData, List.of(finalValue));
+		attributes.add(attribute);
+		// } else {
+		// List<String> collectionItemValues = getCollectionItemValues(collectionVar);
+		// Attribute attribute = new Attribute(attributeNameInData, collectionItemValues);
+		// attributes.add(attribute);
+		// }
 	}
 
 	private ClientDataRecordGroup readLink(String linkedRecordId) {
@@ -287,6 +287,7 @@ public class DefinitionWriter {
 	}
 
 	private boolean hasCollectTermType(String type, ClientDataGroup dataGroup) {
+		dataGroup.getChildrenOfTypeAndName(ClientDataRecordLink.class, "childRefCollectTerm");
 		ClientDataChildFilter filter = ClientDataProvider
 				.createDataChildFilterUsingChildNameInData("childRefCollectTerm");
 		filter.addAttributeUsingNameInDataAndPossibleValues("type", Set.of(type));
