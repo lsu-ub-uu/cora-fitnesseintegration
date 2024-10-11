@@ -41,6 +41,7 @@ import se.uu.ub.cora.javaclient.JavaClientProvider;
 
 public class DefinitionWriterTest {
 
+	private static final String FINAL_VALUE = "finalValue";
 	private static final String NAME_IN_DATA = "nameInData";
 	private static final String LINKED_RECORD_LINK_CHILD_NiD = "someLinkChild";
 	private static final String GROUP_TYPE = "group";
@@ -109,11 +110,7 @@ public class DefinitionWriterTest {
 	}
 
 	@Test
-	public void writeOneGroupOnlyNameInData() throws Exception {
-		ClientDataRecordGroupSpy dataRecordGroup = createDataRecordGroupWithAttributesSpy(
-				"someRootGroup", GROUP_TYPE);
-		dataRecord.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup", () -> dataRecordGroup);
-
+	public void testWriteOneGroupOnlyNameInData() throws Exception {
 		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
 
 		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
@@ -123,7 +120,7 @@ public class DefinitionWriterTest {
 	}
 
 	@Test
-	public void writeTwoGroupsWithMinMax() throws Exception {
+	public void testWriteTwoGroupsWithMinMax() throws Exception {
 		ClientDataGroupSpy childReference1 = createChildReferenceElement("0", "X",
 				LINKED_CHILD_GROUP_ID);
 		childRefs.add(childReference1);
@@ -143,7 +140,7 @@ public class DefinitionWriterTest {
 	}
 
 	@Test
-	public void writeTwoGroupsWithMinMaxAndNoConstraints() throws Exception {
+	public void testWriteTwoGroupsWithMinMaxAndNoConstraints() throws Exception {
 		ClientDataGroupSpy childReference1 = createChildReferenceElement("0", "X",
 				LINKED_CHILD_GROUP_ID);
 		childRefs.add(childReference1);
@@ -287,21 +284,101 @@ public class DefinitionWriterTest {
 	}
 
 	@Test
-	public void writeGroupWithTwoAttributesWithFinalValue() throws Exception {
-		ClientDataRecordGroupSpy dataRecordGroup = createDataRecordGroupWithAttributesSpy(
-				"someRootGroup", GROUP_TYPE);
-		dataRecord.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup", () -> dataRecordGroup);
-
+	public void testWriteGroupWithTwoAttributesWithFinalValue() throws Exception {
 		ClientDataRecordLinkSpy attributeRefLink1 = createAttributeWithFinalValue("someAttribute1");
 		ClientDataRecordLinkSpy attributeRefLink2 = createAttributeWithFinalValue("someAttribute2");
 		addAttributesToDataRecordGroup(dataRecordGroup, attributeRefLink1, attributeRefLink2);
 
 		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
 
+		dataClient.MCR.assertNumberOfCallsToMethod("read", 3);
 		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
+		dataClient.MCR.assertParameters("read", 1, "metadata", "someAttribute1Link");
+		dataClient.MCR.assertParameters("read", 2, "metadata", "someAttribute2Link");
 		String expectedDefinition = """
 				someRootGroup someAttribute1:{someAttribute1FinalValue} someAttribute2:{someAttribute2FinalValue} (group)""";
 		assertEquals(definition, expectedDefinition);
+	}
+
+	@Test
+	public void testWriteGroupWithAttributes() throws Exception {
+		ClientDataRecordLinkSpy attributeRefLink1 = createAttributeWithValues("someAttribute",
+				"value1", "value2");
+
+		addAttributesToDataRecordGroup(dataRecordGroup, attributeRefLink1);
+
+		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+
+		dataClient.MCR.assertNumberOfCallsToMethod("read", 5);
+		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
+		dataClient.MCR.assertParameters("read", 1, "metadata", "someAttributeLink");
+		dataClient.MCR.assertParameters("read", 2, "metadata", "someAttributeRefCollectionLink");
+		dataClient.MCR.assertParameters("read", 3, "metadata", "value1ItemReferencesLink");
+		dataClient.MCR.assertParameters("read", 4, "metadata", "value2ItemReferencesLink");
+
+		String expectedDefinition = """
+				someRootGroup someAttribute:{value1, value2} (group)""";
+
+		assertEquals(definition, expectedDefinition);
+	}
+
+	@Test
+	public void testWriteTwoLevelGroupWithAttributes() throws Exception {
+		ClientDataGroupSpy childReference1 = createChildReferenceElement("0", "X",
+				LINKED_CHILD_GROUP_ID);
+		childRefs.add(childReference1);
+		addConstraintToChildReference(childReference1, "write");
+		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(
+				CHILD_GROUP_NiD, GROUP_TYPE);
+		createRecordInStorageAndAddDataRecordGroup(LINKED_CHILD_GROUP_ID, someChildGroup);
+
+		ClientDataRecordLinkSpy attributeRefLink1 = createAttributeWithValues("someAttribute",
+				"value1", "value2");
+
+		addAttributesToDataRecordGroup(someChildGroup, attributeRefLink1);
+
+		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+
+		dataClient.MCR.assertNumberOfCallsToMethod("read", 6);
+		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
+		dataClient.MCR.assertParameters("read", 1, "metadata", "someLinkedRecordId");
+		dataClient.MCR.assertParameters("read", 2, "metadata", "someAttributeLink");
+		dataClient.MCR.assertParameters("read", 3, "metadata", "someAttributeRefCollectionLink");
+		dataClient.MCR.assertParameters("read", 4, "metadata", "value1ItemReferencesLink");
+		dataClient.MCR.assertParameters("read", 5, "metadata", "value2ItemReferencesLink");
+
+		String expectedDefinition = """
+				someRootGroup (group)
+					someChildGroup someAttribute:{value1, value2} (group, 0-X, write)""";
+
+		assertEquals(definition, expectedDefinition);
+	}
+
+	private ClientDataRecordLinkSpy createAttributeWithValues(String attribute, String... values) {
+		ClientDataRecordLinkSpy attributeRefLink1 = createAttributeCollectionVar(attribute);
+		ClientDataGroupSpy itemReferences = createItemReferencesForCollectionVariable(attribute);
+		List<ClientDataRecordLinkSpy> createAttributeValues = createAttributeValues(values);
+		itemReferences.MRV.setSpecificReturnValuesSupplier("getChildrenOfTypeAndName",
+				() -> createAttributeValues, ClientDataRecordLink.class, "ref");
+		return attributeRefLink1;
+	}
+
+	private List<ClientDataRecordLinkSpy> createAttributeValues(String... values) {
+		List<ClientDataRecordLinkSpy> valuesList = new ArrayList<>();
+		for (String value : values) {
+			ClientDataRecordLinkSpy collectionItemLink = createDataRecordLinkRef(
+					value + "ItemReferencesLink");
+
+			ClientDataRecordGroupSpy collectionItem = new ClientDataRecordGroupSpy();
+			collectionItem.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
+					() -> value, NAME_IN_DATA);
+			createRecordInStorageAndAddDataRecordGroup(value + "ItemReferencesLink",
+					collectionItem);
+			valuesList.add(collectionItemLink);
+		}
+
+		return valuesList;
+
 	}
 
 	private void addAttributesToDataRecordGroup(ClientDataRecordGroupSpy dataRecordGroup,
@@ -321,13 +398,44 @@ public class DefinitionWriterTest {
 		attributeRef1Group.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
 				() -> attributeName, NAME_IN_DATA);
 		attributeRef1Group.MRV.setSpecificReturnValuesSupplier("containsChildWithNameInData",
-				() -> true, "finalValue");
+				() -> true, FINAL_VALUE);
 
 		attributeRef1Group.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
-				() -> attributeName + "FinalValue", "finalValue");
+				() -> attributeName + "FinalValue", FINAL_VALUE);
 
 		createRecordInStorageAndAddDataRecordGroup(linkedRecordId, attributeRef1Group);
 		return attributeRefLink1;
+	}
+
+	private ClientDataRecordLinkSpy createAttributeCollectionVar(String attributeName) {
+		String linkedRecordId = attributeName + "Link";
+		ClientDataRecordLinkSpy attributeRefLink1 = createDataRecordLinkRef(linkedRecordId);
+
+		ClientDataRecordGroupSpy collectionVar = new ClientDataRecordGroupSpy();
+		collectionVar.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
+				() -> attributeName, NAME_IN_DATA);
+		collectionVar.MRV.setSpecificReturnValuesSupplier("containsChildWithNameInData",
+				() -> false, FINAL_VALUE);
+
+		ClientDataRecordLinkSpy createDataRecordLinkRef = createDataRecordLinkRef(
+				attributeName + "RefCollectionLink");
+		collectionVar.MRV.setSpecificReturnValuesSupplier("getFirstChildOfTypeAndName",
+				() -> createDataRecordLinkRef, ClientDataRecordLink.class, "refCollection");
+
+		createRecordInStorageAndAddDataRecordGroup(linkedRecordId, collectionVar);
+		return attributeRefLink1;
+	}
+
+	private ClientDataGroupSpy createItemReferencesForCollectionVariable(String attributeName) {
+		ClientDataRecordGroupSpy refCollection = new ClientDataRecordGroupSpy();
+		createRecordInStorageAndAddDataRecordGroup(attributeName + "RefCollectionLink",
+				refCollection);
+
+		ClientDataGroupSpy itemReferences = createDataGroupSpy("someAttribute", "someType");
+		refCollection.MRV.setSpecificReturnValuesSupplier("getFirstGroupWithNameInData",
+				() -> itemReferences, "collectionItemReferences");
+
+		return itemReferences;
 	}
 
 	private ClientDataRecordGroupSpy createDataRecordGroupWithAttributesSpy(String name,
@@ -346,9 +454,9 @@ public class DefinitionWriterTest {
 	private void addFinalValueToGroup(String finalValue,
 			ClientDataRecordGroupSpy someTextChildGroup) {
 		someTextChildGroup.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
-				() -> finalValue, "finalValue");
+				() -> finalValue, FINAL_VALUE);
 		someTextChildGroup.MRV.setSpecificReturnValuesSupplier("containsChildWithNameInData",
-				() -> true, "finalValue");
+				() -> true, FINAL_VALUE);
 	}
 
 	private void addConstraintToChildReference(ClientDataGroupSpy childRefrence1,

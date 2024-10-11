@@ -155,24 +155,23 @@ public class DefinitionWriter {
 	private void collectAttributes(List<Attribute> attributes, ClientDataRecordLink ref) {
 		ClientDataRecordGroup collectionVar = readLink(ref.getLinkedRecordId());
 		String attributeNameInData = collectionVar.getFirstAtomicValueWithNameInData(NAME_IN_DATA);
-		// if (collectionVar.containsChildWithNameInData(FINAL_VALUE)) {
-		String finalValue = collectionVar.getFirstAtomicValueWithNameInData(FINAL_VALUE);
-		Attribute attribute = new Attribute(attributeNameInData, List.of(finalValue));
-		attributes.add(attribute);
-		// } else {
-		// List<String> collectionItemValues = getCollectionItemValues(collectionVar);
-		// Attribute attribute = new Attribute(attributeNameInData, collectionItemValues);
-		// attributes.add(attribute);
-		// }
+		if (collectionVar.containsChildWithNameInData(FINAL_VALUE)) {
+			String finalValue = collectionVar.getFirstAtomicValueWithNameInData(FINAL_VALUE);
+			Attribute attribute = new Attribute(attributeNameInData, List.of(finalValue));
+			attributes.add(attribute);
+		} else {
+			List<String> collectionItemValues = getCollectionItemValues(collectionVar);
+			Attribute attribute = new Attribute(attributeNameInData, collectionItemValues);
+			attributes.add(attribute);
+		}
 	}
 
 	private ClientDataRecordGroup readLink(String linkedRecordId) {
 		return dataClient.read(METADATA, linkedRecordId).getDataRecordGroup();
 	}
 
-	private List<String> getCollectionItemValues(ClientDataRecordGroup metadataCollectionVariable) {
-		List<ClientDataRecordLink> collectionItemLinks = getCollectionItemLinks(
-				metadataCollectionVariable);
+	private List<String> getCollectionItemValues(ClientDataRecordGroup collectionVariable) {
+		List<ClientDataRecordLink> collectionItemLinks = getCollectionItemLinks(collectionVariable);
 		List<String> attributeValues = new ArrayList<>();
 		for (ClientDataRecordLink dataRecordLink : collectionItemLinks) {
 			ClientDataRecordGroup collectionItem = readLink(dataRecordLink.getLinkedRecordId());

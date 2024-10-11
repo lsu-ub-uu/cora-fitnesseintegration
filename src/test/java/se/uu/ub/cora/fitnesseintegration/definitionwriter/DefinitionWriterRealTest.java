@@ -29,7 +29,7 @@ public class DefinitionWriterRealTest {
 
 	private String authToken = "f316a0f3-262f-4413-8b77-209c81d602dd";
 
-	@Test(enabled = true)
+	@Test(enabled = false)
 	public void testName() throws Exception {
 		writer = new DefinitionWriter(baseUrl, apptokenUrl);
 		String definition = writer.writeDefinitionFromUsingDataChild(authToken, "binaryGroup");
