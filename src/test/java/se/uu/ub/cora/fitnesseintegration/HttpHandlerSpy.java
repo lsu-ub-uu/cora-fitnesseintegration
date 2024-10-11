@@ -36,7 +36,7 @@ public class HttpHandlerSpy implements HttpHandler {
 	public int responseCode = 200;
 	public String responseText = "Everything ok";
 
-	public String idFromLogin = "other@user.domain.org";
+	public String loginId = "other@user.domain.org";
 	public String authTokenJsEscaped = "a8675062\\-a00d\\-4f6b\\-ada3\\-510934ad779d";
 	public String validForNoSeconds = "600";
 	public String deleteUrlJsEscaped = "http:\\/\\/localhost:8180\\/login\\/rest\\/apptoken\\/141414";
@@ -65,8 +65,8 @@ public class HttpHandlerSpy implements HttpHandler {
 		if (httpUrlConnection.getURL().toString().contains("appToken")) {
 			return "{\"record\":{\"data\":{\"children\":[{\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"system\"},{\"name\":\"linkedRecordId\",\"value\":\"cora\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/system/cora\",\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"dataDivider\"},{\"name\":\"id\",\"value\":\"appToken:7053734211763\"},{\"name\":\"type\",\"value\":\"appToken\"},{\"name\":\"createdBy\",\"value\":\"131313\"}],\"name\":\"recordInfo\"},{\"name\":\"note\",\"value\":\"My  device\"},{\"name\":\"token\",\"value\":\"ba064c86-bd7c-4283-a5f3-86ba1dade3f3\"}],\"name\":\"appToken\"},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/appToken/appToken:7053734211763\",\"accept\":\"application/vnd.uub.record+json\"},\"read_incoming_links\":{\"requestMethod\":\"GET\",\"rel\":\"read_incoming_links\",\"url\":\"http://localhost:8080/therest/rest/record/appToken/appToken:7053734211763/incomingLinks\",\"accept\":\"application/vnd.uub.recordList+json\"},\"update\":{\"requestMethod\":\"POST\",\"rel\":\"update\",\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"http://localhost:8080/therest/rest/record/appToken/appToken:7053734211763\",\"accept\":\"application/vnd.uub.record+json\"}}}}";
 		}
-		if (httpUrlConnection.getURL().toString().contains("rest/apptoken/")) {
-			return "{\"children\":[{\"name\":\"id\",\"value\":\"a1acff95-5849-4e10-9ee9-4b192aef17fd\"},{\"name\":\"validForNoSeconds\",\"value\":\"600\"}],\"name\":\"authToken\"}";
+		if (httpUrlConnection.getURL().toString().contains("rest/apptoken")) {
+			return "{\"children\":[{\"name\":\"token\",\"value\":\"a1acff95-5849-4e10-9ee9-4b192aef17fd\"},{\"name\":\"validForNoSeconds\",\"value\":\"600\"}],\"name\":\"authToken\"}";
 		}
 		if (httpUrlConnection.getURL().toString().contains("someRecordType")) {
 			return "{\"record\":{\"data\":{\"children\":[{\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"system\"},{\"name\":\"linkedRecordId\",\"value\":\"cora\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/system/cora\",\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"dataDivider\"},{\"name\":\"id\",\"value\":\"someId\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"someRecordType\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/recordType/someRecordType\",\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"type\"},{\"name\":\"createdBy\",\"value\":\"131313\"}],\"name\":\"recordInfo\"}],\"name\":\"binary\",\"attributes\":{\"type\":\"someRecordTypeAttribute\"}},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\",\"accept\":\"application/vnd.uub.record+json\"},\"update\":{\"requestMethod\":\"POST\",\"rel\":\"update\",\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\",\"accept\":\"application/vnd.uub.record+json\"},\"delete\":{\"requestMethod\":\"DELETE\",\"rel\":\"delete\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\"}}}}";
@@ -108,12 +108,12 @@ public class HttpHandlerSpy implements HttpHandler {
 		answer.append("window.onload = start;");
 		answer.append("function start() {");
 		answer.append("var authInfo = {");
-		answer.append("\"userId\" : \"" + idFromLogin + "\",");
+		answer.append("\"userId\" : \"" + loginId + "\",");
 		answer.append("\"token\" : \"");
 		answer.append(authTokenJsEscaped);
 		answer.append("\",");
-		answer.append("\"idFromLogin\" : \"");
-		answer.append(idFromLogin);
+		answer.append("\"loginId\" : \"");
+		answer.append(loginId);
 		answer.append("\",");
 		answer.append("\"validForNoSeconds\" : \"");
 		answer.append(validForNoSeconds);

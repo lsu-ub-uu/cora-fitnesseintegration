@@ -122,11 +122,11 @@ public class IdpLoginServletFixtureTest {
 	}
 
 	@Test
-	public void testIdFromLoginIsFromServerAnswer() throws Exception {
+	public void testLoginIdIsFromServerAnswer() throws Exception {
 		idpFixture.getAuthTokenForEPPN();
 
-		String idFromLogin = idpFixture.getIdFromLogin();
-		assertEquals(idFromLogin, "other@user.domain.org");
+		String loginId = idpFixture.getLoginId();
+		assertEquals(loginId, "other@user.domain.org");
 
 	}
 
@@ -135,8 +135,8 @@ public class IdpLoginServletFixtureTest {
 		SystemUrl.setIdpLoginUrl("http://localhost:8380/notthesameurl/");
 		idpFixture.getAuthTokenForEPPN();
 
-		String idFromLogin = idpFixture.getIdFromLogin();
-		assertEquals(idFromLogin, "Not parseable");
+		String loginId = idpFixture.getLoginId();
+		assertEquals(loginId, "Not parseable");
 	}
 
 	@Test
