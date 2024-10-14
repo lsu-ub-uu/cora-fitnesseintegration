@@ -30,6 +30,7 @@ import se.uu.ub.cora.clientdata.ClientDataProvider;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecordLink;
+import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
 import se.uu.ub.cora.javaclient.JavaClientAuthTokenCredentials;
 import se.uu.ub.cora.javaclient.JavaClientProvider;
 import se.uu.ub.cora.javaclient.data.DataClient;
@@ -51,15 +52,10 @@ public class DefinitionWriter {
 	private static final String TAB = "\t";
 
 	private String definition = "";
-	private String baseUrl;
-	private String appTokenUrl;
+	private String baseUrl = SystemUrl.getUrl() + "rest/";
+	private String appTokenUrl = SystemUrl.getAppTokenVerifierUrl();
 	private DataClient dataClient;
 	private StringBuilder stringBuilder = new StringBuilder();
-
-	public DefinitionWriter(String baseUrl, String appTokenUrl) {
-		this.baseUrl = baseUrl;
-		this.appTokenUrl = appTokenUrl;
-	}
 
 	public String writeDefinitionFromUsingDataChild(String authToken, String recordId) {
 		dataClient = createDataClientUsingAuthToken(authToken);
@@ -102,11 +98,7 @@ public class DefinitionWriter {
 		writeNameInData(clientDataRecordGroup);
 		possiblyWriteFinalValue(clientDataRecordGroup);
 		possiblyWriteAttributeReferences(clientDataRecordGroup);
-
-		definition += "(";
-		possiblyWriteMetadataType(clientDataRecordGroup);
-		possiblyWriteChildReferenceDetails(details);
-		definition += ")";
+		writeDetails(clientDataRecordGroup, details);
 	}
 
 	private void writeNameInData(ClientDataRecordGroup clientDataRecordGroup) {
@@ -195,6 +187,14 @@ public class DefinitionWriter {
 		ClientDataRecordLink linkToCollection = metadataCollectionVariable
 				.getFirstChildOfTypeAndName(ClientDataRecordLink.class, REF_COLLECTION);
 		return readLink(linkToCollection.getLinkedRecordId());
+	}
+
+	private void writeDetails(ClientDataRecordGroup clientDataRecordGroup,
+			Optional<ChildReferenceDetails> details) {
+		definition += "(";
+		possiblyWriteMetadataType(clientDataRecordGroup);
+		possiblyWriteChildReferenceDetails(details);
+		definition += ")";
 	}
 
 	private void possiblyWriteMetadataType(ClientDataRecordGroup clientDataRecordGroup) {

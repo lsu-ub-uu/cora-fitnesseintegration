@@ -20,6 +20,8 @@ package se.uu.ub.cora.fitnesseintegration.definitionwriter;
 
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
+
 public class DefinitionWriterRealTest {
 
 	private DefinitionWriter writer;
@@ -27,11 +29,13 @@ public class DefinitionWriterRealTest {
 	private String apptokenUrl = "http://localhost:8180/login/rest/";
 	private String baseUrl = "http://localhost:8080/systemone/rest/";
 
-	private String authToken = "f316a0f3-262f-4413-8b77-209c81d602dd";
+	private String authToken = "325e24c8-123f-42c5-a362-71f791891d72";
 
 	@Test(enabled = false)
 	public void testName() throws Exception {
-		writer = new DefinitionWriter(baseUrl, apptokenUrl);
+		SystemUrl.setUrl(baseUrl);
+		SystemUrl.setAppTokenVerifierUrl(apptokenUrl);
+		writer = new DefinitionWriter();
 		String definition = writer.writeDefinitionFromUsingDataChild(authToken, "binaryGroup");
 
 		System.out.println(definition);

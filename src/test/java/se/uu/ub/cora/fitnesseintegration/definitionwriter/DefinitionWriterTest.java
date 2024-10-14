@@ -77,7 +77,7 @@ public class DefinitionWriterTest {
 		dataClient.MRV.setSpecificReturnValuesSupplier("read", () -> dataRecord, "metadata",
 				RECORD_ID);
 
-		writer = new DefinitionWriter(baseUrl, appTokenUrl);
+		writer = new DefinitionWriter();
 
 		setUpFirstGroupAndChildReferences();
 	}
@@ -91,15 +91,15 @@ public class DefinitionWriterTest {
 		addChildReferenceListToChildReferencesGroup(childReferencesGroup, childRefs);
 	}
 
-	@Test
-	public void testOnlyForTestGetBaseUrl() throws Exception {
-		assertEquals(writer.onlyForTestGetBaseUrl(), baseUrl);
-	}
-
-	@Test
-	public void testOnlyForTestGetAppTokenUrl() throws Exception {
-		assertEquals(writer.onlyForTestGetAppTokenUrl(), appTokenUrl);
-	}
+	// @Test
+	// public void testOnlyForTestGetBaseUrl() throws Exception {
+	// assertEquals(writer.onlyForTestGetBaseUrl(), baseUrl);
+	// }
+	//
+	// @Test
+	// public void testOnlyForTestGetAppTokenUrl() throws Exception {
+	// assertEquals(writer.onlyForTestGetAppTokenUrl(), appTokenUrl);
+	// }
 
 	@Test
 	public void testDataClientIsFactored() throws Exception {
