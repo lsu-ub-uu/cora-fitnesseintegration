@@ -4,7 +4,6 @@ public class DefinitionCompareFixture {
 
 	private String authToken;
 	private String recordId;
-	private String definition;
 	private DefinitionWriter writer;
 
 	public void setAuthToken(String authToken) {
@@ -15,15 +14,11 @@ public class DefinitionCompareFixture {
 		this.recordId = recordId;
 	}
 
-	public void setDefinition(String definition) {
-		this.definition = definition;
-	}
-
 	public DefinitionCompareFixture() {
 		this.writer = new DefinitionWriter();
 	}
 
-	public boolean compareDefinitions() {
-		return definition.equals(writer.writeDefinitionFromUsingDataChild(authToken, recordId));
+	public String getDefinitionView() {
+		return writer.writeDefinitionUsingRecordId(authToken, recordId);
 	}
 }

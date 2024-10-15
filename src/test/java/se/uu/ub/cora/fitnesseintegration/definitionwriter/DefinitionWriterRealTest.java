@@ -27,17 +27,17 @@ public class DefinitionWriterRealTest {
 	private DefinitionWriter writer;
 
 	private String apptokenUrl = "http://localhost:8180/login/rest/";
-	private String baseUrl = "http://localhost:8080/systemone/rest/";
+	private String baseUrl = "http://localhost:8080/systemone/";
 
-	private String authToken = "325e24c8-123f-42c5-a362-71f791891d72";
+	private String authToken = "17f6be0c-61a4-4634-913d-724969553aee";
 
 	@Test(enabled = false)
-	public void testName() throws Exception {
+	public void testWrite() throws Exception {
 		SystemUrl.setUrl(baseUrl);
 		SystemUrl.setAppTokenVerifierUrl(apptokenUrl);
 		writer = new DefinitionWriter();
-		String definition = writer.writeDefinitionFromUsingDataChild(authToken, "binaryGroup");
 
+		String definition = writer.writeDefinitionUsingRecordId(authToken, "binaryGroup");
 		System.out.println(definition);
 	}
 }

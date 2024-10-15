@@ -51,13 +51,13 @@ public class DefinitionWriter {
 	private static final String NEW_LINE = "\n";
 	private static final String TAB = "\t";
 
-	private String definition = "";
 	private String baseUrl = SystemUrl.getUrl() + "rest/";
 	private String appTokenUrl = SystemUrl.getAppTokenVerifierUrl();
-	private DataClient dataClient;
 	private StringBuilder stringBuilder = new StringBuilder();
+	private DataClient dataClient;
+	private String definition = "";
 
-	public String writeDefinitionFromUsingDataChild(String authToken, String recordId) {
+	public String writeDefinitionUsingRecordId(String authToken, String recordId) {
 		dataClient = createDataClientUsingAuthToken(authToken);
 		ClientDataRecord dataRecord = dataClient.read(METADATA, recordId);
 		ClientDataRecordGroup dataRecordGroup = dataRecord.getDataRecordGroup();
@@ -108,12 +108,16 @@ public class DefinitionWriter {
 	}
 
 	private void possiblyWriteFinalValue(ClientDataRecordGroup clientDataRecordGroup) {
-		if (clientDataRecordGroup.containsChildWithNameInData(FINAL_VALUE)) {
+		if (hasFinalValue(clientDataRecordGroup)) {
 			String finalValue = clientDataRecordGroup
 					.getFirstAtomicValueWithNameInData(FINAL_VALUE);
 			if (!finalValue.isBlank())
 				definition += "{" + finalValue + "}" + SPACE;
 		}
+	}
+
+	private boolean hasFinalValue(ClientDataRecordGroup clientDataRecordGroup) {
+		return clientDataRecordGroup.containsChildWithNameInData(FINAL_VALUE);
 	}
 
 	private void possiblyWriteAttributeReferences(ClientDataRecordGroup clientDataRecordGroup) {
@@ -147,7 +151,7 @@ public class DefinitionWriter {
 	private void collectAttributes(List<Attribute> attributes, ClientDataRecordLink ref) {
 		ClientDataRecordGroup collectionVar = readLink(ref.getLinkedRecordId());
 		String attributeNameInData = collectionVar.getFirstAtomicValueWithNameInData(NAME_IN_DATA);
-		if (collectionVar.containsChildWithNameInData(FINAL_VALUE)) {
+		if (hasFinalValue(collectionVar)) {
 			String finalValue = collectionVar.getFirstAtomicValueWithNameInData(FINAL_VALUE);
 			Attribute attribute = new Attribute(attributeNameInData, List.of(finalValue));
 			attributes.add(attribute);
@@ -266,6 +270,12 @@ public class DefinitionWriter {
 		}
 	}
 
+	private ClientDataRecordGroup readRefLink(ClientDataGroup child) {
+		ClientDataRecordLink refLink = child.getFirstChildOfTypeAndName(ClientDataRecordLink.class,
+				REF);
+		return readLink(refLink.getLinkedRecordId());
+	}
+
 	private Optional<ChildReferenceDetails> collectChildReferenceDetailsAsRecord(
 			ClientDataGroup dataGroup) {
 		String repeatMin = dataGroup.getFirstAtomicValueWithNameInData("repeatMin");
@@ -279,10 +289,10 @@ public class DefinitionWriter {
 				permissionTerm, indexTerm));
 	}
 
-	private ClientDataRecordGroup readRefLink(ClientDataGroup child) {
-		ClientDataRecordLink refLink = child.getFirstChildOfTypeAndName(ClientDataRecordLink.class,
-				REF);
-		return readLink(refLink.getLinkedRecordId());
+	private String getConstraint(ClientDataGroup dataGroup) {
+		return dataGroup.containsChildWithNameInData("recordPartConstraint")
+				? dataGroup.getFirstAtomicValueWithNameInData("recordPartConstraint")
+				: "noConstraint";
 	}
 
 	private boolean hasCollectTermType(String type, ClientDataGroup dataGroup) {
@@ -293,28 +303,14 @@ public class DefinitionWriter {
 		return !dataGroup.getAllChildrenMatchingFilter(filter).isEmpty();
 	}
 
-	private String getConstraint(ClientDataGroup dataGroup) {
-		return dataGroup.containsChildWithNameInData("recordPartConstraint")
-				? dataGroup.getFirstAtomicValueWithNameInData("recordPartConstraint")
-				: "noConstraint";
-	}
-
-	public String onlyForTestGetBaseUrl() {
-		return baseUrl;
-	}
-
-	public String onlyForTestGetAppTokenUrl() {
-		return appTokenUrl;
-	}
-
-	public DataClient onlyForTestGetDataClient() {
-		return dataClient;
-	}
-
 	private record ChildReferenceDetails(String repeatMin, String repeatMax, String constraints,
 			boolean storageTerm, boolean permissionTerm, boolean indexTerm) {
 	};
 
 	private record Attribute(String nameInData, List<String> values) {
+	}
+
+	public DataClient onlyForTestGetDataClient() {
+		return dataClient;
 	}
 }

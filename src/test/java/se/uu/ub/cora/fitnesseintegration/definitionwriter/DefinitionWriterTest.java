@@ -56,8 +56,6 @@ public class DefinitionWriterTest {
 
 	private DefinitionWriter writer;
 	private JavaClientFactorySpy javaClientFactory;
-	private String baseUrl = "someBaseUrl";
-	private String appTokenUrl = "someAppTokenUrl";
 	private String authToken = "someAuthToken";
 	private DataClientSpy dataClient;
 	private ClientDataRecordSpy dataRecord;
@@ -91,19 +89,9 @@ public class DefinitionWriterTest {
 		addChildReferenceListToChildReferencesGroup(childReferencesGroup, childRefs);
 	}
 
-	// @Test
-	// public void testOnlyForTestGetBaseUrl() throws Exception {
-	// assertEquals(writer.onlyForTestGetBaseUrl(), baseUrl);
-	// }
-	//
-	// @Test
-	// public void testOnlyForTestGetAppTokenUrl() throws Exception {
-	// assertEquals(writer.onlyForTestGetAppTokenUrl(), appTokenUrl);
-	// }
-
 	@Test
 	public void testDataClientIsFactored() throws Exception {
-		writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+		writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
 		javaClientFactory.MCR
 				.assertMethodWasCalled("factorDataClientUsingJavaClientAuthTokenCredentials");
 		assertEquals(dataClient, writer.onlyForTestGetDataClient());
@@ -111,7 +99,7 @@ public class DefinitionWriterTest {
 
 	@Test
 	public void testWriteOneGroupOnlyNameInData() throws Exception {
-		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
 
 		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
 		String expectedDefinition = """
@@ -128,7 +116,7 @@ public class DefinitionWriterTest {
 				CHILD_GROUP_NiD, GROUP_TYPE);
 		createRecordInStorageAndAddDataRecordGroup(LINKED_CHILD_GROUP_ID, someChildGroup);
 
-		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
 
 		dataClient.MCR.assertNumberOfCallsToMethod("read", 2);
 		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
@@ -148,7 +136,7 @@ public class DefinitionWriterTest {
 				CHILD_GROUP_NiD, GROUP_TYPE);
 		createRecordInStorageAndAddDataRecordGroup(LINKED_CHILD_GROUP_ID, someChildGroup);
 
-		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
 
 		String expectedDefinition = """
 				someRootGroup (group)
@@ -166,7 +154,7 @@ public class DefinitionWriterTest {
 				CHILD_GROUP_NiD, GROUP_TYPE);
 		createRecordInStorageAndAddDataRecordGroup(LINKED_CHILD_GROUP_ID, someChildGroup);
 
-		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
 
 		String expectedDefinition = """
 				someRootGroup (group)
@@ -204,7 +192,7 @@ public class DefinitionWriterTest {
 				someChildGroup);
 		addChildReferenceListToChildReferencesGroup(childReferencesGroup2, childRefs2);
 
-		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
 
 		String expectedDefinition = """
 				someRootGroup (group)
@@ -238,7 +226,7 @@ public class DefinitionWriterTest {
 				someChildGroup);
 		addChildReferenceListToChildReferencesGroup(childReferencesGroup2, childRefs2);
 
-		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
 
 		String expectedDefinition = """
 				someRootGroup (group)
@@ -274,7 +262,7 @@ public class DefinitionWriterTest {
 				someChildGroup);
 		addChildReferenceListToChildReferencesGroup(childReferencesGroup2, childRefs2);
 
-		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
 
 		String expectedDefinition = """
 				someRootGroup (group)
@@ -289,7 +277,7 @@ public class DefinitionWriterTest {
 		ClientDataRecordLinkSpy attributeRefLink2 = createAttributeWithFinalValue("someAttribute2");
 		addAttributesToDataRecordGroup(dataRecordGroup, attributeRefLink1, attributeRefLink2);
 
-		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
 
 		dataClient.MCR.assertNumberOfCallsToMethod("read", 3);
 		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
@@ -307,7 +295,7 @@ public class DefinitionWriterTest {
 
 		addAttributesToDataRecordGroup(dataRecordGroup, attributeRefLink1);
 
-		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
 
 		dataClient.MCR.assertNumberOfCallsToMethod("read", 5);
 		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
@@ -337,7 +325,7 @@ public class DefinitionWriterTest {
 
 		addAttributesToDataRecordGroup(someChildGroup, attributeRefLink1);
 
-		String definition = writer.writeDefinitionFromUsingDataChild(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
 
 		dataClient.MCR.assertNumberOfCallsToMethod("read", 6);
 		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
