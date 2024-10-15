@@ -137,6 +137,8 @@ public class MetadataLinkFixtureTest {
 				"http://localhost:8080/therest/rest/record/metadataGroup/someRecordId");
 		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestProperties.get("authToken"),
 				"someToken");
+		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestProperties.get("Accept"),
+				"application/vnd.uub.record+json");
 	}
 
 	@Test

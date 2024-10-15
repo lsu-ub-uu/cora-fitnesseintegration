@@ -33,7 +33,7 @@ public class IdpLoginServletFixture {
 	private String eppn;
 	private HttpHandlerFactory factory;
 	private HttpHandler httpHandler;
-	private String idFromLogin;
+	private String loginId;
 	private String authToken;
 	private String answer;
 	private String validForNoSeconds;
@@ -61,7 +61,7 @@ public class IdpLoginServletFixture {
 	}
 
 	private void parseInformationFromAnswer() {
-		idFromLogin = tryToGetFirstMatchFromAnswerUsingRegEx("userId\" : \"");
+		loginId = tryToGetFirstMatchFromAnswerUsingRegEx("loginId\" : \"");
 		authToken = tryToGetFirstMatchFromAnswerUsingRegEx("token\" : \"");
 		validForNoSeconds = tryToGetFirstMatchFromAnswerUsingRegEx("validForNoSeconds\" : \"");
 		deleteUrl = tryToGetFirstMatchFromAnswerUsingRegEx("url\" : \"");
@@ -90,8 +90,8 @@ public class IdpLoginServletFixture {
 		deleteUrl = deleteUrl.replace("\\", "");
 	}
 
-	public String getIdFromLogin() {
-		return idFromLogin;
+	public String getLoginId() {
+		return loginId;
 	}
 
 	public StatusType getResponseCode() {
