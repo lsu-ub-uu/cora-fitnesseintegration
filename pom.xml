@@ -49,7 +49,7 @@
 		<junit.version>4.13.2</junit.version>
 		<indexmessenger.version>1.14.0</indexmessenger.version>
 		<testutils.version>1.14.0</testutils.version>
-		<dataspies.version>2.0.0</dataspies.version>
+		<coradata-spies.version>2.0.0</coradata-spies.version>
 		<clientdata-spies.version>1.6.0</clientdata-spies.version>
 		<loggerspies.version>1.5.0</loggerspies.version>
 	</properties>
@@ -145,7 +145,7 @@
 		<dependency>
 			<groupId>se.uu.ub.cora</groupId>
 			<artifactId>coradata-spies</artifactId>
-			<version>${dataspies.version}</version>
+			<version>${coradata-spies.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
