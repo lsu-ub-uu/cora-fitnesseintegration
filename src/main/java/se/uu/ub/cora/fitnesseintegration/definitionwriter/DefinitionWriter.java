@@ -53,18 +53,18 @@ public class DefinitionWriter {
 
 	private String baseUrl = SystemUrl.getUrl() + "rest/";
 	private String appTokenUrl = SystemUrl.getAppTokenVerifierUrl();
-	private StringBuilder stringBuilder = new StringBuilder();
+	private StringBuilder definition = new StringBuilder();
 	private DataClient dataClient;
-	private String definition = "";
 
 	public String writeDefinitionUsingRecordId(String authToken, String recordId) {
+		definition = new StringBuilder();
 		dataClient = createDataClientUsingAuthToken(authToken);
 		ClientDataRecord dataRecord = dataClient.read(METADATA, recordId);
 		ClientDataRecordGroup dataRecordGroup = dataRecord.getDataRecordGroup();
 
 		writeDefinition(dataRecordGroup, Optional.empty(), 0);
 
-		return definition;
+		return definition.toString();
 	}
 
 	private DataClient createDataClientUsingAuthToken(String authToken) {
@@ -82,15 +82,9 @@ public class DefinitionWriter {
 	}
 
 	private void addIndentation(int level) {
-		clearBuilder();
 		for (int i = 0; i < level; i++) {
-			stringBuilder.append(TAB);
+			definition.append(TAB);
 		}
-		definition += stringBuilder.toString();
-	}
-
-	private void clearBuilder() {
-		stringBuilder.setLength(0);
 	}
 
 	private void writeElement(ClientDataRecordGroup clientDataRecordGroup,
@@ -104,7 +98,7 @@ public class DefinitionWriter {
 	private void writeNameInData(ClientDataRecordGroup clientDataRecordGroup) {
 		String metadataNameInData = clientDataRecordGroup
 				.getFirstAtomicValueWithNameInData(NAME_IN_DATA);
-		definition += metadataNameInData + SPACE;
+		definition.append(metadataNameInData + SPACE);
 	}
 
 	private void possiblyWriteFinalValue(ClientDataRecordGroup clientDataRecordGroup) {
@@ -112,7 +106,7 @@ public class DefinitionWriter {
 			String finalValue = clientDataRecordGroup
 					.getFirstAtomicValueWithNameInData(FINAL_VALUE);
 			if (!finalValue.isBlank())
-				definition += "{" + finalValue + "}" + SPACE;
+				definition.append("{" + finalValue + "}" + SPACE);
 		}
 	}
 
@@ -122,13 +116,11 @@ public class DefinitionWriter {
 
 	private void possiblyWriteAttributeReferences(ClientDataRecordGroup clientDataRecordGroup) {
 		if (clientDataRecordGroup.containsChildWithNameInData(ATTRIBUTE_REFERENCES)) {
-			clearBuilder();
 			List<Attribute> attributes = readAttributeReferences(clientDataRecordGroup);
 			for (Attribute attribute : attributes) {
-				stringBuilder.append(MessageFormat.format("{0}:'{'{1}'}' ", attribute.nameInData(),
+				definition.append(MessageFormat.format("{0}:'{'{1}'}' ", attribute.nameInData(),
 						String.join(COMMA_SPACE, attribute.values())));
 			}
-			definition += stringBuilder.toString();
 		}
 	}
 
@@ -195,32 +187,32 @@ public class DefinitionWriter {
 
 	private void writeDetails(ClientDataRecordGroup clientDataRecordGroup,
 			Optional<ChildReferenceDetails> details) {
-		definition += "(";
+		definition.append("(");
 		possiblyWriteMetadataType(clientDataRecordGroup);
 		possiblyWriteChildReferenceDetails(details);
-		definition += ")";
+		definition.append(")");
 	}
 
 	private void possiblyWriteMetadataType(ClientDataRecordGroup clientDataRecordGroup) {
 		Optional<String> attributeValue = clientDataRecordGroup.getAttributeValue(TYPE);
-		definition += attributeValue.isPresent() ? attributeValue.get() : "";
+		definition.append(attributeValue.isPresent() ? attributeValue.get() : "");
 	}
 
 	private void writeChildReferenceDetails(ChildReferenceDetails details) {
-		definition += MessageFormat.format(COMMA_SPACE + "{0}-{1}" + COMMA_SPACE + "{2}",
-				details.repeatMin(), details.repeatMax(), details.constraints());
+		definition.append(MessageFormat.format(COMMA_SPACE + "{0}-{1}" + COMMA_SPACE + "{2}",
+				details.repeatMin(), details.repeatMax(), details.constraints()));
 		possiblyWriteCollectTerms(details);
 	}
 
 	private void possiblyWriteCollectTerms(ChildReferenceDetails details) {
 		if (details.storageTerm()) {
-			definition += COMMA_SPACE + "S";
+			definition.append(COMMA_SPACE + "S");
 		}
 		if (details.permissionTerm()) {
-			definition += COMMA_SPACE + "P";
+			definition.append(COMMA_SPACE + "P");
 		}
 		if (details.indexTerm()) {
-			definition += COMMA_SPACE + "I";
+			definition.append(COMMA_SPACE + "I");
 		}
 	}
 
@@ -261,7 +253,7 @@ public class DefinitionWriter {
 	}
 
 	private void addNewLine() {
-		definition += NEW_LINE;
+		definition.append(NEW_LINE);
 	}
 
 	private void possiblyWriteChildReferenceDetails(Optional<ChildReferenceDetails> details) {
