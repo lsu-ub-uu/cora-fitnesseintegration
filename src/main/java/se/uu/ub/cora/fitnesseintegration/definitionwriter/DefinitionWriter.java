@@ -30,6 +30,7 @@ import se.uu.ub.cora.clientdata.ClientDataProvider;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecordLink;
+import se.uu.ub.cora.fitnesseintegration.script.DataRecordProvider;
 import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
 import se.uu.ub.cora.javaclient.JavaClientAuthTokenCredentials;
 import se.uu.ub.cora.javaclient.JavaClientProvider;
@@ -55,15 +56,16 @@ public class DefinitionWriter {
 	private String appTokenUrl = SystemUrl.getAppTokenVerifierUrl();
 	private StringBuilder definition = new StringBuilder();
 	private DataClient dataClient;
+	private DataRecordHolder dataRecordHolder;
 
 	public String writeDefinitionUsingRecordId(String authToken, String recordId) {
-		definition = new StringBuilder();
+		dataRecordHolder = DataRecordProvider.getHolder(authToken);
 		dataClient = createDataClientUsingAuthToken(authToken);
 		ClientDataRecord dataRecord = dataClient.read(METADATA, recordId);
 		ClientDataRecordGroup dataRecordGroup = dataRecord.getDataRecordGroup();
 
+		definition = new StringBuilder();
 		writeDefinition(dataRecordGroup, Optional.empty(), 0);
-
 		return definition.toString();
 	}
 
@@ -155,7 +157,7 @@ public class DefinitionWriter {
 	}
 
 	private ClientDataRecordGroup readLink(String linkedRecordId) {
-		return dataClient.read(METADATA, linkedRecordId).getDataRecordGroup();
+		return dataRecordHolder.getDataRecordById(linkedRecordId).getDataRecordGroup();
 	}
 
 	private List<String> getCollectionItemValues(ClientDataRecordGroup collectionVariable) {

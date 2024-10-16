@@ -26,18 +26,17 @@ public class DefinitionWriterRealTest {
 
 	private DefinitionWriter writer;
 
-	private String apptokenUrl = "http://localhost:8180/login/rest/";
-	private String baseUrl = "http://localhost:8080/systemone/";
+	private String apptokenUrl = "http://localhost:8182/login/rest/";
+	private String baseUrl = "http://localhost:8082/diva/";
 
-	private String authToken = "17f6be0c-61a4-4634-913d-724969553aee";
+	private String authToken = "f88a1b31-c2cd-4853-9906-0f3124eb5b37";
 
-	@Test(enabled = false)
+	@Test(enabled = true)
 	public void testWrite() throws Exception {
 		SystemUrl.setUrl(baseUrl);
 		SystemUrl.setAppTokenVerifierUrl(apptokenUrl);
 		writer = new DefinitionWriter();
-
-		String definition = writer.writeDefinitionUsingRecordId(authToken, "binaryGroup");
+		String definition = writer.writeDefinitionUsingRecordId(authToken, "divaOutputGroup");
 		System.out.println(definition);
 	}
 }
