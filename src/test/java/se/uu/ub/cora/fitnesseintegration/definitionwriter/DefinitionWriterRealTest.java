@@ -31,7 +31,7 @@ public class DefinitionWriterRealTest {
 
 	private String authToken = "c6ee463c-6c40-463c-b5d7-ab15c4fba74c";
 
-	@Test(enabled = true)
+	@Test(enabled = false)
 	public void testWrite() throws Exception {
 		SystemUrl.setUrl(baseUrl);
 		SystemUrl.setAppTokenVerifierUrl(apptokenUrl);

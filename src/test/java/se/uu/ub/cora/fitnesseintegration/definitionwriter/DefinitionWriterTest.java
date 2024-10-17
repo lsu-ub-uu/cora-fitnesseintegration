@@ -269,7 +269,7 @@ public class DefinitionWriterTest {
 		metadataHolder.MCR.assertParameters("getDataRecordById", 1, "someAttribute1Link");
 		metadataHolder.MCR.assertParameters("getDataRecordById", 2, "someAttribute2Link");
 		String expectedDefinition = """
-				someRootGroup someAttribute1:{someAttribute1FinalValue} someAttribute2:{someAttribute2FinalValue} (group)""";
+				someRootGroup someAttribute1:{someAttribute1FinalValue}, someAttribute2:{someAttribute2FinalValue} (group)""";
 		assertEquals(definition, expectedDefinition);
 	}
 

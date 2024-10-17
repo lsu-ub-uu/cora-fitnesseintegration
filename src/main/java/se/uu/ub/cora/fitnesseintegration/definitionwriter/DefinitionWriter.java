@@ -20,6 +20,7 @@ package se.uu.ub.cora.fitnesseintegration.definitionwriter;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -104,9 +105,12 @@ public class DefinitionWriter {
 	private void possiblyWriteAttributeReferences(ClientDataRecordGroup clientDataRecordGroup) {
 		if (clientDataRecordGroup.containsChildWithNameInData(ATTRIBUTE_REFERENCES)) {
 			List<Attribute> attributes = readAttributeReferences(clientDataRecordGroup);
-			for (Attribute attribute : attributes) {
-				definition.append(MessageFormat.format("{0}:'{'{1}'}' ", attribute.nameInData(),
+			Iterator<Attribute> attributeIterator = attributes.iterator();
+			while (attributeIterator.hasNext()) {
+				Attribute attribute = attributeIterator.next();
+				definition.append(MessageFormat.format("{0}:'{'{1}'}'", attribute.nameInData(),
 						String.join(COMMA_SPACE, attribute.values())));
+				addSpaceOrCommaSpace(attributeIterator);
 			}
 		}
 	}
@@ -118,6 +122,14 @@ public class DefinitionWriter {
 			collectAttributes(attributes, ref);
 		}
 		return attributes;
+	}
+
+	private void addSpaceOrCommaSpace(Iterator<Attribute> attributeIterator) {
+		if (attributeIterator.hasNext()) {
+			definition.append(COMMA_SPACE);
+		} else {
+			definition.append(SPACE);
+		}
 	}
 
 	private List<ClientDataRecordLink> getAttributeReferencesRefLinks(
