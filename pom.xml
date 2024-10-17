@@ -38,7 +38,7 @@
 		<clientdata.version>6.5.0</clientdata.version>
 		<coradata.version>10.0.0</coradata.version>
 		<converter.version>4.1.0</converter.version>
-		<javaclient.version>4.0-SNAPSHOT</javaclient.version>
+		<javaclient.version>4.0.0</javaclient.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 		<fitnesse.version>20240707</fitnesse.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
