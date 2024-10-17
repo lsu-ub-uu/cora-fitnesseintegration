@@ -16,27 +16,27 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration.definitionwriter;
+package se.uu.ub.cora.fitnesseintegration.script;
 
-import org.testng.annotations.Test;
+import se.uu.ub.cora.fitnesseintegration.definitionwriter.MetadataHolder;
+import se.uu.ub.cora.fitnesseintegration.definitionwriter.MetadataHolderPopulatorImp;
 
-import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
+public final class MetadataProvider {
 
-public class DefinitionWriterRealTest {
+	private static MetadataHolder holder;
 
-	private DefinitionWriter writer;
+	public MetadataProvider() {
+		super();
+	}
 
-	private String apptokenUrl = "http://localhost:8180/login/rest/";
-	private String baseUrl = "http://localhost:8080/systemone/";
+	public static synchronized MetadataHolder getHolder(String authToken) {
+		if (null == holder) {
+			holder = new MetadataHolderPopulatorImp().createAndPopulateHolder(authToken);
+		}
+		return holder;
+	}
 
-	private String authToken = "c6ee463c-6c40-463c-b5d7-ab15c4fba74c";
-
-	@Test(enabled = true)
-	public void testWrite() throws Exception {
-		SystemUrl.setUrl(baseUrl);
-		SystemUrl.setAppTokenVerifierUrl(apptokenUrl);
-		writer = new DefinitionWriter();
-		String definition = writer.writeDefinitionUsingRecordId(authToken, "binaryGroup");
-		System.out.println(definition);
+	public static void onlyForTestSetHolder(MetadataHolder metadataHolder) {
+		holder = metadataHolder;
 	}
 }

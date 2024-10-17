@@ -18,25 +18,26 @@
  */
 package se.uu.ub.cora.fitnesseintegration.definitionwriter;
 
-import org.testng.annotations.Test;
+import java.util.HashMap;
+import java.util.Map;
 
-import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 
-public class DefinitionWriterRealTest {
+public class MetadataHolderImp implements MetadataHolder {
 
-	private DefinitionWriter writer;
+	private Map<String, ClientDataRecord> dataRecords = new HashMap<>();
 
-	private String apptokenUrl = "http://localhost:8180/login/rest/";
-	private String baseUrl = "http://localhost:8080/systemone/";
+	@Override
+	public void addDataRecord(ClientDataRecord dataRecord) {
+		dataRecords.put(dataRecord.getId(), dataRecord);
+	}
 
-	private String authToken = "c6ee463c-6c40-463c-b5d7-ab15c4fba74c";
+	@Override
+	public ClientDataRecord getDataRecordById(String recordId) {
+		return dataRecords.get(recordId);
+	}
 
-	@Test(enabled = true)
-	public void testWrite() throws Exception {
-		SystemUrl.setUrl(baseUrl);
-		SystemUrl.setAppTokenVerifierUrl(apptokenUrl);
-		writer = new DefinitionWriter();
-		String definition = writer.writeDefinitionUsingRecordId(authToken, "binaryGroup");
-		System.out.println(definition);
+	public Map<String, ClientDataRecord> onlyForTestGetMetadata() {
+		return dataRecords;
 	}
 }

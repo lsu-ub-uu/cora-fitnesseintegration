@@ -30,11 +30,7 @@ import se.uu.ub.cora.clientdata.ClientDataProvider;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecordLink;
-import se.uu.ub.cora.fitnesseintegration.script.DataRecordProvider;
-import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
-import se.uu.ub.cora.javaclient.JavaClientAuthTokenCredentials;
-import se.uu.ub.cora.javaclient.JavaClientProvider;
-import se.uu.ub.cora.javaclient.data.DataClient;
+import se.uu.ub.cora.fitnesseintegration.script.MetadataProvider;
 
 public class DefinitionWriter {
 
@@ -45,35 +41,24 @@ public class DefinitionWriter {
 	private static final String COLLECTION_ITEM_REFERENCES = "collectionItemReferences";
 	private static final String REF_COLLECTION = "refCollection";
 	private static final String FINAL_VALUE = "finalValue";
-	private static final String METADATA = "metadata";
 	private static final String SPACE = " ";
 	private static final String COMMA_SPACE = ", ";
 	private static final String TYPE = "type";
 	private static final String NEW_LINE = "\n";
 	private static final String TAB = "\t";
 
-	private String baseUrl = SystemUrl.getUrl() + "rest/";
-	private String appTokenUrl = SystemUrl.getAppTokenVerifierUrl();
 	private StringBuilder definition = new StringBuilder();
-	private DataClient dataClient;
-	private DataRecordHolder dataRecordHolder;
+	private MetadataHolder metadataHolder;
 
 	public String writeDefinitionUsingRecordId(String authToken, String recordId) {
-		dataRecordHolder = DataRecordProvider.getHolder(authToken);
-		dataClient = createDataClientUsingAuthToken(authToken);
-		ClientDataRecord dataRecord = dataClient.read(METADATA, recordId);
+		metadataHolder = MetadataProvider.getHolder(authToken);
+		ClientDataRecord dataRecord = metadataHolder.getDataRecordById(recordId);
 		ClientDataRecordGroup dataRecordGroup = dataRecord.getDataRecordGroup();
 
 		definition = new StringBuilder();
 		writeDefinition(dataRecordGroup, Optional.empty(), 0);
-		return definition.toString();
-	}
 
-	private DataClient createDataClientUsingAuthToken(String authToken) {
-		JavaClientAuthTokenCredentials authTokenCredentials = new JavaClientAuthTokenCredentials(
-				baseUrl, appTokenUrl, authToken);
-		return JavaClientProvider
-				.createDataClientUsingJavaClientAuthTokenCredentials(authTokenCredentials);
+		return definition.toString();
 	}
 
 	private void writeDefinition(ClientDataRecordGroup clientDataRecordGroup,
@@ -157,7 +142,7 @@ public class DefinitionWriter {
 	}
 
 	private ClientDataRecordGroup readLink(String linkedRecordId) {
-		return dataRecordHolder.getDataRecordById(linkedRecordId).getDataRecordGroup();
+		return metadataHolder.getDataRecordById(linkedRecordId).getDataRecordGroup();
 	}
 
 	private List<String> getCollectionItemValues(ClientDataRecordGroup collectionVariable) {
@@ -304,7 +289,4 @@ public class DefinitionWriter {
 	private record Attribute(String nameInData, List<String> values) {
 	}
 
-	public DataClient onlyForTestGetDataClient() {
-		return dataClient;
-	}
 }
