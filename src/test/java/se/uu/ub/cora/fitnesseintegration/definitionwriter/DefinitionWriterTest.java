@@ -35,9 +35,8 @@ import se.uu.ub.cora.clientdata.spies.ClientDataGroupSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordGroupSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordLinkSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
-import se.uu.ub.cora.fitnesseintegration.spy.DataClientSpy;
-import se.uu.ub.cora.fitnesseintegration.spy.JavaClientFactorySpy;
-import se.uu.ub.cora.javaclient.JavaClientProvider;
+import se.uu.ub.cora.fitnesseintegration.script.MetadataProvider;
+import se.uu.ub.cora.fitnesseintegration.spy.MetadataHolderSpy;
 
 public class DefinitionWriterTest {
 
@@ -55,9 +54,8 @@ public class DefinitionWriterTest {
 	private static final String RECORD_ID = "someRecordId";
 
 	private DefinitionWriter writer;
-	private JavaClientFactorySpy javaClientFactory;
 	private String authToken = "someAuthToken";
-	private DataClientSpy dataClient;
+	private MetadataHolderSpy metadataHolder;
 	private ClientDataRecordSpy dataRecord;
 	private ClientDataRecordGroupSpy dataRecordGroup;
 	private ClientDataGroupSpy childReferencesGroup;
@@ -65,18 +63,13 @@ public class DefinitionWriterTest {
 
 	@BeforeMethod
 	private void beforeMethod() {
-		javaClientFactory = new JavaClientFactorySpy();
-		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
-		dataClient = new DataClientSpy();
-		javaClientFactory.MRV.setDefaultReturnValuesSupplier(
-				"factorDataClientUsingJavaClientAuthTokenCredentials", () -> dataClient);
-
+		metadataHolder = new MetadataHolderSpy();
 		dataRecord = new ClientDataRecordSpy();
-		dataClient.MRV.setSpecificReturnValuesSupplier("read", () -> dataRecord, "metadata",
+		metadataHolder.MRV.setSpecificReturnValuesSupplier("getDataRecordById", () -> dataRecord,
 				RECORD_ID);
 
+		MetadataProvider.onlyForTestSetHolder(metadataHolder);
 		writer = new DefinitionWriter();
-
 		setUpFirstGroupAndChildReferences();
 	}
 
@@ -90,18 +83,10 @@ public class DefinitionWriterTest {
 	}
 
 	@Test
-	public void testDataClientIsFactored() throws Exception {
-		writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
-		javaClientFactory.MCR
-				.assertMethodWasCalled("factorDataClientUsingJavaClientAuthTokenCredentials");
-		assertEquals(dataClient, writer.onlyForTestGetDataClient());
-	}
-
-	@Test
 	public void testWriteOneGroupOnlyNameInData() throws Exception {
 		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
 
-		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
+		metadataHolder.MCR.assertParameters("getDataRecordById", 0, RECORD_ID);
 		String expectedDefinition = """
 				someRootGroup (group)""";
 		assertEquals(definition, expectedDefinition);
@@ -118,9 +103,9 @@ public class DefinitionWriterTest {
 
 		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
 
-		dataClient.MCR.assertNumberOfCallsToMethod("read", 2);
-		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
-		dataClient.MCR.assertParameters("read", 1, "metadata", LINKED_CHILD_GROUP_ID);
+		metadataHolder.MCR.assertNumberOfCallsToMethod("getDataRecordById", 2);
+		metadataHolder.MCR.assertParameters("getDataRecordById", 0, RECORD_ID);
+		metadataHolder.MCR.assertParameters("getDataRecordById", 1, LINKED_CHILD_GROUP_ID);
 		String expectedDefinition = """
 				someRootGroup (group)
 					someChildGroup (group, 0-X, noConstraint)""";
@@ -279,12 +264,12 @@ public class DefinitionWriterTest {
 
 		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
 
-		dataClient.MCR.assertNumberOfCallsToMethod("read", 3);
-		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
-		dataClient.MCR.assertParameters("read", 1, "metadata", "someAttribute1Link");
-		dataClient.MCR.assertParameters("read", 2, "metadata", "someAttribute2Link");
+		metadataHolder.MCR.assertNumberOfCallsToMethod("getDataRecordById", 3);
+		metadataHolder.MCR.assertParameters("getDataRecordById", 0, RECORD_ID);
+		metadataHolder.MCR.assertParameters("getDataRecordById", 1, "someAttribute1Link");
+		metadataHolder.MCR.assertParameters("getDataRecordById", 2, "someAttribute2Link");
 		String expectedDefinition = """
-				someRootGroup someAttribute1:{someAttribute1FinalValue} someAttribute2:{someAttribute2FinalValue} (group)""";
+				someRootGroup someAttribute1:{someAttribute1FinalValue}, someAttribute2:{someAttribute2FinalValue} (group)""";
 		assertEquals(definition, expectedDefinition);
 	}
 
@@ -297,12 +282,13 @@ public class DefinitionWriterTest {
 
 		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
 
-		dataClient.MCR.assertNumberOfCallsToMethod("read", 5);
-		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
-		dataClient.MCR.assertParameters("read", 1, "metadata", "someAttributeLink");
-		dataClient.MCR.assertParameters("read", 2, "metadata", "someAttributeRefCollectionLink");
-		dataClient.MCR.assertParameters("read", 3, "metadata", "value1ItemReferencesLink");
-		dataClient.MCR.assertParameters("read", 4, "metadata", "value2ItemReferencesLink");
+		metadataHolder.MCR.assertNumberOfCallsToMethod("getDataRecordById", 5);
+		metadataHolder.MCR.assertParameters("getDataRecordById", 0, RECORD_ID);
+		metadataHolder.MCR.assertParameters("getDataRecordById", 1, "someAttributeLink");
+		metadataHolder.MCR.assertParameters("getDataRecordById", 2,
+				"someAttributeRefCollectionLink");
+		metadataHolder.MCR.assertParameters("getDataRecordById", 3, "value1ItemReferencesLink");
+		metadataHolder.MCR.assertParameters("getDataRecordById", 4, "value2ItemReferencesLink");
 
 		String expectedDefinition = """
 				someRootGroup someAttribute:{value1, value2} (group)""";
@@ -327,13 +313,14 @@ public class DefinitionWriterTest {
 
 		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
 
-		dataClient.MCR.assertNumberOfCallsToMethod("read", 6);
-		dataClient.MCR.assertParameters("read", 0, "metadata", RECORD_ID);
-		dataClient.MCR.assertParameters("read", 1, "metadata", "someLinkedRecordId");
-		dataClient.MCR.assertParameters("read", 2, "metadata", "someAttributeLink");
-		dataClient.MCR.assertParameters("read", 3, "metadata", "someAttributeRefCollectionLink");
-		dataClient.MCR.assertParameters("read", 4, "metadata", "value1ItemReferencesLink");
-		dataClient.MCR.assertParameters("read", 5, "metadata", "value2ItemReferencesLink");
+		metadataHolder.MCR.assertNumberOfCallsToMethod("getDataRecordById", 6);
+		metadataHolder.MCR.assertParameters("getDataRecordById", 0, RECORD_ID);
+		metadataHolder.MCR.assertParameters("getDataRecordById", 1, "someLinkedRecordId");
+		metadataHolder.MCR.assertParameters("getDataRecordById", 2, "someAttributeLink");
+		metadataHolder.MCR.assertParameters("getDataRecordById", 3,
+				"someAttributeRefCollectionLink");
+		metadataHolder.MCR.assertParameters("getDataRecordById", 4, "value1ItemReferencesLink");
+		metadataHolder.MCR.assertParameters("getDataRecordById", 5, "value2ItemReferencesLink");
 
 		String expectedDefinition = """
 				someRootGroup (group)
@@ -483,7 +470,7 @@ public class DefinitionWriterTest {
 	private ClientDataRecordSpy createRecordInStorageAndAddDataRecordGroup(String recordId,
 			ClientDataRecordGroupSpy someChildGroup) {
 		ClientDataRecordSpy childRecord = new ClientDataRecordSpy();
-		dataClient.MRV.setSpecificReturnValuesSupplier("read", () -> childRecord, "metadata",
+		metadataHolder.MRV.setSpecificReturnValuesSupplier("getDataRecordById", () -> childRecord,
 				recordId);
 
 		childRecord.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup", () -> someChildGroup);
