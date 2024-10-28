@@ -48,7 +48,7 @@ public class DefinitionWriter {
 	private static final String NEW_LINE = "\n";
 	private static final String TAB = "\t";
 
-	private StringBuilder definition = new StringBuilder();
+	private StringBuilder definition;
 	private MetadataHolder metadataHolder;
 
 	public String writeDefinitionUsingRecordId(String authToken, String recordId) {
