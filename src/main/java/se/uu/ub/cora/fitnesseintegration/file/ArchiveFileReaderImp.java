@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Uppsala University Library
+ * Copyright 2022, 2024 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -65,7 +65,7 @@ public class ArchiveFileReaderImp implements ArchiveFileReader {
 		return path.get();
 	}
 
-	private Optional<Path> findFirstPathEndsWithPattern(String fileName, String version,
+	public Optional<Path> findFirstPathEndsWithPattern(String fileName, String version,
 			Stream<Path> pathStream) {
 		String pattern = version + "/content/" + fileName;
 		return pathStream.filter(endsWithPattern(pattern)).findFirst();
@@ -93,4 +93,25 @@ public class ArchiveFileReaderImp implements ArchiveFileReader {
 		return stringBuilder.toString();
 	}
 
+	@Override
+	public Optional<Path> findPathWithNameAndVersion(String basePathText, String fileName,
+			String version) {
+		Path basePath = Paths.get(basePathText);
+		try (Stream<Path> allFilePaths = Files.walk(basePath)) {
+
+			return findPath(fileName, version, allFilePaths);
+
+		} catch (IOException e) {
+			return Optional.empty();
+		}
+	}
+
+	private Optional<Path> findPath(String fileName, String version, Stream<Path> allFilePaths) {
+		return findPathWithNameAndVersion(fileName, version, allFilePaths);
+	}
+
+	private Optional<Path> findPathWithNameAndVersion(String fileName, String version,
+			Stream<Path> pathStream) {
+		return findFirstPathEndsWithPattern(fileName, version, pathStream);
+	}
 }

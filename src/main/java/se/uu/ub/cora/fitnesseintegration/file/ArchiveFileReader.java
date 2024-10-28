@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Uppsala University Library
+ * Copyright 2022, 2024 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -17,6 +17,9 @@
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
 package se.uu.ub.cora.fitnesseintegration.file;
+
+import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * ArchiveFileReader reads a file from an archive.
@@ -41,5 +44,23 @@ public interface ArchiveFileReader {
 	 *             RuntimeException} if any error occurs while trying to read the file.
 	 */
 	String readFileWithNameAndVersion(String basePath, String fileName, String version);
+
+	/**
+	 * findPathWithNameAndVersion reads a file from the (Fedora) archive on disk using the specified
+	 * basePath, fileName and version.
+	 * <p>
+	 * The reader searches the file tree starting at the specified base path until it finds a file
+	 * with the specified name. From there it finds the folder with the specified version and
+	 * returns the contens of the file with the specified filename from the correct version folder.
+	 * 
+	 * @param basePath
+	 *            A String with the basePath of the (Fedora) archive on disk
+	 * @param fileName
+	 *            A String with the fileName to find in the archive
+	 * @param version
+	 *            A String with the version of the file to find.
+	 * @return A Optional<Path> with the path to the file.
+	 */
+	Optional<Path> findPathWithNameAndVersion(String basePath, String string, String string2);
 
 }

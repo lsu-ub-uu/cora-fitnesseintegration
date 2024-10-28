@@ -42,12 +42,10 @@ public class ArchiveFile {
 
 	public void setFileName(String filename) {
 		this.filename = filename;
-
 	}
 
 	public void setVersion(String version) {
 		this.version = version;
-
 	}
 
 	public String getReadFile() {

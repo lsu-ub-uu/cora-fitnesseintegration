@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Uppsala University Library
+ * Copyright 2022, 2024 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -24,6 +24,7 @@ import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.testng.annotations.AfterMethod;
@@ -68,7 +69,7 @@ public class ArchiveFileReaderTest {
 
 	@Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ""
 			+ "File with name: someFileName and version: v1, not found in archive.")
-	public void testOneFileNoVersion() throws Exception {
+	public void testFindPathOneFileNoVersion() throws Exception {
 		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileName");
 
 		archiveFileReader.readFileWithNameAndVersion(basePath, "someFileName", "v1");
@@ -125,15 +126,77 @@ public class ArchiveFileReaderTest {
 	}
 
 	@Test
-	public void testMakeSureFileListIsClosed() throws Exception {
-		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "v1/content",
+	public void testFindPathInit() throws Exception {
+		Optional<Path> path = archiveFileReader.findPathWithNameAndVersion(basePath, "someFileName",
+				"v1");
+		assertTrue(path.isEmpty());
+	}
+
+	@Test
+	public void testFindPathWrongPath() throws Exception {
+		fileHelper.removeFiles();
+		Optional<Path> path = archiveFileReader.findPathWithNameAndVersion(basePath, "someFileName",
+				"v1");
+		assertTrue(path.isEmpty());
+	}
+
+	@Test
+	public void testOneFileNoVersion() throws Exception {
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileName");
+
+		Optional<Path> path = archiveFileReader.findPathWithNameAndVersion(basePath, "someFileName",
+				"v1");
+		assertTrue(path.isEmpty());
+	}
+
+	@Test
+	public void testFindPathOneFileOneVersion() throws Exception {
+		String x = """
+				309
+					327
+					    c7a
+					        309327c7a7e47b7a9a7cf5086a225163aa4a34653ae3edc05233faaa2bc369a8
+					            0=ocfl_object_1.0
+					            inventory.json
+					            inventory.json.sha512
+					            v1
+					                content
+					                    .fcrepo
+					                        fcr-root.json
+					                        fcr-root~fcr-desc.json
+					                    demo:demo:520004
+					                    demo:demo:520004~fcr-desc.nt
+					                inventory.json
+					                inventory.json.sha512
+					            v2
+					                content
+					                    .fcrepo
+					                        fcr-root.json
+					                        fcr-root~fcr-desc.json
+					                    demo:demo:520004
+					                inventory.json
+					                inventory.json.sha512
+				""";
+		String folderName = "309/327/309327c7a7e47b7a9a7cf5086a225163aa4a34653ae3edc05233faaa2bc369a8/v1/content";
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", folderName,
 				"someFileName");
-		OnlyForTestArchiveFileReader treeReader = new OnlyForTestArchiveFileReader();
 
-		String fileContent = treeReader.readFileWithNameAndVersion(basePath, "someFileName", "v1");
+		Optional<Path> path = archiveFileReader.findPathWithNameAndVersion(basePath, "someFileName",
+				"v1");
+		assertTrue(path.isPresent());
+	}
 
-		assertEquals(fileContent, "someData");
-		assertTrue(treeReader.closeCheck.runCalled);
+	@Test
+	public void testFindPathOneFileTwoVersion() throws Exception {
+		String folderName = "309/327/309327c7a7e47b7a9a7cf5086a225163aa4a34653ae3edc05233faaa2bc369a8";
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData",
+				folderName + "/v1/content", "someFileName");
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData2",
+				folderName + "/v2/content", "someFileName");
+
+		Optional<Path> path = archiveFileReader.findPathWithNameAndVersion(basePath, "someFileName",
+				"v1");
+		assertTrue(path.isPresent());
 	}
 
 	class OnlyForTestArchiveFileReader extends ArchiveFileReaderImp {

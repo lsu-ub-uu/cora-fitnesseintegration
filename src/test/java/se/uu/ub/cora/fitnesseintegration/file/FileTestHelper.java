@@ -1,3 +1,21 @@
+/*
+ * Copyright 2022 Uppsala University Library
+ *
+ * This file is part of Cora.
+ *
+ *     Cora is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     Cora is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.uu.ub.cora.fitnesseintegration.file;
 
 import java.io.BufferedWriter;
@@ -48,7 +66,6 @@ public class FileTestHelper {
 		}
 	}
 
-	// <<<<<<< HEAD
 	public void writeFileToDiskWithContentInFolderWithName(String content, String folderName,
 			String fileName) throws IOException {
 		String currentPath = possiblyCreateFolder(folderName);
@@ -72,27 +89,6 @@ public class FileTestHelper {
 			currentPath += "/" + folder;
 		}
 		return currentPath;
-		// =======
-		// public void writeFileToDisk(String content, String folderName, String fileName)
-		// throws IOException {
-		// possiblyCreateFolder(folderName);
-		// Path path = FileSystems.getDefault().getPath(basePath, folderName, fileName);
-		// BufferedWriter writer;
-		// writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8,
-		// StandardOpenOption.CREATE);
-		// writer.write(content, 0, content.length());
-		// writer.flush();
-		// writer.close();
-		// }
-		//
-		// private void possiblyCreateFolder(String folderName) {
-		// Path pathIncludingFolderName = Paths.get(basePath, folderName);
-		// File newPath = pathIncludingFolderName.toFile();
-		// if (!newPath.exists()) {
-		// newPath.mkdir();
-		// }
-		// >>>>>>> branch 'issues/ALVIN-2668' of
-		// https://github.com/lsu-ub-uu/cora-fitnesseintegration.git
 	}
 
 	public void removeFiles() throws IOException {

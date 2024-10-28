@@ -18,20 +18,23 @@
  */
 package se.uu.ub.cora.fitnesseintegration.script;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
 
-public class ExtractSubstringUsingRegex {
+import se.uu.ub.cora.fitnesseintegration.file.ArchiveFileReaderImp;
 
-	public String getSubstringUsingTextAndRegex(String text, String regex) {
-		Pattern pattern = Pattern.compile(regex);
-		Matcher matcher = pattern.matcher(text);
-		return matcher.find() ? matcher.group() : "No match found";
+public class FileReader {
+	public boolean fileNameExistsInPath(String fileName, String path) {
+		Path filePath = Path.of(path, fileName);
+		return Files.exists(filePath);
 	}
 
-	public boolean matchFoundUsingTextAndRegex(String text, String regex) {
-		Pattern pattern = Pattern.compile(regex);
-		Matcher matcher = pattern.matcher(text);
-		return matcher.find();
+	public boolean fileNameExistsInArchiveAsVersionUnderPath(String fileName, String version,
+			String basePath) {
+		ArchiveFileReaderImp archiveFileReader = new ArchiveFileReaderImp();
+		Optional<Path> path = archiveFileReader.findPathWithNameAndVersion(basePath, fileName,
+				version);
+		return path.isPresent();
 	}
 }

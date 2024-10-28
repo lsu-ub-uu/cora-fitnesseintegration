@@ -18,6 +18,9 @@
  */
 package se.uu.ub.cora.fitnesseintegration.file;
 
+import java.nio.file.Path;
+import java.util.Optional;
+
 import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
 import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 
@@ -28,12 +31,20 @@ public class ArchiveFileReaderSpy implements ArchiveFileReader {
 	public ArchiveFileReaderSpy() {
 		MCR.useMRV(MRV);
 		MRV.setDefaultReturnValuesSupplier("readFileWithNameAndVersion", String::new);
+		MRV.setDefaultReturnValuesSupplier("findPathWithNameAndVersion", () -> Optional.empty());
 	}
 
 	@Override
 	public String readFileWithNameAndVersion(String basePath, String fileName, String version) {
 		return (String) MCR.addCallAndReturnFromMRV("basePath", basePath, "fileName", fileName,
 				"version", version);
+	}
+
+	@Override
+	public Optional<Path> findPathWithNameAndVersion(String basePath, String fileName,
+			String version) {
+		return (Optional<Path>) MCR.addCallAndReturnFromMRV("basePath", basePath, "fileName",
+				fileName, "version", version);
 	}
 
 }
