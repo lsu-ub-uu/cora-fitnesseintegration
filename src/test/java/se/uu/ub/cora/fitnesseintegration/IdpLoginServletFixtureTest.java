@@ -19,6 +19,7 @@
 package se.uu.ub.cora.fitnesseintegration;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 import javax.ws.rs.core.Response.StatusType;
 
@@ -155,18 +156,17 @@ public class IdpLoginServletFixtureTest {
 	}
 
 	@Test
-	public void testValidForNumberOfSecondsIsFromServerAnswer() throws Exception {
+	public void testValidUntilFromServerAnswer() throws Exception {
 		idpFixture.getAuthTokenForEPPN();
-		String validForNoSeconds = idpFixture.getValidForNoSeconds();
-		assertEquals(validForNoSeconds, "600");
+		String validUntil = idpFixture.getValidUntil();
+		assertNotNull(validUntil);
 	}
 
 	@Test
-	public void testNotParseableValidForNumberOfSecondsIsFromServerAnswer() throws Exception {
-		SystemUrl.setIdpLoginUrl("http://localhost:8380/notthesameurl/");
+	public void testRenewUntilFromServerAnswer() throws Exception {
 		idpFixture.getAuthTokenForEPPN();
-		String validForNoSeconds = idpFixture.getValidForNoSeconds();
-		assertEquals(validForNoSeconds, "Not parseable");
+		String renewUntil = idpFixture.getRenewUntil();
+		assertNotNull(renewUntil);
 	}
 
 	@Test

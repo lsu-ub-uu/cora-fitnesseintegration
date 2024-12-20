@@ -36,7 +36,8 @@ public class IdpLoginServletFixture {
 	private String loginId;
 	private String authToken;
 	private String answer;
-	private String validForNoSeconds;
+	private String validUntil;
+	private String renewUntil;
 	private String deleteUrl;
 
 	public IdpLoginServletFixture() {
@@ -63,7 +64,8 @@ public class IdpLoginServletFixture {
 	private void parseInformationFromAnswer() {
 		loginId = tryToGetFirstMatchFromAnswerUsingRegEx("loginId\" : \"");
 		authToken = tryToGetFirstMatchFromAnswerUsingRegEx("token\" : \"");
-		validForNoSeconds = tryToGetFirstMatchFromAnswerUsingRegEx("validForNoSeconds\" : \"");
+		validUntil = tryToGetFirstMatchFromAnswerUsingRegEx("validUntil\" : \"");
+		renewUntil = tryToGetFirstMatchFromAnswerUsingRegEx("renewUntil\" : \"");
 		deleteUrl = tryToGetFirstMatchFromAnswerUsingRegEx("url\" : \"");
 		decodeJavascriptEncoded();
 	}
@@ -102,8 +104,12 @@ public class IdpLoginServletFixture {
 		return authToken;
 	}
 
-	public String getValidForNoSeconds() {
-		return validForNoSeconds;
+	public String getValidUntil() {
+		return validUntil;
+	}
+
+	public String getRenewUntil() {
+		return renewUntil;
 	}
 
 	public String getDeleteUrl() {
