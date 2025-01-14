@@ -19,7 +19,6 @@
 package se.uu.ub.cora.fitnesseintegration;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
 
 import javax.ws.rs.core.Response.StatusType;
 
@@ -159,14 +158,28 @@ public class IdpLoginServletFixtureTest {
 	public void testValidUntilFromServerAnswer() throws Exception {
 		idpFixture.getAuthTokenForEPPN();
 		String validUntil = idpFixture.getValidUntil();
-		assertNotNull(validUntil);
+		assertEquals(validUntil, "1231231231231");
 	}
 
 	@Test
 	public void testRenewUntilFromServerAnswer() throws Exception {
 		idpFixture.getAuthTokenForEPPN();
 		String renewUntil = idpFixture.getRenewUntil();
-		assertNotNull(renewUntil);
+		assertEquals(renewUntil, "1231231231232");
+	}
+
+	@Test
+	public void testFirstNameAnswer() throws Exception {
+		idpFixture.getAuthTokenForEPPN();
+		String firstName = idpFixture.getFirstName();
+		assertEquals(firstName, "AFirstName");
+	}
+
+	@Test
+	public void testLastNameAnswer() throws Exception {
+		idpFixture.getAuthTokenForEPPN();
+		String lastName = idpFixture.getLastName();
+		assertEquals(lastName, "ALastName");
 	}
 
 	@Test

@@ -39,6 +39,8 @@ public class IdpLoginServletFixture {
 	private String validUntil;
 	private String renewUntil;
 	private String tokenIdUrl;
+	private String firstName;
+	private String lastName;
 
 	public IdpLoginServletFixture() {
 		factory = DependencyProvider.getHttpHandlerFactory();
@@ -62,11 +64,13 @@ public class IdpLoginServletFixture {
 	}
 
 	private void parseInformationFromAnswer() {
-		loginId = tryToGetFirstMatchFromAnswerUsingRegEx("loginId\" : \"");
-		authToken = tryToGetFirstMatchFromAnswerUsingRegEx("token\" : \"");
-		validUntil = tryToGetFirstMatchFromAnswerUsingRegEx("validUntil\" : \"");
-		renewUntil = tryToGetFirstMatchFromAnswerUsingRegEx("renewUntil\" : \"");
-		tokenIdUrl = tryToGetFirstMatchFromAnswerUsingRegEx("url\" : \"");
+		loginId = tryToGetFirstMatchFromAnswerUsingRegEx("loginId : \"");
+		authToken = tryToGetFirstMatchFromAnswerUsingRegEx("token : \"");
+		firstName = tryToGetFirstMatchFromAnswerUsingRegEx("firstName : \"");
+		lastName = tryToGetFirstMatchFromAnswerUsingRegEx("lastName : \"");
+		validUntil = tryToGetFirstMatchFromAnswerUsingRegEx("validUntil : \"");
+		renewUntil = tryToGetFirstMatchFromAnswerUsingRegEx("renewUntil : \"");
+		tokenIdUrl = tryToGetFirstMatchFromAnswerUsingRegEx("url : \"");
 		decodeJavascriptEncoded();
 	}
 
@@ -114,6 +118,14 @@ public class IdpLoginServletFixture {
 
 	public String getTokenIdUrl() {
 		return tokenIdUrl;
+	}
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
 	}
 
 }
