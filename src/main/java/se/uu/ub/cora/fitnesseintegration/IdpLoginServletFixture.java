@@ -38,7 +38,7 @@ public class IdpLoginServletFixture {
 	private String answer;
 	private String validUntil;
 	private String renewUntil;
-	private String deleteUrl;
+	private String tokenIdUrl;
 
 	public IdpLoginServletFixture() {
 		factory = DependencyProvider.getHttpHandlerFactory();
@@ -66,7 +66,7 @@ public class IdpLoginServletFixture {
 		authToken = tryToGetFirstMatchFromAnswerUsingRegEx("token\" : \"");
 		validUntil = tryToGetFirstMatchFromAnswerUsingRegEx("validUntil\" : \"");
 		renewUntil = tryToGetFirstMatchFromAnswerUsingRegEx("renewUntil\" : \"");
-		deleteUrl = tryToGetFirstMatchFromAnswerUsingRegEx("url\" : \"");
+		tokenIdUrl = tryToGetFirstMatchFromAnswerUsingRegEx("url\" : \"");
 		decodeJavascriptEncoded();
 	}
 
@@ -89,7 +89,7 @@ public class IdpLoginServletFixture {
 
 	private void decodeJavascriptEncoded() {
 		authToken = authToken.replace("\\", "");
-		deleteUrl = deleteUrl.replace("\\", "");
+		tokenIdUrl = tokenIdUrl.replace("\\", "");
 	}
 
 	public String getLoginId() {
@@ -112,8 +112,8 @@ public class IdpLoginServletFixture {
 		return renewUntil;
 	}
 
-	public String getDeleteUrl() {
-		return deleteUrl;
+	public String getTokenIdUrl() {
+		return tokenIdUrl;
 	}
 
 }

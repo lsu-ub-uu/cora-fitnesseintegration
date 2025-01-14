@@ -172,7 +172,7 @@ public class IdpLoginServletFixtureTest {
 	@Test
 	public void testIdInUserStorageIsFromServerAnswer() throws Exception {
 		idpFixture.getAuthTokenForEPPN();
-		String deleteURL = idpFixture.getDeleteUrl();
+		String deleteURL = idpFixture.getTokenIdUrl();
 		assertEquals(deleteURL, "http://localhost:8180/login/rest/apptoken/141414");
 	}
 
@@ -180,7 +180,7 @@ public class IdpLoginServletFixtureTest {
 	public void testNotParseableIdInUserStorageIsFromServerAnswer() throws Exception {
 		SystemUrl.setIdpLoginUrl("http://localhost:8380/notthesameurl/");
 		idpFixture.getAuthTokenForEPPN();
-		String idInUserStorage = idpFixture.getDeleteUrl();
+		String idInUserStorage = idpFixture.getTokenIdUrl();
 		assertEquals(idInUserStorage, "Not parseable");
 	}
 }
