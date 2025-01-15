@@ -60,6 +60,8 @@ public class IdpLoginServletFixture {
 		httpHandler = factory.factor(SystemUrl.getIdpLoginUrl() + "login");
 		httpHandler.setRequestProperty("eppn", eppn);
 		httpHandler.setRequestMethod("GET");
+		httpHandler.setRequestProperty("sn", "someLastName");
+		httpHandler.setRequestProperty("givenName", "someFirstName");
 		answer = httpHandler.getResponseText();
 	}
 
