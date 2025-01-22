@@ -40,7 +40,7 @@ import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
 
 public class MetadataLinkFixtureTest {
 	MetadataLinkFixture fixture;
-	private HttpHandlerFactorySpy httpHandlerFactorySpy;
+	private HttpHandlerFactoryOldSpy httpHandlerFactorySpy;
 	JsonToClientDataConverterFactorySpy converterFactorySpy = new JsonToClientDataConverterFactorySpy();
 
 	@BeforeMethod
@@ -50,8 +50,8 @@ public class MetadataLinkFixtureTest {
 		SystemUrl.setUrl("http://localhost:8080/therest/");
 		AuthTokenHolder.setAdminAuthToken("someAdminToken");
 		DependencyProvider.setHttpHandlerFactoryClassName(
-				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy");
-		httpHandlerFactorySpy = (HttpHandlerFactorySpy) DependencyProvider.getHttpHandlerFactory();
+				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactoryOldSpy");
+		httpHandlerFactorySpy = (HttpHandlerFactoryOldSpy) DependencyProvider.getHttpHandlerFactory();
 
 		setupTestRecordInDataHolder();
 

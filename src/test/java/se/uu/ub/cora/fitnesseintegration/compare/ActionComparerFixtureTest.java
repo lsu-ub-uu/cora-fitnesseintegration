@@ -49,7 +49,7 @@ public class ActionComparerFixtureTest {
 		DependencyProvider.setComparerFactoryUsingClassName(
 				"se.uu.ub.cora.fitnesseintegration.compare.ComparerFactorySpy");
 		DependencyProvider.setHttpHandlerFactoryClassName(
-				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy");
+				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactoryOldSpy");
 		recordHandler = new RecordHandlerOLDSpy();
 		jsonParser = new JsonParserSpy();
 		jsonHandler = JsonHandlerImp.usingJsonParser(jsonParser);

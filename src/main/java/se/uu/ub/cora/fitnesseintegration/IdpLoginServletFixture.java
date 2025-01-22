@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Uppsala University Library
+ * Copyright 2019, 2025 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -66,7 +66,8 @@ public class IdpLoginServletFixture {
 	}
 
 	private void parseInformationFromAnswer() {
-		loginId = tryToGetFirstMatchFromAnswerUsingRegEx("loginId : \"");
+		loginId = tryToGetFirstMatchFromAnswerUsingRegEx("{name : \"loginId\", value : \"");
+		// loginId = tryToGetFirstMatchFromAnswerUsingRegEx("loginId : \"");
 		authToken = tryToGetFirstMatchFromAnswerUsingRegEx("token : \"");
 		firstName = tryToGetFirstMatchFromAnswerUsingRegEx("firstName : \"");
 		lastName = tryToGetFirstMatchFromAnswerUsingRegEx("lastName : \"");

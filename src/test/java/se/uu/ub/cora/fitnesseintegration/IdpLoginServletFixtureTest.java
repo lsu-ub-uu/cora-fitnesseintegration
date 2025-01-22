@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Uppsala University Library
+ * Copyright 2019, 2025 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -27,93 +27,140 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
+import se.uu.ub.cora.httphandler.spies.HttpHandlerFactorySpy;
+import se.uu.ub.cora.httphandler.spies.HttpHandlerSpy;
 
 public class IdpLoginServletFixtureTest {
 
+	private static final String DEFAULT_URL = "http://localhost:8380/idplogin/";
 	private HttpHandlerFactorySpy httpHandlerFactorySpy;
+	private HttpHandlerSpy httpHandlerSpy;
 	private IdpLoginServletFixture idpFixture;
 
 	@BeforeMethod
 	public void beforeMethod() {
-		SystemUrl.setIdpLoginUrl("http://localhost:8380/idplogin/");
 		DependencyProvider.setHttpHandlerFactoryClassName(
-				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy");
+				"se.uu.ub.cora.httphandler.spies.HttpHandlerFactorySpy");
 		httpHandlerFactorySpy = (HttpHandlerFactorySpy) DependencyProvider.getHttpHandlerFactory();
+
+		SystemUrl.setIdpLoginUrl(DEFAULT_URL);
+		httpHandlerSpy = new HttpHandlerSpy();
+		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseText",
+				() -> createExpectedHtml());
+		httpHandlerFactorySpy.MRV.setDefaultReturnValuesSupplier("factor", () -> httpHandlerSpy);
+
 		idpFixture = new IdpLoginServletFixture();
 	}
 
-	@Test
-	public void testRequestMethod() throws Exception {
-		idpFixture.getAuthTokenForEPPN();
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		assertEquals(httpHandlerSpy.requestMetod, "GET");
+	private String createExpectedHtml() {
+		String idInUserStorageEscaped = "someIdInUser\\x27Storage";
+		String tokenEscaped = "someAuth\\x27Token";
+		String loginIdEscaped = "loginId";
+		String tokenIdEscaped = "http:\\/\\/localhost:8080\\/login\\/rest\\/authToken\\/someTokenId";
+		String mainSystemDomainEscaped = "http:\\/\\/localhost:8080";
+		String tokenForHtml = "someAuth&#39;Token";
+		long validUntil = 600000L;
+		long renewUntil = 86400000L;
+
+		return """
+				<!DOCTYPE html>
+				<html>
+					<head>
+						<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+						<script type="text/javascript">
+							window.onload = start;
+							function start() {
+								var authentication = {
+									authentication : {
+										data : {
+											children : [
+												{name : "token", value : "%s"},
+												{name : "validUntil", value : "%s"},
+												{name : "renewUntil", value : "%s"},
+												{name : "userId", value : "%s"},
+												{name : "loginId", value : "%s"},
+												{name : "firstName", value : "%s"},
+												{name : "lastName", value : "%s"}
+											],
+											name : authToken
+										},
+										actionLinks : {
+											renew : {
+												requestMethod : "POST",
+												rel : "renew",
+												url : "%s",
+												accept: "application/vnd.uub.authentication+json"
+											},
+											delete : {
+												requestMethod : "DELETE",
+												rel : "delete",
+												url : "%s"
+											}
+										}
+									}
+								};
+								if(null!=window.opener){
+									window.opener.postMessage(authentication, "%s");
+									window.opener.focus();
+									window.close();
+								}
+							};
+						</script>
+					</head>
+					<body>
+						token: %s
+					</body>
+				</html>
+				""".formatted(idInUserStorageEscaped, loginIdEscaped, tokenEscaped, "someFirstName",
+				"someLastName", validUntil, renewUntil, tokenIdEscaped, tokenIdEscaped,
+				mainSystemDomainEscaped, tokenForHtml);
 	}
 
 	@Test
-	public void testThatIdpLoginUrlFromSystemUrlIsUsed() throws Exception {
-		idpFixture.getAuthTokenForEPPN();
-		assertEquals(httpHandlerFactorySpy.urlString, SystemUrl.getIdpLoginUrl() + "login");
-	}
-
-	@Test
-	public void testThatOtherIdpLoginUrlFromSystemUrlIsUsed() throws Exception {
-		SystemUrl.setIdpLoginUrl("http://localhost:8380/notthesameurl/");
-		idpFixture.getAuthTokenForEPPN();
-		assertEquals(httpHandlerFactorySpy.urlString, SystemUrl.getIdpLoginUrl() + "login");
-	}
-
-	@Test
-	public void testEPPNIsSentOnToServer() throws Exception {
+	public void testRequestMethod() {
 		idpFixture.setEPPN("someuser@user.domain.org");
 
-		idpFixture.getAuthTokenForEPPN();
+		String answer = idpFixture.getAuthTokenForEPPN();
 
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		assertEquals(httpHandlerSpy.requestProperties.get("eppn"), "someuser@user.domain.org");
+		httpHandlerSpy = (HttpHandlerSpy) httpHandlerFactorySpy.MCR
+				.assertCalledParametersReturn("factor", DEFAULT_URL + "login");
+		httpHandlerSpy.MCR.assertCalledParameters("setRequestMethod", "GET");
+		httpHandlerSpy.MCR.assertCalledParameters("setRequestProperty", "eppn",
+				"someuser@user.domain.org");
+		httpHandlerSpy.MCR.assertReturn("getResponseText", 0, answer);
 	}
 
 	@Test
-	public void testOtherEPPNIsSentOnToServer() throws Exception {
+	public void testRequestMethodOther() {
+		String otherUrl = "http://localhost:8380/notthesameurl/";
+		SystemUrl.setIdpLoginUrl(otherUrl);
 		idpFixture.setEPPN("other@user.domain.org");
 
-		idpFixture.getAuthTokenForEPPN();
+		String answer = idpFixture.getAuthTokenForEPPN();
 
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		assertEquals(httpHandlerSpy.requestProperties.get("eppn"), "other@user.domain.org");
+		httpHandlerSpy = (HttpHandlerSpy) httpHandlerFactorySpy.MCR
+				.assertCalledParametersReturn("factor", otherUrl + "login");
+		httpHandlerSpy.MCR.assertCalledParameters("setRequestMethod", "GET");
+		httpHandlerSpy.MCR.assertCalledParameters("setRequestProperty", "eppn",
+				"other@user.domain.org");
+		httpHandlerSpy.MCR.assertReturn("getResponseText", 0, answer);
+
 	}
 
 	@Test
-	public void testGetAuthTokenForEPPNRetrunsHtmlFromServer() throws Exception {
-		SystemUrl.setIdpLoginUrl("http://localhost:8380/notthesameurl/");
-		idpFixture.setEPPN("other@user.domain.org");
-
-		String html = idpFixture.getAuthTokenForEPPN();
-
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		assertEquals(httpHandlerSpy.getResponseText(), html);
-	}
-
-	@Test
-	public void testGetAuthTokenForEPPNRetrunsHtmlFromServerOther() throws Exception {
-		idpFixture.setEPPN("other@user.domain.org");
-
-		String html = idpFixture.getAuthTokenForEPPN();
-
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
-		assertEquals(httpHandlerSpy.getResponseText(), html);
-	}
-
-	@Test
-	public void testGetStatusTypeIsFromServer() throws Exception {
+	public void testGetStatusTypeIsFromServer() {
 		idpFixture.getAuthTokenForEPPN();
 
 		StatusType responseCode = idpFixture.getResponseCode();
+
 		assertEquals(responseCode.toString(), "OK");
 	}
 
 	@Test
-	public void testGetStatusTypeIsFromServerError() throws Exception {
-		httpHandlerFactorySpy.setResponseCode(400);
+	public void testGetStatusTypeIsFromServerError() {
+		HttpHandlerSpy errorHttpHandler = new HttpHandlerSpy();
+		errorHttpHandler.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> 400);
+		httpHandlerFactorySpy.MRV.setDefaultReturnValuesSupplier("factor", () -> errorHttpHandler);
 
 		idpFixture.getAuthTokenForEPPN();
 
@@ -122,7 +169,9 @@ public class IdpLoginServletFixtureTest {
 	}
 
 	@Test
-	public void testLoginIdIsFromServerAnswer() throws Exception {
+	public void testLoginIdIsFromServerAnswer() {
+		// httpH
+
 		idpFixture.getAuthTokenForEPPN();
 
 		String loginId = idpFixture.getLoginId();
@@ -131,7 +180,7 @@ public class IdpLoginServletFixtureTest {
 	}
 
 	@Test
-	public void testNotParseableIdpLoginAnswer() throws Exception {
+	public void testNotParseableIdpLoginAnswer() {
 		SystemUrl.setIdpLoginUrl("http://localhost:8380/notthesameurl/");
 		idpFixture.getAuthTokenForEPPN();
 
@@ -140,14 +189,14 @@ public class IdpLoginServletFixtureTest {
 	}
 
 	@Test
-	public void testAuthTokenIsFromServerAnswer() throws Exception {
+	public void testAuthTokenIsFromServerAnswer() {
 		idpFixture.getAuthTokenForEPPN();
 		String authToken = idpFixture.getAuthToken();
 		assertEquals(authToken, "a8675062-a00d-4f6b-ada3-510934ad779d");
 	}
 
 	@Test
-	public void testNotParseableAuthTokenIsFromServerAnswer() throws Exception {
+	public void testNotParseableAuthTokenIsFromServerAnswer() {
 		SystemUrl.setIdpLoginUrl("http://localhost:8380/notthesameurl/");
 		idpFixture.getAuthTokenForEPPN();
 		String authToken = idpFixture.getAuthToken();
@@ -155,42 +204,42 @@ public class IdpLoginServletFixtureTest {
 	}
 
 	@Test
-	public void testValidUntilFromServerAnswer() throws Exception {
+	public void testValidUntilFromServerAnswer() {
 		idpFixture.getAuthTokenForEPPN();
 		String validUntil = idpFixture.getValidUntil();
 		assertEquals(validUntil, "1231231231231");
 	}
 
 	@Test
-	public void testRenewUntilFromServerAnswer() throws Exception {
+	public void testRenewUntilFromServerAnswer() {
 		idpFixture.getAuthTokenForEPPN();
 		String renewUntil = idpFixture.getRenewUntil();
 		assertEquals(renewUntil, "1231231231232");
 	}
 
 	@Test
-	public void testFirstNameAnswer() throws Exception {
+	public void testFirstNameAnswer() {
 		idpFixture.getAuthTokenForEPPN();
 		String firstName = idpFixture.getFirstName();
 		assertEquals(firstName, "AFirstName");
 	}
 
 	@Test
-	public void testLastNameAnswer() throws Exception {
+	public void testLastNameAnswer() {
 		idpFixture.getAuthTokenForEPPN();
 		String lastName = idpFixture.getLastName();
 		assertEquals(lastName, "ALastName");
 	}
 
 	@Test
-	public void testIdInUserStorageIsFromServerAnswer() throws Exception {
+	public void testIdInUserStorageIsFromServerAnswer() {
 		idpFixture.getAuthTokenForEPPN();
 		String deleteURL = idpFixture.getTokenIdUrl();
 		assertEquals(deleteURL, "http://localhost:8180/login/rest/apptoken/141414");
 	}
 
 	@Test
-	public void testNotParseableIdInUserStorageIsFromServerAnswer() throws Exception {
+	public void testNotParseableIdInUserStorageIsFromServerAnswer() {
 		SystemUrl.setIdpLoginUrl("http://localhost:8380/notthesameurl/");
 		idpFixture.getAuthTokenForEPPN();
 		String idInUserStorage = idpFixture.getTokenIdUrl();

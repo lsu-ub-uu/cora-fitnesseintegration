@@ -11,15 +11,15 @@ import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
 
 public class AppTokenEndpointFixtureTest {
-	private HttpHandlerFactorySpy httpHandlerFactorySpy;
+	private HttpHandlerFactoryOldSpy httpHandlerFactorySpy;
 	private AppTokenEndpointFixture fixture;
 
 	@BeforeMethod
 	public void setUp() {
 		SystemUrl.setAppTokenVerifierUrl("http://localhost:8080/login/");
 		DependencyProvider.setHttpHandlerFactoryClassName(
-				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy");
-		httpHandlerFactorySpy = (HttpHandlerFactorySpy) DependencyProvider.getHttpHandlerFactory();
+				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactoryOldSpy");
+		httpHandlerFactorySpy = (HttpHandlerFactoryOldSpy) DependencyProvider.getHttpHandlerFactory();
 		fixture = new AppTokenEndpointFixture();
 	}
 
@@ -29,7 +29,7 @@ public class AppTokenEndpointFixtureTest {
 		fixture.setLoginId("someUserId");
 		fixture.setAppToken("02a89fd5-c768-4209-9ecc-d80bd793b01e");
 		String json = fixture.getAuthTokenForAppToken();
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		HttpHandlerOldSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
 		assertEquals(httpHandlerSpy.requestMetod, "POST");
 		String credentials = """
 				someUserId
@@ -49,7 +49,7 @@ public class AppTokenEndpointFixtureTest {
 		fixture.setLoginId("fitnesseAdmin@system.cora.uu.se");
 		fixture.setAppToken("");
 		String json = fixture.getAuthTokenForAppToken();
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		HttpHandlerOldSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
 		assertEquals(httpHandlerSpy.requestMetod, "POST");
 		String credentials = """
 				fitnesseAdmin@system.cora.uu.se
@@ -69,7 +69,7 @@ public class AppTokenEndpointFixtureTest {
 		fixture.setLoginId("fitnesseUser@system.cora.uu.se");
 		fixture.setAppToken("");
 		String json = fixture.getAuthTokenForAppToken();
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		HttpHandlerOldSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
 		assertEquals(httpHandlerSpy.requestMetod, "POST");
 		String credentials = """
 				fitnesseUser@system.cora.uu.se
@@ -113,7 +113,7 @@ public class AppTokenEndpointFixtureTest {
 	}
 
 	private void assertCallToDeleteAuthToken() {
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		HttpHandlerOldSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
 		assertEquals(httpHandlerSpy.requestMetod, "DELETE");
 		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), "someAuthToken");
 		assertEquals(httpHandlerFactorySpy.urlString,

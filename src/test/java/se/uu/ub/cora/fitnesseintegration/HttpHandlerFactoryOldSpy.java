@@ -27,11 +27,11 @@ import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpMultiPartUploader;
 
-public class HttpHandlerFactorySpy implements HttpHandlerFactory {
+public class HttpHandlerFactoryOldSpy implements HttpHandlerFactory {
 
 	public String urlString;
 	private boolean factorValid = true;
-	public HttpHandlerSpy httpHandlerSpy;
+	public HttpHandlerOldSpy httpHandlerSpy;
 	public HttpHandlerInvalidSpy httpHandlerInvalidSpy;
 
 	private int responseCode = 200;
@@ -45,7 +45,7 @@ public class HttpHandlerFactorySpy implements HttpHandlerFactory {
 			URL url = new URL(urlString);
 			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 			if (factorValid) {
-				httpHandlerSpy = HttpHandlerSpy.usingURLConnection(urlConnection);
+				httpHandlerSpy = HttpHandlerOldSpy.usingURLConnection(urlConnection);
 				httpHandlerSpy.responseCode = responseCode;
 				return httpHandlerSpy;
 			}

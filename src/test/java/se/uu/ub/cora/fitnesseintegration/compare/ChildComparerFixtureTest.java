@@ -57,7 +57,7 @@ public class ChildComparerFixtureTest {
 		DependencyProvider.setChildComparerUsingClassName(
 				"se.uu.ub.cora.fitnesseintegration.ChildComparerSpy");
 		DependencyProvider.setHttpHandlerFactoryClassName(
-				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy");
+				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactoryOldSpy");
 
 		fixture = new ChildComparerFixture();
 		setUpFixture();

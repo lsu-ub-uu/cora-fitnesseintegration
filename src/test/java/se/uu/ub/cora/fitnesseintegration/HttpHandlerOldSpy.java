@@ -26,7 +26,7 @@ import java.util.Map;
 
 import se.uu.ub.cora.httphandler.HttpHandler;
 
-public class HttpHandlerSpy implements HttpHandler {
+public class HttpHandlerOldSpy implements HttpHandler {
 
 	public HttpURLConnection httpUrlConnection;
 	public String requestMetod;
@@ -47,12 +47,12 @@ public class HttpHandlerSpy implements HttpHandler {
 	private String validUntil = "1231231231231";
 	private String renewUntil = "1231231231232";
 
-	private HttpHandlerSpy(HttpURLConnection httpUrlConnection) {
+	private HttpHandlerOldSpy(HttpURLConnection httpUrlConnection) {
 		this.httpUrlConnection = httpUrlConnection;
 	}
 
-	public static HttpHandlerSpy usingURLConnection(HttpURLConnection httpUrlConnection) {
-		return new HttpHandlerSpy(httpUrlConnection);
+	public static HttpHandlerOldSpy usingURLConnection(HttpURLConnection httpUrlConnection) {
+		return new HttpHandlerOldSpy(httpUrlConnection);
 	}
 
 	@Override

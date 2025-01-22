@@ -54,7 +54,7 @@ public class RecordEndpointFixtureTest {
 	private static final String SOME_AUTH_TOKEN = "someToken";
 	private JsonToClientDataConverterFactorySpy converterToClientFactorySpy;
 	private RecordEndpointFixture fixture;
-	private HttpHandlerFactorySpy httpHandlerFactorySpy;
+	private HttpHandlerFactoryOldSpy httpHandlerFactorySpy;
 	private RecordHandlerOLDSpy oldRecordHandlerSpy;
 	private RecordHandlerSpy recordHandler;
 
@@ -69,10 +69,10 @@ public class RecordEndpointFixtureTest {
 		AuthTokenHolder.setAdminAuthToken("someAdminToken");
 
 		DependencyProvider.setHttpHandlerFactoryClassName(
-				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy");
+				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactoryOldSpy");
 		DependencyProvider.setChildComparerUsingClassName(
 				"se.uu.ub.cora.fitnesseintegration.ChildComparerSpy");
-		httpHandlerFactorySpy = (HttpHandlerFactorySpy) DependencyProvider.getHttpHandlerFactory();
+		httpHandlerFactorySpy = (HttpHandlerFactoryOldSpy) DependencyProvider.getHttpHandlerFactory();
 
 		recordHandler = new RecordHandlerSpy();
 		oldRecordHandlerSpy = new RecordHandlerOLDSpy();
@@ -84,7 +84,7 @@ public class RecordEndpointFixtureTest {
 	public void testInit() {
 		fixture = new RecordEndpointFixture();
 
-		assertTrue(fixture.getHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
+		assertTrue(fixture.getHttpHandlerFactory() instanceof HttpHandlerFactoryOldSpy);
 		assertTrue(fixture.getChildComparer() instanceof ChildComparerSpy);
 
 		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.getRecordHandler();
@@ -430,7 +430,7 @@ public class RecordEndpointFixtureTest {
 		fixture.setAuthToken(SOME_AUTH_TOKEN);
 		fixture.setResourceName("someResourceName");
 		fixture.testDownload();
-		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		HttpHandlerOldSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
 		assertEquals(httpHandlerSpy.requestMetod, "GET");
 		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), SOME_AUTH_TOKEN);
 		assertEquals(httpHandlerSpy.requestProperties.size(), 1);
