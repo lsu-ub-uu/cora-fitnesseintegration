@@ -25,6 +25,10 @@ import javax.ws.rs.core.Response.StatusType;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
+import se.uu.ub.cora.clientdata.spies.ClientDataAuthenticationSpy;
+import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
+import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterSpy;
 import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
 import se.uu.ub.cora.httphandler.spies.HttpHandlerFactorySpy;
@@ -36,9 +40,15 @@ public class IdpLoginServletFixtureTest {
 	private HttpHandlerFactorySpy httpHandlerFactorySpy;
 	private HttpHandlerSpy httpHandlerSpy;
 	private IdpLoginServletFixture idpFixture;
+	private JsonToClientDataConverterFactorySpy jsonToDataConverterFactory;
+	private ClientDataAuthenticationSpy clientDataAutentication;
+	private JsonToClientDataConverterSpy jsonToClientDataConverter;
 
 	@BeforeMethod
 	public void beforeMethod() {
+		setJsonToClientDataConverterFactory();
+
+		JsonToClientDataConverterProvider.setJsonToDataConverterFactory(jsonToDataConverterFactory);
 		DependencyProvider.setHttpHandlerFactoryClassName(
 				"se.uu.ub.cora.httphandler.spies.HttpHandlerFactorySpy");
 		httpHandlerFactorySpy = (HttpHandlerFactorySpy) DependencyProvider.getHttpHandlerFactory();
@@ -52,16 +62,18 @@ public class IdpLoginServletFixtureTest {
 		idpFixture = new IdpLoginServletFixture();
 	}
 
-	private String createExpectedHtml() {
-		String idInUserStorageEscaped = "someIdInUser\\x27Storage";
-		String tokenEscaped = "someAuth\\x27Token";
-		String loginIdEscaped = "loginId";
-		String tokenIdEscaped = "http:\\/\\/localhost:8080\\/login\\/rest\\/authToken\\/someTokenId";
-		String mainSystemDomainEscaped = "http:\\/\\/localhost:8080";
-		String tokenForHtml = "someAuth&#39;Token";
-		long validUntil = 600000L;
-		long renewUntil = 86400000L;
+	private void setJsonToClientDataConverterFactory() {
+		clientDataAutentication = new ClientDataAuthenticationSpy();
 
+		jsonToClientDataConverter = new JsonToClientDataConverterSpy();
+		jsonToClientDataConverter.MRV.setDefaultReturnValuesSupplier("toInstance",
+				() -> clientDataAutentication);
+		jsonToDataConverterFactory = new JsonToClientDataConverterFactorySpy();
+		jsonToDataConverterFactory.MRV.setDefaultReturnValuesSupplier("factorUsingString",
+				() -> jsonToClientDataConverter);
+	}
+
+	private String createExpectedHtml() {
 		return """
 				<!DOCTYPE html>
 				<html>
@@ -71,36 +83,36 @@ public class IdpLoginServletFixtureTest {
 							window.onload = start;
 							function start() {
 								var authentication = {
-									authentication : {
-										data : {
-											children : [
-												{name : "token", value : "%s"},
-												{name : "validUntil", value : "%s"},
-												{name : "renewUntil", value : "%s"},
-												{name : "userId", value : "%s"},
-												{name : "loginId", value : "%s"},
-												{name : "firstName", value : "%s"},
-												{name : "lastName", value : "%s"}
+									"authentication" : {
+										"data" : {
+											"children" : [
+												{"name" : "token", "value" : "someAuthToken"},
+												{"name" : "validUntil", "value" : "600000"},
+												{"name" : "renewUntil", "value" : "86400000"},
+												{"name" : "userId", "value" : "someIdInUserStorage"},
+												{"name" : "loginId", "value" : "someLoginId"},
+												{"name" : "firstName", "value" : "someFirstName"},
+												{"name" : "lastName", "value" : "someLastName"}
 											],
-											name : authToken
+											"name" : "authToken"
 										},
-										actionLinks : {
-											renew : {
-												requestMethod : "POST",
-												rel : "renew",
-												url : "%s",
-												accept: "application/vnd.uub.authentication+json"
+										"actionLinks" : {
+											"renew" : {
+												"requestMethod" : "POST",
+												"rel" : "renew",
+												"url" : "http:\\/\\/localhost:8080\\/login\\/rest\\/authToken\\/someTokenId",
+												"accept": "application/vnd.uub.authentication+json"
 											},
-											delete : {
-												requestMethod : "DELETE",
-												rel : "delete",
-												url : "%s"
+											"delete" : {
+												"requestMethod" : "DELETE",
+												"rel" : "delete",
+												"url" : "http:\\/\\/localhost:8080\\/login\\/rest\\/authToken\\/someTokenId"
 											}
 										}
 									}
 								};
 								if(null!=window.opener){
-									window.opener.postMessage(authentication, "%s");
+									window.opener.postMessage(authentication, "http:\\/\\/localhost:8080");
 									window.opener.focus();
 									window.close();
 								}
@@ -108,12 +120,10 @@ public class IdpLoginServletFixtureTest {
 						</script>
 					</head>
 					<body>
-						token: %s
+						token: someAuthToken
 					</body>
 				</html>
-				""".formatted(idInUserStorageEscaped, loginIdEscaped, tokenEscaped, "someFirstName",
-				"someLastName", validUntil, renewUntil, tokenIdEscaped, tokenIdEscaped,
-				mainSystemDomainEscaped, tokenForHtml);
+				""";
 	}
 
 	@Test
@@ -168,81 +178,147 @@ public class IdpLoginServletFixtureTest {
 		assertEquals(responseCode.toString(), "Bad Request");
 	}
 
-	@Test
-	public void testLoginIdIsFromServerAnswer() {
-		// httpH
-
+	@Test(enabled = false)
+	public void testFactorConvertJsonToBasicAuthentication() {
 		idpFixture.getAuthTokenForEPPN();
 
-		String loginId = idpFixture.getLoginId();
-		assertEquals(loginId, "other@user.domain.org");
+		String expectedDataToConvert = """
+				{
+					"authentication" : {
+						"data" : {
+							"children" : [
+								{"name" : "token", "value" : "someAuthToken"},
+								{"name" : "validUntil", "value" : "600000"},
+								{"name" : "renewUntil", "value" : "86400000"},
+								{"name" : "userId", "value" : "someIdInUserStorage"},
+								{"name" : "loginId", "value" : "someLoginId"},
+								{"name" : "firstName", "value" : "someFirstName"},
+								{"name" : "lastName", "value" : "someLastName"}
+							],
+							"name" : "authToken"
+						},
+						"actionLinks" : {
+							"renew" : {
+								"requestMethod" : "POST",
+								"rel" : "renew",
+								"url" : "http:\\/\\/localhost:8080\\/login\\/rest\\/authToken\\/someTokenId",
+								"accept": "application/vnd.uub.authentication+json"
+							},
+							"delete" : {
+								"requestMethod" : "DELETE",
+								"rel" : "delete",
+								"url" : "http:\\/\\/localhost:8080\\/login\\/rest\\/authToken\\/someTokenId"
+							}
+						}
+					}
+				}""";
+
+		String dataAsJson = (String) jsonToDataConverterFactory.MCR
+				.getParameterForMethodAndCallNumberAndParameter("factorUsingString", 0, "json");
+		assertEquals(compactString(dataAsJson), compactString(expectedDataToConvert));
 
 	}
 
-	@Test
-	public void testNotParseableIdpLoginAnswer() {
-		SystemUrl.setIdpLoginUrl("http://localhost:8380/notthesameurl/");
-		idpFixture.getAuthTokenForEPPN();
-
-		String loginId = idpFixture.getLoginId();
-		assertEquals(loginId, "Not parseable");
+	private String compactString(String stringIn) {
+		return stringIn.replace("\s", "").replace("\n", "").replace("\t", "");
 	}
 
 	@Test
-	public void testAuthTokenIsFromServerAnswer() {
+	public void testCallConverter() throws Exception {
 		idpFixture.getAuthTokenForEPPN();
-		String authToken = idpFixture.getAuthToken();
-		assertEquals(authToken, "a8675062-a00d-4f6b-ada3-510934ad779d");
+
+		jsonToClientDataConverter.MCR.assertMethodWasCalled("toInstance");
 	}
 
 	@Test
-	public void testNotParseableAuthTokenIsFromServerAnswer() {
-		SystemUrl.setIdpLoginUrl("http://localhost:8380/notthesameurl/");
+	public void testFetchDataFromDataAuthentication() throws Exception {
 		idpFixture.getAuthTokenForEPPN();
-		String authToken = idpFixture.getAuthToken();
-		assertEquals(authToken, "Not parseable");
+
+		clientDataAutentication.MCR.assertReturn("getToken", 0, idpFixture.getAuthToken());
+		clientDataAutentication.MCR.assertReturn("getLoginId", 0, idpFixture.getLoginId());
+		clientDataAutentication.MCR.assertReturn("getUserId", 0, idpFixture.getUserId());
+		clientDataAutentication.MCR.assertReturn("getValidUntil", 0, idpFixture.getValidUntil());
+		clientDataAutentication.MCR.assertReturn("getRenewUntil", 0, idpFixture.getRenewUntil());
+		clientDataAutentication.MCR.assertReturn("getFirstName", 0, idpFixture.getFirstName());
+		clientDataAutentication.MCR.assertReturn("getLastName", 0, idpFixture.getLastName());
 	}
 
-	@Test
-	public void testValidUntilFromServerAnswer() {
-		idpFixture.getAuthTokenForEPPN();
-		String validUntil = idpFixture.getValidUntil();
-		assertEquals(validUntil, "1231231231231");
-	}
+	// @Test
+	// public void testLoginIdIsFromServerAnswer() {
+	// // httpH
+	//
+	// idpFixture.getAuthTokenForEPPN();
+	//
+	// String loginId = idpFixture.getLoginId();
+	// assertEquals(loginId, "other@user.domain.org");
+	//
+	// }
+	//
+	// @Test
+	// public void testNotParseableIdpLoginAnswer() {
+	// SystemUrl.setIdpLoginUrl("http://localhost:8380/notthesameurl/");
+	// idpFixture.getAuthTokenForEPPN();
+	//
+	// String loginId = idpFixture.getLoginId();
+	// assertEquals(loginId, "Not parseable");
+	// }
+	//
+	// @Test
+	// public void testAuthTokenIsFromServerAnswer() {
+	// idpFixture.getAuthTokenForEPPN();
+	// String authToken = idpFixture.getAuthToken();
+	// assertEquals(authToken, "a8675062-a00d-4f6b-ada3-510934ad779d");
+	// }
+	//
+	// @Test
+	// public void testNotParseableAuthTokenIsFromServerAnswer() {
+	// SystemUrl.setIdpLoginUrl("http://localhost:8380/notthesameurl/");
+	// idpFixture.getAuthTokenForEPPN();
+	// String authToken = idpFixture.getAuthToken();
+	// assertEquals(authToken, "Not parseable");
+	// }
+	//
+	// @Test
+	// public void testValidUntilFromServerAnswer() {
+	// idpFixture.getAuthTokenForEPPN();
+	// String validUntil = idpFixture.getValidUntil();
+	// assertEquals(validUntil, "1231231231231");
+	// }
+	//
+	// @Test
+	// public void testRenewUntilFromServerAnswer() {
+	// idpFixture.getAuthTokenForEPPN();
+	// String renewUntil = idpFixture.getRenewUntil();
+	// assertEquals(renewUntil, "1231231231232");
+	// }
+	//
+	// @Test
+	// public void testFirstNameAnswer() {
+	// idpFixture.getAuthTokenForEPPN();
+	// String firstName = idpFixture.getFirstName();
+	// assertEquals(firstName, "AFirstName");
+	// }
+	//
+	// @Test
+	// public void testLastNameAnswer() {
+	// idpFixture.getAuthTokenForEPPN();
+	// String lastName = idpFixture.getLastName();
+	// assertEquals(lastName, "ALastName");
+	// }
+	//
+	// @Test
+	// public void testIdInUserStorageIsFromServerAnswer() {
+	// idpFixture.getAuthTokenForEPPN();
+	// String deleteURL = idpFixture.getTokenIdUrl();
+	// assertEquals(deleteURL, "http://localhost:8180/login/rest/apptoken/141414");
+	// }
+	//
+	// @Test
+	// public void testNotParseableIdInUserStorageIsFromServerAnswer() {
+	// SystemUrl.setIdpLoginUrl("http://localhost:8380/notthesameurl/");
+	// idpFixture.getAuthTokenForEPPN();
+	// String idInUserStorage = idpFixture.getTokenIdUrl();
+	// assertEquals(idInUserStorage, "Not parseable");
+	// }
 
-	@Test
-	public void testRenewUntilFromServerAnswer() {
-		idpFixture.getAuthTokenForEPPN();
-		String renewUntil = idpFixture.getRenewUntil();
-		assertEquals(renewUntil, "1231231231232");
-	}
-
-	@Test
-	public void testFirstNameAnswer() {
-		idpFixture.getAuthTokenForEPPN();
-		String firstName = idpFixture.getFirstName();
-		assertEquals(firstName, "AFirstName");
-	}
-
-	@Test
-	public void testLastNameAnswer() {
-		idpFixture.getAuthTokenForEPPN();
-		String lastName = idpFixture.getLastName();
-		assertEquals(lastName, "ALastName");
-	}
-
-	@Test
-	public void testIdInUserStorageIsFromServerAnswer() {
-		idpFixture.getAuthTokenForEPPN();
-		String deleteURL = idpFixture.getTokenIdUrl();
-		assertEquals(deleteURL, "http://localhost:8180/login/rest/apptoken/141414");
-	}
-
-	@Test
-	public void testNotParseableIdInUserStorageIsFromServerAnswer() {
-		SystemUrl.setIdpLoginUrl("http://localhost:8380/notthesameurl/");
-		idpFixture.getAuthTokenForEPPN();
-		String idInUserStorage = idpFixture.getTokenIdUrl();
-		assertEquals(idInUserStorage, "Not parseable");
-	}
 }

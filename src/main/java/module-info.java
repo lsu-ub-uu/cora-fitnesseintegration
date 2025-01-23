@@ -8,6 +8,7 @@ module se.uu.ub.cora.fitnesseintegration {
 	requires se.uu.ub.cora.messaging;
 	requires se.uu.ub.cora.data;
 	requires se.uu.ub.cora.converter;
+	requires owasp.encoder;
 
 	exports se.uu.ub.cora.fitnesseintegration;
 	exports se.uu.ub.cora.fitnesseintegration.compare;
