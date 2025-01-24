@@ -86,13 +86,13 @@ public class IdpLoginServletFixtureTest {
 									"authentication" : {
 										"data" : {
 											"children" : [
-												{"name" : "token", "value" : "someAuthToken"},
+												{"name" : "token", "value" : "some\\-AuthToken"},
 												{"name" : "validUntil", "value" : "600000"},
 												{"name" : "renewUntil", "value" : "86400000"},
-												{"name" : "userId", "value" : "someIdInUserStorage"},
-												{"name" : "loginId", "value" : "someLoginId"},
-												{"name" : "firstName", "value" : "someFirstName"},
-												{"name" : "lastName", "value" : "someLastName"}
+												{"name" : "userId", "value" : "someIdInUser\\x27Storage"},
+												{"name" : "loginId", "value" : "someLogin\\x22Id"},
+												{"name" : "firstName", "value" : "someFirst\\x26Name"},
+												{"name" : "lastName", "value" : "someLast\\\\Name"}
 											],
 											"name" : "authToken"
 										},
@@ -178,7 +178,7 @@ public class IdpLoginServletFixtureTest {
 		assertEquals(responseCode.toString(), "Bad Request");
 	}
 
-	@Test(enabled = false)
+	@Test
 	public void testFactorConvertJsonToBasicAuthentication() {
 		idpFixture.getAuthTokenForEPPN();
 
@@ -187,13 +187,13 @@ public class IdpLoginServletFixtureTest {
 					"authentication" : {
 						"data" : {
 							"children" : [
-								{"name" : "token", "value" : "someAuthToken"},
+								{"name" : "token", "value" : "some-AuthToken"},
 								{"name" : "validUntil", "value" : "600000"},
 								{"name" : "renewUntil", "value" : "86400000"},
-								{"name" : "userId", "value" : "someIdInUserStorage"},
-								{"name" : "loginId", "value" : "someLoginId"},
-								{"name" : "firstName", "value" : "someFirstName"},
-								{"name" : "lastName", "value" : "someLastName"}
+								{"name" : "userId", "value" : "someIdInUser'Storage"},
+								{"name" : "loginId", "value" : "someLogin"Id"},
+								{"name" : "firstName", "value" : "someFirst&Name"},
+								{"name" : "lastName", "value" : "someLast\\Name"}
 							],
 							"name" : "authToken"
 						},
@@ -201,13 +201,13 @@ public class IdpLoginServletFixtureTest {
 							"renew" : {
 								"requestMethod" : "POST",
 								"rel" : "renew",
-								"url" : "http:\\/\\/localhost:8080\\/login\\/rest\\/authToken\\/someTokenId",
+								"url" : "http://localhost:8080/login/rest/authToken/someTokenId",
 								"accept": "application/vnd.uub.authentication+json"
 							},
 							"delete" : {
 								"requestMethod" : "DELETE",
 								"rel" : "delete",
-								"url" : "http:\\/\\/localhost:8080\\/login\\/rest\\/authToken\\/someTokenId"
+								"url" : "http://localhost:8080/login/rest/authToken/someTokenId"
 							}
 						}
 					}

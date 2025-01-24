@@ -36,6 +36,7 @@
 		<httphandler.version>2.16.0</httphandler.version>
 		<httphandlerspies.version>1.7.0</httphandlerspies.version>
 		<clientdata.version>6.6-SNAPSHOT</clientdata.version>
+		<basicclientdata.version>1.6-SNAPSHOT</basicclientdata.version>
 		<coradata.version>10.0.0</coradata.version>
 		<converter.version>4.1.0</converter.version>
 		<javaclient.version>4.1.0</javaclient.version>
@@ -52,7 +53,6 @@
 		<coradata-spies.version>2.0.0</coradata-spies.version>
 		<clientdata-spies.version>1.7-SNAPSHOT</clientdata-spies.version>
 		<loggerspies.version>1.5.0</loggerspies.version>
-		<encoder.version>1.3.1</encoder.version>
 	</properties>
 
 	<scm>
@@ -96,6 +96,12 @@
 			<groupId>se.uu.ub.cora</groupId>
 			<artifactId>clientdata</artifactId>
 			<version>${clientdata.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>se.uu.ub.cora</groupId>
+			<artifactId>basicclientdata</artifactId>
+			<version>${basicclientdata.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -160,11 +166,6 @@
 			<artifactId>logger-spies</artifactId>
 			<version>${loggerspies.version}</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.owasp.encoder</groupId>
-			<artifactId>encoder</artifactId>
-			<version>${encoder.version}</version>
 		</dependency>
 		<!-- FitNesse -->
 		<dependency>

@@ -18,6 +18,9 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,15 +68,26 @@ public class IdpLoginServletFixture {
 
 	private void parseInformationFromAnswer() {
 		jsonPart = tryToGetFirstMatchFromAnswerUsingRegEx();
-		// jsonPart = decodeJavascriptEncoded(jsonPart);
+		jsonPart = decodeJavascriptEncoded(jsonPart);
 		JsonToClientDataConverter jsonToClientDataConverter = JsonToClientDataConverterProvider
 				.getConverterUsingJsonString(jsonPart);
 		authentication = (ClientDataAuthentication) jsonToClientDataConverter.toInstance();
 	}
 
-	// private String decodeJavascriptEncoded(String stringIn) {
-	// return stringIn.replace("\\", "");
-	// }
+	private String decodeJavascriptEncoded(String stingToDecode) {
+		Map<String, String> decodePairs = new HashMap<>();
+		decodePairs.put("\\x27", "'");
+		decodePairs.put("\\x26", "&");
+		decodePairs.put("\\x22", "\"");
+		decodePairs.put("\\-", "-");
+		decodePairs.put("\\/", "/");
+		decodePairs.put("\\\\", "\\");
+
+		for (Entry<String, String> entry : decodePairs.entrySet()) {
+			stingToDecode = stingToDecode.replace(entry.getKey(), entry.getValue());
+		}
+		return stingToDecode;
+	}
 
 	private String tryToGetFirstMatchFromAnswerUsingRegEx() {
 		try {
@@ -115,11 +129,16 @@ public class IdpLoginServletFixture {
 		return authentication.getRenewUntil();
 	}
 
-	// TODO: Just nu returnerar vi jsonPart för vi har problem med "encoding".
+	// TODO:
 	// Vi behöver ändra den till getDeleteUrl
 	// Vi behöver lägga till getRenewUrl också.
 	public String getTokenIdUrl() {
-		return jsonPart;
+		// SPIKE
+		// Optional<ClientActionLink> actionLink = authentication.getActionLink(ClientAction.RENEW);
+		// if (actionLink.isPresent()) {
+		// return actionLink.get().getURL();
+		// }
+		return "No url available";
 	}
 
 	public String getFirstName() {
