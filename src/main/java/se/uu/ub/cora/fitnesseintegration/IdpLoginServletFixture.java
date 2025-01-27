@@ -21,12 +21,15 @@ package se.uu.ub.cora.fitnesseintegration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
 
+import se.uu.ub.cora.clientdata.ClientAction;
+import se.uu.ub.cora.clientdata.ClientActionLink;
 import se.uu.ub.cora.clientdata.ClientDataAuthentication;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverter;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
@@ -41,7 +44,6 @@ public class IdpLoginServletFixture {
 	private HttpHandler httpHandler;
 	private String answer;
 	private ClientDataAuthentication authentication;
-	private String jsonPart;
 
 	public IdpLoginServletFixture() {
 		factory = DependencyProvider.getHttpHandlerFactory();
@@ -67,7 +69,7 @@ public class IdpLoginServletFixture {
 	}
 
 	private void parseInformationFromAnswer() {
-		jsonPart = tryToGetFirstMatchFromAnswerUsingRegEx();
+		String jsonPart = tryToGetFirstMatchFromAnswerUsingRegEx();
 		jsonPart = decodeJavascriptEncoded(jsonPart);
 		JsonToClientDataConverter jsonToClientDataConverter = JsonToClientDataConverterProvider
 				.getConverterUsingJsonString(jsonPart);
@@ -129,16 +131,13 @@ public class IdpLoginServletFixture {
 		return authentication.getRenewUntil();
 	}
 
-	// TODO:
-	// Vi behöver ändra den till getDeleteUrl
-	// Vi behöver lägga till getRenewUrl också.
-	public String getTokenIdUrl() {
-		// SPIKE
-		// Optional<ClientActionLink> actionLink = authentication.getActionLink(ClientAction.RENEW);
-		// if (actionLink.isPresent()) {
-		// return actionLink.get().getURL();
-		// }
-		return "No url available";
+	// TODO: Vi behöver ändra den till getDeleteUrl
+	public String getDeleteUrl() {
+		Optional<ClientActionLink> actionLink = authentication.getActionLink(ClientAction.DELETE);
+		if (actionLink.isPresent()) {
+			return actionLink.get().getURL();
+		}
+		return "Delete URL missing.";
 	}
 
 	public String getFirstName() {
@@ -147,6 +146,14 @@ public class IdpLoginServletFixture {
 
 	public String getLastName() {
 		return authentication.getLastName();
+	}
+
+	public String getRenewUrl() {
+		Optional<ClientActionLink> actionLink = authentication.getActionLink(ClientAction.RENEW);
+		if (actionLink.isPresent()) {
+			return actionLink.get().getURL();
+		}
+		return "Renew URL missing.";
 	}
 
 }

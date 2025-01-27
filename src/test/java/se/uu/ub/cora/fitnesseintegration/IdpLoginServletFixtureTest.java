@@ -20,12 +20,16 @@ package se.uu.ub.cora.fitnesseintegration;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.Optional;
+
 import javax.ws.rs.core.Response.StatusType;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.clientdata.ClientAction;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
+import se.uu.ub.cora.clientdata.spies.ClientActionLinkSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataAuthenticationSpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterSpy;
@@ -224,14 +228,14 @@ public class IdpLoginServletFixtureTest {
 	}
 
 	@Test
-	public void testCallConverter() throws Exception {
+	public void testCallConverter() {
 		idpFixture.getAuthTokenForEPPN();
 
 		jsonToClientDataConverter.MCR.assertMethodWasCalled("toInstance");
 	}
 
 	@Test
-	public void testFetchDataFromDataAuthentication() throws Exception {
+	public void testFetchDataFromDataAuthentication() {
 		idpFixture.getAuthTokenForEPPN();
 
 		clientDataAutentication.MCR.assertReturn("getToken", 0, idpFixture.getAuthToken());
@@ -243,82 +247,45 @@ public class IdpLoginServletFixtureTest {
 		clientDataAutentication.MCR.assertReturn("getLastName", 0, idpFixture.getLastName());
 	}
 
-	// @Test
-	// public void testLoginIdIsFromServerAnswer() {
-	// // httpH
-	//
-	// idpFixture.getAuthTokenForEPPN();
-	//
-	// String loginId = idpFixture.getLoginId();
-	// assertEquals(loginId, "other@user.domain.org");
-	//
-	// }
-	//
-	// @Test
-	// public void testNotParseableIdpLoginAnswer() {
-	// SystemUrl.setIdpLoginUrl("http://localhost:8380/notthesameurl/");
-	// idpFixture.getAuthTokenForEPPN();
-	//
-	// String loginId = idpFixture.getLoginId();
-	// assertEquals(loginId, "Not parseable");
-	// }
-	//
-	// @Test
-	// public void testAuthTokenIsFromServerAnswer() {
-	// idpFixture.getAuthTokenForEPPN();
-	// String authToken = idpFixture.getAuthToken();
-	// assertEquals(authToken, "a8675062-a00d-4f6b-ada3-510934ad779d");
-	// }
-	//
-	// @Test
-	// public void testNotParseableAuthTokenIsFromServerAnswer() {
-	// SystemUrl.setIdpLoginUrl("http://localhost:8380/notthesameurl/");
-	// idpFixture.getAuthTokenForEPPN();
-	// String authToken = idpFixture.getAuthToken();
-	// assertEquals(authToken, "Not parseable");
-	// }
-	//
-	// @Test
-	// public void testValidUntilFromServerAnswer() {
-	// idpFixture.getAuthTokenForEPPN();
-	// String validUntil = idpFixture.getValidUntil();
-	// assertEquals(validUntil, "1231231231231");
-	// }
-	//
-	// @Test
-	// public void testRenewUntilFromServerAnswer() {
-	// idpFixture.getAuthTokenForEPPN();
-	// String renewUntil = idpFixture.getRenewUntil();
-	// assertEquals(renewUntil, "1231231231232");
-	// }
-	//
-	// @Test
-	// public void testFirstNameAnswer() {
-	// idpFixture.getAuthTokenForEPPN();
-	// String firstName = idpFixture.getFirstName();
-	// assertEquals(firstName, "AFirstName");
-	// }
-	//
-	// @Test
-	// public void testLastNameAnswer() {
-	// idpFixture.getAuthTokenForEPPN();
-	// String lastName = idpFixture.getLastName();
-	// assertEquals(lastName, "ALastName");
-	// }
-	//
-	// @Test
-	// public void testIdInUserStorageIsFromServerAnswer() {
-	// idpFixture.getAuthTokenForEPPN();
-	// String deleteURL = idpFixture.getTokenIdUrl();
-	// assertEquals(deleteURL, "http://localhost:8180/login/rest/apptoken/141414");
-	// }
-	//
-	// @Test
-	// public void testNotParseableIdInUserStorageIsFromServerAnswer() {
-	// SystemUrl.setIdpLoginUrl("http://localhost:8380/notthesameurl/");
-	// idpFixture.getAuthTokenForEPPN();
-	// String idInUserStorage = idpFixture.getTokenIdUrl();
-	// assertEquals(idInUserStorage, "Not parseable");
-	// }
+	@Test
+	public void testGetDeleteUrlFromServerAnswer() {
+		ClientActionLinkSpy clientActionLink = new ClientActionLinkSpy();
+		clientActionLink.MRV.setDefaultReturnValuesSupplier("getURL", () -> "someDeleteUrl");
+		clientDataAutentication.MRV.setSpecificReturnValuesSupplier("getActionLink",
+				() -> Optional.of(clientActionLink), ClientAction.DELETE);
+		idpFixture.getAuthTokenForEPPN();
 
+		String deleteURL = idpFixture.getDeleteUrl();
+
+		assertEquals(deleteURL, "someDeleteUrl");
+	}
+
+	@Test
+	public void testDeleteUrlFromServerAnswerForMissingURL() {
+		idpFixture.getAuthTokenForEPPN();
+		String idInUserStorage = idpFixture.getDeleteUrl();
+
+		assertEquals(idInUserStorage, "Delete URL missing.");
+	}
+
+	@Test
+	public void testGetRenewUrlFromServerAnswer() {
+		ClientActionLinkSpy clientActionLink = new ClientActionLinkSpy();
+		clientActionLink.MRV.setDefaultReturnValuesSupplier("getURL", () -> "someRenewUrl");
+		clientDataAutentication.MRV.setSpecificReturnValuesSupplier("getActionLink",
+				() -> Optional.of(clientActionLink), ClientAction.RENEW);
+		idpFixture.getAuthTokenForEPPN();
+
+		String renewURL = idpFixture.getRenewUrl();
+
+		assertEquals(renewURL, "someRenewUrl");
+	}
+
+	@Test
+	public void testRenewUrlFromServerAnswerForMissingURL() {
+		idpFixture.getAuthTokenForEPPN();
+		String idInUserStorage = idpFixture.getRenewUrl();
+
+		assertEquals(idInUserStorage, "Renew URL missing.");
+	}
 }
