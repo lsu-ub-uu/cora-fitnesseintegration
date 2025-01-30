@@ -169,7 +169,7 @@ public class AuthenticationFixture {
 		return statusType;
 	}
 
-	public String getToken() {
+	public String getAuthToken() {
 		return authentication.getToken();
 	}
 

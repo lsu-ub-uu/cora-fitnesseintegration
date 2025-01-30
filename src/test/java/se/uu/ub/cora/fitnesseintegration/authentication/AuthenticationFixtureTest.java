@@ -187,7 +187,8 @@ public class AuthenticationFixtureTest {
 	}
 
 	private void assertAuthenticationData() {
-		clientDataAutentication.MCR.assertReturn("getToken", 0, authenticationFixture.getToken());
+		clientDataAutentication.MCR.assertReturn("getToken", 0,
+				authenticationFixture.getAuthToken());
 		clientDataAutentication.MCR.assertReturn("getLoginId", 0,
 				authenticationFixture.getLoginId());
 		clientDataAutentication.MCR.assertReturn("getUserId", 0, authenticationFixture.getUserId());
