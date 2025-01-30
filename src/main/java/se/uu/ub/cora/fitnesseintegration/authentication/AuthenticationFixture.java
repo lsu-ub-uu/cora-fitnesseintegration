@@ -100,7 +100,6 @@ public class AuthenticationFixture {
 		if (statusType == Response.Status.CREATED) {
 			response = httpHandler.getResponseText();
 			parseAuthTokenJsonToClientDataAuthentication(response);
-			getActionLinks();
 		} else {
 			response = httpHandler.getErrorText();
 		}
@@ -111,6 +110,7 @@ public class AuthenticationFixture {
 		JsonToClientDataConverter jsonToClientDataConverter = JsonToClientDataConverterProvider
 				.getConverterUsingJsonString(responseToParse);
 		authentication = (ClientDataAuthentication) jsonToClientDataConverter.toInstance();
+		getActionLinks();
 	}
 
 	private String possiblyDecodeJavascriptEncoded(String responseToParse) {
@@ -146,7 +146,6 @@ public class AuthenticationFixture {
 		response = httpHandler.getResponseText();
 		String authenticationJson = tryToGetFirstMatchFromAnswerUsingRegEx(response);
 		parseAuthTokenJsonToClientDataAuthentication(authenticationJson);
-		getActionLinks();
 
 		return response;
 	}
