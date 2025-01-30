@@ -104,5 +104,4 @@ public class AppTokenEndpointFixture {
 
 		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
 	}
-
 }

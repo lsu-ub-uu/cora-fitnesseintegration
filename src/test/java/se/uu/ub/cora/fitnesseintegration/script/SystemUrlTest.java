@@ -24,8 +24,6 @@ import static org.testng.Assert.assertNotNull;
 
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
-
 public class SystemUrlTest {
 
 	@Test
@@ -38,6 +36,12 @@ public class SystemUrlTest {
 	public void testGetUrl() {
 		SystemUrl.setUrl("http://localhost:8080/systemone/");
 		assertEquals(SystemUrl.getUrl(), "http://localhost:8080/systemone/");
+	}
+
+	@Test
+	public void testGetTokenVerifierUrl() {
+		SystemUrl.setTokenVerifierUrl("http://localhost:8180/tokenverifier/");
+		assertEquals(SystemUrl.getTokenVerifierUrl(), "http://localhost:8180/tokenverifier/");
 	}
 
 	@Test
