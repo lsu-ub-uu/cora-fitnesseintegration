@@ -42,10 +42,10 @@ public class AuthenticationFixture {
 
 	private String loginId;
 
-	private String appTokenEndpoint = SystemUrl.getTokenVerifierUrl() + "rest/apptoken";
+	private String appTokenEndpoint = SystemUrl.getAppTokenVerifierUrl() + "rest/apptoken";
 	private String appToken;
 
-	private String passwordEndpoint = SystemUrl.getTokenVerifierUrl() + "rest/password";
+	private String passwordEndpoint = SystemUrl.getAppTokenVerifierUrl() + "rest/password";
 	private String password;
 
 	private String idpLoginEndpoint = SystemUrl.getIdpLoginUrl();

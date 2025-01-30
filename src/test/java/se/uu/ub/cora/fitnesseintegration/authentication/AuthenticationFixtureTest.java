@@ -47,7 +47,7 @@ public class AuthenticationFixtureTest {
 
 	@BeforeMethod
 	public void beforeMethod() {
-		SystemUrl.setTokenVerifierUrl(BASE_LOGIN_URL);
+		SystemUrl.setAppTokenVerifierUrl(BASE_LOGIN_URL);
 		SystemUrl.setIdpLoginUrl(IDP_LOGIN_URL);
 		setJsonToClientDataConverterFactory();
 
