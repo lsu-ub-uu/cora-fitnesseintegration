@@ -37,6 +37,8 @@ public class AuthenticationFixtureTest {
 	private static final String POST = "POST";
 	private static final int CREATED = 201;
 	private static final int UNAUTHORIZED = 401;
+	private static final String SOME_RESPONSE_TEXT = "theResponseTextBody";
+	private static final String SOME_ERROR_TEXT = "someErrorText";
 
 	private HttpHandlerFactorySpy httpHandlerFactorySpy;
 	private HttpHandlerSpy httpHandlerSpy;
@@ -96,10 +98,10 @@ public class AuthenticationFixtureTest {
 	public void testFitnesseAdminAppTokenLogin() {
 		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> CREATED);
 		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseText",
-				() -> "theResponseTextBody");
+				() -> SOME_RESPONSE_TEXT);
 		authenticationFixture.setLoginId(FITNESSE_ADMIN_LOGIN_ID);
 
-		assertEquals(authenticationFixture.appTokenLogin(), "theResponseTextBody");
+		assertEquals(authenticationFixture.appTokenLogin(), SOME_RESPONSE_TEXT);
 
 		httpHandlerSpy = (HttpHandlerSpy) httpHandlerFactorySpy.MCR
 				.assertCalledParametersReturn("factor", BASE_LOGIN_URL + "rest/apptoken");
@@ -115,10 +117,10 @@ public class AuthenticationFixtureTest {
 	public void testFitnesseUserAppTokenLogin() {
 		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> CREATED);
 		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseText",
-				() -> "theResponseTextBody");
+				() -> SOME_RESPONSE_TEXT);
 		authenticationFixture.setLoginId(FITNESSE_USER_LOGIN_ID);
 
-		assertEquals(authenticationFixture.appTokenLogin(), "theResponseTextBody");
+		assertEquals(authenticationFixture.appTokenLogin(), SOME_RESPONSE_TEXT);
 
 		httpHandlerSpy.MCR.assertCalledParameters("setOutput",
 				FITNESSE_USER_LOGIN_ID + NEW_LINE + FITNESSE_USER_APPTOKEN);
@@ -131,11 +133,11 @@ public class AuthenticationFixtureTest {
 	public void testFitnesseOtherUserAppTokenLogin() {
 		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> CREATED);
 		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseText",
-				() -> "theResponseTextBody");
+				() -> SOME_RESPONSE_TEXT);
 		authenticationFixture.setLoginId("someOtherUser");
 		authenticationFixture.setAppToken("123123");
 
-		assertEquals(authenticationFixture.appTokenLogin(), "theResponseTextBody");
+		assertEquals(authenticationFixture.appTokenLogin(), SOME_RESPONSE_TEXT);
 
 		httpHandlerSpy.MCR.assertCalledParameters("setOutput",
 				"someOtherUser" + NEW_LINE + "123123");
@@ -147,11 +149,11 @@ public class AuthenticationFixtureTest {
 	@Test
 	public void testFitnesseAppTokenEmptyAppTokenLogin() {
 		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> UNAUTHORIZED);
-		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getErrorText", () -> "someErrorText");
+		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getErrorText", () -> SOME_ERROR_TEXT);
 		authenticationFixture.setLoginId("someOtherUser");
 		authenticationFixture.setAppToken("");
 
-		assertEquals(authenticationFixture.appTokenLogin(), "someErrorText");
+		assertEquals(authenticationFixture.appTokenLogin(), SOME_ERROR_TEXT);
 
 		httpHandlerSpy.MCR.assertCalledParameters("setOutput", "someOtherUser" + NEW_LINE + "");
 		assertEquals(authenticationFixture.getResponseStatus(), Status.UNAUTHORIZED);
@@ -162,11 +164,11 @@ public class AuthenticationFixtureTest {
 	@Test
 	public void testUnauthorizedAppTokenLogin() {
 		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> UNAUTHORIZED);
-		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getErrorText", () -> "someErrorText");
+		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getErrorText", () -> SOME_ERROR_TEXT);
 		authenticationFixture.setLoginId("wackyLogin");
 		authenticationFixture.setAppToken("123123");
 
-		assertEquals(authenticationFixture.appTokenLogin(), "someErrorText");
+		assertEquals(authenticationFixture.appTokenLogin(), SOME_ERROR_TEXT);
 
 		httpHandlerSpy = (HttpHandlerSpy) httpHandlerFactorySpy.MCR
 				.assertCalledParametersReturn("factor", BASE_LOGIN_URL + "rest/apptoken");
@@ -224,11 +226,11 @@ public class AuthenticationFixtureTest {
 	public void testPasswordLogin() {
 		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> CREATED);
 		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseText",
-				() -> "theResponseTextBody");
+				() -> SOME_RESPONSE_TEXT);
 		authenticationFixture.setLoginId(FITNESSE_ADMIN_LOGIN_ID);
 		authenticationFixture.setPassword("somePassword");
 
-		assertEquals(authenticationFixture.passwordLogin(), "theResponseTextBody");
+		assertEquals(authenticationFixture.passwordLogin(), SOME_RESPONSE_TEXT);
 
 		httpHandlerSpy = (HttpHandlerSpy) httpHandlerFactorySpy.MCR
 				.assertCalledParametersReturn("factor", BASE_LOGIN_URL + "rest/password");
@@ -250,11 +252,11 @@ public class AuthenticationFixtureTest {
 	@Test
 	public void testUnauthorizedPasswordLogin() {
 		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> UNAUTHORIZED);
-		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getErrorText", () -> "someErrorText");
+		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getErrorText", () -> SOME_ERROR_TEXT);
 		authenticationFixture.setLoginId("wackyUser");
 		authenticationFixture.setPassword("someBadPassword");
 
-		assertEquals(authenticationFixture.passwordLogin(), "someErrorText");
+		assertEquals(authenticationFixture.passwordLogin(), SOME_ERROR_TEXT);
 
 		httpHandlerSpy = (HttpHandlerSpy) httpHandlerFactorySpy.MCR
 				.assertCalledParametersReturn("factor", BASE_LOGIN_URL + "rest/password");
@@ -269,10 +271,10 @@ public class AuthenticationFixtureTest {
 	@Test
 	public void testIdpLogin() {
 		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseText",
-				() -> "theResponseTextBody");
+				() -> SOME_RESPONSE_TEXT);
 		authenticationFixture.setEPPN("someEppn");
 
-		assertEquals(authenticationFixture.idpLogin(), "theResponseTextBody");
+		assertEquals(authenticationFixture.idpLogin(), SOME_RESPONSE_TEXT);
 
 		httpHandlerSpy = (HttpHandlerSpy) httpHandlerFactorySpy.MCR
 				.assertCalledParametersReturn("factor", IDP_LOGIN_URL);

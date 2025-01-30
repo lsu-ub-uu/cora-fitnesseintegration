@@ -162,8 +162,7 @@ public class AuthenticationFixture {
 		Pattern pattern = Pattern.compile("authentication\\s=\\s([\\s\\S]*?});");
 		Matcher matcher = pattern.matcher(responseToParse);
 		matcher.find();
-		int regExGroupMatchingValue = 1;
-		return matcher.group(regExGroupMatchingValue);
+		return matcher.group(1);
 	}
 
 	public StatusType getResponseStatus() {
