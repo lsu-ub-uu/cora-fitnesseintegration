@@ -1,9 +1,7 @@
 package se.uu.ub.cora.fitnesseintegration.authentication;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import javax.ws.rs.core.Response.Status;
@@ -415,27 +413,29 @@ public class AuthenticationFixtureTest {
 	public void testRenewLinkMissing() {
 		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> CREATED);
 		clientDataAutentication.MRV.setSpecificReturnValuesSupplier("getActionLink",
-				() -> Optional.empty(), ClientAction.RENEW);
+				Optional::empty, ClientAction.RENEW);
 
-		try {
-			authenticationFixture.passwordLogin();
-		} catch (Exception e) {
-			assertTrue(e instanceof NoSuchElementException);
-			assertEquals(e.getMessage(), "Renew actionLink is missing");
-		}
+		authenticationFixture.passwordLogin();
+
+		assertEquals(authenticationFixture.getRenewUrl(), "Renew URL is missing");
+		assertEquals(authenticationFixture.getRenewRequestMethod(),
+				"Renew RequestMethod is missing");
+		assertEquals(authenticationFixture.getRenewContentType(), "Renew ContentType is missing");
+		assertEquals(authenticationFixture.getRenewContentType(), "Renew Accept is missing");
 	}
 
 	@Test
 	public void testDeleteLinkMissing() {
 		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> CREATED);
 		clientDataAutentication.MRV.setSpecificReturnValuesSupplier("getActionLink",
-				() -> Optional.empty(), ClientAction.DELETE);
+				Optional::empty, ClientAction.DELETE);
 
-		try {
-			authenticationFixture.passwordLogin();
-		} catch (Exception e) {
-			assertTrue(e instanceof NoSuchElementException);
-			assertEquals(e.getMessage(), "Delete actionLink is missing");
-		}
+		authenticationFixture.passwordLogin();
+
+		assertEquals(authenticationFixture.getDeleteUrl(), "Delete URL is missing");
+		assertEquals(authenticationFixture.getDeleteRequestMethod(),
+				"Delete RequestMethod is missing");
+		assertEquals(authenticationFixture.getDeleteContentType(), "Delete ContentType is missing");
+		assertEquals(authenticationFixture.getDeleteAccept(), "Delete Accept is missing");
 	}
 }

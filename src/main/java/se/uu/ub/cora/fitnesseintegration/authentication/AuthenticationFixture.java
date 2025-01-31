@@ -3,7 +3,6 @@ package se.uu.ub.cora.fitnesseintegration.authentication;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,8 +36,6 @@ public class AuthenticationFixture {
 	private HttpHandler httpHandler;
 	private String response;
 	private ClientDataAuthentication authentication;
-	private ClientActionLink renewActionLink;
-	private ClientActionLink deleteActionLink;
 
 	private String loginId;
 
@@ -50,6 +47,8 @@ public class AuthenticationFixture {
 
 	private String idpLoginEndpoint = SystemUrl.getIdpLoginUrl();
 	private String eppn;
+	private Optional<ClientActionLink> renewActionLink;
+	private Optional<ClientActionLink> deleteActionLink;
 
 	public AuthenticationFixture() {
 		factory = DependencyProvider.getHttpHandlerFactory();
@@ -198,51 +197,63 @@ public class AuthenticationFixture {
 	}
 
 	public String getRenewUrl() {
-		return renewActionLink.getURL();
+		if (renewActionLink.isPresent()) {
+			return renewActionLink.get().getURL();
+		}
+		return "Renew URL is missing";
 	}
 
 	public String getRenewRequestMethod() {
-		return renewActionLink.getRequestMethod();
+		if (renewActionLink.isPresent()) {
+			return renewActionLink.get().getRequestMethod();
+		}
+		return "Renew RequestMethod is missing";
 	}
 
 	public String getRenewContentType() {
-		return renewActionLink.getContentType();
+		if (renewActionLink.isPresent()) {
+			return renewActionLink.get().getContentType();
+		}
+		return "Renew ContentType is missing";
 	}
 
 	public String getRenewAccept() {
-		return renewActionLink.getAccept();
+		if (renewActionLink.isPresent()) {
+			return renewActionLink.get().getAccept();
+		}
+		return "Renew Accept is missing";
 	}
 
 	public String getDeleteUrl() {
-		return deleteActionLink.getURL();
+		if (deleteActionLink.isPresent()) {
+			return deleteActionLink.get().getURL();
+		}
+		return "Delete URL is missing";
 	}
 
 	public String getDeleteRequestMethod() {
-		return deleteActionLink.getRequestMethod();
+		if (deleteActionLink.isPresent()) {
+			return deleteActionLink.get().getRequestMethod();
+		}
+		return "Delete RequestMethod is missing";
 	}
 
 	public String getDeleteContentType() {
-		return deleteActionLink.getContentType();
+		if (deleteActionLink.isPresent()) {
+			return deleteActionLink.get().getContentType();
+		}
+		return "Delete ContentType is missing";
 	}
 
 	public String getDeleteAccept() {
-		return deleteActionLink.getAccept();
+		if (deleteActionLink.isPresent()) {
+			return deleteActionLink.get().getAccept();
+		}
+		return "Delete Accept is missing";
 	}
 
 	private void getActionLinks() {
-		Optional<ClientActionLink> optRenewLink = authentication.getActionLink(ClientAction.RENEW);
-		if (optRenewLink.isPresent()) {
-			renewActionLink = optRenewLink.get();
-		} else {
-			throw new NoSuchElementException("Renew actionLink is missing");
-		}
-
-		Optional<ClientActionLink> optDeleteLink = authentication
-				.getActionLink(ClientAction.DELETE);
-		if (optDeleteLink.isPresent()) {
-			deleteActionLink = optDeleteLink.get();
-		} else {
-			throw new NoSuchElementException("Delete actionLink is missing");
-		}
+		renewActionLink = authentication.getActionLink(ClientAction.RENEW);
+		deleteActionLink = authentication.getActionLink(ClientAction.DELETE);
 	}
 }
