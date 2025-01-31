@@ -421,7 +421,7 @@ public class AuthenticationFixtureTest {
 		assertEquals(authenticationFixture.getRenewRequestMethod(),
 				"Renew RequestMethod is missing");
 		assertEquals(authenticationFixture.getRenewContentType(), "Renew ContentType is missing");
-		assertEquals(authenticationFixture.getRenewContentType(), "Renew Accept is missing");
+		assertEquals(authenticationFixture.getRenewAccept(), "Renew Accept is missing");
 	}
 
 	@Test

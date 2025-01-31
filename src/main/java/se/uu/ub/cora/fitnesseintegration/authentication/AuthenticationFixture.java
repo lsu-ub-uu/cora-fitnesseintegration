@@ -36,6 +36,8 @@ public class AuthenticationFixture {
 	private HttpHandler httpHandler;
 	private String response;
 	private ClientDataAuthentication authentication;
+	private Optional<ClientActionLink> renewActionLink;
+	private Optional<ClientActionLink> deleteActionLink;
 
 	private String loginId;
 
@@ -47,8 +49,6 @@ public class AuthenticationFixture {
 
 	private String idpLoginEndpoint = SystemUrl.getIdpLoginUrl();
 	private String eppn;
-	private Optional<ClientActionLink> renewActionLink;
-	private Optional<ClientActionLink> deleteActionLink;
 
 	public AuthenticationFixture() {
 		factory = DependencyProvider.getHttpHandlerFactory();
