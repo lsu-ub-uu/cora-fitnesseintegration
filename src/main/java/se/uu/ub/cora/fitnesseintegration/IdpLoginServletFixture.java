@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Uppsala University Library
+ * Copyright 2019, 2025 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -18,12 +18,21 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
 
+import se.uu.ub.cora.clientdata.ClientAction;
+import se.uu.ub.cora.clientdata.ClientActionLink;
+import se.uu.ub.cora.clientdata.ClientDataAuthentication;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverter;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
 import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
 import se.uu.ub.cora.httphandler.HttpHandler;
@@ -33,11 +42,8 @@ public class IdpLoginServletFixture {
 	private String eppn;
 	private HttpHandlerFactory factory;
 	private HttpHandler httpHandler;
-	private String loginId;
-	private String authToken;
 	private String answer;
-	private String validForNoSeconds;
-	private String deleteUrl;
+	private ClientDataAuthentication authentication;
 
 	public IdpLoginServletFixture() {
 		factory = DependencyProvider.getHttpHandlerFactory();
@@ -57,41 +63,52 @@ public class IdpLoginServletFixture {
 		httpHandler = factory.factor(SystemUrl.getIdpLoginUrl() + "login");
 		httpHandler.setRequestProperty("eppn", eppn);
 		httpHandler.setRequestMethod("GET");
+		httpHandler.setRequestProperty("sn", "someLastName");
+		httpHandler.setRequestProperty("givenName", "someFirstName");
 		answer = httpHandler.getResponseText();
 	}
 
 	private void parseInformationFromAnswer() {
-		loginId = tryToGetFirstMatchFromAnswerUsingRegEx("loginId\" : \"");
-		authToken = tryToGetFirstMatchFromAnswerUsingRegEx("token\" : \"");
-		validForNoSeconds = tryToGetFirstMatchFromAnswerUsingRegEx("validForNoSeconds\" : \"");
-		deleteUrl = tryToGetFirstMatchFromAnswerUsingRegEx("url\" : \"");
-		decodeJavascriptEncoded();
+		String jsonPart = tryToGetFirstMatchFromAnswerUsingRegEx();
+		jsonPart = decodeJavascriptEncoded(jsonPart);
+		JsonToClientDataConverter jsonToClientDataConverter = JsonToClientDataConverterProvider
+				.getConverterUsingJsonString(jsonPart);
+		authentication = (ClientDataAuthentication) jsonToClientDataConverter.toInstance();
 	}
 
-	private String tryToGetFirstMatchFromAnswerUsingRegEx(String regEx) {
+	private String decodeJavascriptEncoded(String stingToDecode) {
+		Map<String, String> decodePairs = new HashMap<>();
+		decodePairs.put("\\x27", "'");
+		decodePairs.put("\\x26", "&");
+		decodePairs.put("\\x22", "\"");
+		decodePairs.put("\\-", "-");
+		decodePairs.put("\\/", "/");
+		decodePairs.put("\\\\", "\\");
+
+		for (Entry<String, String> entry : decodePairs.entrySet()) {
+			stingToDecode = stingToDecode.replace(entry.getKey(), entry.getValue());
+		}
+		return stingToDecode;
+	}
+
+	private String tryToGetFirstMatchFromAnswerUsingRegEx() {
 		try {
-			return getFirstMatchFromAnswerUsingRegEx(regEx);
+			return getFirstMatchFromAnswerUsingRegEx();
 		} catch (Exception e) {
 			return "Not parseable";
 		}
 	}
 
-	private String getFirstMatchFromAnswerUsingRegEx(String regEx) {
-		String nonGreedyMatchingGroupUntilQuote = "(.*?)\"";
-		Pattern pattern = Pattern.compile(regEx + nonGreedyMatchingGroupUntilQuote);
+	private String getFirstMatchFromAnswerUsingRegEx() {
+		Pattern pattern = Pattern.compile("authentication\\s=\\s([\\s\\S]*?});");
 		Matcher matcher = pattern.matcher(answer);
 		matcher.find();
 		int regExGroupMatchingValue = 1;
 		return matcher.group(regExGroupMatchingValue);
 	}
 
-	private void decodeJavascriptEncoded() {
-		authToken = authToken.replace("\\", "");
-		deleteUrl = deleteUrl.replace("\\", "");
-	}
-
 	public String getLoginId() {
-		return loginId;
+		return authentication.getLoginId();
 	}
 
 	public StatusType getResponseCode() {
@@ -99,15 +116,44 @@ public class IdpLoginServletFixture {
 	}
 
 	public String getAuthToken() {
-		return authToken;
+		return authentication.getToken();
 	}
 
-	public String getValidForNoSeconds() {
-		return validForNoSeconds;
+	public String getUserId() {
+		return authentication.getUserId();
 	}
 
+	public String getValidUntil() {
+		return authentication.getValidUntil();
+	}
+
+	public String getRenewUntil() {
+		return authentication.getRenewUntil();
+	}
+
+	// TODO: Vi behöver ändra den till getDeleteUrl
 	public String getDeleteUrl() {
-		return deleteUrl;
+		Optional<ClientActionLink> actionLink = authentication.getActionLink(ClientAction.DELETE);
+		if (actionLink.isPresent()) {
+			return actionLink.get().getURL();
+		}
+		return "Delete URL missing.";
+	}
+
+	public String getFirstName() {
+		return authentication.getFirstName();
+	}
+
+	public String getLastName() {
+		return authentication.getLastName();
+	}
+
+	public String getRenewUrl() {
+		Optional<ClientActionLink> actionLink = authentication.getActionLink(ClientAction.RENEW);
+		if (actionLink.isPresent()) {
+			return actionLink.get().getURL();
+		}
+		return "Renew URL missing.";
 	}
 
 }

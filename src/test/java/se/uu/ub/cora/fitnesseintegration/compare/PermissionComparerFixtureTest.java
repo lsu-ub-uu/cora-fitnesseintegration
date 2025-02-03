@@ -52,7 +52,7 @@ public class PermissionComparerFixtureTest {
 		DependencyProvider.setComparerFactoryUsingClassName(
 				"se.uu.ub.cora.fitnesseintegration.compare.ComparerFactorySpy");
 		DependencyProvider.setHttpHandlerFactoryClassName(
-				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy");
+				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactoryOldSpy");
 
 		fixture = new PermissionComparerFixture();
 		setUpFixture();

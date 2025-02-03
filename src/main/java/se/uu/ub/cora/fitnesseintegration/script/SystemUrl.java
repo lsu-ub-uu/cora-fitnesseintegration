@@ -25,6 +25,7 @@ public final class SystemUrl {
 	private static String appTokenVerifierUrl;
 	private static String idpLoginUrl;
 	private static String gatekeeperServerUrl;
+	private static String tokenVerifierUrl;
 
 	public SystemUrl() {
 		// needed by fitnesse
@@ -37,6 +38,14 @@ public final class SystemUrl {
 
 	public static synchronized String getUrl() {
 		return url;
+	}
+
+	public static synchronized void setTokenVerifierUrl(String url) {
+		tokenVerifierUrl = url;
+	}
+
+	public static synchronized String getTokenVerifierUrl() {
+		return tokenVerifierUrl;
 	}
 
 	public static synchronized void setAppTokenVerifierUrl(String url) {

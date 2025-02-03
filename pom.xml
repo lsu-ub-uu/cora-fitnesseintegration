@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>se.uu.ub.cora</groupId>
 		<artifactId>cora-parent</artifactId>
-		<version>2.6.0</version>
+		<version>2.7.0</version>
 	</parent>
 
 	<artifactId>fitnesseintegration</artifactId>
@@ -35,12 +35,13 @@
 		<json.version>3.10.0</json.version>
 		<httphandler.version>2.16.0</httphandler.version>
 		<httphandlerspies.version>1.7.0</httphandlerspies.version>
-		<clientdata.version>6.5.0</clientdata.version>
+		<clientdata.version>6.6-SNAPSHOT</clientdata.version>
+		<basicclientdata.version>1.6-SNAPSHOT</basicclientdata.version>
 		<coradata.version>10.0.0</coradata.version>
 		<converter.version>4.1.0</converter.version>
-		<javaclient.version>4.1.0</javaclient.version>
+		<javaclient.version>4.2-SNAPSHOT</javaclient.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
-		<fitnesse.version>20241026</fitnesse.version>
+		<fitnesse.version>20241207</fitnesse.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
 		<activation.version>1.1.1</activation.version>
 		<javax-activation.version>1.2.0</javax-activation.version>
@@ -50,7 +51,7 @@
 		<indexmessenger.version>1.14.0</indexmessenger.version>
 		<testutils.version>1.14.0</testutils.version>
 		<coradata-spies.version>2.0.0</coradata-spies.version>
-		<clientdata-spies.version>1.6.0</clientdata-spies.version>
+		<clientdata-spies.version>1.7-SNAPSHOT</clientdata-spies.version>
 		<loggerspies.version>1.5.0</loggerspies.version>
 	</properties>
 
@@ -95,6 +96,12 @@
 			<groupId>se.uu.ub.cora</groupId>
 			<artifactId>clientdata</artifactId>
 			<version>${clientdata.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>se.uu.ub.cora</groupId>
+			<artifactId>basicclientdata</artifactId>
+			<version>${basicclientdata.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>

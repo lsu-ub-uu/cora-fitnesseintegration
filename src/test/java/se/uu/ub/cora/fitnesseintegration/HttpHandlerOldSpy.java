@@ -26,7 +26,7 @@ import java.util.Map;
 
 import se.uu.ub.cora.httphandler.HttpHandler;
 
-public class HttpHandlerSpy implements HttpHandler {
+public class HttpHandlerOldSpy implements HttpHandler {
 
 	public HttpURLConnection httpUrlConnection;
 	public String requestMetod;
@@ -38,18 +38,21 @@ public class HttpHandlerSpy implements HttpHandler {
 
 	public String loginId = "other@user.domain.org";
 	public String authTokenJsEscaped = "a8675062\\-a00d\\-4f6b\\-ada3\\-510934ad779d";
-	public String validForNoSeconds = "600";
-	public String deleteUrlJsEscaped = "http:\\/\\/localhost:8180\\/login\\/rest\\/apptoken\\/141414";
+	public String tokenIdUrlJsEscaped = "http:\\/\\/localhost:8180\\/login\\/rest\\/apptoken\\/141414";
 	public String mainSystemDomain;
 	public String returnedHeaderField;
 	public String errorText = "";
+	private String firstName = "AFirstName";
+	private String lastName = "ALastName";
+	private String validUntil = "1231231231231";
+	private String renewUntil = "1231231231232";
 
-	private HttpHandlerSpy(HttpURLConnection httpUrlConnection) {
+	private HttpHandlerOldSpy(HttpURLConnection httpUrlConnection) {
 		this.httpUrlConnection = httpUrlConnection;
 	}
 
-	public static HttpHandlerSpy usingURLConnection(HttpURLConnection httpUrlConnection) {
-		return new HttpHandlerSpy(httpUrlConnection);
+	public static HttpHandlerOldSpy usingURLConnection(HttpURLConnection httpUrlConnection) {
+		return new HttpHandlerOldSpy(httpUrlConnection);
 	}
 
 	@Override
@@ -108,21 +111,38 @@ public class HttpHandlerSpy implements HttpHandler {
 		answer.append("window.onload = start;");
 		answer.append("function start() {");
 		answer.append("var authInfo = {");
-		answer.append("\"userId\" : \"" + loginId + "\",");
-		answer.append("\"token\" : \"");
-		answer.append(authTokenJsEscaped);
-		answer.append("\",");
-		answer.append("\"loginId\" : \"");
+		answer.append("userId : \"" + loginId + "\",");
+		answer.append("loginId : \"");
 		answer.append(loginId);
 		answer.append("\",");
-		answer.append("\"validForNoSeconds\" : \"");
-		answer.append(validForNoSeconds);
+		answer.append("token : \"");
+		answer.append(authTokenJsEscaped);
 		answer.append("\",");
-		answer.append("\"actionLinks\" : {");
-		answer.append("\"delete\" : {");
-		answer.append("\"requestMethod\" : \"DELETE\",");
-		answer.append("\"rel\" : \"delete\",");
-		answer.append("\"url\" : \"" + deleteUrlJsEscaped);
+		answer.append("firstName : \"");
+		answer.append(firstName);
+		answer.append("\",");
+		answer.append("lastName : \"");
+		answer.append(lastName);
+		answer.append("\",");
+		answer.append("validUntil : \"");
+		answer.append(validUntil);
+		answer.append("\",");
+		answer.append("renewUntil : \"");
+		answer.append(renewUntil);
+		answer.append("\",");
+		answer.append("actionLinks : {");
+		answer.append("renew : {");
+		answer.append("requestMethod : \"POST\",");
+		answer.append("rel : \"renew\",");
+		answer.append("url : \"" + tokenIdUrlJsEscaped);
+		answer.append("\",");
+		answer.append("accept : \"application/vnd.uub.authToken+json");
+		answer.append("\"");
+		answer.append("},");
+		answer.append("delete : {");
+		answer.append("requestMethod : \"DELETE\",");
+		answer.append("rel : \"delete\",");
+		answer.append("url : \"" + tokenIdUrlJsEscaped);
 		answer.append("\"");
 		answer.append("}");
 		answer.append("}");

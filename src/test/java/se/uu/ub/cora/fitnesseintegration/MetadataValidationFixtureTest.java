@@ -58,7 +58,7 @@ public class MetadataValidationFixtureTest {
 		SystemUrl.setUrl("http://localhost:8080/therest/");
 		AuthTokenHolder.setAdminAuthToken("someAdminToken");
 		DependencyProvider.setHttpHandlerFactoryClassName(
-				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy");
+				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactoryOldSpy");
 		fixture = new MetadataValidationFixture();
 		setUpFixture();
 	}
@@ -72,7 +72,7 @@ public class MetadataValidationFixtureTest {
 
 	@Test
 	public void init() {
-		assertTrue(fixture.getHttpHandlerFactory() instanceof HttpHandlerFactorySpy);
+		assertTrue(fixture.getHttpHandlerFactory() instanceof HttpHandlerFactoryOldSpy);
 	}
 
 	@Test
