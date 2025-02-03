@@ -64,10 +64,9 @@ public class AuthenticationFixtureTest {
 
 	private void setJsonToClientDataConverterFactory() {
 		clientDataAutentication = new ClientDataAuthenticationSpy();
-		clientDataAutentication.MRV.setSpecificReturnValuesSupplier("getActionLink",
-				() -> createClientActionLink(ClientAction.RENEW), ClientAction.RENEW);
-		clientDataAutentication.MRV.setSpecificReturnValuesSupplier("getActionLink",
-				() -> createClientActionLink(ClientAction.DELETE), ClientAction.DELETE);
+
+		createAndAddClientActionLink(ClientAction.RENEW);
+		createAndAddClientActionLink(ClientAction.DELETE);
 
 		jsonToClientDataConverter = new JsonToClientDataConverterSpy();
 		jsonToClientDataConverter.MRV.setDefaultReturnValuesSupplier("toInstance",
@@ -78,18 +77,19 @@ public class AuthenticationFixtureTest {
 				() -> jsonToClientDataConverter);
 	}
 
-	private Optional<ClientActionLinkSpy> createClientActionLink(ClientAction action) {
-		Optional<ClientActionLinkSpy> actionLink = Optional.of(new ClientActionLinkSpy());
-		actionLink.get().MRV.setDefaultReturnValuesSupplier("getURL",
+	private void createAndAddClientActionLink(ClientAction action) {
+		ClientActionLinkSpy actionLink = new ClientActionLinkSpy();
+		actionLink.MRV.setDefaultReturnValuesSupplier("getURL",
 				() -> "some" + action.name() + "Url");
-		actionLink.get().MRV.setDefaultReturnValuesSupplier("getRequestMethod",
+		actionLink.MRV.setDefaultReturnValuesSupplier("getRequestMethod",
 				() -> "some" + action.name() + "RequestMethod");
-		actionLink.get().MRV.setDefaultReturnValuesSupplier("getContentType",
+		actionLink.MRV.setDefaultReturnValuesSupplier("getContentType",
 				() -> "some" + action.name() + "ContentType");
-		actionLink.get().MRV.setDefaultReturnValuesSupplier("getAccept",
+		actionLink.MRV.setDefaultReturnValuesSupplier("getAccept",
 				() -> "some" + action.name() + "Accept");
 
-		return actionLink;
+		clientDataAutentication.MRV.setSpecificReturnValuesSupplier("getActionLink",
+				() -> Optional.of(actionLink), action);
 	}
 
 	@Test
