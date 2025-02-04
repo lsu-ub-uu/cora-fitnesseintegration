@@ -29,6 +29,7 @@ public class AuthenticationFixture {
 	private static final String FITNESSE_USER_APPTOKEN = "bd699488-f9d1-419d-a79d-9fa8a0f3bb9d";
 	private static final String GET = "GET";
 	private static final String POST = "POST";
+	private static final String DELETE = "DELETE";
 	private static final String NEW_LINE = "\n";
 
 	private Status statusType;
@@ -47,8 +48,12 @@ public class AuthenticationFixture {
 	private String passwordEndpoint = SystemUrl.getAppTokenVerifierUrl() + "rest/password";
 	private String password;
 
-	private String idpLoginEndpoint = SystemUrl.getIdpLoginUrl();
+	private String idpLoginEndpoint = SystemUrl.getIdpLoginUrl() + "login";
 	private String eppn;
+
+	private String existingAuthToken;
+	private String authTokenDeleteUrl;
+	private String authTokenRenewUrl;
 
 	public AuthenticationFixture() {
 		factory = DependencyProvider.getHttpHandlerFactory();
@@ -68,6 +73,18 @@ public class AuthenticationFixture {
 
 	public void setEPPN(String eppn) {
 		this.eppn = eppn;
+	}
+
+	public void setExistingAuthToken(String existingAuthToken) {
+		this.existingAuthToken = existingAuthToken;
+	}
+
+	public void setAuthTokenDeleteUrl(String authTokenDeleteUrl) {
+		this.authTokenDeleteUrl = authTokenDeleteUrl;
+	}
+
+	public void setAuthTokenRenewUrl(String authTokenRenewUrl) {
+		this.authTokenRenewUrl = authTokenRenewUrl;
 	}
 
 	public String appTokenLogin() {
@@ -96,7 +113,7 @@ public class AuthenticationFixture {
 
 	private void tryToAuthenticate(HttpHandler httpHandler) {
 		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		if (statusType == Response.Status.CREATED) {
+		if (statusType == Response.Status.CREATED || statusType == Response.Status.OK) {
 			response = httpHandler.getResponseText();
 			parseAuthTokenJsonToClientDataAuthentication(response);
 		} else {
@@ -164,7 +181,24 @@ public class AuthenticationFixture {
 		return matcher.group(1);
 	}
 
-	public StatusType getResponseStatus() {
+	public String deleteAuthToken() {
+		factorHttpHandler(DELETE, authTokenDeleteUrl);
+		httpHandler.setRequestProperty("authToken", existingAuthToken);
+
+		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
+		return httpHandler.getResponseText();
+	}
+
+	public String renewAuthToken() {
+		factorHttpHandler(POST, authTokenRenewUrl);
+		httpHandler.setRequestProperty("authToken", existingAuthToken);
+		httpHandler.setRequestProperty("accept", "application/vnd.uub.authentication+json");
+
+		tryToAuthenticate(httpHandler);
+		return response;
+	}
+
+	public StatusType getStatusType() {
 		return statusType;
 	}
 

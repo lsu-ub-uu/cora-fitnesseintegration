@@ -33,7 +33,10 @@ public class AuthenticationFixtureTest {
 	private static final String NEW_LINE = "\n";
 	private static final String GET = "GET";
 	private static final String POST = "POST";
+	private static final String DELETE = "DELETE";
+	private static final int OK = 200;
 	private static final int CREATED = 201;
+	private static final int BAD_REQUEST = 400;
 	private static final int UNAUTHORIZED = 401;
 	private static final String SOME_RESPONSE_TEXT = "theResponseTextBody";
 	private static final String SOME_ERROR_TEXT = "someErrorText";
@@ -106,7 +109,7 @@ public class AuthenticationFixtureTest {
 		httpHandlerSpy.MCR.assertCalledParameters("setRequestMethod", POST);
 		httpHandlerSpy.MCR.assertCalledParameters("setOutput",
 				FITNESSE_ADMIN_LOGIN_ID + NEW_LINE + FITNESSE_ADMIN_APPTOKEN);
-		assertEquals(authenticationFixture.getResponseStatus(), Status.CREATED);
+		assertEquals(authenticationFixture.getStatusType(), Status.CREATED);
 		httpHandlerSpy.MCR.assertMethodWasCalled("getResponseText");
 		jsonToClientDataConverter.MCR.assertMethodWasCalled("toInstance");
 	}
@@ -122,7 +125,7 @@ public class AuthenticationFixtureTest {
 
 		httpHandlerSpy.MCR.assertCalledParameters("setOutput",
 				FITNESSE_USER_LOGIN_ID + NEW_LINE + FITNESSE_USER_APPTOKEN);
-		assertEquals(authenticationFixture.getResponseStatus(), Status.CREATED);
+		assertEquals(authenticationFixture.getStatusType(), Status.CREATED);
 		httpHandlerSpy.MCR.assertMethodWasCalled("getResponseText");
 		jsonToClientDataConverter.MCR.assertMethodWasCalled("toInstance");
 	}
@@ -139,7 +142,7 @@ public class AuthenticationFixtureTest {
 
 		httpHandlerSpy.MCR.assertCalledParameters("setOutput",
 				"someOtherUser" + NEW_LINE + "123123");
-		assertEquals(authenticationFixture.getResponseStatus(), Status.CREATED);
+		assertEquals(authenticationFixture.getStatusType(), Status.CREATED);
 		httpHandlerSpy.MCR.assertMethodWasCalled("getResponseText");
 		jsonToClientDataConverter.MCR.assertMethodWasCalled("toInstance");
 	}
@@ -154,7 +157,7 @@ public class AuthenticationFixtureTest {
 		assertEquals(authenticationFixture.appTokenLogin(), SOME_ERROR_TEXT);
 
 		httpHandlerSpy.MCR.assertCalledParameters("setOutput", "someOtherUser" + NEW_LINE + "");
-		assertEquals(authenticationFixture.getResponseStatus(), Status.UNAUTHORIZED);
+		assertEquals(authenticationFixture.getStatusType(), Status.UNAUTHORIZED);
 		httpHandlerSpy.MCR.assertMethodNotCalled("getResponseText");
 		jsonToClientDataConverter.MCR.assertMethodNotCalled("toInstance");
 	}
@@ -172,7 +175,7 @@ public class AuthenticationFixtureTest {
 				.assertCalledParametersReturn("factor", BASE_LOGIN_URL + "rest/apptoken");
 		httpHandlerSpy.MCR.assertCalledParameters("setRequestMethod", POST);
 		httpHandlerSpy.MCR.assertCalledParameters("setOutput", "wackyLogin\n123123");
-		assertEquals(authenticationFixture.getResponseStatus(), Status.UNAUTHORIZED);
+		assertEquals(authenticationFixture.getStatusType(), Status.UNAUTHORIZED);
 		httpHandlerSpy.MCR.assertMethodNotCalled("getResponseText");
 		jsonToClientDataConverter.MCR.assertMethodNotCalled("toInstance");
 	}
@@ -236,7 +239,7 @@ public class AuthenticationFixtureTest {
 		httpHandlerSpy.MCR.assertCalledParameters("setRequestMethod", POST);
 		httpHandlerSpy.MCR.assertCalledParameters("setOutput",
 				FITNESSE_ADMIN_LOGIN_ID + "\nsomePassword");
-		assertEquals(authenticationFixture.getResponseStatus(), Status.CREATED);
+		assertEquals(authenticationFixture.getStatusType(), Status.CREATED);
 		httpHandlerSpy.MCR.assertMethodWasCalled("getResponseText");
 		jsonToClientDataConverter.MCR.assertMethodWasCalled("toInstance");
 	}
@@ -261,7 +264,7 @@ public class AuthenticationFixtureTest {
 				.assertCalledParametersReturn("factor", BASE_LOGIN_URL + "rest/password");
 		httpHandlerSpy.MCR.assertCalledParameters("setRequestMethod", POST);
 		httpHandlerSpy.MCR.assertCalledParameters("setOutput", "wackyUser" + "\nsomeBadPassword");
-		assertEquals(authenticationFixture.getResponseStatus(), Status.UNAUTHORIZED);
+		assertEquals(authenticationFixture.getStatusType(), Status.UNAUTHORIZED);
 		httpHandlerSpy.MCR.assertMethodNotCalled("getResponseText");
 		jsonToClientDataConverter.MCR.assertMethodNotCalled("toInstance");
 
@@ -276,7 +279,7 @@ public class AuthenticationFixtureTest {
 		assertEquals(authenticationFixture.idpLogin(), SOME_RESPONSE_TEXT);
 
 		httpHandlerSpy = (HttpHandlerSpy) httpHandlerFactorySpy.MCR
-				.assertCalledParametersReturn("factor", IDP_LOGIN_URL);
+				.assertCalledParametersReturn("factor", IDP_LOGIN_URL + "login");
 		httpHandlerSpy.MCR.assertCalledParameters("setRequestMethod", GET);
 		httpHandlerSpy.MCR.assertCalledParameters("setRequestProperty", "eppn", "someEppn");
 		httpHandlerSpy.MCR.assertCalledParameters("setRequestProperty", "sn", "someLastName");
@@ -287,7 +290,7 @@ public class AuthenticationFixtureTest {
 		httpHandlerSpy.MCR.assertMethodWasCalled("getResponseText");
 		jsonToClientDataConverter.MCR.assertMethodWasCalled("toInstance");
 
-		StatusType responseStatus = authenticationFixture.getResponseStatus();
+		StatusType responseStatus = authenticationFixture.getStatusType();
 		assertEquals(responseStatus, Status.OK);
 	}
 
@@ -401,11 +404,11 @@ public class AuthenticationFixtureTest {
 
 	@Test
 	public void testGetStatusTypeIsFromServerError() {
-		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> 400);
+		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> BAD_REQUEST);
 
 		authenticationFixture.idpLogin();
 
-		StatusType responseStatus = authenticationFixture.getResponseStatus();
+		StatusType responseStatus = authenticationFixture.getStatusType();
 		assertEquals(responseStatus, Status.BAD_REQUEST);
 	}
 
@@ -437,5 +440,41 @@ public class AuthenticationFixtureTest {
 				"Delete RequestMethod is missing");
 		assertEquals(authenticationFixture.getDeleteContentType(), "Delete ContentType is missing");
 		assertEquals(authenticationFixture.getDeleteAccept(), "Delete Accept is missing");
+	}
+
+	@Test
+	public void testDeleteAuthToken() {
+		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> OK);
+		authenticationFixture.setExistingAuthToken("someAuthTokenToDelete");
+		authenticationFixture.setAuthTokenDeleteUrl("someDeleteUrl");
+
+		authenticationFixture.deleteAuthToken();
+
+		httpHandlerSpy = (HttpHandlerSpy) httpHandlerFactorySpy.MCR
+				.assertCalledParametersReturn("factor", "someDeleteUrl");
+		httpHandlerSpy.MCR.assertCalledParameters("setRequestMethod", DELETE);
+		httpHandlerSpy.MCR.assertCalledParameters("setRequestProperty", "authToken",
+				"someAuthTokenToDelete");
+		assertEquals(authenticationFixture.getStatusType(), Status.OK);
+	}
+
+	@Test
+	public void testRenewAuthToken() {
+		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> OK);
+		authenticationFixture.setExistingAuthToken("someAuthTokenToRenew");
+		authenticationFixture.setAuthTokenRenewUrl("someRenewUrl");
+
+		authenticationFixture.renewAuthToken();
+
+		httpHandlerSpy = (HttpHandlerSpy) httpHandlerFactorySpy.MCR
+				.assertCalledParametersReturn("factor", "someRenewUrl");
+		httpHandlerSpy.MCR.assertCalledParameters("setRequestMethod", POST);
+		httpHandlerSpy.MCR.assertCalledParameters("setRequestProperty", "authToken",
+				"someAuthTokenToRenew");
+		httpHandlerSpy.MCR.assertCalledParameters("setRequestProperty", "accept",
+				"application/vnd.uub.authentication+json");
+		assertEquals(authenticationFixture.getStatusType(), Status.OK);
+
+		assertAuthenticationData();
 	}
 }
