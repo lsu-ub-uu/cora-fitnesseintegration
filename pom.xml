@@ -36,7 +36,7 @@
 		<httphandler.version>2.16.0</httphandler.version>
 		<httphandlerspies.version>1.7.0</httphandlerspies.version>
 		<clientdata.version>6.7.0</clientdata.version>
-		<basicclientdata.version>1.8-SNAPSHOT</basicclientdata.version>
+		<basicclientdata.version>1.8.0</basicclientdata.version>
 		<coradata.version>10.0.0</coradata.version>
 		<converter.version>4.1.0</converter.version>
 		<javaclient.version>4.3.0</javaclient.version>
