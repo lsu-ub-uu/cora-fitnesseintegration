@@ -1,7 +1,9 @@
 package se.uu.ub.cora.fitnesseintegration.authentication;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.ws.rs.core.Response.Status;
@@ -47,6 +49,7 @@ public class AuthenticationFixtureTest {
 	private JsonToClientDataConverterFactorySpy jsonToDataConverterFactory;
 	private JsonToClientDataConverterSpy jsonToClientDataConverter;
 	private AuthenticationFixture authenticationFixture;
+	private List<String> permissionUnitList;
 
 	@BeforeMethod
 	public void beforeMethod() {
@@ -70,6 +73,10 @@ public class AuthenticationFixtureTest {
 
 		createAndAddClientActionLink(ClientAction.RENEW);
 		createAndAddClientActionLink(ClientAction.DELETE);
+
+		permissionUnitList = List.of("PermissionUnit1", "PermissionUnit2");
+		clientDataAutentication.MRV.setDefaultReturnValuesSupplier("getPermissionUnitIds",
+				() -> permissionUnitList);
 
 		jsonToClientDataConverter = new JsonToClientDataConverterSpy();
 		jsonToClientDataConverter.MRV.setDefaultReturnValuesSupplier("toInstance",
@@ -201,7 +208,15 @@ public class AuthenticationFixtureTest {
 				authenticationFixture.getFirstName());
 		clientDataAutentication.MCR.assertReturn("getLastName", 0,
 				authenticationFixture.getLastName());
+		clientDataAutentication.MCR.assertReturn("getPermissionUnitIds", 0,
+				authenticationFixture.getPermissionUnitIds());
+		assertPermissionUnitIds();
 		assertClientActionLinks();
+	}
+
+	private void assertPermissionUnitIds() {
+		assertTrue(authenticationFixture.getPermissionUnitIds().containsAll(permissionUnitList));
+		assertEquals(authenticationFixture.getPermissionUnitIds().size(), 2);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -312,92 +327,6 @@ public class AuthenticationFixtureTest {
 		assertEquals(compactString(dataAsJson), compactString(expectedJsonToParse()));
 	}
 
-	private String createExpectedHtml() {
-		return """
-				<!DOCTYPE html>
-				<html>
-					<head>
-						<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
-						<script type="text/javascript">
-							window.onload = start;
-							function start() {
-								var authentication = {
-									"authentication" : {
-										"data" : {
-											"children" : [
-												{"name" : "token", "value" : "some\\-AuthToken"},
-												{"name" : "validUntil", "value" : "600000"},
-												{"name" : "renewUntil", "value" : "86400000"},
-												{"name" : "userId", "value" : "someIdInUser\\x27Storage"},
-												{"name" : "loginId", "value" : "someLogin\\x22Id"},
-												{"name" : "firstName", "value" : "someFirst\\x26Name"},
-												{"name" : "lastName", "value" : "someLast\\\\Name"}
-											],
-											"name" : "authToken"
-										},
-										"actionLinks" : {
-											"renew" : {
-												"requestMethod" : "POST",
-												"rel" : "renew",
-												"url" : "http:\\/\\/localhost:8080\\/login\\/rest\\/authToken\\/someTokenId",
-												"accept": "application/vnd.uub.authentication+json"
-											},
-											"delete" : {
-												"requestMethod" : "DELETE",
-												"rel" : "delete",
-												"url" : "http:\\/\\/localhost:8080\\/login\\/rest\\/authToken\\/someTokenId"
-											}
-										}
-									}
-								};
-								if(null!=window.opener){
-									window.opener.postMessage(authentication, "http:\\/\\/localhost:8080");
-									window.opener.focus();
-									window.close();
-								}
-							};
-						</script>
-					</head>
-					<body>
-						token: someAuthToken
-					</body>
-				</html>
-				""";
-	}
-
-	private String expectedJsonToParse() {
-		return """
-				{
-					"authentication" : {
-						"data" : {
-							"children" : [
-								{"name" : "token", "value" : "some-AuthToken"},
-								{"name" : "validUntil", "value" : "600000"},
-								{"name" : "renewUntil", "value" : "86400000"},
-								{"name" : "userId", "value" : "someIdInUser'Storage"},
-								{"name" : "loginId", "value" : "someLogin"Id"},
-								{"name" : "firstName", "value" : "someFirst&Name"},
-								{"name" : "lastName", "value" : "someLast\\Name"}
-							],
-							"name" : "authToken"
-						},
-						"actionLinks" : {
-							"renew" : {
-								"requestMethod" : "POST",
-								"rel" : "renew",
-								"url" : "http://localhost:8080/login/rest/authToken/someTokenId",
-								"accept": "application/vnd.uub.authentication+json"
-							},
-							"delete" : {
-								"requestMethod" : "DELETE",
-								"rel" : "delete",
-								"url" : "http://localhost:8080/login/rest/authToken/someTokenId"
-							}
-						}
-					}
-				}""";
-	}
-
 	private String compactString(String stringIn) {
 		return stringIn.replace("\s", "").replace("\n", "").replace("\t", "");
 	}
@@ -477,4 +406,147 @@ public class AuthenticationFixtureTest {
 
 		assertAuthenticationData();
 	}
+
+	private String createExpectedHtml() {
+		return """
+				<!DOCTYPE html>
+				<html>
+					<head>
+						<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+						<script type="text/javascript">
+							window.onload = start;
+							function start() {
+								var authentication = {
+									"authentication" : {
+										"data" : {
+											"children" : [
+												{"name" : "token", "value" : "some\\-AuthToken"},
+												{"name" : "validUntil", "value" : "600000"},
+												{"name" : "renewUntil", "value" : "86400000"},
+												{"name" : "userId", "value" : "someIdInUser\\x27Storage"},
+												{"name" : "loginId", "value" : "someLogin\\x22Id"},
+												{"name" : "firstName", "value" : "someFirst\\x26Name"},
+												{"name" : "lastName", "value" : "someLast\\\\Name"},
+												{
+								                    "repeatId": "1",
+								                    "children": [
+								                        {
+								                            "name": "linkedRecordType",
+								                            "value": "permissionUnit"
+								                        },
+								                        {
+								                            "name": "linkedRecordId",
+								                            "value": "fitnesseUserPermissionUnit"
+								                        }
+								                    ],
+								                    "name": "permissionUnit"
+								                },
+								                {
+								                    "repeatId": "2",
+								                    "children": [
+								                        {
+								                            "name": "linkedRecordType",
+								                            "value": "permissionUnit"
+								                        },
+								                        {
+								                            "name": "linkedRecordId",
+								                            "value": "fitnesseUserPermissionUnit2"
+								                        }
+								                    ],
+								                    "name": "permissionUnit"
+								                }
+											],
+											"name" : "authToken"
+										},
+										"actionLinks" : {
+											"renew" : {
+												"requestMethod" : "POST",
+												"rel" : "renew",
+												"url" : "http:\\/\\/localhost:8080\\/login\\/rest\\/authToken\\/someTokenId",
+												"accept": "application/vnd.uub.authentication+json"
+											},
+											"delete" : {
+												"requestMethod" : "DELETE",
+												"rel" : "delete",
+												"url" : "http:\\/\\/localhost:8080\\/login\\/rest\\/authToken\\/someTokenId"
+											}
+										}
+									}
+								};
+								if(null!=window.opener){
+									window.opener.postMessage(authentication, "http:\\/\\/localhost:8080");
+									window.opener.focus();
+									window.close();
+								}
+							};
+						</script>
+					</head>
+					<body>
+						token: someAuthToken
+					</body>
+				</html>
+				""";
+	}
+
+	private String expectedJsonToParse() {
+		return """
+				{
+					"authentication" : {
+						"data" : {
+							"children" : [
+								{"name" : "token", "value" : "some-AuthToken"},
+								{"name" : "validUntil", "value" : "600000"},
+								{"name" : "renewUntil", "value" : "86400000"},
+								{"name" : "userId", "value" : "someIdInUser'Storage"},
+								{"name" : "loginId", "value" : "someLogin"Id"},
+								{"name" : "firstName", "value" : "someFirst&Name"},
+								{"name" : "lastName", "value" : "someLast\\Name"},
+								{
+				                    "repeatId": "1",
+				                    "children": [
+				                        {
+				                            "name": "linkedRecordType",
+				                            "value": "permissionUnit"
+				                        },
+				                        {
+				                            "name": "linkedRecordId",
+				                            "value": "fitnesseUserPermissionUnit"
+				                        }
+				                    ],
+				                    "name": "permissionUnit"
+				                },
+				                {
+				                    "repeatId": "2",
+				                    "children": [
+				                        {
+				                            "name": "linkedRecordType",
+				                            "value": "permissionUnit"
+				                        },
+				                        {
+				                            "name": "linkedRecordId",
+				                            "value": "fitnesseUserPermissionUnit2"
+				                        }
+				                    ],
+				                    "name": "permissionUnit"
+				                }
+							],
+							"name" : "authToken"
+						},
+						"actionLinks" : {
+							"renew" : {
+								"requestMethod" : "POST",
+								"rel" : "renew",
+								"url" : "http://localhost:8080/login/rest/authToken/someTokenId",
+								"accept": "application/vnd.uub.authentication+json"
+							},
+							"delete" : {
+								"requestMethod" : "DELETE",
+								"rel" : "delete",
+								"url" : "http://localhost:8080/login/rest/authToken/someTokenId"
+							}
+						}
+					}
+				}""";
+	}
+
 }

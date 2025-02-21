@@ -1,6 +1,7 @@
 package se.uu.ub.cora.fitnesseintegration.authentication;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -228,6 +229,10 @@ public class AuthenticationFixture {
 
 	public String getLastName() {
 		return authentication.getLastName();
+	}
+
+	public List<String> getPermissionUnitIds() {
+		return authentication.getPermissionUnitIds();
 	}
 
 	public String getRenewUrl() {
