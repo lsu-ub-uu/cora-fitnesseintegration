@@ -23,11 +23,22 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 import se.uu.ub.cora.fitnesseintegration.file.ArchiveFileReaderImp;
+import se.uu.ub.cora.fitnesseintegration.internal.Waiter;
 
 public class FileReader {
+	boolean fileExists = true;
+
 	public boolean fileNameExistsInPath(String fileName, String path) {
 		Path filePath = Path.of(path, fileName);
 		return Files.exists(filePath);
+	}
+
+	public boolean fileWithNameRemovedFromPath(String fileName, String path) {
+		fileExists = true;
+		Path filePath = Path.of(path, fileName);
+		Waiter waiter = DependencyProvider.factorWaiter();
+		return waiter.waitUntilConditionFullfilled(() -> fileExists = Files.exists(filePath),
+				() -> !fileExists, 500, 10);
 	}
 
 	public boolean fileNameExistsInArchiveAsVersionUnderPath(String fileName, String version,

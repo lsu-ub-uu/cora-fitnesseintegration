@@ -66,6 +66,20 @@ public class FileReaderTest {
 		assertTrue(fileReader.fileNameExistsInPath("fileName", basePath));
 	}
 
+	@Test
+	public void testFileRemovedFromPath() throws Exception {
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileNameOther");
+
+		assertTrue(fileReader.fileWithNameRemovedFromPath("fileName", basePath));
+	}
+
+	@Test
+	public void testFileRemovedFromPath_stillThere() throws Exception {
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileName");
+
+		assertFalse(fileReader.fileWithNameRemovedFromPath("fileName", basePath));
+	}
+
 	String x = """
 			309
 				327
