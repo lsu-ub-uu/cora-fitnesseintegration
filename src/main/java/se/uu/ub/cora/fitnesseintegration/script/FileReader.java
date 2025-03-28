@@ -68,6 +68,8 @@ public class FileReader {
 		Path filePath = Path.of(path, fileName);
 		System.err.println("what10");
 		Waiter waiter = DependencyProvider.factorWaiter();
+		System.err.println(waiter.getClass());
+
 		System.err.println("what11");
 		return waiter.waitUntilConditionFullfilled(() -> {
 			System.err.println("what12");
