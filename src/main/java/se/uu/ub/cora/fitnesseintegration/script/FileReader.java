@@ -37,12 +37,14 @@ public class FileReader {
 	}
 
 	public boolean fileWithNameRemovedFromPath(String fileName, String path) {
+
 		// Specify the directory path
 		Path dirPath = Paths.get(path);
 
 		// Check if the directory exists
 		if (Files.exists(dirPath) && Files.isDirectory(dirPath)) {
 			try (DirectoryStream<Path> stream = Files.newDirectoryStream(dirPath)) {
+
 				for (Path entry : stream) {
 					System.out.println(entry.getFileName());
 				}
@@ -56,8 +58,10 @@ public class FileReader {
 		fileExists = true;
 		Path filePath = Path.of(path, fileName);
 		Waiter waiter = DependencyProvider.factorWaiter();
-		return waiter.waitUntilConditionFullfilled(() -> fileExists = Files.exists(filePath),
-				() -> !fileExists, 500, 10);
+		return waiter.waitUntilConditionFullfilled(() -> {
+			fileExists = Files.exists(filePath);
+			System.out.println(fileExists);
+		}, () -> !fileExists, 500, 10);
 	}
 
 	public boolean fileNameExistsInArchiveAsVersionUnderPath(String fileName, String version,
