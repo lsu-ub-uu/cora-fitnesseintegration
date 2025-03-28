@@ -18,8 +18,11 @@
  */
 package se.uu.ub.cora.fitnesseintegration.script;
 
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import se.uu.ub.cora.fitnesseintegration.file.ArchiveFileReaderImp;
@@ -34,6 +37,22 @@ public class FileReader {
 	}
 
 	public boolean fileWithNameRemovedFromPath(String fileName, String path) {
+		// Specify the directory path
+		Path dirPath = Paths.get(path);
+
+		// Check if the directory exists
+		if (Files.exists(dirPath) && Files.isDirectory(dirPath)) {
+			try (DirectoryStream<Path> stream = Files.newDirectoryStream(dirPath)) {
+				for (Path entry : stream) {
+					System.out.println(entry.getFileName());
+				}
+			} catch (IOException e) {
+				System.err.println("Error reading directory: " + e.getMessage());
+			}
+		} else {
+			System.out.println("The specified path is not a directory or does not exist.");
+		}
+
 		fileExists = true;
 		Path filePath = Path.of(path, fileName);
 		Waiter waiter = DependencyProvider.factorWaiter();
