@@ -68,9 +68,9 @@ public class FileReaderTest {
 
 	@Test
 	public void testFileRemovedFromPath() throws Exception {
-		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileNameOther");
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileName");
 
-		assertTrue(fileReader.fileWithNameRemovedFromPath("fileName", basePath));
+		assertTrue(fileReader.fileWithNameRemovedFromPath("fileNameOther", basePath));
 	}
 
 	@Test
