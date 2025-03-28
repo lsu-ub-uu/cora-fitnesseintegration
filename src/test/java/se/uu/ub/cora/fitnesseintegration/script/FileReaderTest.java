@@ -28,6 +28,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.fitnesseintegration.file.FileTestHelper;
+import se.uu.ub.cora.fitnesseintegration.script.internal.DependencyFactoryImp;
 
 public class FileReaderTest {
 	private FileTestHelper fileHelper;
@@ -36,8 +37,10 @@ public class FileReaderTest {
 
 	@BeforeMethod
 	public void beforeMethod() throws IOException {
+		DependencyProvider.onlyForTestSetDependencyFactory(new DependencyFactoryImp());
 		fileHelper = FileTestHelper.forDirectory(basePath);
 		fileReader = new FileReader();
+
 	}
 
 	@AfterMethod
