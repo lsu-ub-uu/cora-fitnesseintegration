@@ -67,4 +67,73 @@ public class ExtractSubstringUsingRegexTest {
 		assertFalse(regexMatch);
 	}
 
+	@Test
+	public void testMatchFoundWithBothPositivesAndNegatives() {
+		String body = getChunkOfText();
+		String matchList = "\"name\":\"visibility\",\"value\":\"published\" AND \"name\":\"adminInfo\"} AND NOT shouldNotBeFound";
+
+		boolean matchFound = extractScript.matchFoundUsingTextAndIncludesAndNotExcludes(body,
+				matchList);
+		assertTrue(matchFound);
+	}
+
+	@Test
+	public void testMatchFoundWithMixedOrderOfPositivesAndNegatives() {
+		String body = getChunkOfText();
+		String matchList = "\"name\":\"visibility\",\"value\":\"published\" AND NOT shouldNotBeFound AND \"name\":\"adminInfo\"}";
+
+		boolean matchFound = extractScript.matchFoundUsingTextAndIncludesAndNotExcludes(body,
+				matchList);
+		assertTrue(matchFound);
+	}
+
+	@Test
+	public void testMatchFoundWithOnlyPositives() {
+		String body = getChunkOfText();
+		String matchList = "\"name\":\"visibility\",\"value\":\"published\" AND \"name\":\"adminInfo\"}";
+
+		boolean matchFound = extractScript.matchFoundUsingTextAndIncludesAndNotExcludes(body,
+				matchList);
+		assertTrue(matchFound);
+	}
+
+	@Test
+	public void testMatchFoundWithMissingExpectedPositives() {
+		String body = getChunkOfText();
+		String matchList = "\"name\":\"someMissingName\",\"value\":\"published\" AND \"name\":\"adminInfo\"}";
+
+		boolean matchFound = extractScript.matchFoundUsingTextAndIncludesAndNotExcludes(body,
+				matchList);
+		assertFalse(matchFound);
+	}
+
+	@Test
+	public void testMatchFoundWithPresentNegative() {
+		String body = getChunkOfText();
+		String matchList = "\"name\":\"someMissingName\",\"value\":\"published\" AND NOT \"name\":\"adminInfo\"}";
+
+		boolean matchFound = extractScript.matchFoundUsingTextAndIncludesAndNotExcludes(body,
+				matchList);
+		assertFalse(matchFound);
+	}
+
+	@Test
+	public void testMatchFoundWithIncludedRegex() {
+		String body = getChunkOfText();
+		String matchList = "\"name\":\"visibility\",\"value\":\"published\" AND \"tsVisibility\",\"value\":\"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{6}Z\"";
+
+		boolean matchFound = extractScript.matchFoundUsingTextAndIncludesAndNotExcludes(body,
+				matchList);
+		assertTrue(matchFound);
+	}
+
+	@Test
+	public void testMatchFoundWithOnlyNegatives() {
+		String body = getChunkOfText();
+		String matchList = "NOT shouldNotBeFound";
+
+		boolean matchFound = extractScript.matchFoundUsingTextAndIncludesAndNotExcludes(body,
+				matchList);
+		assertTrue(matchFound);
+	}
 }

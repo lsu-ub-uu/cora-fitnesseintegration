@@ -34,4 +34,49 @@ public class ExtractSubstringUsingRegex {
 		Matcher matcher = pattern.matcher(text);
 		return matcher.find();
 	}
+
+	/**
+	 * Separate the includes and excludes with AND and AND NOT, if starting input with negative,
+	 * start with NOT (ex; "NOT regextext AND regex2 AND NOT regex3")
+	 */
+	public boolean matchFoundUsingTextAndIncludesAndNotExcludes(String body,
+			String regexListAsString) {
+		StringBuilder includes = new StringBuilder();
+		StringBuilder excludes = new StringBuilder();
+
+		var patterns = regexListAsString.trim().split(" AND ");
+		for (String pattern : patterns) {
+			String matchPattern = extractMatchPattern(pattern);
+			String actualMatchPattern = isValidRegex(matchPattern) ? matchPattern
+					: Pattern.quote(matchPattern);
+
+			if (isNotExpected(pattern)) {
+				excludes.append("(?!.*").append(actualMatchPattern).append(")");
+			} else {
+				includes.append("(?=.*").append(actualMatchPattern).append(")");
+			}
+		}
+
+		Pattern compiledRegEx = Pattern.compile(includes.toString() + excludes.toString() + ".*");
+		return compiledRegEx.matcher(body).find();
+	}
+
+	private String extractMatchPattern(String pattern) {
+		String trimmedPattern = pattern.trim();
+		return trimmedPattern.startsWith("NOT ") ? trimmedPattern.substring(4).trim()
+				: trimmedPattern;
+	}
+
+	private boolean isNotExpected(String pattern) {
+		return pattern.trim().startsWith("NOT ");
+	}
+
+	private boolean isValidRegex(String pattern) {
+		try {
+			Pattern.compile(pattern);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
 }
