@@ -56,8 +56,8 @@ public class ExtractSubstringUsingRegex {
 			}
 		}
 
-		Pattern compiledRegex = Pattern.compile(includeMatches.toString() + excludeMatches.toString() + ".*");
-		return compiledRegex.matcher(body).find();
+		Pattern compiledRegEx = Pattern.compile(includeMatches.toString() + excludeMatches.toString() + ".*");
+		return compiledRegEx.matcher(body).find();
 	}
 
 	private String cleanupMatchPattern(String splitPattern) {
