@@ -41,34 +41,31 @@ public class ExtractSubstringUsingRegex {
 	 */
 	public boolean matchFoundUsingTextAndIncludesAndNotExcludes(String body,
 			String regexListAsString) {
-		StringBuilder includes = new StringBuilder();
-		StringBuilder excludes = new StringBuilder();
+		StringBuilder includeMatches = new StringBuilder();
+		StringBuilder excludeMatches = new StringBuilder();
 
-		var patterns = regexListAsString.trim().split(" AND ");
-		for (String pattern : patterns) {
-			String matchPattern = extractMatchPattern(pattern);
-			String actualMatchPattern = isValidRegex(matchPattern) ? matchPattern
-					: Pattern.quote(matchPattern);
+		var originalPatterns = regexListAsString.trim().split(" AND ");
+		for (String splitPattern : originalPatterns) {
+			String matchPattern = cleanupMatchPattern(splitPattern);
+			matchPattern = isValidRegex(matchPattern) ? matchPattern : Pattern.quote(matchPattern);
 
-			if (isNotExpected(pattern)) {
-				excludes.append("(?!.*").append(actualMatchPattern).append(")");
+			if (isNotExpected(splitPattern)) {
+				excludeMatches.append("(?!.*").append(matchPattern).append(")");
 			} else {
-				includes.append("(?=.*").append(actualMatchPattern).append(")");
+				includeMatches.append("(?=.*").append(matchPattern).append(")");
 			}
 		}
 
-		Pattern compiledRegEx = Pattern.compile(includes.toString() + excludes.toString() + ".*");
-		return compiledRegEx.matcher(body).find();
+		Pattern compiledRegex = Pattern.compile(includeMatches.toString() + excludeMatches.toString() + ".*");
+		return compiledRegex.matcher(body).find();
 	}
 
-	private String extractMatchPattern(String pattern) {
-		String trimmedPattern = pattern.trim();
-		return trimmedPattern.startsWith("NOT ") ? trimmedPattern.substring(4).trim()
-				: trimmedPattern;
+	private String cleanupMatchPattern(String splitPattern) {
+		return splitPattern.startsWith("NOT ") ? splitPattern.substring(4).trim() : splitPattern;
 	}
 
-	private boolean isNotExpected(String pattern) {
-		return pattern.trim().startsWith("NOT ");
+	private boolean isNotExpected(String splitPattern) {
+		return splitPattern.trim().startsWith("NOT ");
 	}
 
 	private boolean isValidRegex(String pattern) {
