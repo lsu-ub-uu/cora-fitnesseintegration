@@ -130,7 +130,7 @@ public class ExtractSubstringUsingRegexTest {
 	@Test
 	public void testMatchFoundWithOnlyNegatives() {
 		String body = getChunkOfText();
-		String matchList = "NOT shouldNotBeFound";
+		String matchList = "NOT shouldNotBeFound AND NOT thisEither";
 
 		boolean matchFound = extractScript.matchFoundUsingTextAndIncludesAndNotExcludes(body,
 				matchList);
