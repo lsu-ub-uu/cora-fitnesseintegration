@@ -67,4 +67,66 @@ public class ExtractSubstringUsingRegexTest {
 		assertFalse(regexMatch);
 	}
 
+	@Test
+	public void testMatchFoundWithBothPositivesAndNegatives() {
+		String patternString = "\"name\":\"visibility\",\"value\":\"published\" AND \"name\":\"adminInfo\"} AND NOT shouldNotBeFound";
+
+		boolean matchFound = extractScript
+				.matchFoundUsingTextAndIncludesAndNotExcludes(getChunkOfText(), patternString);
+		assertTrue(matchFound);
+	}
+
+	@Test
+	public void testMatchFoundWithMixedOrderOfPositivesAndNegatives() {
+		String patternString = "\"name\":\"visibility\",\"value\":\"published\" AND NOT shouldNotBeFound AND \"name\":\"adminInfo\"}";
+
+		boolean matchFound = extractScript
+				.matchFoundUsingTextAndIncludesAndNotExcludes(getChunkOfText(), patternString);
+		assertTrue(matchFound);
+	}
+
+	@Test
+	public void testMatchFoundWithOnlyPositives() {
+		String patternString = "\"name\":\"visibility\",\"value\":\"published\" AND \"name\":\"adminInfo\"}";
+
+		boolean matchFound = extractScript
+				.matchFoundUsingTextAndIncludesAndNotExcludes(getChunkOfText(), patternString);
+		assertTrue(matchFound);
+	}
+
+	@Test
+	public void testMatchFoundWithMissingExpectedPositives() {
+		String patternString = "\"name\":\"someMissingName\",\"value\":\"published\" AND \"name\":\"adminInfo\"}";
+
+		boolean matchFound = extractScript
+				.matchFoundUsingTextAndIncludesAndNotExcludes(getChunkOfText(), patternString);
+		assertFalse(matchFound);
+	}
+
+	@Test
+	public void testMatchFoundWithPresentNegative() {
+		String patternString = "\"name\":\"someMissingName\",\"value\":\"published\" AND NOT \"name\":\"adminInfo\"}";
+
+		boolean matchFound = extractScript
+				.matchFoundUsingTextAndIncludesAndNotExcludes(getChunkOfText(), patternString);
+		assertFalse(matchFound);
+	}
+
+	@Test
+	public void testMatchFoundWithIncludedRegex() {
+		String patternString = "\"name\":\"visibility\",\"value\":\"published\" AND \"tsVisibility\",\"value\":\"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{6}Z\"";
+
+		boolean matchFound = extractScript
+				.matchFoundUsingTextAndIncludesAndNotExcludes(getChunkOfText(), patternString);
+		assertTrue(matchFound);
+	}
+
+	@Test
+	public void testMatchFoundWithOnlyNegatives() {
+		String patternString = "NOT shouldNotBeFound AND NOT thisEither";
+
+		boolean matchFound = extractScript
+				.matchFoundUsingTextAndIncludesAndNotExcludes(getChunkOfText(), patternString);
+		assertTrue(matchFound);
+	}
 }
