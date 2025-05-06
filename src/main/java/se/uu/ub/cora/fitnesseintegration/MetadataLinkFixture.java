@@ -35,7 +35,7 @@ import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 
 public class MetadataLinkFixture {
-	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.cora.record+json";
+	private static final String APPLICATION_VND_CORA_RECORD_JSON = "application/vnd.cora.record+json";
 	private static final String ACCEPT = "Accept";
 
 	private static final String NOT_FOUND = "not found";
@@ -129,7 +129,7 @@ public class MetadataLinkFixture {
 		HttpHandler httpHandler = httpHandlerFactory.factor(url);
 		httpHandler.setRequestMethod("GET");
 		httpHandler.setRequestProperty("authToken", authToken);
-		httpHandler.setRequestProperty(ACCEPT, APPLICATION_UUB_RECORD_JSON);
+		httpHandler.setRequestProperty(ACCEPT, APPLICATION_VND_CORA_RECORD_JSON);
 		return httpHandler;
 	}
 

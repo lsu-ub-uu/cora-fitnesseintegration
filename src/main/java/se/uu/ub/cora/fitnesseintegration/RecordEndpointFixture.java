@@ -48,7 +48,7 @@ import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 public class RecordEndpointFixture {
 	private static final String AUTH_TOKEN = "authToken";
 	private static final int DISTANCE_TO_START_OF_ID = 19;
-	protected static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.cora.record+json";
+	protected static final String APPLICATION_VND_CORA_RECORD_JSON = "application/vnd.cora.record+json";
 	protected static final String ACCEPT = "Accept";
 	private String id;
 	private String searchId;
@@ -271,7 +271,7 @@ public class RecordEndpointFixture {
 	}
 
 	private void addStreamInfoToHttpHandler(HttpMultiPartUploader httpHandler) throws IOException {
-		httpHandler.addHeaderField(ACCEPT, APPLICATION_UUB_RECORD_JSON);
+		httpHandler.addHeaderField(ACCEPT, APPLICATION_VND_CORA_RECORD_JSON);
 		Path path = Path.of("FitNesseRoot/files/testResources/" + fileName);
 		InputStream fileStream = Files.newInputStream(path);
 		httpHandler.addFilePart("file", fileName, fileStream);
