@@ -193,7 +193,7 @@ public class AuthenticationFixture {
 	public String renewAuthToken() {
 		factorHttpHandler(POST, authTokenRenewUrl);
 		httpHandler.setRequestProperty("authToken", existingAuthToken);
-		httpHandler.setRequestProperty("accept", "application/vnd.uub.authentication+json");
+		httpHandler.setRequestProperty("accept", "application/vnd.cora.authentication+json");
 
 		tryToAuthenticate(httpHandler);
 		return response;

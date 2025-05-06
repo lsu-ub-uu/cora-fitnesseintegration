@@ -401,7 +401,7 @@ public class AuthenticationFixtureTest {
 		httpHandlerSpy.MCR.assertCalledParameters("setRequestProperty", "authToken",
 				"someAuthTokenToRenew");
 		httpHandlerSpy.MCR.assertCalledParameters("setRequestProperty", "accept",
-				"application/vnd.uub.authentication+json");
+				"application/vnd.cora.authentication+json");
 		assertEquals(authenticationFixture.getStatusType(), Status.OK);
 
 		assertAuthenticationData();
@@ -463,7 +463,7 @@ public class AuthenticationFixtureTest {
 												"requestMethod" : "POST",
 												"rel" : "renew",
 												"url" : "http:\\/\\/localhost:8080\\/login\\/rest\\/authToken\\/someTokenId",
-												"accept": "application/vnd.uub.authentication+json"
+												"accept": "application/vnd.cora.authentication+json"
 											},
 											"delete" : {
 												"requestMethod" : "DELETE",
@@ -537,7 +537,7 @@ public class AuthenticationFixtureTest {
 								"requestMethod" : "POST",
 								"rel" : "renew",
 								"url" : "http://localhost:8080/login/rest/authToken/someTokenId",
-								"accept": "application/vnd.uub.authentication+json"
+								"accept": "application/vnd.cora.authentication+json"
 							},
 							"delete" : {
 								"requestMethod" : "DELETE",

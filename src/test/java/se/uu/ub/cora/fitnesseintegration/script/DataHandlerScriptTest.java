@@ -60,7 +60,7 @@ public class DataHandlerScriptTest {
 				                  "requestMethod": "GET",
 				                  "rel": "read",
 				                  "url": "https://cora.epc.ub.uu.se/systemone/rest/record/system/systemOne",
-				                  "accept": "application/vnd.uub.record+json"
+				                  "accept": "application/vnd.cora.record+json"
 				                }
 				              },
 				              "name": "dataDivider"
@@ -81,7 +81,7 @@ public class DataHandlerScriptTest {
 				                  "requestMethod": "GET",
 				                  "rel": "read",
 				                  "url": "https://cora.epc.ub.uu.se/systemone/rest/record/user/141414",
-				                  "accept": "application/vnd.uub.record+json"
+				                  "accept": "application/vnd.cora.record+json"
 				                }
 				              }
 				            }
@@ -141,7 +141,7 @@ public class DataHandlerScriptTest {
 				        "requestMethod": "GET",
 				        "rel": "read",
 				        "url": "https://cora.epc.ub.uu.se/systemone/rest/record/binary/binary:3622353869664222",
-				        "accept": "application/vnd.uub.record+json"
+				        "accept": "application/vnd.cora.record+json"
 				      }
 				    }
 				  }

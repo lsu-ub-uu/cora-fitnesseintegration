@@ -35,7 +35,7 @@ import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 
 public class MetadataLinkFixture {
-	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.uub.record+json";
+	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.cora.record+json";
 	private static final String ACCEPT = "Accept";
 
 	private static final String NOT_FOUND = "not found";

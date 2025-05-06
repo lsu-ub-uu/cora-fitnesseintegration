@@ -28,7 +28,7 @@ import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 
 public class RecordHandlerImp implements RecordHandler {
-	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.uub.record+json";
+	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.cora.record+json";
 	private String baseUrl;
 	private String appTokenUrl;
 

@@ -48,7 +48,7 @@ import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 public class RecordEndpointFixture {
 	private static final String AUTH_TOKEN = "authToken";
 	private static final int DISTANCE_TO_START_OF_ID = 19;
-	protected static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.uub.record+json";
+	protected static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.cora.record+json";
 	protected static final String ACCEPT = "Accept";
 	private String id;
 	private String searchId;

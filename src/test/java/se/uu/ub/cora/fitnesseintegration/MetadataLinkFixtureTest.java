@@ -138,7 +138,7 @@ public class MetadataLinkFixtureTest {
 		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestProperties.get("authToken"),
 				"someToken");
 		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestProperties.get("Accept"),
-				"application/vnd.uub.record+json");
+				"application/vnd.cora.record+json");
 	}
 
 	@Test
