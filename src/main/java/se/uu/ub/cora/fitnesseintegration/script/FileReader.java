@@ -33,14 +33,18 @@ public class FileReader {
 		return Files.exists(filePath);
 	}
 
+	public boolean fileExistsInPath(String path) {
+		Path filePath = Path.of(path);
+		return Files.exists(filePath);
+	}
+
 	public boolean fileWithNameRemovedFromPath(String fileName, String path) {
 		fileExists = true;
 		Path filePath = Path.of(path, fileName);
 		Waiter waiter = DependencyProvider.factorWaiter();
 
-		return waiter.waitUntilConditionFullfilled(() -> {
-			fileExists = Files.exists(filePath);
-		}, () -> !fileExists, 500, 10);
+		return waiter.waitUntilConditionFullfilled(() -> fileExists = Files.exists(filePath),
+				() -> !fileExists, 500, 10);
 	}
 
 	public boolean fileNameExistsInArchiveAsVersionUnderPath(String fileName, String version,
