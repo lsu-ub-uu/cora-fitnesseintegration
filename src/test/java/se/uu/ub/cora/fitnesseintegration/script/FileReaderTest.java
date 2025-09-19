@@ -70,6 +70,18 @@ public class FileReaderTest {
 	}
 
 	@Test
+	public void testFileExistsInPath_Found() throws Exception {
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileName");
+
+		assertTrue(fileReader.fileExistsInPath(basePath + "/fileName"));
+	}
+
+	@Test
+	public void testFileExistsInPath_NotFound() {
+		assertFalse(fileReader.fileExistsInPath(basePath + "/anotherfileName"));
+	}
+
+	@Test
 	public void testFileRemovedFromPath() throws Exception {
 		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileName");
 
