@@ -1,6 +1,6 @@
 /*
  * Copyright 2020, 2023 Uppsala University Library
- * Copyright 2023 Olov McKie
+ * Copyright 2023, 2025 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -30,20 +30,17 @@ import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.json.parser.JsonParseException;
 
 public class PermissionComparerFixture extends ComparerFixture {
-
-	private ComparerFactory comparerFactory;
 	private String permissions;
 	private JsonHandler jsonHandler;
 
 	public PermissionComparerFixture() {
 		super();
-		comparerFactory = DependencyProvider.getComparerFactory();
 		jsonHandler = DependencyProvider.getJsonHandler();
 	}
 
 	public String testCheckPermissions() {
 		ClientDataRecord dataRecord = DataHolder.getRecord();
-		DataComparer comparer = comparerFactory.factor("permission", dataRecord);
+		DataComparer comparer = DependencyProvider.factorPermissionComparer(dataRecord);
 
 		JsonObject permissionObject = jsonHandler.parseStringAsObject(permissions);
 		List<String> errorMessages = comparer.checkClientDataRecordContains(permissionObject);
@@ -53,10 +50,6 @@ public class PermissionComparerFixture extends ComparerFixture {
 	public void setPermissions(String permissions) {
 		this.permissions = permissions;
 
-	}
-
-	ComparerFactory getComparerFactory() {
-		return comparerFactory;
 	}
 
 	public String testReadFromListCheckPermissions() {
@@ -70,7 +63,7 @@ public class PermissionComparerFixture extends ComparerFixture {
 
 	private String comparePermissionUsingClientDataRecord(ClientDataRecord dataRecord) {
 		JsonObject permissionObject = jsonHandler.parseStringAsObject(permissions);
-		DataComparer comparer = comparerFactory.factor("permission", dataRecord);
+		DataComparer comparer = DependencyProvider.factorPermissionComparer(dataRecord);
 		List<String> errorMessages = comparer.checkClientDataRecordContains(permissionObject);
 		return errorMessages.isEmpty() ? "OK" : joinErrorMessages(errorMessages);
 	}
@@ -82,5 +75,4 @@ public class PermissionComparerFixture extends ComparerFixture {
 	public JsonHandler onlyForTestGetJsonHandler() {
 		return jsonHandler;
 	}
-
 }

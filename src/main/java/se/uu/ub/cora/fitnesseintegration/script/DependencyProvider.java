@@ -1,6 +1,6 @@
 /*
  * Copyright 2017, 2023 Uppsala University Library
- * Copyright 2023 Olov McKie
+ * Copyright 2023, 2025 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -22,10 +22,12 @@ package se.uu.ub.cora.fitnesseintegration.script;
 
 import java.lang.reflect.Constructor;
 
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.fitnesseintegration.ChildComparer;
 import se.uu.ub.cora.fitnesseintegration.JsonHandler;
 import se.uu.ub.cora.fitnesseintegration.JsonHandlerImp;
-import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
+import se.uu.ub.cora.fitnesseintegration.compare.DataComparer;
+import se.uu.ub.cora.fitnesseintegration.definitionwriter.DefinitionWriter;
 import se.uu.ub.cora.fitnesseintegration.internal.StandardFitnesseMethod;
 import se.uu.ub.cora.fitnesseintegration.internal.Waiter;
 import se.uu.ub.cora.fitnesseintegration.script.internal.DependencyFactory;
@@ -37,7 +39,6 @@ public final class DependencyProvider {
 
 	private static HttpHandlerFactory httpHandlerFactory;
 	private static ChildComparer childComparer;
-	private static ComparerFactory permissionComparerFactory;
 	private static DependencyFactory dependencyFactory = new DependencyFactoryImp();
 
 	public DependencyProvider() {
@@ -80,25 +81,6 @@ public final class DependencyProvider {
 		return JsonHandlerImp.usingJsonParser(jsonParser);
 	}
 
-	public static void setComparerFactoryUsingClassName(String className) {
-		Constructor<?> constructor;
-		try {
-			constructor = Class.forName(className).getConstructor();
-			permissionComparerFactory = (ComparerFactory) constructor.newInstance();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
-	}
-
-	public static ComparerFactory getComparerFactory() {
-		return permissionComparerFactory;
-	}
-
-	public static Waiter factorWaiter() {
-		return dependencyFactory.factorWaiter();
-	}
-
 	public static StandardFitnesseMethod factorReadAndStoreRecord(String authToken, String type,
 			String id) {
 		return dependencyFactory.factorReadAndStoreRecord(authToken, type, id);
@@ -115,6 +97,22 @@ public final class DependencyProvider {
 
 	public static DependencyFactory onlyForTestGetDependencyFactory() {
 		return DependencyProvider.dependencyFactory;
+	}
+
+	public static Waiter factorWaiter() {
+		return dependencyFactory.factorWaiter();
+	}
+
+	public static DefinitionWriter factorDefinitionWriter() {
+		return dependencyFactory.factorDefinitionWriter();
+	}
+
+	public static DataComparer factorPermissionComparer(ClientDataRecord dataRecord) {
+		return dependencyFactory.factorPermissionComparer(dataRecord);
+	}
+
+	public static DataComparer factorActionComparer(ClientDataRecord dataRecord) {
+		return dependencyFactory.factorActionComparer(dataRecord);
 	}
 
 }

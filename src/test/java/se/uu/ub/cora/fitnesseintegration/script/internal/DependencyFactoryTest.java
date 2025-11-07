@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 Uppsala University Library
+ * Copyright 2025 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -25,6 +26,12 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
+import se.uu.ub.cora.fitnesseintegration.compare.ActionComparer;
+import se.uu.ub.cora.fitnesseintegration.compare.PermissionComparer;
+import se.uu.ub.cora.fitnesseintegration.definitionwriter.DefinitionWriter;
+import se.uu.ub.cora.fitnesseintegration.definitionwriter.DefinitionWriterImp;
 import se.uu.ub.cora.fitnesseintegration.internal.ReadAndStoreRecord;
 import se.uu.ub.cora.fitnesseintegration.internal.ReadAndStoreRecordAsJson;
 import se.uu.ub.cora.fitnesseintegration.internal.Waiter;
@@ -52,7 +59,7 @@ public class DependencyFactoryTest {
 	}
 
 	@Test
-	public void testFactorReadAndStoreRecord() throws Exception {
+	public void testFactorReadAndStoreRecord() {
 
 		JavaClientFactorySpy javaClientFactory = new JavaClientFactorySpy();
 		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
@@ -62,7 +69,7 @@ public class DependencyFactoryTest {
 
 		assertNotNull(readAndStore);
 		JavaClientAuthTokenCredentials authTokenCredentials = new JavaClientAuthTokenCredentials(
-				SOME_BASE_URL + "rest/", SOME_APP_TOKEN_URL + "rest/", SOME_AUTH_TOKEN);
+				SOME_BASE_URL + "rest/", SOME_APP_TOKEN_URL + "rest/", SOME_AUTH_TOKEN, false);
 		javaClientFactory.MCR
 				.methodWasCalled("factorDataClientUsingJavaClientAuthTokenCredentials");
 		javaClientFactory.MCR.assertParameterAsEqual(
@@ -76,7 +83,7 @@ public class DependencyFactoryTest {
 	}
 
 	@Test
-	public void testFactorReadAndStoreRecordAsJson() throws Exception {
+	public void testFactorReadAndStoreRecordAsJson() {
 
 		JavaClientFactorySpy javaClientFactory = new JavaClientFactorySpy();
 		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
@@ -86,7 +93,7 @@ public class DependencyFactoryTest {
 
 		assertNotNull(readAndStoreAsJson);
 		JavaClientAuthTokenCredentials authTokenCredentials = new JavaClientAuthTokenCredentials(
-				SOME_BASE_URL + "rest/", SOME_APP_TOKEN_URL + "rest/", SOME_AUTH_TOKEN);
+				SOME_BASE_URL + "rest/", SOME_APP_TOKEN_URL + "rest/", SOME_AUTH_TOKEN, false);
 		javaClientFactory.MCR
 				.methodWasCalled("factorRestClientUsingJavaClientAuthTokenCredentials");
 		javaClientFactory.MCR.assertParameterAsEqual(
@@ -100,8 +107,30 @@ public class DependencyFactoryTest {
 	}
 
 	@Test
-	public void testFactorWaiter() throws Exception {
+	public void testFactorWaiter() {
 		Waiter waiter = factory.factorWaiter();
 		assertTrue(waiter instanceof WaiterImp);
+	}
+
+	@Test
+	public void testFactorDefinitionWriter() {
+		DefinitionWriter writer = factory.factorDefinitionWriter();
+		assertTrue(writer instanceof DefinitionWriterImp);
+	}
+
+	@Test
+	public void testFactorPermissionComparer() {
+		ClientDataRecord dataRecord = new ClientDataRecordSpy();
+		PermissionComparer comparer = (PermissionComparer) factory
+				.factorPermissionComparer(dataRecord);
+		assertSame(comparer.onlyForTestGetClientDataRecord(), dataRecord);
+
+	}
+
+	@Test
+	public void testFactorActionComparer() {
+		ClientDataRecord dataRecord = new ClientDataRecordSpy();
+		ActionComparer comparer = (ActionComparer) factory.factorActionComparer(dataRecord);
+		assertSame(comparer.onlyForTestGetClientDataRecord(), dataRecord);
 	}
 }

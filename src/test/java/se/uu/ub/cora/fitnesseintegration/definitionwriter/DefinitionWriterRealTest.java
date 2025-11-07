@@ -24,7 +24,7 @@ import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
 
 public class DefinitionWriterRealTest {
 
-	private DefinitionWriter writer;
+	private DefinitionWriterImp writer;
 
 	private String apptokenUrl = "http://localhost:8180/login/rest/";
 	private String baseUrl = "http://localhost:8080/systemone/";
@@ -32,10 +32,10 @@ public class DefinitionWriterRealTest {
 	private String authToken = "c6ee463c-6c40-463c-b5d7-ab15c4fba74c";
 
 	@Test(enabled = false)
-	public void testWrite() throws Exception {
+	public void testWrite() {
 		SystemUrl.setUrl(baseUrl);
 		SystemUrl.setAppTokenVerifierUrl(apptokenUrl);
-		writer = new DefinitionWriter();
+		writer = new DefinitionWriterImp();
 		String definition = writer.writeDefinitionUsingRecordId(authToken, "binaryGroup");
 		System.out.println(definition);
 	}

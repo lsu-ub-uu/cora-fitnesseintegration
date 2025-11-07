@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 Uppsala University Library
+ * Copyright 2025 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -18,7 +19,11 @@
  */
 package se.uu.ub.cora.fitnesseintegration.spy;
 
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.fitnesseintegration.WaiterSpy;
+import se.uu.ub.cora.fitnesseintegration.compare.ComparerOldSpy;
+import se.uu.ub.cora.fitnesseintegration.compare.DataComparer;
+import se.uu.ub.cora.fitnesseintegration.definitionwriter.DefinitionWriter;
 import se.uu.ub.cora.fitnesseintegration.internal.StandardFitnesseMethod;
 import se.uu.ub.cora.fitnesseintegration.internal.Waiter;
 import se.uu.ub.cora.fitnesseintegration.script.internal.DependencyFactory;
@@ -36,6 +41,9 @@ public class DependencyFactorySpy implements DependencyFactory {
 		MRV.setDefaultReturnValuesSupplier("factorReadAndStoreRecordAsJson",
 				StandardFitnesseMethodSpy::new);
 		MRV.setDefaultReturnValuesSupplier("factorWaiter", WaiterSpy::new);
+		MRV.setDefaultReturnValuesSupplier("factorDefinitionWriter", DefinitionWriterSpy::new);
+		MRV.setDefaultReturnValuesSupplier("factorPermissionComparer", ComparerOldSpy::new);
+		MRV.setDefaultReturnValuesSupplier("factorActionComparer", ComparerOldSpy::new);
 	}
 
 	@Override
@@ -57,4 +65,18 @@ public class DependencyFactorySpy implements DependencyFactory {
 		return (Waiter) MCR.addCallAndReturnFromMRV();
 	}
 
+	@Override
+	public DefinitionWriter factorDefinitionWriter() {
+		return (DefinitionWriter) MCR.addCallAndReturnFromMRV();
+	}
+
+	@Override
+	public DataComparer factorPermissionComparer(ClientDataRecord dataRecord) {
+		return (DataComparer) MCR.addCallAndReturnFromMRV("dataRecord", dataRecord);
+	}
+
+	@Override
+	public DataComparer factorActionComparer(ClientDataRecord dataRecord) {
+		return (DataComparer) MCR.addCallAndReturnFromMRV("dataRecord", dataRecord);
+	}
 }

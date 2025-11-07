@@ -1,6 +1,6 @@
 /*
  * Copyright 2020, 2023 Uppsala University Library
- * Copyright 2023 Olov McKie
+ * Copyright 2023, 2025 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -61,7 +61,7 @@ public class ActionComparer implements DataComparer {
 		}
 	}
 
-	public ClientDataRecord getClientDataRecord() {
+	public ClientDataRecord onlyForTestGetClientDataRecord() {
 		return dataRecord;
 	}
 

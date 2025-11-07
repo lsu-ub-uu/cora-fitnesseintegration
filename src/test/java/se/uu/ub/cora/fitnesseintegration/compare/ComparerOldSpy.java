@@ -24,7 +24,7 @@ import java.util.List;
 import se.uu.ub.cora.json.parser.JsonParseException;
 import se.uu.ub.cora.json.parser.JsonValue;
 
-public class ComparerSpy implements DataComparer {
+public class ComparerOldSpy implements DataComparer {
 
 	public JsonValue jsonValue;
 	public int numberOfErrorsToReturn = 0;

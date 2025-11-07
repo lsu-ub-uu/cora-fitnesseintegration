@@ -1,5 +1,6 @@
 /*
  * Copyright 2020, 2023 Uppsala University Library
+ * Copyright 2025 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -68,7 +69,7 @@ public class PermissionComparer implements DataComparer {
 	}
 
 	private boolean readPermissionIsMissing(String permission) {
-		return !getClientDataRecord().getReadPermissions().contains(permission);
+		return !dataRecord.getReadPermissions().contains(permission);
 	}
 
 	private void addMessagesIfMissingWritePermissions(List<String> errorMessages,
@@ -96,11 +97,10 @@ public class PermissionComparer implements DataComparer {
 	}
 
 	private boolean writePermissionIsMissing(String permission) {
-		return !getClientDataRecord().getWritePermissions().contains(permission);
+		return !dataRecord.getWritePermissions().contains(permission);
 	}
 
-	public ClientDataRecord getClientDataRecord() {
-		// needed for test
+	public ClientDataRecord onlyForTestGetClientDataRecord() {
 		return dataRecord;
 	}
 

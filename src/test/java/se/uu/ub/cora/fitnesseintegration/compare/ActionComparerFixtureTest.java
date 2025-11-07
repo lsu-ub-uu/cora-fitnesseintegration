@@ -1,6 +1,6 @@
 /*
  * Copyright 2020, 2023 Uppsala University Library
- * Copyright 2023 Olov McKie
+ * Copyright 2023, 2025 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -36,6 +36,7 @@ import se.uu.ub.cora.fitnesseintegration.JsonParserSpy;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerOLDSpy;
 import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
+import se.uu.ub.cora.fitnesseintegration.spy.DependencyFactorySpy;
 
 public class ActionComparerFixtureTest {
 
@@ -43,11 +44,12 @@ public class ActionComparerFixtureTest {
 	private JsonParserSpy jsonParser;
 	private JsonHandlerImp jsonHandler;
 	private RecordHandlerOLDSpy recordHandler;
+	private DependencyFactorySpy dependencyFactory;
 
 	@BeforeMethod
 	public void setUp() {
-		DependencyProvider.setComparerFactoryUsingClassName(
-				"se.uu.ub.cora.fitnesseintegration.compare.ComparerFactorySpy");
+		dependencyFactory = new DependencyFactorySpy();
+		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
 		DependencyProvider.setHttpHandlerFactoryClassName(
 				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactoryOldSpy");
 		recordHandler = new RecordHandlerOLDSpy();
@@ -62,7 +64,6 @@ public class ActionComparerFixtureTest {
 	@Test
 	public void testInit() {
 		fixture = new ActionComparerFixture();
-		assertTrue(fixture.getComparerFactory() instanceof ComparerFactorySpy);
 		assertTrue(fixture.onlyForTestGetJsonHandler() instanceof JsonHandlerImp);
 
 		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.onlyForTestGetRecordHandler();
@@ -70,20 +71,17 @@ public class ActionComparerFixtureTest {
 
 	@Test
 	public void testCallsAreMadeCorrectly() {
+		String actions = """
+				{"actions":[ "read", "delete","update"]}""";
 		ClientDataRecordOLDSpy clientClientDataRecordSpy = new ClientDataRecordOLDSpy();
-
 		DataHolder.setRecord(clientClientDataRecordSpy);
-		ComparerFactorySpy comparerFactory = (ComparerFactorySpy) fixture.getComparerFactory();
-		fixture.setActions("{\"actions\":[ \"read\", \"delete\",\"update\"]}");
+		fixture.setActions(actions);
 
 		fixture.testCheckActions();
 
-		assertEquals(comparerFactory.type, "action");
-		assertSame(comparerFactory.dataRecord, clientClientDataRecordSpy);
-
-		ComparerSpy factoredComparer = comparerFactory.factoredComparer;
-		assertEquals(jsonParser.jsonStringsSentToParser.get(0),
-				"{\"actions\":[ \"read\", \"delete\",\"update\"]}");
+		ComparerOldSpy factoredComparer = (ComparerOldSpy) dependencyFactory.MCR
+				.assertCalledParametersReturn("factorActionComparer", clientClientDataRecordSpy);
+		assertEquals(jsonParser.jsonStringsSentToParser.get(0), actions);
 		assertSame(factoredComparer.jsonValue, jsonParser.jsonObjectSpy);
 
 	}
@@ -97,9 +95,12 @@ public class ActionComparerFixtureTest {
 
 	@Test
 	public void testPermissionNotOk() {
+		ComparerOldSpy comparerSpy = new ComparerOldSpy();
+		comparerSpy.type = "action";
+		comparerSpy.numberOfErrorsToReturn = 3;
+		dependencyFactory.MRV.setDefaultReturnValuesSupplier("factorActionComparer",
+				() -> comparerSpy);
 		fixture.setActions("{\"actions\":[ \"read\", \"delete\"]}");
-		ComparerFactorySpy comparerFactory = (ComparerFactorySpy) fixture.getComparerFactory();
-		comparerFactory.numberOfErrorsToReturn = 3;
 
 		String testCheckActions = fixture.testCheckActions();
 
@@ -114,17 +115,13 @@ public class ActionComparerFixtureTest {
 		ClientDataRecord dataRecord = new ClientDataRecordOLDSpy();
 		List<ClientDataRecord> dataRecordList = List.of(dataRecord);
 
-		ComparerFactorySpy comparerFactory = (ComparerFactorySpy) fixture.getComparerFactory();
-
 		DataHolder.setRecordList(dataRecordList);
 		fixture.setActions("{\"actions\":[ \"read\", \"delete\",\"update\"]}");
 		fixture.setListIndexToCompareTo(0);
 		String result = fixture.testCheckActionsFromList();
 
-		assertEquals(comparerFactory.type, "action");
-		assertSame(comparerFactory.dataRecord, dataRecord);
-
-		ComparerSpy factoredComparer = comparerFactory.factoredComparer;
+		ComparerOldSpy factoredComparer = (ComparerOldSpy) dependencyFactory.MCR
+				.assertCalledParametersReturn("factorActionComparer", dataRecord);
 		assertEquals(jsonParser.jsonStringsSentToParser.get(0),
 				"{\"actions\":[ \"read\", \"delete\",\"update\"]}");
 		assertSame(factoredComparer.jsonValue, jsonParser.jsonObjectSpy);
@@ -134,11 +131,13 @@ public class ActionComparerFixtureTest {
 
 	@Test
 	public void testTestCheckActionsFromListPermissionsNotOK() {
+		ComparerOldSpy comparerSpy = new ComparerOldSpy();
+		comparerSpy.type = "action";
+		comparerSpy.numberOfErrorsToReturn = 3;
+		dependencyFactory.MRV.setDefaultReturnValuesSupplier("factorActionComparer",
+				() -> comparerSpy);
 		ClientDataRecord dataRecord = new ClientDataRecordOLDSpy();
 		List<ClientDataRecord> dataRecordList = List.of(dataRecord);
-
-		ComparerFactorySpy comparerFactory = (ComparerFactorySpy) fixture.getComparerFactory();
-		comparerFactory.numberOfErrorsToReturn = 3;
 
 		fixture.setActions("{\"actions\":[ \"read\", \"delete\"]}");
 		DataHolder.setRecordList(dataRecordList);
