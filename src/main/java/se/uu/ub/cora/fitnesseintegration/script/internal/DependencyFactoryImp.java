@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 Uppsala University Library
+ * Copyright 2025 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -18,6 +19,12 @@
  */
 package se.uu.ub.cora.fitnesseintegration.script.internal;
 
+import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.fitnesseintegration.compare.ActionComparer;
+import se.uu.ub.cora.fitnesseintegration.compare.DataComparer;
+import se.uu.ub.cora.fitnesseintegration.compare.PermissionComparer;
+import se.uu.ub.cora.fitnesseintegration.definitionwriter.DefinitionWriter;
+import se.uu.ub.cora.fitnesseintegration.definitionwriter.DefinitionWriterImp;
 import se.uu.ub.cora.fitnesseintegration.internal.ReadAndStoreRecord;
 import se.uu.ub.cora.fitnesseintegration.internal.ReadAndStoreRecordAsJson;
 import se.uu.ub.cora.fitnesseintegration.internal.Waiter;
@@ -42,7 +49,7 @@ public class DependencyFactoryImp implements DependencyFactory {
 	private JavaClientAuthTokenCredentials createCredentials(String authToken) {
 		String baseUrl = addRestPartToUrl(SystemUrl.getUrl());
 		String appTokenVerifierUrl = addRestPartToUrl(SystemUrl.getAppTokenVerifierUrl());
-		return new JavaClientAuthTokenCredentials(baseUrl, appTokenVerifierUrl, authToken);
+		return new JavaClientAuthTokenCredentials(baseUrl, appTokenVerifierUrl, authToken, false);
 	}
 
 	private String addRestPartToUrl(String url) {
@@ -62,6 +69,21 @@ public class DependencyFactoryImp implements DependencyFactory {
 	@Override
 	public Waiter factorWaiter() {
 		return new WaiterImp();
+	}
+
+	@Override
+	public DefinitionWriter factorDefinitionWriter() {
+		return new DefinitionWriterImp();
+	}
+
+	@Override
+	public DataComparer factorPermissionComparer(ClientDataRecord dataRecord) {
+		return new PermissionComparer(dataRecord);
+	}
+
+	@Override
+	public DataComparer factorActionComparer(ClientDataRecord dataRecord) {
+		return new ActionComparer(dataRecord);
 	}
 
 }

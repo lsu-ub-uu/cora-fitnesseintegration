@@ -1,5 +1,4 @@
 /*
- * Copyright 2024 Uppsala University Library
  * Copyright 2025 Olov McKie
  *
  * This file is part of Cora.
@@ -17,29 +16,24 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration.definitionwriter;
+package se.uu.ub.cora.fitnesseintegration.spy;
 
-import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
+import se.uu.ub.cora.fitnesseintegration.definitionwriter.DefinitionWriter;
+import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
+import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 
-public class DefinitionCompareFixture {
+public class DefinitionWriterSpy implements DefinitionWriter {
+	public MethodCallRecorder MCR = new MethodCallRecorder();
+	public MethodReturnValues MRV = new MethodReturnValues();
 
-	private String authToken;
-	private String recordId;
-	private DefinitionWriter writer;
-
-	public void setAuthToken(String authToken) {
-		this.authToken = authToken;
+	public DefinitionWriterSpy() {
+		MCR.useMRV(MRV);
+		MRV.setDefaultReturnValuesSupplier("writeDefinitionUsingRecordId", String::new);
 	}
 
-	public void setRecordId(String recordId) {
-		this.recordId = recordId;
-	}
-
-	public DefinitionCompareFixture() {
-		this.writer = DependencyProvider.factorDefinitionWriter();
-	}
-
-	public String getDefinitionView() {
-		return writer.writeDefinitionUsingRecordId(authToken, recordId);
+	@Override
+	public String writeDefinitionUsingRecordId(String authToken, String metadataId) {
+		return (String) MCR.addCallAndReturnFromMRV("authToken", authToken, "metadataId",
+				metadataId);
 	}
 }

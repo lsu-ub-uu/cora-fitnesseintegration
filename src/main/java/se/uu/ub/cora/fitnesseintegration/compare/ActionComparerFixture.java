@@ -1,6 +1,6 @@
 /*
  * Copyright 2020, 2023 Uppsala University Library
- * Copyright 2023 Olov McKie
+ * Copyright 2023, 2025 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -28,14 +28,11 @@ import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
 import se.uu.ub.cora.json.parser.JsonObject;
 
 public class ActionComparerFixture extends ComparerFixture {
-
-	private ComparerFactory comparerFactory;
 	private String actions;
 	private JsonHandler jsonHandler;
 
 	public ActionComparerFixture() {
 		super();
-		comparerFactory = DependencyProvider.getComparerFactory();
 		jsonHandler = DependencyProvider.getJsonHandler();
 	}
 
@@ -50,7 +47,7 @@ public class ActionComparerFixture extends ComparerFixture {
 	}
 
 	private String checkActions(ClientDataRecord dataRecord) {
-		DataComparer comparer = comparerFactory.factor("action", dataRecord);
+		DataComparer comparer = DependencyProvider.factorActionComparer(dataRecord);
 		JsonObject permissionObject = jsonHandler.parseStringAsObject(actions);
 		List<String> errorMessages = comparer.checkClientDataRecordContains(permissionObject);
 		return errorMessages.isEmpty() ? "OK" : joinErrorMessages(errorMessages);
@@ -58,10 +55,6 @@ public class ActionComparerFixture extends ComparerFixture {
 
 	public void setActions(String actions) {
 		this.actions = actions;
-	}
-
-	public ComparerFactory getComparerFactory() {
-		return comparerFactory;
 	}
 
 	void onlyForTestSetJsonHandler(JsonHandler jsonHandler) {

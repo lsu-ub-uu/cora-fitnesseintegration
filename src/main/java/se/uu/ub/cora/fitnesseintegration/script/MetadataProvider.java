@@ -19,19 +19,21 @@
 package se.uu.ub.cora.fitnesseintegration.script;
 
 import se.uu.ub.cora.fitnesseintegration.definitionwriter.MetadataHolder;
+import se.uu.ub.cora.fitnesseintegration.definitionwriter.MetadataHolderPopulator;
 import se.uu.ub.cora.fitnesseintegration.definitionwriter.MetadataHolderPopulatorImp;
 
 public final class MetadataProvider {
 
 	private static MetadataHolder holder;
 
-	public MetadataProvider() {
+	private MetadataProvider() {
 		super();
 	}
 
 	public static synchronized MetadataHolder getHolder(String authToken) {
 		if (null == holder) {
-			holder = new MetadataHolderPopulatorImp().createAndPopulateHolder(authToken);
+			MetadataHolderPopulator populator = new MetadataHolderPopulatorImp();
+			holder = populator.createAndPopulateHolder(authToken);
 		}
 		return holder;
 	}

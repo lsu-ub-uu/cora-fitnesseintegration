@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 Uppsala University Library
+ * Copyright 2025 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -19,6 +20,9 @@
 
 package se.uu.ub.cora.fitnesseintegration.script.internal;
 
+import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.fitnesseintegration.compare.DataComparer;
+import se.uu.ub.cora.fitnesseintegration.definitionwriter.DefinitionWriter;
 import se.uu.ub.cora.fitnesseintegration.internal.StandardFitnesseMethod;
 import se.uu.ub.cora.fitnesseintegration.internal.Waiter;
 
@@ -47,5 +51,11 @@ public interface DependencyFactory {
 	 * @return
 	 */
 	Waiter factorWaiter();
+
+	DefinitionWriter factorDefinitionWriter();
+
+	DataComparer factorPermissionComparer(ClientDataRecord dataRecord);
+
+	DataComparer factorActionComparer(ClientDataRecord dataRecord);
 
 }

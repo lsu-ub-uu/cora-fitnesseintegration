@@ -1,6 +1,6 @@
 /*
  * Copyright 2020, 2023 Uppsala University Library
- * Copyright 2023 Olov McKie
+ * Copyright 2023, 2025 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -38,6 +38,7 @@ import se.uu.ub.cora.fitnesseintegration.RecordHandlerImp;
 import se.uu.ub.cora.fitnesseintegration.RecordHandlerOLDSpy;
 import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
+import se.uu.ub.cora.fitnesseintegration.spy.DependencyFactorySpy;
 
 public class PermissionComparerFixtureTest {
 
@@ -45,12 +46,13 @@ public class PermissionComparerFixtureTest {
 	private JsonParserSpy jsonParser;
 	private JsonHandlerImp jsonHandler;
 	private RecordHandlerOLDSpy recordHandler;
+	private DependencyFactorySpy dependencyFactory;
 
 	@BeforeMethod
 	public void setUp() {
+		dependencyFactory = new DependencyFactorySpy();
+		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
 		SystemUrl.setUrl("http://localhost:8080/therest/");
-		DependencyProvider.setComparerFactoryUsingClassName(
-				"se.uu.ub.cora.fitnesseintegration.compare.ComparerFactorySpy");
 		DependencyProvider.setHttpHandlerFactoryClassName(
 				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactoryOldSpy");
 
@@ -71,7 +73,6 @@ public class PermissionComparerFixtureTest {
 	@Test
 	public void testInit() {
 		fixture = new PermissionComparerFixture();
-		assertTrue(fixture.getComparerFactory() instanceof ComparerFactorySpy);
 		assertTrue(fixture.onlyForTestGetJsonHandler() instanceof JsonHandlerImp);
 
 		RecordHandlerImp recordHandler = (RecordHandlerImp) fixture.onlyForTestGetRecordHandler();
@@ -86,19 +87,17 @@ public class PermissionComparerFixtureTest {
 		fixture.setPermissions(permissions);
 		fixture.testCheckPermissions();
 
-		ComparerFactorySpy permissionComparerFactory = (ComparerFactorySpy) fixture
-				.getComparerFactory();
-		assertSame(permissionComparerFactory.dataRecord, clientClientDataRecordSpy);
+		ComparerOldSpy factoredComparer = (ComparerOldSpy) dependencyFactory.MCR
+				.assertCalledParametersReturn("factorPermissionComparer",
+						clientClientDataRecordSpy);
 
 		assertEquals(jsonParser.jsonStringsSentToParser.get(0), permissions);
 
-		ComparerSpy factoredComparer = permissionComparerFactory.factoredComparer;
 		assertSame(factoredComparer.jsonValue, jsonParser.jsonObjectSpies.get(0));
 	}
 
 	@Test
 	public void testCheckContainPermissionOk() {
-
 		String permissions = "{\"read\":[\"readPermissionOne\"]}";
 		fixture.setPermissions(permissions);
 		String responseText = fixture.testCheckPermissions();
@@ -107,12 +106,13 @@ public class PermissionComparerFixtureTest {
 
 	@Test
 	public void testCheckPermissionNotOk() {
+		ComparerOldSpy comparerSpy = new ComparerOldSpy();
+		comparerSpy.type = "permission";
+		comparerSpy.numberOfErrorsToReturn = 3;
+		dependencyFactory.MRV.setDefaultReturnValuesSupplier("factorPermissionComparer",
+				() -> comparerSpy);
 		String permissions = "{\"read\":[\"readPermissionOne\"]}";
 		fixture.setPermissions(permissions);
-
-		ComparerFactorySpy permissionComparerFactory = (ComparerFactorySpy) fixture
-				.getComparerFactory();
-		permissionComparerFactory.numberOfErrorsToReturn = 3;
 
 		assertEquals(fixture.testCheckPermissions(),
 				"From spy: permission with number 0 is missing. "
@@ -130,14 +130,15 @@ public class PermissionComparerFixtureTest {
 
 	@Test
 	public void testReadFromListCheckPermissionResultNotOK() {
+		ComparerOldSpy comparerSpy = new ComparerOldSpy();
+		comparerSpy.type = "permission";
+		comparerSpy.numberOfErrorsToReturn = 3;
+		dependencyFactory.MRV.setDefaultReturnValuesSupplier("factorPermissionComparer",
+				() -> comparerSpy);
 		addRecordsToDataHolder();
 		String permissions = "{\"read\":[\"readPermissionOne\"]}";
 		fixture.setPermissions(permissions);
 		fixture.setListIndexToCompareTo(0);
-
-		ComparerFactorySpy permissionComparerFactory = (ComparerFactorySpy) fixture
-				.getComparerFactory();
-		permissionComparerFactory.numberOfErrorsToReturn = 3;
 
 		assertEquals(fixture.testReadFromListCheckPermissions(),
 				"From spy: permission with number 0 is missing. "
@@ -161,23 +162,21 @@ public class PermissionComparerFixtureTest {
 		fixture.setListIndexToCompareTo(0);
 		fixture.testReadFromListCheckPermissions();
 
-		ComparerFactorySpy permissionComparerFactory = (ComparerFactorySpy) fixture
-				.getComparerFactory();
-
 		ClientDataRecordOLDSpy recordSpy = (ClientDataRecordOLDSpy) DataHolder.getRecordList()
 				.get(0);
-		assertSame(permissionComparerFactory.dataRecords.get(0), recordSpy);
 
-		ComparerSpy factoredComparer = permissionComparerFactory.factoredComparers.get(0);
+		ComparerOldSpy factoredComparer = (ComparerOldSpy) dependencyFactory.MCR
+				.assertCalledParametersReturn("factorPermissionComparer", recordSpy);
+
 		assertSame(factoredComparer.jsonValue, jsonParser.jsonObjectSpies.get(0));
 		assertEquals(jsonParser.jsonStringsSentToParser.get(0), permissions);
 
 		fixture.setListIndexToCompareTo(1);
 		fixture.testReadFromListCheckPermissions();
-		ComparerSpy factoredComparer2 = permissionComparerFactory.factoredComparers.get(1);
 		ClientDataRecordOLDSpy recordSpy2 = (ClientDataRecordOLDSpy) DataHolder.getRecordList()
 				.get(1);
-		assertSame(permissionComparerFactory.dataRecords.get(1), recordSpy2);
+		ComparerOldSpy factoredComparer2 = (ComparerOldSpy) dependencyFactory.MCR
+				.assertCalledParametersReturn("factorPermissionComparer", recordSpy2);
 		assertSame(factoredComparer2.jsonValue, jsonParser.jsonObjectSpies.get(1));
 		assertEquals(jsonParser.jsonStringsSentToParser.get(1), permissions);
 
@@ -185,20 +184,17 @@ public class PermissionComparerFixtureTest {
 
 	@Test
 	public void testReadListCheckPermissionComparerThrowsError() {
+		ComparerOldSpy comparerSpy = new ComparerOldSpy();
+		comparerSpy.spyShouldThrowError = true;
+		dependencyFactory.MRV.setDefaultReturnValuesSupplier("factorPermissionComparer",
+				() -> comparerSpy);
 		addRecordsToDataHolder();
 		String permissions = "{\"read\":[\"readPermissionOne\"]}";
 		fixture.setPermissions(permissions);
 		fixture.setListIndexToCompareTo(0);
 
-		ComparerFactorySpy permissionComparerFactory = (ComparerFactorySpy) fixture
-				.getComparerFactory();
-		permissionComparerFactory.spyShouldThrowError = true;
-
 		String responseText = fixture.testReadFromListCheckPermissions();
 
-		ComparerSpy factoredComparer = permissionComparerFactory.factoredComparers.get(0);
-
-		assertEquals(responseText, factoredComparer.errorMessage);
+		assertEquals(responseText, comparerSpy.errorMessage);
 	}
-
 }

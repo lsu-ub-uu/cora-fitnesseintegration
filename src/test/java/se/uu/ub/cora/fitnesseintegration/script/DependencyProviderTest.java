@@ -1,6 +1,6 @@
 /*
  * Copyright 2017, 2023 Uppsala University Library
- * Copyright 2023 Olov McKie
+ * Copyright 2023, 2025 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -25,11 +25,13 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
 import se.uu.ub.cora.fitnesseintegration.ChildComparer;
 import se.uu.ub.cora.fitnesseintegration.ChildComparerImp;
 import se.uu.ub.cora.fitnesseintegration.JsonHandlerImp;
-import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactory;
-import se.uu.ub.cora.fitnesseintegration.compare.ComparerFactoryImp;
+import se.uu.ub.cora.fitnesseintegration.compare.DataComparer;
+import se.uu.ub.cora.fitnesseintegration.definitionwriter.DefinitionWriter;
 import se.uu.ub.cora.fitnesseintegration.internal.Waiter;
 import se.uu.ub.cora.fitnesseintegration.script.internal.DependencyFactory;
 import se.uu.ub.cora.fitnesseintegration.script.internal.DependencyFactoryImp;
@@ -43,12 +45,18 @@ public class DependencyProviderTest {
 	private static final String SOME_TYPE = "someType";
 	private static final String SOME_ID = "someId";
 	private static final String SOME_AUTH_TOKEN = "someAuthToken";
+	private DependencyFactorySpy dependencyFactory;
+
+	private void setupSpy() {
+		dependencyFactory = new DependencyFactorySpy();
+		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
+
+	}
 
 	@AfterMethod
 	private void afterMethod() {
 		DependencyFactory dependencyFactory = new DependencyFactoryImp();
 		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
-
 	}
 
 	@Test
@@ -58,7 +66,7 @@ public class DependencyProviderTest {
 	}
 
 	@Test
-	public void testDependencyFactory() throws Exception {
+	public void testDependencyFactory() {
 		DependencyFactory dependencyFactory = DependencyProvider.onlyForTestGetDependencyFactory();
 		assertTrue(dependencyFactory instanceof DependencyFactoryImp);
 	}
@@ -101,24 +109,8 @@ public class DependencyProviderTest {
 	}
 
 	@Test
-	public void testPermissionComparerFactory() {
-		DependencyProvider.setComparerFactoryUsingClassName(
-				"se.uu.ub.cora.fitnesseintegration.compare.ComparerFactoryImp");
-		ComparerFactory permissionComparerFactory = DependencyProvider.getComparerFactory();
-		assertTrue(permissionComparerFactory instanceof ComparerFactoryImp);
-	}
-
-	@Test(expectedExceptions = RuntimeException.class)
-	public void testPermissionComparerFacatoryNonExistingClassName() {
-		DependencyProvider
-				.setComparerFactoryUsingClassName("se.uu.ub.cora.fitnesse.DoesNotExistImp");
-	}
-
-	@Test
-	public void testFactorReadAndStoreRecord() throws Exception {
-		DependencyFactorySpy dependencyFactory = new DependencyFactorySpy();
-		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
-
+	public void testFactorReadAndStoreRecord() {
+		setupSpy();
 		StandardFitnesseMethodSpy readAndStore = (StandardFitnesseMethodSpy) DependencyProvider
 				.factorReadAndStoreRecord(SOME_AUTH_TOKEN, SOME_TYPE, SOME_ID);
 
@@ -126,10 +118,8 @@ public class DependencyProviderTest {
 	}
 
 	@Test
-	public void testFactorReadAndStoreRecordAsJson() throws Exception {
-		DependencyFactorySpy dependencyFactory = new DependencyFactorySpy();
-		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
-
+	public void testFactorReadAndStoreRecordAsJson() {
+		setupSpy();
 		StandardFitnesseMethodSpy readAndStore = (StandardFitnesseMethodSpy) DependencyProvider
 				.factorReadAndStoreRecordAsJson(SOME_AUTH_TOKEN, SOME_TYPE, SOME_ID);
 
@@ -137,12 +127,38 @@ public class DependencyProviderTest {
 	}
 
 	@Test
-	public void testFactorWaiter() throws Exception {
-		DependencyFactorySpy dependencyFactory = new DependencyFactorySpy();
-		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
-
+	public void testFactorWaiter() {
+		setupSpy();
 		Waiter waiter = DependencyProvider.factorWaiter();
 
 		dependencyFactory.MCR.assertReturn("factorWaiter", 0, waiter);
+	}
+
+	@Test
+	public void testFactorDefinitionWriter() {
+		setupSpy();
+		DefinitionWriter waiter = DependencyProvider.factorDefinitionWriter();
+
+		dependencyFactory.MCR.assertReturn("factorDefinitionWriter", 0, waiter);
+	}
+
+	@Test
+	public void testFactorPermissionComparer() {
+		setupSpy();
+		ClientDataRecord dataRecord = new ClientDataRecordSpy();
+		DataComparer comparer = DependencyProvider.factorPermissionComparer(dataRecord);
+
+		dependencyFactory.MCR.assertCalledParameters("factorPermissionComparer", dataRecord);
+		dependencyFactory.MCR.assertReturn("factorPermissionComparer", 0, comparer);
+	}
+
+	@Test
+	public void testFactorActionComparer() {
+		setupSpy();
+		ClientDataRecord dataRecord = new ClientDataRecordSpy();
+		DataComparer comparer = DependencyProvider.factorActionComparer(dataRecord);
+
+		dependencyFactory.MCR.assertCalledParameters("factorActionComparer", dataRecord);
+		dependencyFactory.MCR.assertReturn("factorActionComparer", 0, comparer);
 	}
 }
