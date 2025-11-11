@@ -18,16 +18,12 @@ import se.uu.ub.cora.clientdata.ClientDataAuthentication;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverter;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
 import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
+import se.uu.ub.cora.fitnesseintegration.script.LoginToken;
 import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 
 public class AuthenticationFixture {
-
-	private static final String FITNESSE_ADMIN = "fitnesseAdmin@system.cora.uu.se";
-	private static final String FITNESSE_ADMIN_APPTOKEN = "29c30232-d514-4559-b60b-6de47175c1df";
-	private static final String FITNESSE_USER = "fitnesseUser@system.cora.uu.se";
-	private static final String FITNESSE_USER_APPTOKEN = "bd699488-f9d1-419d-a79d-9fa8a0f3bb9d";
 	private static final String GET = "GET";
 	private static final String POST = "POST";
 	private static final String DELETE = "DELETE";
@@ -104,10 +100,10 @@ public class AuthenticationFixture {
 
 	private void possiblyGetFitnesseUserApptoken() {
 		if (appToken == null || "".equals(appToken)) {
-			if (FITNESSE_ADMIN.equals(loginId)) {
-				appToken = FITNESSE_ADMIN_APPTOKEN;
-			} else if (FITNESSE_USER.equals(loginId)) {
-				appToken = FITNESSE_USER_APPTOKEN;
+			if (LoginToken.getFitnesseAdminLoginId().equals(loginId)) {
+				appToken = LoginToken.getFitnesseAdminAppToken();
+			} else if (LoginToken.getFitnesseUserLoginId().equals(loginId)) {
+				appToken = LoginToken.getFitnesseUserAppToken();
 			}
 		}
 	}
