@@ -20,6 +20,7 @@ import se.uu.ub.cora.clientdata.spies.ClientDataAuthenticationSpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterSpy;
 import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
+import se.uu.ub.cora.fitnesseintegration.script.LoginToken;
 import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
 import se.uu.ub.cora.httphandler.spies.HttpHandlerFactorySpy;
 import se.uu.ub.cora.httphandler.spies.HttpHandlerSpy;
@@ -28,10 +29,10 @@ public class AuthenticationFixtureTest {
 
 	private static final String BASE_LOGIN_URL = "http://localhost:8080/login/";
 	private static final String IDP_LOGIN_URL = "http://localhost:8380/idplogin/";
-	private static final String FITNESSE_ADMIN_LOGIN_ID = "fitnesseAdmin@system.cora.uu.se";
-	private static final String FITNESSE_ADMIN_APPTOKEN = "29c30232-d514-4559-b60b-6de47175c1df";
-	private static final String FITNESSE_USER_LOGIN_ID = "fitnesseUser@system.cora.uu.se";
-	private static final String FITNESSE_USER_APPTOKEN = "bd699488-f9d1-419d-a79d-9fa8a0f3bb9d";
+	private static final String FITNESSE_ADMIN_LOGIN_ID = "fitnesseAdminLoginId";
+	private static final String FITNESSE_ADMIN_APPTOKEN = "fitnesseAdminToken";
+	private static final String FITNESSE_USER_LOGIN_ID = "fitnesseUserLoginId";
+	private static final String FITNESSE_USER_APPTOKEN = "fitnesseAdminToken";
 	private static final String NEW_LINE = "\n";
 	private static final String GET = "GET";
 	private static final String POST = "POST";
@@ -53,6 +54,11 @@ public class AuthenticationFixtureTest {
 
 	@BeforeMethod
 	public void beforeMethod() {
+		LoginToken.setFitnesseAdminLoginId(FITNESSE_ADMIN_LOGIN_ID);
+		LoginToken.setFitnesseAdminAppToken(FITNESSE_ADMIN_APPTOKEN);
+		LoginToken.setFitnesseUserLoginId(FITNESSE_USER_LOGIN_ID);
+		LoginToken.setFitnesseUserAppToken(FITNESSE_USER_APPTOKEN);
+
 		SystemUrl.setAppTokenVerifierUrl(BASE_LOGIN_URL);
 		SystemUrl.setIdpLoginUrl(IDP_LOGIN_URL);
 		setJsonToClientDataConverterFactory();
