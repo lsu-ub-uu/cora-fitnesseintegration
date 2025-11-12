@@ -40,6 +40,15 @@ public final class SystemUrl {
 		return url;
 	}
 
+	/**
+	 * getRestUrl returns the base rest url to the system under test
+	 * 
+	 * @return The rest url to the system under test
+	 */
+	public static String getRestUrl() {
+		return getUrl() + "rest/";
+	}
+
 	public static synchronized void setTokenVerifierUrl(String url) {
 		tokenVerifierUrl = url;
 	}

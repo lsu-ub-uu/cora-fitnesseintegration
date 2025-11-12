@@ -36,7 +36,7 @@ public class DefinitionCompareFixture {
 	}
 
 	public DefinitionCompareFixture() {
-		this.writer = DependencyProvider.factorDefinitionWriter();
+		writer = DependencyProvider.factorDefinitionWriter();
 	}
 
 	public String getDefinitionView() {

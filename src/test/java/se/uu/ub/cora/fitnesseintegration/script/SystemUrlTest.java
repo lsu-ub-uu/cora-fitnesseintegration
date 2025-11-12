@@ -39,6 +39,12 @@ public class SystemUrlTest {
 	}
 
 	@Test
+	public void testGetRestUrl() {
+		SystemUrl.setUrl("http://localhost:8080/systemone/");
+		assertEquals(SystemUrl.getRestUrl(), "http://localhost:8080/systemone/rest/");
+	}
+
+	@Test
 	public void testGetTokenVerifierUrl() {
 		SystemUrl.setTokenVerifierUrl("http://localhost:8180/tokenverifier/");
 		assertEquals(SystemUrl.getTokenVerifierUrl(), "http://localhost:8180/tokenverifier/");
