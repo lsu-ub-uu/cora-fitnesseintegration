@@ -32,6 +32,7 @@ import se.uu.ub.cora.clientdata.ClientDataProvider;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecordLink;
+import se.uu.ub.cora.fitnesseintegration.cache.MetadataHolder;
 import se.uu.ub.cora.fitnesseintegration.script.MetadataProvider;
 
 public class DefinitionWriterImp implements DefinitionWriter {

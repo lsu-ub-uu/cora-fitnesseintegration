@@ -1,4 +1,4 @@
-package se.uu.ub.cora.fitnesseintegration.definitionwriter;
+package se.uu.ub.cora.fitnesseintegration.cache;
 
 import static org.testng.Assert.assertEquals;
 
@@ -7,6 +7,7 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
+import se.uu.ub.cora.fitnesseintegration.cache.MetadataHolderImp;
 
 public class MetadataHolderTest {
 

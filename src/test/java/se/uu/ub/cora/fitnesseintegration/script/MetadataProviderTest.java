@@ -24,7 +24,7 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.fitnesseintegration.definitionwriter.MetadataHolder;
+import se.uu.ub.cora.fitnesseintegration.cache.MetadataHolder;
 import se.uu.ub.cora.fitnesseintegration.spy.DataClientSpy;
 import se.uu.ub.cora.fitnesseintegration.spy.JavaClientFactorySpy;
 import se.uu.ub.cora.fitnesseintegration.spy.MetadataHolderSpy;

@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration.definitionwriter;
+package se.uu.ub.cora.fitnesseintegration.cache;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -30,6 +30,8 @@ import org.testng.annotations.Test;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.spies.ClientDataListSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
+import se.uu.ub.cora.fitnesseintegration.cache.MetadataHolder;
+import se.uu.ub.cora.fitnesseintegration.cache.MetadataHolderPopulatorImp;
 import se.uu.ub.cora.fitnesseintegration.spy.DataClientSpy;
 import se.uu.ub.cora.fitnesseintegration.spy.JavaClientFactorySpy;
 import se.uu.ub.cora.javaclient.JavaClientProvider;

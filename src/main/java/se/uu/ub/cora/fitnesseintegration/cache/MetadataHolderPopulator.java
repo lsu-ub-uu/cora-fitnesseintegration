@@ -1,4 +1,4 @@
-package se.uu.ub.cora.fitnesseintegration.definitionwriter;
+package se.uu.ub.cora.fitnesseintegration.cache;
 
 public interface MetadataHolderPopulator {
 

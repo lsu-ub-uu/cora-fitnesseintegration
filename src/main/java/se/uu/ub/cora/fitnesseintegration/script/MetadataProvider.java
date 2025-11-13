@@ -18,9 +18,9 @@
  */
 package se.uu.ub.cora.fitnesseintegration.script;
 
-import se.uu.ub.cora.fitnesseintegration.definitionwriter.MetadataHolder;
-import se.uu.ub.cora.fitnesseintegration.definitionwriter.MetadataHolderPopulator;
-import se.uu.ub.cora.fitnesseintegration.definitionwriter.MetadataHolderPopulatorImp;
+import se.uu.ub.cora.fitnesseintegration.cache.MetadataHolder;
+import se.uu.ub.cora.fitnesseintegration.cache.MetadataHolderPopulator;
+import se.uu.ub.cora.fitnesseintegration.cache.MetadataHolderPopulatorImp;
 
 public final class MetadataProvider {
 

@@ -57,6 +57,13 @@ public class SystemUrlTest {
 	}
 
 	@Test
+	public void testGetAppTokenVerifierRestUrl() {
+		SystemUrl.setAppTokenVerifierUrl("http://localhost:8180/apptokenverifier/");
+		assertEquals(SystemUrl.getAppTokenVerifierRestUrl(),
+				"http://localhost:8180/apptokenverifier/rest/");
+	}
+
+	@Test
 	public void testGetIdpLoginUrl() {
 		SystemUrl.setIdpLoginUrl("http://localhost:8380/idplogin/");
 		assertEquals(SystemUrl.getIdpLoginUrl(), "http://localhost:8380/idplogin/");

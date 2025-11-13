@@ -65,6 +65,10 @@ public final class SystemUrl {
 		return appTokenVerifierUrl;
 	}
 
+	public static String getAppTokenVerifierRestUrl() {
+		return getAppTokenVerifierUrl() + "rest/";
+	}
+
 	public static void setIdpLoginUrl(String urlIn) {
 		idpLoginUrl = urlIn;
 	}
