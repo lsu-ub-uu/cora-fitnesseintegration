@@ -29,13 +29,6 @@ import se.uu.ub.cora.javaclient.data.DataClient;
 
 /**
  * FitnesseJavaClientProvider provides javaclients for use in fitnesse.
- * <p>
- * For testing, as this class uses JavaClientProvider, mock the factory method for it:
- * 
- * <code>
-   JavaClientFactorySpy clientFactory = new JavaClientFactorySpy();
-   JavaClientProvider.onlyForTestSetJavaClientFactory(clientFactory);
- </code>
  * 
  */
 public class FitnesseJavaClientProvider {
@@ -50,15 +43,6 @@ public class FitnesseJavaClientProvider {
 	 * returns a DataClient for fitnesseAdmin, if first call one is created, later calls returns the
 	 * same one. This is created with information from SystemUrl and LoginToken, and keept logged
 	 * in.
-	 * <p>
-	 * 
-	 * For testing, as this class uses JavaClientProvider, mock the factory method for it: <code>
-	   JavaClientFactorySpy clientFactory = new JavaClientFactorySpy();
-		JavaClientProvider.onlyForTestSetJavaClientFactory(clientFactory);
-		DataClientSpy client = new DataClientSpy();
-		clientFactory.MRV.setDefaultReturnValuesSupplier(
-				"factorDataClientUsingJavaClientAppTokenCredentials", () -> client);
-	 </code>
 	 * 
 	 * @return A DataClient for fitnesseAdmin
 	 */
@@ -80,6 +64,10 @@ public class FitnesseJavaClientProvider {
 	 */
 	public static void removeAllCreateClients() {
 		clients = new HashMap<>();
+	}
+
+	public static void onlyForTestSetClient(String id, DataClient spyClient) {
+		clients.put(id, spyClient);
 	}
 
 }

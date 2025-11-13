@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.fitnesseintegration.script.LoginToken;
 import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
+import se.uu.ub.cora.fitnesseintegration.spy.DataClientSpy;
 import se.uu.ub.cora.fitnesseintegration.spy.JavaClientFactorySpy;
 import se.uu.ub.cora.javaclient.JavaClientAppTokenCredentials;
 import se.uu.ub.cora.javaclient.JavaClientProvider;
@@ -86,6 +87,16 @@ public class FitnesseJavaClientProviderTest {
 
 		clientFactory.MCR.assertNumberOfCallsToMethod(FACTOR_DATA_CLIENT_METHOD_NAME, 1);
 		assertSame(client2, client);
+	}
+
+	@Test
+	public void onlyForTestSetClient() throws Exception {
+		DataClientSpy spyClient = new DataClientSpy();
+		FitnesseJavaClientProvider.onlyForTestSetClient(
+				FitnesseJavaClientProvider.FITNESSE_ADMIN_JAVA_CLIENT, spyClient);
+
+		DataClient client = FitnesseJavaClientProvider.getFitnesseAdminDataClient();
+		assertSame(spyClient, client);
 	}
 
 	private void assertReturnedClientIsFromClientProvider(DataClient client) {

@@ -31,33 +31,35 @@ import se.uu.ub.cora.fitnesseintegration.spy.DataClientSpy;
 
 public class RecordTypeProviderTest {
 	private DataClientSpy client;
+	private List<ClientDataRecordSpy> listOfDataRecords;
 
 	@BeforeMethod
 	public void beforeMethod() {
 		setUpUserProviderToReturnClientSpy();
-		List<ClientDataRecordSpy> list = createListOfRecordTypes();
-		client.MRV.setSpecificReturnValuesSupplier("readList", () -> list, "someRecordType");
+		createListOfRecordTypes();
+		client.MRV.setSpecificReturnValuesSupplier("readList", () -> listOfDataRecords,
+				"someRecordType");
 	}
 
 	private List<ClientDataRecordSpy> createListOfRecordTypes() {
-		List<ClientDataRecordSpy> list = new ArrayList<>();
-		String recordTypeId = "someRecordType";
+		listOfDataRecords = new ArrayList<>();
+		createAndAddRecordToListToBeReturned("someRecordType");
+		createAndAddRecordToListToBeReturned("otherRecordType");
+		return listOfDataRecords;
+	}
 
-		ClientDataRecordSpy record = new ClientDataRecordSpy();
-		record.MRV.setDefaultReturnValuesSupplier("getId", () -> recordTypeId);
+	private void createAndAddRecordToListToBeReturned(String recordTypeId) {
+		ClientDataRecordSpy dataRecord = new ClientDataRecordSpy();
+		dataRecord.MRV.setDefaultReturnValuesSupplier("getId", () -> recordTypeId);
 		ClientDataRecordGroupSpy recordGroup = new ClientDataRecordGroupSpy();
-		recordGroup.MRV.list.add(record);
-		return list;
+		recordGroup.MRV.setDefaultReturnValuesSupplier("getId", () -> recordTypeId);
+		listOfDataRecords.add(dataRecord);
 	}
 
 	private void setUpUserProviderToReturnClientSpy() {
-		// JavaClientFactorySpy clientFactory = new JavaClientFactorySpy();
-		// JavaClientProvider.onlyForTestSetJavaClientFactory(clientFactory);
 		client = new DataClientSpy();
 		FitnesseJavaClientProvider.onlyForTestSetClient(
 				FitnesseJavaClientProvider.FITNESSE_ADMIN_JAVA_CLIENT, client);
-		// clientFactory.MRV.setDefaultReturnValuesSupplier(
-		// "factorDataClientUsingJavaClientAppTokenCredentials", () -> client);
 	}
 
 	@Test
