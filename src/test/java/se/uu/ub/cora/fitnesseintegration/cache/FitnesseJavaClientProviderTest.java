@@ -90,7 +90,7 @@ public class FitnesseJavaClientProviderTest {
 	}
 
 	@Test
-	public void onlyForTestSetClient() throws Exception {
+	public void onlyForTestSetClient() {
 		DataClientSpy spyClient = new DataClientSpy();
 		FitnesseJavaClientProvider.onlyForTestSetClient(
 				FitnesseJavaClientProvider.FITNESSE_ADMIN_JAVA_CLIENT, spyClient);

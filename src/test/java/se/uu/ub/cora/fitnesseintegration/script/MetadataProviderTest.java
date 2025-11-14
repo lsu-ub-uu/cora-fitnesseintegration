@@ -21,19 +21,16 @@ package se.uu.ub.cora.fitnesseintegration.script;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.fitnesseintegration.cache.FitnesseJavaClientProvider;
 import se.uu.ub.cora.fitnesseintegration.cache.MetadataHolder;
 import se.uu.ub.cora.fitnesseintegration.spy.DataClientSpy;
-import se.uu.ub.cora.fitnesseintegration.spy.JavaClientFactorySpy;
 import se.uu.ub.cora.fitnesseintegration.spy.MetadataHolderSpy;
-import se.uu.ub.cora.javaclient.JavaClientProvider;
 
 public class MetadataProviderTest {
-
-	private static final String SOME_AUTH_TOKEN = "someToken";
-	private JavaClientFactorySpy javaClientFactory;
 	private DataClientSpy dataClient;
 
 	@BeforeMethod
@@ -42,41 +39,40 @@ public class MetadataProviderTest {
 		setupDataClient();
 	}
 
+	@AfterMethod
+	public void afterMethod() {
+		FitnesseJavaClientProvider.removeAllCreateClients();
+	}
+
+	private void setupDataClient() {
+		dataClient = new DataClientSpy();
+		FitnesseJavaClientProvider.onlyForTestSetClient(
+				FitnesseJavaClientProvider.FITNESSE_ADMIN_JAVA_CLIENT, dataClient);
+	}
+
 	@Test
 	public void testHolderPopulated() {
-		MetadataHolder holder = MetadataProvider.getHolder(SOME_AUTH_TOKEN);
-		javaClientFactory.MCR
-				.assertMethodWasCalled("factorDataClientUsingJavaClientAuthTokenCredentials");
+		MetadataHolder holder = MetadataProvider.getHolder();
 		assertTrue(holder instanceof MetadataHolder);
 	}
 
 	@Test
 	public void testGetHolderTwicePopulateOnlyOnce() {
-		MetadataHolder holder = MetadataProvider.getHolder(SOME_AUTH_TOKEN);
-		MetadataProvider.getHolder(SOME_AUTH_TOKEN);
+		MetadataHolder holder = MetadataProvider.getHolder();
+		MetadataProvider.getHolder();
 
 		assertTrue(holder instanceof MetadataHolder);
-		javaClientFactory.MCR.assertNumberOfCallsToMethod(
-				"factorDataClientUsingJavaClientAuthTokenCredentials", 1);
+		dataClient.MCR.assertNumberOfCallsToMethod("readList", 1);
 	}
 
 	@Test
 	public void testOnlyForTestHolder() {
 		MetadataHolderSpy holder = new MetadataHolderSpy();
 		MetadataProvider.onlyForTestSetHolder(holder);
-		MetadataHolder fetchedHolder = MetadataProvider.getHolder(SOME_AUTH_TOKEN);
+		MetadataHolder fetchedHolder = MetadataProvider.getHolder();
 
-		javaClientFactory.MCR.assertNumberOfCallsToMethod(
-				"factorDataClientUsingJavaClientAuthTokenCredentials", 0);
+		dataClient.MCR.assertNumberOfCallsToMethod("readList", 0);
 		assertEquals(fetchedHolder, holder);
-	}
-
-	private void setupDataClient() {
-		javaClientFactory = new JavaClientFactorySpy();
-		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
-		dataClient = new DataClientSpy();
-		javaClientFactory.MRV.setDefaultReturnValuesSupplier(
-				"factorDataClientUsingJavaClientAuthTokenCredentials", () -> dataClient);
 	}
 
 }

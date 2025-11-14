@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Uppsala University Library
+ * Copyright 2024, 2025 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -30,17 +30,11 @@ import org.testng.annotations.Test;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.spies.ClientDataListSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
-import se.uu.ub.cora.fitnesseintegration.cache.MetadataHolder;
-import se.uu.ub.cora.fitnesseintegration.cache.MetadataHolderPopulatorImp;
 import se.uu.ub.cora.fitnesseintegration.spy.DataClientSpy;
-import se.uu.ub.cora.fitnesseintegration.spy.JavaClientFactorySpy;
-import se.uu.ub.cora.javaclient.JavaClientProvider;
 
 public class MetadataHolderPopulatorTest {
 
 	private static final String SOME_ID = "someId";
-	private static final String AUTH_TOKEN = "someAuthToken";
-	private JavaClientFactorySpy javaClientFactory;
 	private DataClientSpy dataClient;
 	private MetadataHolderPopulatorImp populator;
 	private ClientDataRecordSpy dataRecord;
@@ -52,30 +46,10 @@ public class MetadataHolderPopulatorTest {
 		populator = new MetadataHolderPopulatorImp();
 	}
 
-	@Test
-	public void testDataClientIsFactored() {
-		populator.createAndPopulateHolder(AUTH_TOKEN);
-		javaClientFactory.MCR
-				.assertMethodWasCalled("factorDataClientUsingJavaClientAuthTokenCredentials");
-		assertEquals(dataClient, populator.onlyForTestGetDataClient());
-	}
-
-	@Test
-	public void testCreateAndPopulateHolder() {
-		MetadataHolder metadataHolder = populator.createAndPopulateHolder(AUTH_TOKEN);
-
-		dataClient.MCR.assertMethodWasCalled("readList");
-		assertNotNull(metadataHolder);
-		ClientDataRecord fetchedRecord = metadataHolder.getDataRecordById(SOME_ID);
-		assertEquals(fetchedRecord, dataRecord);
-	}
-
 	private void setupDataClient() {
-		javaClientFactory = new JavaClientFactorySpy();
-		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
 		dataClient = new DataClientSpy();
-		javaClientFactory.MRV.setDefaultReturnValuesSupplier(
-				"factorDataClientUsingJavaClientAuthTokenCredentials", () -> dataClient);
+		FitnesseJavaClientProvider.onlyForTestSetClient(
+				FitnesseJavaClientProvider.FITNESSE_ADMIN_JAVA_CLIENT, dataClient);
 	}
 
 	private void setupClientDataList() {
@@ -87,6 +61,21 @@ public class MetadataHolderPopulatorTest {
 		clientDataListSpy.MRV.setDefaultReturnValuesSupplier("getDataList", () -> dataList);
 		dataClient.MRV.setSpecificReturnValuesSupplier("readList", () -> clientDataListSpy,
 				"metadata");
+	}
+
+	@Test
+	public void testDataClientIsFactored() {
+		populator.createAndPopulateHolder();
+	}
+
+	@Test
+	public void testCreateAndPopulateHolder() {
+		MetadataHolder metadataHolder = populator.createAndPopulateHolder();
+
+		dataClient.MCR.assertMethodWasCalled("readList");
+		assertNotNull(metadataHolder);
+		ClientDataRecord fetchedRecord = metadataHolder.getDataRecordById(SOME_ID);
+		assertEquals(fetchedRecord, dataRecord);
 	}
 
 }

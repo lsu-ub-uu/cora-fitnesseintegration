@@ -84,7 +84,7 @@ public class DefinitionWriterTest {
 
 	@Test
 	public void testWriteOneGroupOnlyNameInData() {
-		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(RECORD_ID);
 
 		metadataHolder.MCR.assertParameters("getDataRecordById", 0, RECORD_ID);
 		String expectedDefinition = """
@@ -101,7 +101,7 @@ public class DefinitionWriterTest {
 				CHILD_GROUP_N_I_D, GROUP_TYPE);
 		createRecordInStorageAndAddDataRecordGroup(LINKED_CHILD_GROUP_ID, someChildGroup);
 
-		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(RECORD_ID);
 
 		metadataHolder.MCR.assertNumberOfCallsToMethod("getDataRecordById", 2);
 		metadataHolder.MCR.assertParameters("getDataRecordById", 0, RECORD_ID);
@@ -121,7 +121,7 @@ public class DefinitionWriterTest {
 				CHILD_GROUP_N_I_D, GROUP_TYPE);
 		createRecordInStorageAndAddDataRecordGroup(LINKED_CHILD_GROUP_ID, someChildGroup);
 
-		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(RECORD_ID);
 
 		String expectedDefinition = """
 				someRootGroup (group)
@@ -139,7 +139,7 @@ public class DefinitionWriterTest {
 				CHILD_GROUP_N_I_D, GROUP_TYPE);
 		createRecordInStorageAndAddDataRecordGroup(LINKED_CHILD_GROUP_ID, someChildGroup);
 
-		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(RECORD_ID);
 
 		String expectedDefinition = """
 				someRootGroup (group)
@@ -177,7 +177,7 @@ public class DefinitionWriterTest {
 				someChildGroup);
 		addChildReferenceListToChildReferencesGroup(childReferencesGroup2, childRefs2);
 
-		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(RECORD_ID);
 
 		String expectedDefinition = """
 				someRootGroup (group)
@@ -211,7 +211,7 @@ public class DefinitionWriterTest {
 				someChildGroup);
 		addChildReferenceListToChildReferencesGroup(childReferencesGroup2, childRefs2);
 
-		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(RECORD_ID);
 
 		String expectedDefinition = """
 				someRootGroup (group)
@@ -247,7 +247,7 @@ public class DefinitionWriterTest {
 				someChildGroup);
 		addChildReferenceListToChildReferencesGroup(childReferencesGroup2, childRefs2);
 
-		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(RECORD_ID);
 
 		String expectedDefinition = """
 				someRootGroup (group)
@@ -262,7 +262,7 @@ public class DefinitionWriterTest {
 		ClientDataRecordLinkSpy attributeRefLink2 = createAttributeWithFinalValue("someAttribute2");
 		addAttributesToDataRecordGroup(dataRecordGroup, attributeRefLink1, attributeRefLink2);
 
-		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(RECORD_ID);
 
 		metadataHolder.MCR.assertNumberOfCallsToMethod("getDataRecordById", 3);
 		metadataHolder.MCR.assertParameters("getDataRecordById", 0, RECORD_ID);
@@ -280,7 +280,7 @@ public class DefinitionWriterTest {
 
 		addAttributesToDataRecordGroup(dataRecordGroup, attributeRefLink1);
 
-		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(RECORD_ID);
 
 		metadataHolder.MCR.assertNumberOfCallsToMethod("getDataRecordById", 5);
 		metadataHolder.MCR.assertParameters("getDataRecordById", 0, RECORD_ID);
@@ -311,7 +311,7 @@ public class DefinitionWriterTest {
 
 		addAttributesToDataRecordGroup(someChildGroup, attributeRefLink1);
 
-		String definition = writer.writeDefinitionUsingRecordId(authToken, RECORD_ID);
+		String definition = writer.writeDefinitionUsingRecordId(RECORD_ID);
 
 		metadataHolder.MCR.assertNumberOfCallsToMethod("getDataRecordById", 6);
 		metadataHolder.MCR.assertParameters("getDataRecordById", 0, RECORD_ID);

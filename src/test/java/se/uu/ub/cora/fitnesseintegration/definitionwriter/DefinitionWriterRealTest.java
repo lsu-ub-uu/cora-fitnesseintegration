@@ -36,7 +36,7 @@ public class DefinitionWriterRealTest {
 		SystemUrl.setUrl(baseUrl);
 		SystemUrl.setAppTokenVerifierUrl(apptokenUrl);
 		writer = new DefinitionWriterImp();
-		String definition = writer.writeDefinitionUsingRecordId(authToken, "binaryGroup");
+		String definition = writer.writeDefinitionUsingRecordId("binaryGroup");
 		System.out.println(definition);
 	}
 }

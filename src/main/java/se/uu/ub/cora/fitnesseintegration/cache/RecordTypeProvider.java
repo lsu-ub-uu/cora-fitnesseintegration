@@ -18,16 +18,58 @@
  */
 package se.uu.ub.cora.fitnesseintegration.cache;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import se.uu.ub.cora.clientdata.ClientData;
+import se.uu.ub.cora.clientdata.ClientDataList;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.javaclient.data.DataClient;
 
 public class RecordTypeProvider {
+	private static Map<String, ClientDataRecordGroup> recordGroupMap = new HashMap<>();
 
-	public static ClientDataRecordGroup getRecordTypeRecordGroup(String id) {
-		DataClient client = FitnesseJavaClientProvider.getFitnesseAdminDataClient();
-		client.readList(id);
-
-		return null;
+	private RecordTypeProvider() {
+		throw new UnsupportedOperationException();
 	}
 
+	public static ClientDataRecordGroup getRecordGroup(String id) {
+		possiblyLoadRecordTypesFromServer();
+		return recordGroupMap.get(id);
+	}
+
+	private static void possiblyLoadRecordTypesFromServer() {
+		if (recordTypesNotLoaded()) {
+			loadRecordTypesFromServer();
+		}
+	}
+
+	private static boolean recordTypesNotLoaded() {
+		return recordGroupMap.size() == 0;
+	}
+
+	private static void loadRecordTypesFromServer() {
+		List<ClientData> listOfRecords = loadListOfRecordTypesFromServer();
+		for (ClientData recordItem : listOfRecords) {
+			ClientDataRecord clientDataRecord = (ClientDataRecord) recordItem;
+			recordGroupMap.put(clientDataRecord.getId(), clientDataRecord.getDataRecordGroup());
+		}
+	}
+
+	private static List<ClientData> loadListOfRecordTypesFromServer() {
+		DataClient client = FitnesseJavaClientProvider.getFitnesseAdminDataClient();
+		ClientDataList dataList = client.readList("recordType");
+		return dataList.getDataList();
+	}
+
+	public static void resetInternalHolder() {
+		recordGroupMap = new HashMap<>();
+	}
+
+	public static void onlyForTestAddRecordGroupToInternalMap(String id,
+			ClientDataRecordGroup clientDataRecordGroup) {
+		recordGroupMap.put(id, clientDataRecordGroup);
+	}
 }

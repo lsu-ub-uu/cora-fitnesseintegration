@@ -23,13 +23,11 @@ public interface DefinitionWriter {
 	 * writeDefinitionUsingRecordId creates a definition for the specified metadataId, in tabbed
 	 * format similar to the one that jsClient makes, to be able to easily compare one from
 	 * jsClient.
-	 * 
-	 * @param authToken
-	 *            a String with an authToken
 	 * @param metadataId
 	 *            a String with the metadata id to create a definition for
+	 * 
 	 * @return A String with a tab indented definition for the specified metadataId
 	 */
-	String writeDefinitionUsingRecordId(String authToken, String metadataId);
+	String writeDefinitionUsingRecordId(String metadataId);
 
 }

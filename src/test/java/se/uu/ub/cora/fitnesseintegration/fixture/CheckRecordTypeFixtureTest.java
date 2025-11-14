@@ -18,27 +18,20 @@
  */
 package se.uu.ub.cora.fitnesseintegration.fixture;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.ClientDataRecordLink;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordGroupSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordLinkSpy;
-import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
+import se.uu.ub.cora.fitnesseintegration.cache.RecordTypeProvider;
 import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
-import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
-import se.uu.ub.cora.fitnesseintegration.spy.DataClientSpy;
 import se.uu.ub.cora.fitnesseintegration.spy.DefinitionWriterSpy;
 import se.uu.ub.cora.fitnesseintegration.spy.DependencyFactorySpy;
-import se.uu.ub.cora.fitnesseintegration.spy.JavaClientFactorySpy;
-import se.uu.ub.cora.javaclient.JavaClientAuthTokenCredentials;
-import se.uu.ub.cora.javaclient.JavaClientProvider;
 
 public class CheckRecordTypeFixtureTest {
-
-	private static final String NO_VALID_TOKEN = "noValidToken";
 	private CheckRecordTypeFixture fixture;
-	private JavaClientFactorySpy clientFactory;
 	private DependencyFactorySpy dependencyFactory;
 
 	@BeforeMethod
@@ -46,63 +39,48 @@ public class CheckRecordTypeFixtureTest {
 		dependencyFactory = new DependencyFactorySpy();
 		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
 
-		clientFactory = new JavaClientFactorySpy();
-		JavaClientProvider.onlyForTestSetJavaClientFactory(clientFactory);
-	}
+		ClientDataRecordGroupSpy recordGroup = new ClientDataRecordGroupSpy();
+		recordGroup.MRV.setDefaultReturnValuesSupplier("getId", () -> "someId");
 
-	@Test
-	public void testInit() {
+		ClientDataRecordGroupSpy dataRecordGroup = createClientDataRecordGroup();
+		RecordTypeProvider.onlyForTestAddRecordGroupToInternalMap("someId", dataRecordGroup);
+
 		fixture = new CheckRecordTypeFixture();
-
-		clientFactory.MCR
-				.assertMethodWasCalled("factorDataClientUsingJavaClientAuthTokenCredentials");
-		JavaClientAuthTokenCredentials credentials = new JavaClientAuthTokenCredentials(
-				SystemUrl.getRestUrl(), "no renew url", NO_VALID_TOKEN, false);
-		clientFactory.MCR.assertParameterAsEqual(
-				"factorDataClientUsingJavaClientAuthTokenCredentials", 0,
-				"javaClientAuthTokenCredentials", credentials);
-
-		DataClientSpy client = (DataClientSpy) clientFactory.MCR
-				.getReturnValue("factorDataClientUsingJavaClientAuthTokenCredentials", 0);
-
 	}
 
-	@Test
-	public void testAssertDefinitionIs() {
-		DataClientSpy dataClient = setUpDataClient();
+	@AfterMethod
+	public void afterMethod() {
+		RecordTypeProvider.resetInternalHolder();
+	}
+
+	private ClientDataRecordGroupSpy createClientDataRecordGroup() {
 		ClientDataRecordGroupSpy dataRecordGroup = new ClientDataRecordGroupSpy();
-
-		ClientDataRecordSpy dataRecord = new ClientDataRecordSpy();
-		dataRecord.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup", () -> dataRecordGroup);
-
-		dataClient.MRV.setDefaultReturnValuesSupplier("read", () -> dataRecord);
-
 		ClientDataRecordLinkSpy metadataLink = new ClientDataRecordLinkSpy();
 		metadataLink.MRV.setDefaultReturnValuesSupplier("getLinkedRecordId",
 				() -> "someDefinitionGroup");
 		dataRecordGroup.MRV.setSpecificReturnValuesSupplier("getFirstChildOfTypeAndName",
 				() -> metadataLink, ClientDataRecordLink.class, "metadataId");
+		return dataRecordGroup;
+	}
 
-		fixture = new CheckRecordTypeFixture();
+	@Test
+	public void testAssertDefinitionIs() {
 		fixture.setId("someId");
 
 		String definition = fixture.assertDefinitionIs();
 
-		dataClient.MCR.assertCalledParameters("read", "recordType", "someId");
-
 		DefinitionWriterSpy writer = (DefinitionWriterSpy) dependencyFactory.MCR
 				.getReturnValue("factorDefinitionWriter", 0);
 
-		writer.MCR.assertCalledParametersReturn("writeDefinitionUsingRecordId", NO_VALID_TOKEN,
+		writer.MCR.assertCalledParametersReturn("writeDefinitionUsingRecordId",
 				"someDefinitionGroup");
 		writer.MCR.assertReturn("writeDefinitionUsingRecordId", 0, definition);
-
 	}
+	// idSource (userSupplied/timestamp/sequence)
+	// public (false/true)
+	// usePermissionUnit (false/true)
+	// useVisibility (false/true)
+	// useTrashBin (false/true)
+	// storeInArchive (false/true)
 
-	private DataClientSpy setUpDataClient() {
-		DataClientSpy dataClient = new DataClientSpy();
-		clientFactory.MRV.setDefaultReturnValuesSupplier(
-				"factorDataClientUsingJavaClientAuthTokenCredentials", () -> dataClient);
-		return dataClient;
-	}
 }

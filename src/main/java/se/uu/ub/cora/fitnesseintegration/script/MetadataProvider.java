@@ -30,10 +30,10 @@ public final class MetadataProvider {
 		super();
 	}
 
-	public static synchronized MetadataHolder getHolder(String authToken) {
+	public static synchronized MetadataHolder getHolder() {
 		if (null == holder) {
 			MetadataHolderPopulator populator = new MetadataHolderPopulatorImp();
-			holder = populator.createAndPopulateHolder(authToken);
+			holder = populator.createAndPopulateHolder();
 		}
 		return holder;
 	}
