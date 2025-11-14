@@ -39,7 +39,7 @@ import se.uu.ub.cora.clientdata.spies.ClientDataRecordGroupSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
 import se.uu.ub.cora.fitnesseintegration.spy.DataClientSpy;
 
-public class RecordTypeProviderTest {
+public class ValidationTypeProviderTest {
 	private DataClientSpy client;
 	private ClientDataListSpy clientDataList;
 	private List<ClientData> listOfDataRecords;
@@ -47,22 +47,23 @@ public class RecordTypeProviderTest {
 	@BeforeMethod
 	public void beforeMethod() {
 		setUpUserProviderToReturnClientSpy();
-		createListOfRecordTypes();
-		client.MRV.setSpecificReturnValuesSupplier("readList", () -> clientDataList, "recordType");
+		createListOfValidationTypes();
+		client.MRV.setSpecificReturnValuesSupplier("readList", () -> clientDataList,
+				"validationType");
 	}
 
 	@AfterMethod
 	public void afterMethod() {
-		RecordTypeProvider.resetInternalHolder();
+		ValidationTypeProvider.resetInternalHolder();
 		FitnesseJavaClientProvider.removeAllCreateClients();
 	}
 
-	private void createListOfRecordTypes() {
+	private void createListOfValidationTypes() {
 		clientDataList = new ClientDataListSpy();
 		listOfDataRecords = new ArrayList<>();
 		clientDataList.MRV.setDefaultReturnValuesSupplier("getDataList", () -> listOfDataRecords);
-		createAndAddRecordToListToBeReturned("someRecordType");
-		createAndAddRecordToListToBeReturned("otherRecordType");
+		createAndAddRecordToListToBeReturned("someValidationType");
+		createAndAddRecordToListToBeReturned("otherValidationType");
 	}
 
 	private void createAndAddRecordToListToBeReturned(String recordTypeId) {
@@ -84,14 +85,14 @@ public class RecordTypeProviderTest {
 
 	@Test
 	public void testPrivateConstructor() throws Exception {
-		Constructor<RecordTypeProvider> constructor = RecordTypeProvider.class
+		Constructor<ValidationTypeProvider> constructor = ValidationTypeProvider.class
 				.getDeclaredConstructor();
 		assertTrue(Modifier.isPrivate(constructor.getModifiers()));
 	}
 
 	@Test(expectedExceptions = InvocationTargetException.class)
 	public void testPrivateConstructorInvoke() throws Exception {
-		Constructor<RecordTypeProvider> constructor = RecordTypeProvider.class
+		Constructor<ValidationTypeProvider> constructor = ValidationTypeProvider.class
 				.getDeclaredConstructor();
 		assertTrue(Modifier.isPrivate(constructor.getModifiers()));
 		constructor.setAccessible(true);
@@ -100,26 +101,26 @@ public class RecordTypeProviderTest {
 
 	@Test
 	public void testGetRecordGroup() {
-		String id = "someRecordType";
+		String id = "someValidationType";
 
-		ClientDataRecordGroup recordType = RecordTypeProvider.getRecordGroup(id);
+		ClientDataRecordGroup validationType = ValidationTypeProvider.getRecordGroup(id);
 
 		client.MCR.assertNumberOfCallsToMethod("readList", 1);
-		client.MCR.assertParameters("readList", 0, "recordType");
-		assertEquals(recordType.getId(), id);
+		client.MCR.assertParameters("readList", 0, "validationType");
+		assertEquals(validationType.getId(), id);
 	}
 
 	@Test
 	public void testGetRecordGroup_readTwoMakeSureOnlyLoadedOnce() {
-		String id = "someRecordType";
-		String otherId = "otherRecordType";
+		String id = "someValidationType";
+		String otherId = "otherValidationType";
 
-		ClientDataRecordGroup recordType = RecordTypeProvider.getRecordGroup(id);
-		ClientDataRecordGroup otherType = RecordTypeProvider.getRecordGroup(otherId);
+		ClientDataRecordGroup validationType = ValidationTypeProvider.getRecordGroup(id);
+		ClientDataRecordGroup otherType = ValidationTypeProvider.getRecordGroup(otherId);
 
 		client.MCR.assertNumberOfCallsToMethod("readList", 1);
-		client.MCR.assertParameters("readList", 0, "recordType");
-		assertEquals(recordType.getId(), id);
+		client.MCR.assertParameters("readList", 0, "validationType");
+		assertEquals(validationType.getId(), id);
 		assertEquals(otherType.getId(), otherId);
 	}
 
@@ -128,9 +129,9 @@ public class RecordTypeProviderTest {
 		String id = "someId";
 		ClientDataRecordGroupSpy clientDataRecordGroup = new ClientDataRecordGroupSpy();
 
-		RecordTypeProvider.onlyForTestAddRecordGroupToInternalMap(id, clientDataRecordGroup);
+		ValidationTypeProvider.onlyForTestAddRecordGroupToInternalMap(id, clientDataRecordGroup);
 
-		ClientDataRecordGroup recordType = RecordTypeProvider.getRecordGroup(id);
+		ClientDataRecordGroup recordType = ValidationTypeProvider.getRecordGroup(id);
 		assertSame(recordType, clientDataRecordGroup);
 	}
 }

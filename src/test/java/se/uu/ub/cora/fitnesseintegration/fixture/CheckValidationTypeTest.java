@@ -27,13 +27,13 @@ import org.testng.annotations.Test;
 import se.uu.ub.cora.clientdata.ClientDataRecordLink;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordGroupSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordLinkSpy;
-import se.uu.ub.cora.fitnesseintegration.cache.RecordTypeProvider;
+import se.uu.ub.cora.fitnesseintegration.cache.ValidationTypeProvider;
 import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.spy.DefinitionWriterSpy;
 import se.uu.ub.cora.fitnesseintegration.spy.DependencyFactorySpy;
 
-public class CheckRecordTypeTest {
-	private CheckRecordType fixture;
+public class CheckValidationTypeTest {
+	private CheckValidationType fixture;
 	private DependencyFactorySpy dependencyFactory;
 	private ClientDataRecordGroupSpy dataRecordGroup;
 
@@ -46,26 +46,22 @@ public class CheckRecordTypeTest {
 		recordGroup.MRV.setDefaultReturnValuesSupplier("getId", () -> "someId");
 
 		createClientDataRecordGroup();
-		RecordTypeProvider.onlyForTestAddRecordGroupToInternalMap("someId", dataRecordGroup);
+		ValidationTypeProvider.onlyForTestAddRecordGroupToInternalMap("someId", dataRecordGroup);
 
-		fixture = new CheckRecordType();
+		fixture = new CheckValidationType();
 		fixture.setId("someId");
 	}
 
 	@AfterMethod
 	public void afterMethod() {
-		RecordTypeProvider.resetInternalHolder();
+		ValidationTypeProvider.resetInternalHolder();
 	}
 
 	private ClientDataRecordGroupSpy createClientDataRecordGroup() {
 		dataRecordGroup = new ClientDataRecordGroupSpy();
-		setReturnValueForLinkWithNameAndValue("metadataId", "someDefinitionGroup");
-		setReturnValueForAtomicWithNameAndValue("idSource", "userSupplied");
-		setReturnValueForAtomicWithNameAndValue("public", "false");
-		setReturnValueForAtomicWithNameAndValue("usePermissionUnit", "false");
-		setReturnValueForAtomicWithNameAndValue("useVisibility", "false");
-		setReturnValueForAtomicWithNameAndValue("useTrashBin", "false");
-		setReturnValueForAtomicWithNameAndValue("storeInArchive", "false");
+		setReturnValueForLinkWithNameAndValue("validatesRecordType", "someRecordType");
+		setReturnValueForLinkWithNameAndValue("newMetadataId", "someNewDefinitionGroup");
+		setReturnValueForLinkWithNameAndValue("metadataId", "someUpdateDefinitionGroup");
 		return dataRecordGroup;
 	}
 
@@ -76,69 +72,35 @@ public class CheckRecordTypeTest {
 				() -> metadataLink, ClientDataRecordLink.class, nameInData);
 	}
 
-	private void setReturnValueForAtomicWithNameAndValue(String nameInData, String value) {
-		dataRecordGroup.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
-				() -> nameInData, value);
+	@Test
+	public void testIdSourceIs() {
+		String value = fixture.validatesRecordType();
+
+		assertEquals(value, "someRecordType");
 	}
 
 	@Test
-	public void testDefinitionIs() {
-		String definition = fixture.definitionIs();
+	public void testCreateDefinitionIs() {
+		String definition = fixture.createDefinitionIs();
 
 		DefinitionWriterSpy writer = (DefinitionWriterSpy) dependencyFactory.MCR
 				.getReturnValue("factorDefinitionWriter", 0);
 
 		writer.MCR.assertCalledParametersReturn("writeDefinitionUsingRecordId",
-				"someDefinitionGroup");
+				"someNewDefinitionGroup");
 		writer.MCR.assertReturn("writeDefinitionUsingRecordId", 0, definition);
 	}
 
 	@Test
-	public void testIdSourceIs() {
-		String value = fixture.idSourceIs();
+	public void testUpdateDefinitionIs() {
+		String definition = fixture.updateDefinitionIs();
 
-		assertEquals(value, dataRecordGroup.MCR
-				.assertCalledParametersReturn("getFirstAtomicValueWithNameInData", "idSource"));
-	}
+		DefinitionWriterSpy writer = (DefinitionWriterSpy) dependencyFactory.MCR
+				.getReturnValue("factorDefinitionWriter", 0);
 
-	@Test
-	public void testIsPublic() {
-		String value = fixture.isPublic();
-
-		assertEquals(value, dataRecordGroup.MCR
-				.assertCalledParametersReturn("getFirstAtomicValueWithNameInData", "public"));
-	}
-
-	@Test
-	public void testUsePermissionUnit() {
-		String value = fixture.usePermissionUnit();
-
-		assertEquals(value, dataRecordGroup.MCR.assertCalledParametersReturn(
-				"getFirstAtomicValueWithNameInData", "usePermissionUnit"));
-	}
-
-	@Test
-	public void testUseVisibility() {
-		String value = fixture.useVisibility();
-
-		assertEquals(value, dataRecordGroup.MCR.assertCalledParametersReturn(
-				"getFirstAtomicValueWithNameInData", "useVisibility"));
-	}
-
-	@Test
-	public void testUseTrashBin() {
-		String value = fixture.useTrashBin();
-
-		assertEquals(value, dataRecordGroup.MCR
-				.assertCalledParametersReturn("getFirstAtomicValueWithNameInData", "useTrashBin"));
-	}
-
-	@Test
-	public void testStoreInArchive() {
-		String value = fixture.storeInArchive();
-
-		assertEquals(value, dataRecordGroup.MCR.assertCalledParametersReturn(
-				"getFirstAtomicValueWithNameInData", "storeInArchive"));
+		writer.MCR.assertCalledParametersReturn("writeDefinitionUsingRecordId",
+				"someUpdateDefinitionGroup");
+		writer.MCR.assertReturn("writeDefinitionUsingRecordId", 0, definition);
 	}
 
 }
