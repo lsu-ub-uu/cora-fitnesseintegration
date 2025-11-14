@@ -24,39 +24,48 @@ import se.uu.ub.cora.fitnesseintegration.cache.RecordTypeProvider;
 import se.uu.ub.cora.fitnesseintegration.definitionwriter.DefinitionWriter;
 import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
 
-public class CheckRecordTypeFixture {
-	private String id;
+public class CheckRecordType {
+	private ClientDataRecordGroup dataRecordGroup;
 
-	public CheckRecordTypeFixture() {
+	public CheckRecordType() {
 		// needed by fitnesse
 	}
 
 	public void setId(String id) {
-		this.id = id;
+		dataRecordGroup = RecordTypeProvider.getRecordGroup(id);
 	}
 
-	public String assertDefinitionIs() {
-		// SPIKE
-		// JavaClientAppTokenCredentials cred = new JavaClientAppTokenCredentials(
-		// SystemUrl.getRestUrl(), SystemUrl.getAppTokenVerifierRestUrl(),
-		// LoginToken.getFitnesseAdminLoginId(), LoginToken.getFitnesseAdminAppToken());
-		// dataClient = JavaClientProvider.createDataClientUsingJavaClientAppTokenCredentials(cred);
-		// TODO: 1. fix systemUrl to return getAppTokenVerifierRestUrl, DONE
-		// TOOD: 2. move this to FitnesseJavaClientProvider.getJavaClientForFitnesseAdmin, DONE
-		// TOOD: 3. create a recordTypeHolder class, DONE
-		// TODO: 4. refactor this class to use 3
-		// TODO: 5. refactor definitionWriter to use 2
-
-		// DataClient dataClient = FitnesseJavaClientProvider.getFitnesseAdminDataClient();
-
-		// ClientDataRecord clientDataRecord = dataClient.read("recordType", id);
-		// ClientDataRecordGroup dataRecordGroup = clientDataRecord.getDataRecordGroup();
-		ClientDataRecordGroup dataRecordGroup = RecordTypeProvider.getRecordGroup(id);
+	public String definitionIs() {
 		ClientDataRecordLink metadataLink = dataRecordGroup
 				.getFirstChildOfTypeAndName(ClientDataRecordLink.class, "metadataId");
 		String linkedRecordId = metadataLink.getLinkedRecordId();
 		DefinitionWriter writer = DependencyProvider.factorDefinitionWriter();
+
 		return writer.writeDefinitionUsingRecordId(linkedRecordId);
+	}
+
+	public String idSourceIs() {
+		return dataRecordGroup.getFirstAtomicValueWithNameInData("idSource");
+	}
+
+	public String isPublic() {
+		return dataRecordGroup.getFirstAtomicValueWithNameInData("public");
+	}
+
+	public String usePermissionUnit() {
+		return dataRecordGroup.getFirstAtomicValueWithNameInData("usePermissionUnit");
+	}
+
+	public String useVisibility() {
+		return dataRecordGroup.getFirstAtomicValueWithNameInData("useVisibility");
+	}
+
+	public String useTrashBin() {
+		return dataRecordGroup.getFirstAtomicValueWithNameInData("useTrashBin");
+	}
+
+	public String storeInArchive() {
+		return dataRecordGroup.getFirstAtomicValueWithNameInData("storeInArchive");
 	}
 
 }

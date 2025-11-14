@@ -18,6 +18,8 @@
  */
 package se.uu.ub.cora.fitnesseintegration.fixture;
 
+import static org.testng.Assert.assertEquals;
+
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -30,9 +32,10 @@ import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.spy.DefinitionWriterSpy;
 import se.uu.ub.cora.fitnesseintegration.spy.DependencyFactorySpy;
 
-public class CheckRecordTypeFixtureTest {
-	private CheckRecordTypeFixture fixture;
+public class CheckRecordTypeTest {
+	private CheckRecordType fixture;
 	private DependencyFactorySpy dependencyFactory;
+	private ClientDataRecordGroupSpy dataRecordGroup;
 
 	@BeforeMethod
 	public void beforeMethod() {
@@ -42,10 +45,11 @@ public class CheckRecordTypeFixtureTest {
 		ClientDataRecordGroupSpy recordGroup = new ClientDataRecordGroupSpy();
 		recordGroup.MRV.setDefaultReturnValuesSupplier("getId", () -> "someId");
 
-		ClientDataRecordGroupSpy dataRecordGroup = createClientDataRecordGroup();
+		createClientDataRecordGroup();
 		RecordTypeProvider.onlyForTestAddRecordGroupToInternalMap("someId", dataRecordGroup);
 
-		fixture = new CheckRecordTypeFixture();
+		fixture = new CheckRecordType();
+		fixture.setId("someId");
 	}
 
 	@AfterMethod
@@ -54,20 +58,29 @@ public class CheckRecordTypeFixtureTest {
 	}
 
 	private ClientDataRecordGroupSpy createClientDataRecordGroup() {
-		ClientDataRecordGroupSpy dataRecordGroup = new ClientDataRecordGroupSpy();
+		dataRecordGroup = new ClientDataRecordGroupSpy();
 		ClientDataRecordLinkSpy metadataLink = new ClientDataRecordLinkSpy();
 		metadataLink.MRV.setDefaultReturnValuesSupplier("getLinkedRecordId",
 				() -> "someDefinitionGroup");
 		dataRecordGroup.MRV.setSpecificReturnValuesSupplier("getFirstChildOfTypeAndName",
 				() -> metadataLink, ClientDataRecordLink.class, "metadataId");
+		setReturnValueForAtomicWithNameAndValue("idSource", "userSupplied");
+		setReturnValueForAtomicWithNameAndValue("public", "false");
+		setReturnValueForAtomicWithNameAndValue("usePermissionUnit", "false");
+		setReturnValueForAtomicWithNameAndValue("useVisibility", "false");
+		setReturnValueForAtomicWithNameAndValue("useTrashBin", "false");
+		setReturnValueForAtomicWithNameAndValue("storeInArchive", "false");
 		return dataRecordGroup;
 	}
 
-	@Test
-	public void testAssertDefinitionIs() {
-		fixture.setId("someId");
+	private void setReturnValueForAtomicWithNameAndValue(String nameInData, String value) {
+		dataRecordGroup.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
+				() -> nameInData, value);
+	}
 
-		String definition = fixture.assertDefinitionIs();
+	@Test
+	public void testDefinitionIs() {
+		String definition = fixture.definitionIs();
 
 		DefinitionWriterSpy writer = (DefinitionWriterSpy) dependencyFactory.MCR
 				.getReturnValue("factorDefinitionWriter", 0);
@@ -76,11 +89,53 @@ public class CheckRecordTypeFixtureTest {
 				"someDefinitionGroup");
 		writer.MCR.assertReturn("writeDefinitionUsingRecordId", 0, definition);
 	}
-	// idSource (userSupplied/timestamp/sequence)
-	// public (false/true)
-	// usePermissionUnit (false/true)
-	// useVisibility (false/true)
-	// useTrashBin (false/true)
-	// storeInArchive (false/true)
+
+	@Test
+	public void testIdSourceIs() {
+		String value = fixture.idSourceIs();
+
+		assertEquals(value, dataRecordGroup.MCR
+				.assertCalledParametersReturn("getFirstAtomicValueWithNameInData", "idSource"));
+	}
+
+	@Test
+	public void testIsPublic() {
+		String value = fixture.isPublic();
+
+		assertEquals(value, dataRecordGroup.MCR
+				.assertCalledParametersReturn("getFirstAtomicValueWithNameInData", "public"));
+	}
+
+	@Test
+	public void testUsePermissionUnit() {
+		String value = fixture.usePermissionUnit();
+
+		assertEquals(value, dataRecordGroup.MCR.assertCalledParametersReturn(
+				"getFirstAtomicValueWithNameInData", "usePermissionUnit"));
+	}
+
+	@Test
+	public void testUseVisibility() {
+		String value = fixture.useVisibility();
+
+		assertEquals(value, dataRecordGroup.MCR.assertCalledParametersReturn(
+				"getFirstAtomicValueWithNameInData", "useVisibility"));
+	}
+
+	@Test
+	public void testUseTrashBin() {
+		String value = fixture.useTrashBin();
+
+		assertEquals(value, dataRecordGroup.MCR
+				.assertCalledParametersReturn("getFirstAtomicValueWithNameInData", "useTrashBin"));
+	}
+
+	@Test
+	public void testStoreInArchive() {
+		String value = fixture.storeInArchive();
+
+		assertEquals(value, dataRecordGroup.MCR.assertCalledParametersReturn(
+				"getFirstAtomicValueWithNameInData", "storeInArchive"));
+	}
 
 }
