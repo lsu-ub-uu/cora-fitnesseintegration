@@ -40,15 +40,13 @@ public class DefinitionCompareFixtureTest {
 
 	@Test
 	public void testInit() {
-		comparer.setAuthToken("authToken");
 		comparer.setRecordId("recordId");
 		String definitionView = comparer.getDefinitionView();
 
 		DefinitionWriterSpy writer = (DefinitionWriterSpy) dependencyFactory.MCR
 				.getReturnValue("factorDefinitionWriter", 0);
 
-		writer.MCR.assertCalledParametersReturn("writeDefinitionUsingRecordId", "authToken",
-				"recordId");
+		writer.MCR.assertCalledParametersReturn("writeDefinitionUsingRecordId", "recordId");
 		writer.MCR.assertReturn("writeDefinitionUsingRecordId", 0, definitionView);
 	}
 

@@ -23,23 +23,18 @@ import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
 
 public class DefinitionCompareFixture {
 
-	private String authToken;
 	private String recordId;
 	private DefinitionWriter writer;
-
-	public void setAuthToken(String authToken) {
-		this.authToken = authToken;
-	}
 
 	public void setRecordId(String recordId) {
 		this.recordId = recordId;
 	}
 
 	public DefinitionCompareFixture() {
-		this.writer = DependencyProvider.factorDefinitionWriter();
+		writer = DependencyProvider.factorDefinitionWriter();
 	}
 
 	public String getDefinitionView() {
-		return writer.writeDefinitionUsingRecordId(authToken, recordId);
+		return writer.writeDefinitionUsingRecordId(recordId);
 	}
 }

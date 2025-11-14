@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Uppsala University Library
+ * Copyright 2024, 2025 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -16,27 +16,29 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration.definitionwriter;
+package se.uu.ub.cora.fitnesseintegration.cache;
 
 import se.uu.ub.cora.clientdata.ClientData;
 import se.uu.ub.cora.clientdata.ClientDataList;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
-import se.uu.ub.cora.fitnesseintegration.script.SystemUrl;
-import se.uu.ub.cora.javaclient.JavaClientAuthTokenCredentials;
-import se.uu.ub.cora.javaclient.JavaClientProvider;
 import se.uu.ub.cora.javaclient.data.DataClient;
 
 public class MetadataHolderPopulatorImp implements MetadataHolderPopulator {
 
 	private static final String METADATA = "metadata";
-	private String baseUrl = SystemUrl.getUrl() + "rest/";
-	private String appTokenUrl = SystemUrl.getAppTokenVerifierUrl();
-	private DataClient dataClient;
 
 	@Override
-	public MetadataHolder createAndPopulateHolder(String authToken) {
-		dataClient = createDataClientUsingAuthToken(authToken);
-		ClientDataList readList = dataClient.readList(METADATA);
+	public MetadataHolder createAndPopulateHolder() {
+		ClientDataList readList = readMetadataFromServer();
+		return createAndPopulateHolderFromList(readList);
+	}
+
+	private ClientDataList readMetadataFromServer() {
+		DataClient dataClient = FitnesseJavaClientProvider.getFitnesseAdminDataClient();
+		return dataClient.readList(METADATA);
+	}
+
+	private MetadataHolder createAndPopulateHolderFromList(ClientDataList readList) {
 		MetadataHolder holder = new MetadataHolderImp();
 		for (ClientData dataRecord : readList.getDataList()) {
 			holder.addDataRecord((ClientDataRecord) dataRecord);
@@ -44,14 +46,4 @@ public class MetadataHolderPopulatorImp implements MetadataHolderPopulator {
 		return holder;
 	}
 
-	private DataClient createDataClientUsingAuthToken(String authToken) {
-		JavaClientAuthTokenCredentials authTokenCredentials = new JavaClientAuthTokenCredentials(
-				baseUrl, appTokenUrl, authToken);
-		return JavaClientProvider
-				.createDataClientUsingJavaClientAuthTokenCredentials(authTokenCredentials);
-	}
-
-	public DataClient onlyForTestGetDataClient() {
-		return dataClient;
-	}
 }

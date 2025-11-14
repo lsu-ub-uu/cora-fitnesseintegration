@@ -32,8 +32,7 @@ public class DefinitionWriterSpy implements DefinitionWriter {
 	}
 
 	@Override
-	public String writeDefinitionUsingRecordId(String authToken, String metadataId) {
-		return (String) MCR.addCallAndReturnFromMRV("authToken", authToken, "metadataId",
-				metadataId);
+	public String writeDefinitionUsingRecordId(String metadataId) {
+		return (String) MCR.addCallAndReturnFromMRV("metadataId", metadataId);
 	}
 }

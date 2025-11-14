@@ -18,9 +18,9 @@
  */
 package se.uu.ub.cora.fitnesseintegration.script;
 
-import se.uu.ub.cora.fitnesseintegration.definitionwriter.MetadataHolder;
-import se.uu.ub.cora.fitnesseintegration.definitionwriter.MetadataHolderPopulator;
-import se.uu.ub.cora.fitnesseintegration.definitionwriter.MetadataHolderPopulatorImp;
+import se.uu.ub.cora.fitnesseintegration.cache.MetadataHolder;
+import se.uu.ub.cora.fitnesseintegration.cache.MetadataHolderPopulator;
+import se.uu.ub.cora.fitnesseintegration.cache.MetadataHolderPopulatorImp;
 
 public final class MetadataProvider {
 
@@ -30,10 +30,10 @@ public final class MetadataProvider {
 		super();
 	}
 
-	public static synchronized MetadataHolder getHolder(String authToken) {
+	public static synchronized MetadataHolder getHolder() {
 		if (null == holder) {
 			MetadataHolderPopulator populator = new MetadataHolderPopulatorImp();
-			holder = populator.createAndPopulateHolder(authToken);
+			holder = populator.createAndPopulateHolder();
 		}
 		return holder;
 	}

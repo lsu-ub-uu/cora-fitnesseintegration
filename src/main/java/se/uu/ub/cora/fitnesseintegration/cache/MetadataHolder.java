@@ -16,28 +16,13 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration.definitionwriter;
-
-import java.util.HashMap;
-import java.util.Map;
+package se.uu.ub.cora.fitnesseintegration.cache;
 
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 
-public class MetadataHolderImp implements MetadataHolder {
+public interface MetadataHolder {
 
-	private Map<String, ClientDataRecord> dataRecords = new HashMap<>();
+	void addDataRecord(ClientDataRecord dataRecord);
 
-	@Override
-	public void addDataRecord(ClientDataRecord dataRecord) {
-		dataRecords.put(dataRecord.getId(), dataRecord);
-	}
-
-	@Override
-	public ClientDataRecord getDataRecordById(String recordId) {
-		return dataRecords.get(recordId);
-	}
-
-	public Map<String, ClientDataRecord> onlyForTestGetMetadata() {
-		return dataRecords;
-	}
+	ClientDataRecord getDataRecordById(String recordId);
 }

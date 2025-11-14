@@ -32,6 +32,7 @@ import se.uu.ub.cora.clientdata.ClientDataProvider;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecordLink;
+import se.uu.ub.cora.fitnesseintegration.cache.MetadataHolder;
 import se.uu.ub.cora.fitnesseintegration.script.MetadataProvider;
 
 public class DefinitionWriterImp implements DefinitionWriter {
@@ -53,8 +54,8 @@ public class DefinitionWriterImp implements DefinitionWriter {
 	private MetadataHolder metadataHolder;
 
 	@Override
-	public String writeDefinitionUsingRecordId(String authToken, String metadataId) {
-		metadataHolder = MetadataProvider.getHolder(authToken);
+	public String writeDefinitionUsingRecordId(String metadataId) {
+		metadataHolder = MetadataProvider.getHolder();
 		ClientDataRecord dataRecord = metadataHolder.getDataRecordById(metadataId);
 		ClientDataRecordGroup dataRecordGroup = dataRecord.getDataRecordGroup();
 

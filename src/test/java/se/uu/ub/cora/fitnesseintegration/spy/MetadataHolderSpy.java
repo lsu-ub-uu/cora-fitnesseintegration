@@ -20,7 +20,7 @@ package se.uu.ub.cora.fitnesseintegration.spy;
 
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
-import se.uu.ub.cora.fitnesseintegration.definitionwriter.MetadataHolder;
+import se.uu.ub.cora.fitnesseintegration.cache.MetadataHolder;
 import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
 import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 

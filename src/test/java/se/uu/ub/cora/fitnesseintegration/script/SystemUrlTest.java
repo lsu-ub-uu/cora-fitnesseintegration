@@ -39,6 +39,12 @@ public class SystemUrlTest {
 	}
 
 	@Test
+	public void testGetRestUrl() {
+		SystemUrl.setUrl("http://localhost:8080/systemone/");
+		assertEquals(SystemUrl.getRestUrl(), "http://localhost:8080/systemone/rest/");
+	}
+
+	@Test
 	public void testGetTokenVerifierUrl() {
 		SystemUrl.setTokenVerifierUrl("http://localhost:8180/tokenverifier/");
 		assertEquals(SystemUrl.getTokenVerifierUrl(), "http://localhost:8180/tokenverifier/");
@@ -48,6 +54,13 @@ public class SystemUrlTest {
 	public void testGetAppTokenVerifierUrl() {
 		SystemUrl.setAppTokenVerifierUrl("http://localhost:8180/apptokenverifier/");
 		assertEquals(SystemUrl.getAppTokenVerifierUrl(), "http://localhost:8180/apptokenverifier/");
+	}
+
+	@Test
+	public void testGetAppTokenVerifierRestUrl() {
+		SystemUrl.setAppTokenVerifierUrl("http://localhost:8180/apptokenverifier/");
+		assertEquals(SystemUrl.getAppTokenVerifierRestUrl(),
+				"http://localhost:8180/apptokenverifier/rest/");
 	}
 
 	@Test
