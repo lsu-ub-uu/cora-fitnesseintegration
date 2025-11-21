@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration.fixture;
+package se.uu.ub.cora.fitnesseintegration.automator;
 
 import static org.testng.Assert.assertEquals;
 
@@ -29,11 +29,40 @@ import se.uu.ub.cora.clientdata.spies.ClientDataRecordGroupSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordLinkSpy;
 import se.uu.ub.cora.fitnesseintegration.cache.RecordTypeProvider;
 import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
-import se.uu.ub.cora.fitnesseintegration.spy.DefinitionWriterSpy;
 import se.uu.ub.cora.fitnesseintegration.spy.DependencyFactorySpy;
 
-public class CheckRecordTypeTest {
-	private CheckRecordType fixture;
+public class DefinitionAutomatorTest {
+	private static final String CHECK_RECORD_TYPE = """
+			!*< Setup record type definition
+
+			!define recordTypeId {%s}
+			!define recordTypeDefinition {!%s-!}
+
+			#idSource (userSupplied/timestamp/sequence) others true/false
+			!define recordTypeIdSource {%s}
+			!define recordTypeIsPublic {%s}
+			!define recordTypeUsePermissionUnit {%s}
+			!define recordTypeUseVisibility {%s}
+			!define recordTypeUseTrashBin {%s}
+			!define recordTypeStoreInArchive {%s}
+			*!
+			!include -seamless .HelperPages.checkRecordType
+			""";
+
+	private static final String CHECK_VALIDATION_TYPE = """
+			!*< Setup validation type definition
+
+			!define validationTypeId {%s}
+			!define recordTypeId {%s}
+			!define createValidationTypeDefinition {!-%s-!}
+
+			!define updateValidationTypeDefinition {!-%s-!}
+
+			*!
+			!include -seamless .HelperPages.checkValidationType
+
+			----
+			""";
 	private DependencyFactorySpy dependencyFactory;
 	private ClientDataRecordGroupSpy dataRecordGroup;
 
@@ -43,13 +72,12 @@ public class CheckRecordTypeTest {
 		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
 
 		ClientDataRecordGroupSpy recordGroup = new ClientDataRecordGroupSpy();
-		recordGroup.MRV.setDefaultReturnValuesSupplier("getId", () -> "someId");
+		recordGroup.MRV.setDefaultReturnValuesSupplier("getId", () -> "someRecordTypeId");
 
 		createClientDataRecordGroup();
-		RecordTypeProvider.onlyForTestAddRecordGroupToInternalMap("someId", dataRecordGroup);
+		RecordTypeProvider.onlyForTestAddRecordGroupToInternalMap("someRecordTypeId",
+				dataRecordGroup);
 
-		fixture = new CheckRecordType();
-		fixture.setId("someId");
 	}
 
 	@AfterMethod
@@ -82,63 +110,42 @@ public class CheckRecordTypeTest {
 	}
 
 	@Test
-	public void testDefinitionIs() {
-		String definition = fixture.definitionIs();
+	public void testTesting() {
+		// SystemUrl.setUrl("");
+		// SystemUrl.setAppTokenVerifierUrl("");
+		// LoginToken.setFitnesseAdminLoginId("");
+		// LoginToken.setFitnesseAdminAppToken("");
 
-		DefinitionWriterSpy writer = (DefinitionWriterSpy) dependencyFactory.MCR
-				.getReturnValue("factorDefinitionWriter", 0);
+		// RecordTypeProvider.onlyForTestAddRecordGroupToInternalMap("id",
+		// new ClientDataRecordGroupSpy());
+		// ValidationTypeProvider.onlyForTestAddRecordGroupToInternalMap("id",
+		// new ClientDataRecordGroupSpy());
 
-		writer.MCR.assertCalledParametersReturn("writeDefinitionUsingRecordId",
-				"someDefinitionGroup");
-		writer.MCR.assertReturn("writeDefinitionUsingRecordId", 0, definition);
-	}
+		DefinitionAutomator dat = new DefinitionAutomator();
+		String recordType = "someRecordTypeId";
 
-	@Test
-	public void testIdSourceIs() {
-		String value = fixture.idSourceIs();
+		String out = dat.createTestForRecordType(recordType);
 
-		assertEquals(value, dataRecordGroup.MCR
-				.assertCalledParametersReturn("getFirstAtomicValueWithNameInData", "idSource"));
-	}
+		String CHECK_RECORD_TYPE = """
+				!*< Setup record type definition
 
-	@Test
-	public void testIsPublic() {
-		String value = fixture.isPublic();
+				!define recordTypeId {someRecordTypeId}
+				!define recordTypeDefinition {!%s-!}
 
-		assertEquals(value, dataRecordGroup.MCR
-				.assertCalledParametersReturn("getFirstAtomicValueWithNameInData", "public"));
-	}
+				#idSource (userSupplied/timestamp/sequence) others true/false
+				!define recordTypeIdSource {userSupplied}
+				!define recordTypeIsPublic {%s}
+				!define recordTypeUsePermissionUnit {%s}
+				!define recordTypeUseVisibility {%s}
+				!define recordTypeUseTrashBin {%s}
+				!define recordTypeStoreInArchive {%s}
+				*!
+				!include -seamless .HelperPages.checkRecordType
+				""";
 
-	@Test
-	public void testUsePermissionUnit() {
-		String value = fixture.usePermissionUnit();
-
-		assertEquals(value, dataRecordGroup.MCR.assertCalledParametersReturn(
-				"getFirstAtomicValueWithNameInData", "usePermissionUnit"));
-	}
-
-	@Test
-	public void testUseVisibility() {
-		String value = fixture.useVisibility();
-
-		assertEquals(value, dataRecordGroup.MCR.assertCalledParametersReturn(
-				"getFirstAtomicValueWithNameInData", "useVisibility"));
-	}
-
-	@Test
-	public void testUseTrashBin() {
-		String value = fixture.useTrashBin();
-
-		assertEquals(value, dataRecordGroup.MCR
-				.assertCalledParametersReturn("getFirstAtomicValueWithNameInData", "useTrashBin"));
-	}
-
-	@Test
-	public void testStoreInArchive() {
-		String value = fixture.storeInArchive();
-
-		assertEquals(value, dataRecordGroup.MCR.assertCalledParametersReturn(
-				"getFirstAtomicValueWithNameInData", "storeInArchive"));
+		// System.out.println(out);
+		assertEquals(dataRecordGroup.getFirstAtomicValueWithNameInData("idSource"), "adsfads");
+		assertEquals(out, CHECK_RECORD_TYPE);
 	}
 
 }

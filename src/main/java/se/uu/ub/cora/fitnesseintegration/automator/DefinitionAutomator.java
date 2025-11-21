@@ -16,32 +16,51 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration.fixture;
+package se.uu.ub.cora.fitnesseintegration.automator;
 
 import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
-import se.uu.ub.cora.clientdata.ClientDataRecordLink;
 import se.uu.ub.cora.fitnesseintegration.cache.RecordTypeProvider;
-import se.uu.ub.cora.fitnesseintegration.definitionwriter.DefinitionWriter;
-import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
 
-public class CheckRecordType {
+public class DefinitionAutomator {
+	private static final String CHECK_RECORD_TYPE = """
+			!*< Setup record type definition
+
+			!define recordTypeId {%s}
+			!define recordTypeDefinition {!-%s-!}
+
+			#idSource (userSupplied/timestamp/sequence) others true/false
+			!define recordTypeIdSource {%s}
+			!define recordTypeIsPublic {%s}
+			!define recordTypeUsePermissionUnit {%s}
+			!define recordTypeUseVisibility {%s}
+			!define recordTypeUseTrashBin {%s}
+			!define recordTypeStoreInArchive {%s}
+			*!
+			!include -seamless .HelperPages.checkRecordType
+			""";
+
+	private static final String CHECK_VALIDATION_TYPE = """
+			!*< Setup validation type definition
+
+			!define validationTypeId {%s}
+			!define recordTypeId {%s}
+			!define createValidationTypeDefinition {!-%s-!}
+
+			!define updateValidationTypeDefinition {!-%s-!}
+
+			*!
+			!include -seamless .HelperPages.checkValidationType
+
+			----
+			""";
+
 	private ClientDataRecordGroup dataRecordGroup;
 
-	public CheckRecordType() {
-		// needed by fitnesse
-	}
-
-	public void setId(String id) {
-		dataRecordGroup = RecordTypeProvider.getRecordGroup(id);
-	}
-
-	public String definitionIs() {
-		ClientDataRecordLink metadataLink = dataRecordGroup
-				.getFirstChildOfTypeAndName(ClientDataRecordLink.class, "metadataId");
-		String linkedRecordId = metadataLink.getLinkedRecordId();
-
-		DefinitionWriter writer = DependencyProvider.factorDefinitionWriter();
-		return writer.writeDefinitionUsingRecordId(linkedRecordId);
+	public String createTestForRecordType(String recordType) {
+		// TODO Auto-generated method stub
+		dataRecordGroup = RecordTypeProvider.getRecordGroup(recordType);
+		return CHECK_RECORD_TYPE.formatted(recordType, recordType, idSourceIs(), recordType,
+				recordType, recordType, recordType, recordType);
 	}
 
 	public String idSourceIs() {
