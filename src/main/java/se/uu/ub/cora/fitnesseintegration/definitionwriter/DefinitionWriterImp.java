@@ -21,6 +21,7 @@ package se.uu.ub.cora.fitnesseintegration.definitionwriter;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -60,16 +61,17 @@ public class DefinitionWriterImp implements DefinitionWriter {
 		ClientDataRecordGroup dataRecordGroup = dataRecord.getDataRecordGroup();
 
 		definition = new StringBuilder();
-		writeDefinition(dataRecordGroup, Optional.empty(), 0);
+		writeDefinition(dataRecordGroup, Optional.empty(), 0, new HashSet<>());
 
 		return definition.toString();
 	}
 
 	private void writeDefinition(ClientDataRecordGroup clientDataRecordGroup,
-			Optional<ChildReferenceDetails> childReferenceDetails, int currentIndent) {
+			Optional<ChildReferenceDetails> childReferenceDetails, int currentIndent,
+			Set<String> parents) {
 		addIndentation(currentIndent);
 		writeElement(clientDataRecordGroup, childReferenceDetails);
-		possiblyTraverseGroup(clientDataRecordGroup, currentIndent);
+		possiblyTraverseGroup(clientDataRecordGroup, currentIndent, parents);
 	}
 
 	private void addIndentation(int level) {
@@ -219,9 +221,12 @@ public class DefinitionWriterImp implements DefinitionWriter {
 	}
 
 	private void possiblyTraverseGroup(ClientDataRecordGroup clientDataRecordGroup,
-			int currentIndent) {
-		if (isGroup(clientDataRecordGroup)) {
-			possiblyTraverseChildren(clientDataRecordGroup, currentIndent);
+			int currentIndent, Set<String> parents) {
+		String id = clientDataRecordGroup.getId();
+		if (isGroup(clientDataRecordGroup) && !parents.contains(id)) {
+			Set<String> parentCurrent = new HashSet<>(parents);
+			parentCurrent.add(id);
+			possiblyTraverseChildren(clientDataRecordGroup, currentIndent, parentCurrent);
 		}
 	}
 
@@ -234,7 +239,7 @@ public class DefinitionWriterImp implements DefinitionWriter {
 	}
 
 	private void possiblyTraverseChildren(ClientDataRecordGroup clientDataRecordGroup,
-			int currentIndent) {
+			int currentIndent, Set<String> parents) {
 		if (clientDataRecordGroup.hasChildren()) {
 			List<ClientDataGroup> childReferences = getChildReferences(clientDataRecordGroup);
 			for (ClientDataGroup child : childReferences) {
@@ -242,7 +247,7 @@ public class DefinitionWriterImp implements DefinitionWriter {
 				ClientDataRecordGroup dataGroup = readRefLink(child);
 				Optional<ChildReferenceDetails> details = collectChildReferenceDetailsAsRecord(
 						child);
-				writeDefinition(dataGroup, details, currentIndent + 1);
+				writeDefinition(dataGroup, details, currentIndent + 1, parents);
 			}
 		}
 	}
