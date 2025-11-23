@@ -1,5 +1,7 @@
 /*
  * Copyright 2025 Uppsala University Library
+ * Copyright 2025 Olov McKie
+ * 
  *
  * This file is part of Cora.
  *
@@ -26,6 +28,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.testng.annotations.AfterMethod;
@@ -33,10 +37,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.ClientData;
-import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
+import se.uu.ub.cora.clientdata.ClientDataRecordLink;
 import se.uu.ub.cora.clientdata.spies.ClientDataListSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordGroupSpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataRecordLinkSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
+import se.uu.ub.cora.fitnesseintegration.metadata.ValidationType;
 import se.uu.ub.cora.fitnesseintegration.spy.DataClientSpy;
 
 public class ValidationTypeProviderTest {
@@ -62,19 +68,38 @@ public class ValidationTypeProviderTest {
 		clientDataList = new ClientDataListSpy();
 		listOfDataRecords = new ArrayList<>();
 		clientDataList.MRV.setDefaultReturnValuesSupplier("getDataList", () -> listOfDataRecords);
-		createAndAddRecordToListToBeReturned("someValidationType");
-		createAndAddRecordToListToBeReturned("otherValidationType");
+		createAndAddRecordToListToBeReturned("someValidationType", "recordTypeId");
+		createAndAddRecordToListToBeReturned("otherValidationType", "otherRecordTypeId");
+		createAndAddRecordToListToBeReturned("aValidationType", "recordTypeId");
 	}
 
-	private void createAndAddRecordToListToBeReturned(String recordTypeId) {
+	private void createAndAddRecordToListToBeReturned(String id, String recordTypeId) {
 		ClientDataRecordSpy dataRecord = new ClientDataRecordSpy();
-		dataRecord.MRV.setDefaultReturnValuesSupplier("getId", () -> recordTypeId);
+		dataRecord.MRV.setDefaultReturnValuesSupplier("getId", () -> id);
 
-		ClientDataRecordGroupSpy recordGroup = new ClientDataRecordGroupSpy();
-		recordGroup.MRV.setDefaultReturnValuesSupplier("getId", () -> recordTypeId);
+		ClientDataRecordGroupSpy recordGroup = createClientDataValidationGroup(id, recordTypeId);
+		recordGroup.MRV.setDefaultReturnValuesSupplier("getId", () -> id);
 
 		dataRecord.MRV.setDefaultReturnValuesSupplier("getDataRecordGroup", () -> recordGroup);
 		listOfDataRecords.add(dataRecord);
+	}
+
+	private ClientDataRecordGroupSpy createClientDataValidationGroup(String id, String recordType) {
+		ClientDataRecordGroupSpy validation = new ClientDataRecordGroupSpy();
+		validation.MRV.setDefaultReturnValuesSupplier("getId", () -> id);
+		setReturnValueForLinkWithNameAndValue(validation, "validatesRecordType", recordType);
+		setReturnValueForLinkWithNameAndValue(validation, "newMetadataId", "createDefinitionGroup");
+		setReturnValueForLinkWithNameAndValue(validation, "metadataId", "updateDefinitionGroup");
+		return validation;
+	}
+
+	private void setReturnValueForLinkWithNameAndValue(
+			ClientDataRecordGroupSpy clientDataRecordGroup, String nameInData,
+			String linkPointsTo) {
+		ClientDataRecordLinkSpy metadataLink = new ClientDataRecordLinkSpy();
+		metadataLink.MRV.setDefaultReturnValuesSupplier("getLinkedRecordId", () -> linkPointsTo);
+		clientDataRecordGroup.MRV.setSpecificReturnValuesSupplier("getFirstChildOfTypeAndName",
+				() -> metadataLink, ClientDataRecordLink.class, nameInData);
 	}
 
 	private void setUpUserProviderToReturnClientSpy() {
@@ -100,38 +125,103 @@ public class ValidationTypeProviderTest {
 	}
 
 	@Test
-	public void testGetRecordGroup() {
+	public void testGetValidationType() {
 		String id = "someValidationType";
 
-		ClientDataRecordGroup validationType = ValidationTypeProvider.getRecordGroup(id);
+		ValidationType validationType = ValidationTypeProvider.getValidationType(id);
 
 		client.MCR.assertNumberOfCallsToMethod("readList", 1);
 		client.MCR.assertParameters("readList", 0, "validationType");
-		assertEquals(validationType.getId(), id);
+		assertEquals(validationType.id(), id);
+		assertEquals(validationType.validatesRecordTypeId(), "recordTypeId");
+		assertEquals(validationType.createDefinitionId(), "createDefinitionGroup");
+		assertEquals(validationType.updateDefinitionId(), "updateDefinitionGroup");
 	}
 
 	@Test
-	public void testGetRecordGroup_readTwoMakeSureOnlyLoadedOnce() {
+	public void testGetValidationTypeThatValidatesRecordType() {
+		String id = "recordTypeId";
+		Collection<ValidationType> validationTypes = ValidationTypeProvider
+				.getValidationTypesThatValidatesRecordType(id);
+
+		Iterator<ValidationType> iterator = validationTypes.iterator();
+		ValidationType validationType = iterator.next();
+		client.MCR.assertNumberOfCallsToMethod("readList", 1);
+		client.MCR.assertParameters("readList", 0, "validationType");
+
+		assertEquals(validationType.id(), "aValidationType");
+		assertEquals(validationType.validatesRecordTypeId(), "recordTypeId");
+		assertEquals(validationType.createDefinitionId(), "createDefinitionGroup");
+		assertEquals(validationType.updateDefinitionId(), "updateDefinitionGroup");
+
+		ValidationType validationType2 = iterator.next();
+		assertEquals(validationType2.id(), "someValidationType");
+		assertEquals(validationType2.validatesRecordTypeId(), "recordTypeId");
+		assertEquals(validationType2.createDefinitionId(), "createDefinitionGroup");
+		assertEquals(validationType2.updateDefinitionId(), "updateDefinitionGroup");
+	}
+
+	@Test
+	public void testGetValidationTypeThatValidatesRecordType2() {
+		String id = "otherRecordTypeId";
+		Collection<ValidationType> validationTypes = ValidationTypeProvider
+				.getValidationTypesThatValidatesRecordType(id);
+		ValidationType validationType = validationTypes.iterator().next();
+
+		client.MCR.assertNumberOfCallsToMethod("readList", 1);
+		client.MCR.assertParameters("readList", 0, "validationType");
+
+		assertEquals(validationType.id(), "otherValidationType");
+		assertEquals(validationType.validatesRecordTypeId(), "otherRecordTypeId");
+		assertEquals(validationType.createDefinitionId(), "createDefinitionGroup");
+		assertEquals(validationType.updateDefinitionId(), "updateDefinitionGroup");
+	}
+
+	@Test
+	public void testGetValidationType_readTwoMakeSureOnlyLoadedOnce() {
 		String id = "someValidationType";
 		String otherId = "otherValidationType";
 
-		ClientDataRecordGroup validationType = ValidationTypeProvider.getRecordGroup(id);
-		ClientDataRecordGroup otherType = ValidationTypeProvider.getRecordGroup(otherId);
+		ValidationType validationType = ValidationTypeProvider.getValidationType(id);
+		ValidationType otherType = ValidationTypeProvider.getValidationType(otherId);
 
 		client.MCR.assertNumberOfCallsToMethod("readList", 1);
 		client.MCR.assertParameters("readList", 0, "validationType");
-		assertEquals(validationType.getId(), id);
-		assertEquals(otherType.getId(), otherId);
+		assertEquals(validationType.id(), id);
+		assertEquals(otherType.id(), otherId);
 	}
 
 	@Test
-	public void testOnlyForTestAddRecordGroupToInternalMap() {
-		String id = "someId";
-		ClientDataRecordGroupSpy clientDataRecordGroup = new ClientDataRecordGroupSpy();
+	public void testOnlyForTestAddValidationTypeToInternalMap() {
+		String id = "id";
+		String validatesRecordTypeId = "recordTypeId";
+		String createDefinitionId = "createDefinitionId";
+		String updateDefinitionId = "updateDefinitionId";
 
-		ValidationTypeProvider.onlyForTestAddRecordGroupToInternalMap(id, clientDataRecordGroup);
+		ValidationType validationType = new ValidationType(id, validatesRecordTypeId,
+				createDefinitionId, updateDefinitionId);
 
-		ClientDataRecordGroup recordType = ValidationTypeProvider.getRecordGroup(id);
-		assertSame(recordType, clientDataRecordGroup);
+		ValidationTypeProvider.onlyForTestAddValidationTypeToInternalMap(validationType);
+
+		ValidationType validationType2 = ValidationTypeProvider.getValidationType(id);
+		assertSame(validationType2, validationType);
+	}
+
+	@Test
+	public void testOnlyForTestAddValidationTypeToInternalMap2() {
+		String id = "id";
+		String validatesRecordTypeId = "recordTypeId";
+		String createDefinitionId = "createDefinitionId";
+		String updateDefinitionId = "updateDefinitionId";
+
+		ValidationType validationType = new ValidationType(id, validatesRecordTypeId,
+				createDefinitionId, updateDefinitionId);
+
+		ValidationTypeProvider.onlyForTestAddValidationTypeToInternalMap(validationType);
+
+		Collection<ValidationType> validationTypes = ValidationTypeProvider
+				.getValidationTypesThatValidatesRecordType("recordTypeId");
+		assertSame(validationTypes.iterator().next(), validationType);
+
 	}
 }

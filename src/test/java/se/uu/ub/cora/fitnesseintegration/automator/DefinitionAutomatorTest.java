@@ -1,5 +1,6 @@
 /*
  * Copyright 2025 Uppsala University Library
+ * Copyright 2025 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -28,124 +29,181 @@ import se.uu.ub.cora.clientdata.ClientDataRecordLink;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordGroupSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordLinkSpy;
 import se.uu.ub.cora.fitnesseintegration.cache.RecordTypeProvider;
+import se.uu.ub.cora.fitnesseintegration.cache.ValidationTypeProvider;
+import se.uu.ub.cora.fitnesseintegration.metadata.ValidationType;
 import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
+import se.uu.ub.cora.fitnesseintegration.spy.DefinitionWriterSpy;
 import se.uu.ub.cora.fitnesseintegration.spy.DependencyFactorySpy;
 
 public class DefinitionAutomatorTest {
-	private static final String CHECK_RECORD_TYPE = """
-			!*< Setup record type definition
-
-			!define recordTypeId {%s}
-			!define recordTypeDefinition {!%s-!}
-
-			#idSource (userSupplied/timestamp/sequence) others true/false
-			!define recordTypeIdSource {%s}
-			!define recordTypeIsPublic {%s}
-			!define recordTypeUsePermissionUnit {%s}
-			!define recordTypeUseVisibility {%s}
-			!define recordTypeUseTrashBin {%s}
-			!define recordTypeStoreInArchive {%s}
-			*!
-			!include -seamless .HelperPages.checkRecordType
-			""";
-
-	private static final String CHECK_VALIDATION_TYPE = """
-			!*< Setup validation type definition
-
-			!define validationTypeId {%s}
-			!define recordTypeId {%s}
-			!define createValidationTypeDefinition {!-%s-!}
-
-			!define updateValidationTypeDefinition {!-%s-!}
-
-			*!
-			!include -seamless .HelperPages.checkValidationType
-
-			----
-			""";
+	private static final String THIRD_VALIDATION_TYPE_ID = "thirdValidationTypeId";
+	private static final String SECOND_VALIDATION_TYPE_ID = "secondValidationTypeId";
+	private static final String FIRST_VALIDATION_TYPE_ID = "firstValidationTypeId";
+	private static final String RECORD_TYPE_ID = "someRecordTypeId";
 	private DependencyFactorySpy dependencyFactory;
 	private ClientDataRecordGroupSpy dataRecordGroup;
+	private ValidationType validationType;
 
 	@BeforeMethod
 	public void beforeMethod() {
 		dependencyFactory = new DependencyFactorySpy();
 		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
 
+		DefinitionWriterSpy writer = new DefinitionWriterSpy();
+		dependencyFactory.MRV.setDefaultReturnValuesSupplier("factorDefinitionWriter",
+				() -> writer);
+		writer.MRV.setSpecificReturnValuesSupplier("writeDefinitionUsingRecordId",
+				() -> "{fake someDefinitionGroup}", "someDefinitionGroup");
+		writer.MRV.setSpecificReturnValuesSupplier("writeDefinitionUsingRecordId",
+				() -> "{fake someNewDefinitionGroup}", "someNewDefinitionGroup");
+		writer.MRV.setSpecificReturnValuesSupplier("writeDefinitionUsingRecordId",
+				() -> "{fake someUpdateDefinitionGroup}", "someUpdateDefinitionGroup");
+
 		ClientDataRecordGroupSpy recordGroup = new ClientDataRecordGroupSpy();
-		recordGroup.MRV.setDefaultReturnValuesSupplier("getId", () -> "someRecordTypeId");
+		recordGroup.MRV.setDefaultReturnValuesSupplier("getId", () -> RECORD_TYPE_ID);
 
-		createClientDataRecordGroup();
-		RecordTypeProvider.onlyForTestAddRecordGroupToInternalMap("someRecordTypeId",
-				dataRecordGroup);
+		dataRecordGroup = createClientDataRecordGroup();
+		RecordTypeProvider.onlyForTestAddRecordGroupToInternalMap(RECORD_TYPE_ID, dataRecordGroup);
 
+		validationType = createValidationType(FIRST_VALIDATION_TYPE_ID, RECORD_TYPE_ID);
+		ValidationTypeProvider.onlyForTestAddValidationTypeToInternalMap(validationType);
+
+		ValidationType validationRecordGroup2 = createValidationType(SECOND_VALIDATION_TYPE_ID,
+				"someOtherRecordType");
+		ValidationTypeProvider.onlyForTestAddValidationTypeToInternalMap(validationRecordGroup2);
+
+		ValidationType validationRecordGroup3 = createValidationType(THIRD_VALIDATION_TYPE_ID,
+				RECORD_TYPE_ID);
+		ValidationTypeProvider.onlyForTestAddValidationTypeToInternalMap(validationRecordGroup3);
 	}
 
 	@AfterMethod
 	public void afterMethod() {
 		RecordTypeProvider.resetInternalHolder();
+		ValidationTypeProvider.resetInternalHolder();
 	}
 
 	private ClientDataRecordGroupSpy createClientDataRecordGroup() {
-		dataRecordGroup = new ClientDataRecordGroupSpy();
-		setReturnValueForLinkWithNameAndValue("metadataId", "someDefinitionGroup");
-		setReturnValueForAtomicWithNameAndValue("idSource", "userSupplied");
-		setReturnValueForAtomicWithNameAndValue("public", "false");
-		setReturnValueForAtomicWithNameAndValue("usePermissionUnit", "false");
-		setReturnValueForAtomicWithNameAndValue("useVisibility", "false");
-		setReturnValueForAtomicWithNameAndValue("useTrashBin", "false");
-		setReturnValueForAtomicWithNameAndValue("storeInArchive", "false");
-		return dataRecordGroup;
+		ClientDataRecordGroupSpy recordGroup = new ClientDataRecordGroupSpy();
+		setReturnValueForLinkWithNameAndValue(recordGroup, "metadataId", "someDefinitionGroup");
+		setReturnValueForAtomicWithNameAndValue(recordGroup, "idSource", "userSupplied");
+		setReturnValueForAtomicWithNameAndValue(recordGroup, "public", "false");
+		setReturnValueForAtomicWithNameAndValue(recordGroup, "usePermissionUnit", "true");
+		setReturnValueForAtomicWithNameAndValue(recordGroup, "useVisibility", "false");
+		setReturnValueForAtomicWithNameAndValue(recordGroup, "useTrashBin", "true");
+		setReturnValueForAtomicWithNameAndValue(recordGroup, "storeInArchive", "false");
+		return recordGroup;
 	}
 
-	private void setReturnValueForLinkWithNameAndValue(String nameInData, String linkPointsTo) {
+	private ValidationType createValidationType(String id, String recordType) {
+		return new ValidationType(id, recordType, "someNewDefinitionGroup",
+				"someUpdateDefinitionGroup");
+	}
+
+	private void setReturnValueForLinkWithNameAndValue(
+			ClientDataRecordGroupSpy clientDataRecordGroup, String nameInData,
+			String linkPointsTo) {
 		ClientDataRecordLinkSpy metadataLink = new ClientDataRecordLinkSpy();
 		metadataLink.MRV.setDefaultReturnValuesSupplier("getLinkedRecordId", () -> linkPointsTo);
-		dataRecordGroup.MRV.setSpecificReturnValuesSupplier("getFirstChildOfTypeAndName",
+		clientDataRecordGroup.MRV.setSpecificReturnValuesSupplier("getFirstChildOfTypeAndName",
 				() -> metadataLink, ClientDataRecordLink.class, nameInData);
 	}
 
-	private void setReturnValueForAtomicWithNameAndValue(String nameInData, String value) {
+	private void setReturnValueForAtomicWithNameAndValue(ClientDataRecordGroupSpy dataRecordGroup,
+			String nameInData, String value) {
 		dataRecordGroup.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
 				() -> value, nameInData);
 	}
 
 	@Test
-	public void testTesting() {
-		// SystemUrl.setUrl("");
-		// SystemUrl.setAppTokenVerifierUrl("");
-		// LoginToken.setFitnesseAdminLoginId("");
-		// LoginToken.setFitnesseAdminAppToken("");
+	public void testCreateTestForRecordType() {
+		DefinitionAutomator dat = new DefinitionAutomatorImp();
+		String out = dat.createTestForRecordType(RECORD_TYPE_ID);
 
-		// RecordTypeProvider.onlyForTestAddRecordGroupToInternalMap("id",
-		// new ClientDataRecordGroupSpy());
-		// ValidationTypeProvider.onlyForTestAddRecordGroupToInternalMap("id",
-		// new ClientDataRecordGroupSpy());
-
-		DefinitionAutomator dat = new DefinitionAutomator();
-		String recordType = "someRecordTypeId";
-
-		String out = dat.createTestForRecordType(recordType);
-
-		String CHECK_RECORD_TYPE = """
+		String recordTypeDefinitionTemplate = """
 				!*< Setup record type definition
 
 				!define recordTypeId {someRecordTypeId}
-				!define recordTypeDefinition {!%s-!}
+				!define recordTypeDefinition {!-%s-!}
 
 				#idSource (userSupplied/timestamp/sequence) others true/false
 				!define recordTypeIdSource {userSupplied}
-				!define recordTypeIsPublic {%s}
-				!define recordTypeUsePermissionUnit {%s}
-				!define recordTypeUseVisibility {%s}
-				!define recordTypeUseTrashBin {%s}
-				!define recordTypeStoreInArchive {%s}
+				!define recordTypeIsPublic {false}
+				!define recordTypeUsePermissionUnit {true}
+				!define recordTypeUseVisibility {false}
+				!define recordTypeUseTrashBin {true}
+				!define recordTypeStoreInArchive {false}
 				*!
 				!include -seamless .HelperPages.checkRecordType
+
 				""";
 
-		// System.out.println(out);
-		assertEquals(dataRecordGroup.getFirstAtomicValueWithNameInData("idSource"), "adsfads");
-		assertEquals(out, CHECK_RECORD_TYPE);
+		DefinitionWriterSpy writer = (DefinitionWriterSpy) dependencyFactory.MCR
+				.getReturnValue("factorDefinitionWriter", 0);
+
+		String definition = (String) writer.MCR.assertCalledParametersReturn(
+				"writeDefinitionUsingRecordId", "someDefinitionGroup");
+		assertEquals(out, recordTypeDefinitionTemplate.formatted(definition));
+	}
+
+	@Test
+	public void testCreateTestForValidationType() {
+		DefinitionAutomator dat = new DefinitionAutomatorImp();
+		String out = dat.createTestForValidationType(FIRST_VALIDATION_TYPE_ID);
+
+		String validationTypeDefinitionTemplate = """
+				!*< Setup validation type definition
+
+				!define validationTypeId {firstValidationTypeId}
+				!define recordTypeId {someRecordTypeId}
+				!define createValidationTypeDefinition {!-%s-!}
+
+				!define updateValidationTypeDefinition {!-%s-!}
+
+				*!
+				!include -seamless .HelperPages.checkValidationType
+
+					""";
+
+		DefinitionWriterSpy writer = (DefinitionWriterSpy) dependencyFactory.MCR
+				.getReturnValue("factorDefinitionWriter", 0);
+
+		String newDefinition = (String) writer.MCR.assertCalledParametersReturn(
+				"writeDefinitionUsingRecordId", "someNewDefinitionGroup");
+		String updateDefinition = (String) writer.MCR.assertCalledParametersReturn(
+				"writeDefinitionUsingRecordId", "someUpdateDefinitionGroup");
+		assertEquals(out,
+				validationTypeDefinitionTemplate.formatted(newDefinition, updateDefinition));
+	}
+
+	@Test
+	public void testCreateTestForRecordAndValidationType() {
+		String start = """
+				---
+				Test
+				---
+				!1 someRecordTypeId
+				Some text about the recordType.
+
+				There are a total of 2 validation types for this record type.
+
+				!2 firstValidationTypeId
+				Some text about the validation type.
+
+				!2 thirdValidationTypeId
+				Some text about the validation type.
+
+				""";
+		DefinitionAutomator dat = new DefinitionAutomatorImp();
+
+		String recordTypeTest = dat.createTestForRecordType(RECORD_TYPE_ID);
+		String firstValidationTypeTest = dat.createTestForValidationType(FIRST_VALIDATION_TYPE_ID);
+		String thirdValidationTypeTest = dat.createTestForValidationType(THIRD_VALIDATION_TYPE_ID);
+
+		String combined = dat.createTestForRecordAndValidationType(RECORD_TYPE_ID);
+
+		assertEquals(combined,
+				start + recordTypeTest + firstValidationTypeTest + thirdValidationTypeTest);
 	}
 
 }

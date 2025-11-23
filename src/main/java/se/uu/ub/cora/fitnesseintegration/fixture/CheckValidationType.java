@@ -1,5 +1,6 @@
 /*
  * Copyright 2025 Uppsala University Library
+ * Copyright 2025 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -18,43 +19,35 @@
  */
 package se.uu.ub.cora.fitnesseintegration.fixture;
 
-import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
-import se.uu.ub.cora.clientdata.ClientDataRecordLink;
 import se.uu.ub.cora.fitnesseintegration.cache.ValidationTypeProvider;
 import se.uu.ub.cora.fitnesseintegration.definitionwriter.DefinitionWriter;
+import se.uu.ub.cora.fitnesseintegration.metadata.ValidationType;
 import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
 
 public class CheckValidationType {
-	private ClientDataRecordGroup dataRecordGroup;
+	private ValidationType validationType;
+	private DefinitionWriter writer;
 
 	public CheckValidationType() {
 		// needed by fitnesse
 	}
 
 	public void setId(String id) {
-		dataRecordGroup = ValidationTypeProvider.getRecordGroup(id);
+		validationType = ValidationTypeProvider.getValidationType(id);
+		writer = DependencyProvider.factorDefinitionWriter();
 	}
 
 	public String validatesRecordType() {
-		return getLinkValueForNameInData("validatesRecordType");
+		return validationType.validatesRecordTypeId();
 	}
 
 	public String createDefinitionIs() {
-		String linkedRecordId = getLinkValueForNameInData("newMetadataId");
-		DefinitionWriter writer = DependencyProvider.factorDefinitionWriter();
+		String linkedRecordId = validationType.createDefinitionId();
 		return writer.writeDefinitionUsingRecordId(linkedRecordId);
-	}
-
-	private String getLinkValueForNameInData(String nameInData) {
-		ClientDataRecordLink metadataLink = dataRecordGroup
-				.getFirstChildOfTypeAndName(ClientDataRecordLink.class, nameInData);
-		return metadataLink.getLinkedRecordId();
 	}
 
 	public String updateDefinitionIs() {
-		String linkedRecordId = getLinkValueForNameInData("metadataId");
-		DefinitionWriter writer = DependencyProvider.factorDefinitionWriter();
+		String linkedRecordId = validationType.updateDefinitionId();
 		return writer.writeDefinitionUsingRecordId(linkedRecordId);
 	}
-
 }

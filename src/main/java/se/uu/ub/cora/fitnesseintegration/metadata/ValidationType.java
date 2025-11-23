@@ -16,13 +16,10 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.fitnesseintegration.automator;
 
-public interface DefinitionAutomator {
+package se.uu.ub.cora.fitnesseintegration.metadata;
 
-	public String createTestForRecordType(String recordType);
+public record ValidationType(String id, String validatesRecordTypeId, String createDefinitionId,
+		String updateDefinitionId) {
 
-	public String createTestForValidationType(String validationTypeId);
-
-	public String createTestForRecordAndValidationType(String recordType);
 }

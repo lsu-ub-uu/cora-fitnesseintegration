@@ -31,6 +31,7 @@
 	<name>Fitnesse integration</name>
 
 	<properties>
+		<coralog4j.version>2.16.0</coralog4j.version>
 		<logger.version>2.10.0</logger.version>
 		<json.version>3.10.0</json.version>
 		<httphandler.version>2.17.0</httphandler.version>
@@ -67,6 +68,12 @@
 			<artifactId>testng</artifactId>
 			<version>${testng.version}</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>se.uu.ub.cora</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${coralog4j.version}</version>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>se.uu.ub.cora</groupId>
