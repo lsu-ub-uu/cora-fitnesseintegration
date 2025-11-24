@@ -1,5 +1,6 @@
 /*
  * Copyright 2025 Uppsala University Library
+ * Copyright 2025 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -24,10 +25,9 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.ClientDataRecordLink;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordGroupSpy;
-import se.uu.ub.cora.clientdata.spies.ClientDataRecordLinkSpy;
 import se.uu.ub.cora.fitnesseintegration.cache.ValidationTypeProvider;
+import se.uu.ub.cora.fitnesseintegration.metadata.ValidationType;
 import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
 import se.uu.ub.cora.fitnesseintegration.spy.DefinitionWriterSpy;
 import se.uu.ub.cora.fitnesseintegration.spy.DependencyFactorySpy;
@@ -35,7 +35,7 @@ import se.uu.ub.cora.fitnesseintegration.spy.DependencyFactorySpy;
 public class CheckValidationTypeTest {
 	private CheckValidationType fixture;
 	private DependencyFactorySpy dependencyFactory;
-	private ClientDataRecordGroupSpy dataRecordGroup;
+	private ValidationType validationType;
 
 	@BeforeMethod
 	public void beforeMethod() {
@@ -45,11 +45,21 @@ public class CheckValidationTypeTest {
 		ClientDataRecordGroupSpy recordGroup = new ClientDataRecordGroupSpy();
 		recordGroup.MRV.setDefaultReturnValuesSupplier("getId", () -> "someId");
 
-		createClientDataRecordGroup();
-		ValidationTypeProvider.onlyForTestAddRecordGroupToInternalMap("someId", dataRecordGroup);
+		createValidationType();
+		ValidationTypeProvider.onlyForTestAddValidationTypeToInternalMap(validationType);
 
 		fixture = new CheckValidationType();
-		fixture.setId("someId");
+		fixture.setId("id");
+	}
+
+	private void createValidationType() {
+		String id = "id";
+		String validatesRecordTypeId = "recordTypeId";
+		String createDefinitionId = "createDefinitionId";
+		String updateDefinitionId = "updateDefinitionId";
+
+		validationType = new ValidationType(id, validatesRecordTypeId, createDefinitionId,
+				updateDefinitionId);
 	}
 
 	@AfterMethod
@@ -57,26 +67,11 @@ public class CheckValidationTypeTest {
 		ValidationTypeProvider.resetInternalHolder();
 	}
 
-	private ClientDataRecordGroupSpy createClientDataRecordGroup() {
-		dataRecordGroup = new ClientDataRecordGroupSpy();
-		setReturnValueForLinkWithNameAndValue("validatesRecordType", "someRecordType");
-		setReturnValueForLinkWithNameAndValue("newMetadataId", "someNewDefinitionGroup");
-		setReturnValueForLinkWithNameAndValue("metadataId", "someUpdateDefinitionGroup");
-		return dataRecordGroup;
-	}
-
-	private void setReturnValueForLinkWithNameAndValue(String nameInData, String linkPointsTo) {
-		ClientDataRecordLinkSpy metadataLink = new ClientDataRecordLinkSpy();
-		metadataLink.MRV.setDefaultReturnValuesSupplier("getLinkedRecordId", () -> linkPointsTo);
-		dataRecordGroup.MRV.setSpecificReturnValuesSupplier("getFirstChildOfTypeAndName",
-				() -> metadataLink, ClientDataRecordLink.class, nameInData);
-	}
-
 	@Test
-	public void testIdSourceIs() {
+	public void testValidatesRecordType() {
 		String value = fixture.validatesRecordType();
 
-		assertEquals(value, "someRecordType");
+		assertEquals(value, "recordTypeId");
 	}
 
 	@Test
@@ -87,7 +82,7 @@ public class CheckValidationTypeTest {
 				.getReturnValue("factorDefinitionWriter", 0);
 
 		writer.MCR.assertCalledParametersReturn("writeDefinitionUsingRecordId",
-				"someNewDefinitionGroup");
+				"createDefinitionId");
 		writer.MCR.assertReturn("writeDefinitionUsingRecordId", 0, definition);
 	}
 
@@ -99,7 +94,7 @@ public class CheckValidationTypeTest {
 				.getReturnValue("factorDefinitionWriter", 0);
 
 		writer.MCR.assertCalledParametersReturn("writeDefinitionUsingRecordId",
-				"someUpdateDefinitionGroup");
+				"updateDefinitionId");
 		writer.MCR.assertReturn("writeDefinitionUsingRecordId", 0, definition);
 	}
 

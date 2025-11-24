@@ -39,8 +39,8 @@ public class CheckRecordType {
 		ClientDataRecordLink metadataLink = dataRecordGroup
 				.getFirstChildOfTypeAndName(ClientDataRecordLink.class, "metadataId");
 		String linkedRecordId = metadataLink.getLinkedRecordId();
-		DefinitionWriter writer = DependencyProvider.factorDefinitionWriter();
 
+		DefinitionWriter writer = DependencyProvider.factorDefinitionWriter();
 		return writer.writeDefinitionUsingRecordId(linkedRecordId);
 	}
 

@@ -54,7 +54,6 @@ public class DefinitionWriterTest {
 	private static final String RECORD_ID = "someRecordId";
 
 	private DefinitionWriter writer;
-	private String authToken = "someAuthToken";
 	private MetadataHolderSpy metadataHolder;
 	private ClientDataRecordSpy dataRecord;
 	private ClientDataRecordGroupSpy dataRecordGroup;
@@ -184,6 +183,43 @@ public class DefinitionWriterTest {
 					someChildGroup (group, 0-X, noConstraint)
 						someTextChild (textVariable, 0-1, noConstraint)
 						someLinkChild (recordLink, 1-1, noConstraint)""";
+		assertEquals(definition, expectedDefinition);
+	}
+
+	@Test
+	public void testThreeLevelsLoop() {
+		ClientDataGroupSpy childReference1 = createChildReferenceElement("0", "X",
+				LINKED_CHILD_GROUP_ID);
+		childRefs.add(childReference1);
+		ClientDataRecordGroupSpy someChildGroup = createDataRecordGroupWithAttributesSpy(
+				CHILD_GROUP_N_I_D, GROUP_TYPE);
+		createRecordInStorageAndAddDataRecordGroup(LINKED_CHILD_GROUP_ID, someChildGroup);
+
+		List<ClientDataGroupSpy> childRefs2 = new ArrayList<>();
+
+		ClientDataGroupSpy textChildReference = createChildReferenceElement("0", "1",
+				LINKED_TEXT_CHILD_ID);
+		ClientDataRecordGroupSpy someTextChildGroup = createDataRecordGroupWithAttributesSpy(
+				LINKED_TEXT_CHILD_RECORD_N_I_D, TEXT_VARIABLE_TYPE);
+		createRecordInStorageAndAddDataRecordGroup(LINKED_TEXT_CHILD_ID, someTextChildGroup);
+
+		ClientDataGroupSpy linkChildReference = createChildReferenceElement("1", "1",
+				LINKED_CHILD_GROUP_ID);
+
+		childRefs2.add(textChildReference);
+		childRefs2.add(linkChildReference);
+
+		ClientDataGroupSpy childReferencesGroup2 = createChildReferencesGroupForRecordGroup(
+				someChildGroup);
+		addChildReferenceListToChildReferencesGroup(childReferencesGroup2, childRefs2);
+
+		String definition = writer.writeDefinitionUsingRecordId(RECORD_ID);
+
+		String expectedDefinition = """
+				someRootGroup (group)
+					someChildGroup (group, 0-X, noConstraint)
+						someTextChild (textVariable, 0-1, noConstraint)
+						someChildGroup (group, 1-1, noConstraint)""";
 		assertEquals(definition, expectedDefinition);
 	}
 
@@ -417,6 +453,7 @@ public class DefinitionWriterTest {
 			String type) {
 		ClientDataRecordGroupSpy dataRecordGroupSpy = new ClientDataRecordGroupSpy();
 
+		dataRecordGroupSpy.MRV.setDefaultReturnValuesSupplier("getId", () -> name);
 		dataRecordGroupSpy.MRV.setDefaultReturnValuesSupplier("hasAttributes", () -> true);
 		dataRecordGroupSpy.MRV.setSpecificReturnValuesSupplier("getAttributeValue",
 				() -> Optional.of(type), "type");

@@ -1,5 +1,6 @@
 /*
  * Copyright 2025 Uppsala University Library
+ * Copyright 2025 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -18,44 +19,84 @@
  */
 package se.uu.ub.cora.fitnesseintegration.cache;
 
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import se.uu.ub.cora.clientdata.ClientData;
 import se.uu.ub.cora.clientdata.ClientDataList;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
+import se.uu.ub.cora.clientdata.ClientDataRecordLink;
+import se.uu.ub.cora.fitnesseintegration.metadata.ValidationType;
 import se.uu.ub.cora.javaclient.data.DataClient;
 
 public class ValidationTypeProvider {
-	private static Map<String, ClientDataRecordGroup> recordGroupMap = new HashMap<>();
+	private static Map<String, ValidationType> validationTypeMap = new HashMap<>();
 
 	private ValidationTypeProvider() {
 		throw new UnsupportedOperationException();
 	}
 
-	public static ClientDataRecordGroup getRecordGroup(String id) {
+	public static ValidationType getValidationType(String id) {
 		possiblyLoadValidationTypesFromServer();
-		return recordGroupMap.get(id);
+		return validationTypeMap.get(id);
+	}
+
+	public static Collection<ValidationType> getValidationTypesThatValidatesRecordType(String id) {
+		possiblyLoadValidationTypesFromServer();
+		Stream<ValidationType> streamOfAllValidationTypes = validationTypeMap.values().stream()
+				.sorted(sortOnId());
+		return streamOfAllValidationTypes.filter(v -> validatesType(id, v)).toList();
+	}
+
+	private static Comparator<ValidationType> sortOnId() {
+		return (ValidationType a, ValidationType b) -> a.id().compareTo(b.id());
+	}
+
+	private static boolean validatesType(String id, ValidationType v) {
+		String validatesRecordTypeId = v.validatesRecordTypeId();
+		return validatesRecordTypeId.equals(id);
 	}
 
 	private static void possiblyLoadValidationTypesFromServer() {
-		if (recordTypesNotLoaded()) {
+		if (validationTypesNotLoaded()) {
 			loadValidationTypesFromServer();
 		}
 	}
 
-	private static boolean recordTypesNotLoaded() {
-		return recordGroupMap.size() == 0;
+	private static boolean validationTypesNotLoaded() {
+		return validationTypeMap.size() == 0;
 	}
 
 	private static void loadValidationTypesFromServer() {
 		List<ClientData> listOfRecords = loadListOfValidationTypesFromServer();
 		for (ClientData recordItem : listOfRecords) {
 			ClientDataRecord clientDataRecord = (ClientDataRecord) recordItem;
-			recordGroupMap.put(clientDataRecord.getId(), clientDataRecord.getDataRecordGroup());
+
+			ValidationType validationType = createValidationTypeFromRecordGroup(clientDataRecord);
+			validationTypeMap.put(validationType.id(), validationType);
 		}
+	}
+
+	private static ValidationType createValidationTypeFromRecordGroup(
+			ClientDataRecord clientDataRecord) {
+		ClientDataRecordGroup recordGroup = clientDataRecord.getDataRecordGroup();
+		String id = clientDataRecord.getId();
+		String recordTypeId = getLinkValueForNameInData(recordGroup, "validatesRecordType");
+		String createDefinitionId = getLinkValueForNameInData(recordGroup, "newMetadataId");
+		String updateDefinitionId = getLinkValueForNameInData(recordGroup, "metadataId");
+		return new ValidationType(id, recordTypeId, createDefinitionId, updateDefinitionId);
+	}
+
+	private static String getLinkValueForNameInData(ClientDataRecordGroup clientDataRecord,
+			String nameInData) {
+		ClientDataRecordLink metadataLink = clientDataRecord
+				.getFirstChildOfTypeAndName(ClientDataRecordLink.class, nameInData);
+		return metadataLink.getLinkedRecordId();
 	}
 
 	private static List<ClientData> loadListOfValidationTypesFromServer() {
@@ -65,11 +106,11 @@ public class ValidationTypeProvider {
 	}
 
 	public static void resetInternalHolder() {
-		recordGroupMap = new HashMap<>();
+		validationTypeMap = new HashMap<>();
 	}
 
-	public static void onlyForTestAddRecordGroupToInternalMap(String id,
-			ClientDataRecordGroup clientDataRecordGroup) {
-		recordGroupMap.put(id, clientDataRecordGroup);
+	public static void onlyForTestAddValidationTypeToInternalMap(ValidationType validationType) {
+		validationTypeMap.put(validationType.id(), validationType);
 	}
+
 }

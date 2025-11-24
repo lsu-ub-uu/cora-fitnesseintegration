@@ -78,7 +78,7 @@ public class CheckRecordTypeTest {
 
 	private void setReturnValueForAtomicWithNameAndValue(String nameInData, String value) {
 		dataRecordGroup.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
-				() -> nameInData, value);
+				() -> value, nameInData);
 	}
 
 	@Test
