@@ -55,6 +55,7 @@ public class DeleteRecord {
 	public String deleteAllRecordsForRecordType() {
 		DataClient client = FitnesseJavaClientProvider.getFitnesseAdminDataClient();
 		ClientDataList list = client.readList(recordType);
+		System.err.println(list.getTotalNumberOfTypeInStorage());
 		for (ClientData clientData : list.getDataList()) {
 			ClientDataRecord clientDataAsRecord = (ClientDataRecord) clientData;
 			client.delete(recordType, clientDataAsRecord.getId());
