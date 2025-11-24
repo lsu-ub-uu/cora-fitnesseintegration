@@ -1,0 +1,1007 @@
+2025-11-24 07:25:53,567 INFO s.u.u.c.f.a.DefinitionAutomatorRunner Generating definition for: recordType
+2025-11-24 07:25:59,235 INFO s.u.u.c.f.a.DefinitionAutomatorRunner ---
+Test
+---
+!1 recordType
+Some text about the recordType.
+
+There are a total of 1 validation types for this record type.
+
+!2 recordType
+Some text about the validation type.
+
+!*< Setup record type definition
+
+!define recordTypeId {recordType}
+!define recordTypeDefinition {!-recordType (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	metadataId (recordLink, 1-1, noConstraint)
+	unique (group, 0-X, noConstraint)
+		uniqueTerm (recordLink, 1-1, noConstraint)
+		combineTerm (recordLink, 0-X, noConstraint)
+	presentationViewId (recordLink, 1-1, noConstraint)
+	menuPresentationViewId (recordLink, 1-1, noConstraint)
+	listPresentationViewId (recordLink, 1-1, noConstraint)
+	textId (recordLink, 1-1, noConstraint)
+	defTextId (recordLink, 1-1, noConstraint)
+	search (recordLink, 0-1, noConstraint)
+	idSource (collectionVariable, 1-1, noConstraint)
+	sequence (recordLink, 0-1, noConstraint)
+	autocompletePresentationView (recordLink, 0-1, noConstraint)
+	groupOfRecordType (collectionVariable, 1-X, noConstraint)
+	filter (recordLink, 0-1, noConstraint)
+	filterPresentation (recordLink, 0-1, noConstraint)
+	public (collectionVariable, 1-1, noConstraint)
+	recordTypeCategory (collectionVariable, 0-X, noConstraint)
+	indexSettings (recordLink, 0-1, noConstraint)
+	storeInArchive (collectionVariable, 1-1, noConstraint)
+	usePermissionUnit (collectionVariable, 1-1, noConstraint)
+	useVisibility (collectionVariable, 1-1, noConstraint)
+	useTrashBin (collectionVariable, 1-1, noConstraint)-!}
+
+#idSource (userSupplied/timestamp/sequence) others true/false
+!define recordTypeIdSource {userSupplied}
+!define recordTypeIsPublic {false}
+!define recordTypeUsePermissionUnit {false}
+!define recordTypeUseVisibility {false}
+!define recordTypeUseTrashBin {false}
+!define recordTypeStoreInArchive {false}
+*!
+!include -seamless .HelperPages.checkRecordType
+
+!*< Setup validation type definition
+
+!define validationTypeId {recordType}
+!define recordTypeId {recordType}
+!define createValidationTypeDefinition {!-recordType (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P)
+	metadataId (recordLink, 0-1, noConstraint)
+	unique (group, 0-X, noConstraint)
+		uniqueTerm (recordLink, 1-1, noConstraint)
+		combineTerm (recordLink, 0-X, noConstraint)
+	presentationViewId (recordLink, 0-1, noConstraint)
+	menuPresentationViewId (recordLink, 0-1, noConstraint)
+	listPresentationViewId (recordLink, 0-1, noConstraint)
+	textId (recordLink, 0-1, noConstraint)
+	defTextId (recordLink, 0-1, noConstraint)
+	search (recordLink, 0-1, noConstraint)
+	idSource (collectionVariable, 1-1, noConstraint)
+	sequence (recordLink, 0-1, noConstraint)
+	autocompletePresentationView (recordLink, 0-1, noConstraint)
+	groupOfRecordType (collectionVariable, 1-X, noConstraint)
+	filter (recordLink, 0-1, noConstraint)
+	filterPresentation (recordLink, 0-1, noConstraint)
+	public (collectionVariable, 1-1, noConstraint)
+	recordTypeCategory (collectionVariable, 0-1, noConstraint)
+	indexSettings (recordLink, 0-1, noConstraint)
+	storeInArchive (collectionVariable, 1-1, noConstraint)
+	usePermissionUnit (collectionVariable, 1-1, noConstraint)
+	useVisibility (collectionVariable, 1-1, noConstraint)
+	useTrashBin (collectionVariable, 1-1, noConstraint)-!}
+
+!define updateValidationTypeDefinition {!-recordType (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	metadataId (recordLink, 1-1, noConstraint)
+	unique (group, 0-X, noConstraint)
+		uniqueTerm (recordLink, 1-1, noConstraint)
+		combineTerm (recordLink, 0-X, noConstraint)
+	presentationViewId (recordLink, 1-1, noConstraint)
+	menuPresentationViewId (recordLink, 1-1, noConstraint)
+	listPresentationViewId (recordLink, 1-1, noConstraint)
+	textId (recordLink, 1-1, noConstraint)
+	defTextId (recordLink, 1-1, noConstraint)
+	search (recordLink, 0-1, noConstraint)
+	idSource (collectionVariable, 1-1, noConstraint)
+	sequence (recordLink, 0-1, noConstraint)
+	autocompletePresentationView (recordLink, 0-1, noConstraint)
+	groupOfRecordType (collectionVariable, 1-X, noConstraint)
+	filter (recordLink, 0-1, noConstraint)
+	filterPresentation (recordLink, 0-1, noConstraint)
+	public (collectionVariable, 1-1, noConstraint)
+	recordTypeCategory (collectionVariable, 0-X, noConstraint)
+	indexSettings (recordLink, 0-1, noConstraint)
+	storeInArchive (collectionVariable, 1-1, noConstraint)
+	usePermissionUnit (collectionVariable, 1-1, noConstraint)
+	useVisibility (collectionVariable, 1-1, noConstraint)
+	useTrashBin (collectionVariable, 1-1, noConstraint)-!}
+
+*!
+!include -seamless .HelperPages.checkValidationType
+
+
+2025-11-24 07:25:59,237 INFO s.u.u.c.f.a.DefinitionAutomatorRunner Generating definition for: collectTerm
+2025-11-24 07:25:59,246 INFO s.u.u.c.f.a.DefinitionAutomatorRunner ---
+Test
+---
+!1 collectTerm
+Some text about the recordType.
+
+There are a total of 3 validation types for this record type.
+
+!2 collectIndexTerm
+Some text about the validation type.
+
+!2 collectPermissionTerm
+Some text about the validation type.
+
+!2 collectStorageTerm
+Some text about the validation type.
+
+!*< Setup record type definition
+
+!define recordTypeId {collectTerm}
+!define recordTypeDefinition {!-collectTerm type:{index, permission, storage} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	nameInData (textVariable, 0-1, noConstraint)
+	extraData (group, 1-1, noConstraint)
+		indexFieldName (textVariable, 0-1, noConstraint)
+		indexType (collectionVariable, 0-1, noConstraint)
+		permissionKey (textVariable, 0-1, noConstraint)
+		mode (collectionVariable, 0-1, noConstraint)
+		storageKey (textVariable, 0-1, noConstraint)-!}
+
+#idSource (userSupplied/timestamp/sequence) others true/false
+!define recordTypeIdSource {userSupplied}
+!define recordTypeIsPublic {false}
+!define recordTypeUsePermissionUnit {false}
+!define recordTypeUseVisibility {false}
+!define recordTypeUseTrashBin {false}
+!define recordTypeStoreInArchive {false}
+*!
+!include -seamless .HelperPages.checkRecordType
+
+!*< Setup validation type definition
+
+!define validationTypeId {collectIndexTerm}
+!define recordTypeId {collectTerm}
+!define createValidationTypeDefinition {!-collectTerm type:{index} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P)
+	nameInData (textVariable, 1-1, noConstraint)
+	extraData (group, 1-1, noConstraint)
+		indexFieldName (textVariable, 1-1, noConstraint)
+		indexType (collectionVariable, 1-1, noConstraint)-!}
+
+!define updateValidationTypeDefinition {!-collectTerm type:{index} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	nameInData (textVariable, 1-1, noConstraint)
+	extraData (group, 1-1, noConstraint)
+		indexFieldName (textVariable, 1-1, noConstraint)
+		indexType (collectionVariable, 1-1, noConstraint)-!}
+
+*!
+!include -seamless .HelperPages.checkValidationType
+
+!*< Setup validation type definition
+
+!define validationTypeId {collectPermissionTerm}
+!define recordTypeId {collectTerm}
+!define createValidationTypeDefinition {!-collectPermissionTerm type:{permission} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P)
+	nameInData (textVariable, 1-1, noConstraint)
+	extraData (group, 1-1, noConstraint)
+		permissionKey (textVariable, 1-1, noConstraint)
+		mode (collectionVariable, 1-1, noConstraint)-!}
+
+!define updateValidationTypeDefinition {!-collectPermissionTerm type:{permission} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	nameInData (textVariable, 1-1, noConstraint)
+	extraData (group, 1-1, noConstraint)
+		permissionKey (textVariable, 1-1, noConstraint)
+		mode (collectionVariable, 1-1, noConstraint)-!}
+
+*!
+!include -seamless .HelperPages.checkValidationType
+
+!*< Setup validation type definition
+
+!define validationTypeId {collectStorageTerm}
+!define recordTypeId {collectTerm}
+!define createValidationTypeDefinition {!-collectStorageTerm type:{storage} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P)
+	extraData (group, 1-1, noConstraint)
+		storageKey (textVariable, 1-1, noConstraint)-!}
+
+!define updateValidationTypeDefinition {!-collectStorageTerm type:{storage} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	extraData (group, 1-1, noConstraint)
+		storageKey (textVariable, 1-1, noConstraint)-!}
+
+*!
+!include -seamless .HelperPages.checkValidationType
+
+
+2025-11-24 07:26:19,499 INFO s.u.u.c.f.a.DefinitionAutomatorRunner Generating definition for: metadata
+2025-11-24 07:26:21,712 INFO s.u.u.c.f.a.DefinitionAutomatorRunner ---
+Test
+---
+!1 metadata
+Some text about the recordType.
+
+There are a total of 8 validation types for this record type.
+
+!2 genericCollectionItem
+Some text about the validation type.
+
+!2 metadataCollectionVariable
+Some text about the validation type.
+
+!2 metadataGroup
+Some text about the validation type.
+
+!2 metadataItemCollection
+Some text about the validation type.
+
+!2 metadataNumberVariable
+Some text about the validation type.
+
+!2 metadataRecordLink
+Some text about the validation type.
+
+!2 metadataResourceLink
+Some text about the validation type.
+
+!2 metadataTextVariable
+Some text about the validation type.
+
+!*< Setup record type definition
+
+!define recordTypeId {metadata}
+!define recordTypeDefinition {!-metadata type:{group, textVariable, numberVariable, recordLink, itemCollection, collectionItem, collectionVariable, resourceLink} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	nameInData (textVariable, 1-1, noConstraint, I)
+	textId (recordLink, 1-1, noConstraint, I)
+	defTextId (recordLink, 1-1, noConstraint)
+	attributeReferences (group, 0-1, noConstraint)
+		ref (recordLink, 1-X, noConstraint)
+	linkedRecordType (recordLink, 0-1, noConstraint)
+	refParentId (recordLink, 0-1, noConstraint)
+	finalValue (textVariable, 0-1, noConstraint)
+	regEx (textVariable, 0-1, noConstraint)
+	childReferences (group, 0-1, noConstraint)
+		childReference (group, 1-X, noConstraint)
+			repeatMin (textVariable, 1-1, noConstraint)
+			repeatMinKey (textVariable, 0-1, noConstraint)
+			repeatMax (textVariable, 1-1, noConstraint)
+			ref (recordLink, 1-1, noConstraint)
+			childRefCollectTerm type:{index} (recordLink, 0-X, noConstraint)
+			childRefCollectTerm type:{permission} (recordLink, 0-1, noConstraint)
+			childRefCollectTerm type:{storage} (recordLink, 0-1, noConstraint)
+			recordPartConstraint (collectionVariable, 0-1, noConstraint)
+	excludePGroupCreation (collectionVariable, 0-1, noConstraint)
+	min (textVariable, 0-1, noConstraint)
+	max (textVariable, 0-1, noConstraint)
+	warningMin (textVariable, 0-1, noConstraint)
+	warningMax (textVariable, 0-1, noConstraint)
+	numberOfDecimals (textVariable, 0-1, noConstraint)
+	refCollection (recordLink, 0-1, noConstraint)
+	collectionItemReferences (group, 0-1, noConstraint)
+		ref (recordLink, 1-X, noConstraint)
+	extraData (group, 0-1, noConstraint)
+		extraDataPart type:{undefined} (group, 0-X, noConstraint)
+			value (textVariable, 1-1, noConstraint)-!}
+
+#idSource (userSupplied/timestamp/sequence) others true/false
+!define recordTypeIdSource {userSupplied}
+!define recordTypeIsPublic {true}
+!define recordTypeUsePermissionUnit {false}
+!define recordTypeUseVisibility {false}
+!define recordTypeUseTrashBin {false}
+!define recordTypeStoreInArchive {false}
+*!
+!include -seamless .HelperPages.checkRecordType
+
+!*< Setup validation type definition
+
+!define validationTypeId {genericCollectionItem}
+!define recordTypeId {metadata}
+!define createValidationTypeDefinition {!-metadata type:{collectionItem} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		validationType {genericCollectionItem} (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P)
+	nameInData (textVariable, 1-1, noConstraint)
+	textId (recordLink, 0-1, noConstraint)
+	defTextId (recordLink, 0-1, noConstraint)-!}
+
+!define updateValidationTypeDefinition {!-metadata type:{collectionItem} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType {genericCollectionItem} (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	nameInData (textVariable, 1-1, noConstraint)
+	textId (recordLink, 1-1, noConstraint)
+	defTextId (recordLink, 1-1, noConstraint)-!}
+
+*!
+!include -seamless .HelperPages.checkValidationType
+
+!*< Setup validation type definition
+
+!define validationTypeId {metadataCollectionVariable}
+!define recordTypeId {metadata}
+!define createValidationTypeDefinition {!-metadata type:{collectionVariable} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		dataDivider (recordLink, 1-1, noConstraint, P)
+		validationType (recordLink, 1-1, noConstraint)
+	nameInData (textVariable, 1-1, noConstraint)
+	textId (recordLink, 0-1, noConstraint)
+	defTextId (recordLink, 0-1, noConstraint)
+	refCollection (recordLink, 1-1, noConstraint)
+	refParentId (recordLink, 0-1, noConstraint)
+	finalValue (textVariable, 0-1, noConstraint)
+	attributeReferences (group, 0-1, noConstraint)
+		ref (recordLink, 1-X, noConstraint)-!}
+
+!define updateValidationTypeDefinition {!-metadata type:{collectionVariable} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	nameInData (textVariable, 1-1, noConstraint)
+	textId (recordLink, 1-1, noConstraint)
+	defTextId (recordLink, 1-1, noConstraint)
+	refCollection (recordLink, 1-1, noConstraint)
+	refParentId (recordLink, 0-1, noConstraint)
+	finalValue (textVariable, 0-1, noConstraint)
+	attributeReferences (group, 0-1, noConstraint)
+		ref (recordLink, 1-X, noConstraint)-!}
+
+*!
+!include -seamless .HelperPages.checkValidationType
+
+!*< Setup validation type definition
+
+!define validationTypeId {metadataGroup}
+!define recordTypeId {metadata}
+!define createValidationTypeDefinition {!-metadata type:{group} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		validationType {metadataGroup} (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P)
+	nameInData (textVariable, 1-1, noConstraint)
+	textId (recordLink, 0-1, noConstraint)
+	defTextId (recordLink, 0-1, noConstraint)
+	refParentId (recordLink, 0-1, noConstraint)
+	attributeReferences (group, 0-1, noConstraint)
+		ref (recordLink, 1-X, noConstraint)
+	childReferences (group, 1-1, noConstraint)
+		childReference (group, 1-X, noConstraint)
+			repeatMin (textVariable, 1-1, noConstraint)
+			repeatMinKey (textVariable, 0-1, noConstraint)
+			repeatMax (textVariable, 1-1, noConstraint)
+			ref (recordLink, 1-1, noConstraint)
+			childRefCollectTerm type:{index} (recordLink, 0-X, noConstraint)
+			childRefCollectTerm type:{permission} (recordLink, 0-1, noConstraint)
+			childRefCollectTerm type:{storage} (recordLink, 0-1, noConstraint)
+			recordPartConstraint (collectionVariable, 0-1, noConstraint)
+	excludePGroupCreation (collectionVariable, 0-1, noConstraint)-!}
+
+!define updateValidationTypeDefinition {!-metadata type:{group} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	nameInData (textVariable, 1-1, noConstraint)
+	textId (recordLink, 1-1, noConstraint)
+	defTextId (recordLink, 1-1, noConstraint)
+	refParentId (recordLink, 0-1, noConstraint)
+	attributeReferences (group, 0-1, noConstraint)
+		ref (recordLink, 1-X, noConstraint)
+	childReferences (group, 1-1, noConstraint)
+		childReference (group, 1-X, noConstraint)
+			repeatMin (textVariable, 1-1, noConstraint)
+			repeatMinKey (textVariable, 0-1, noConstraint)
+			repeatMax (textVariable, 1-1, noConstraint)
+			ref (recordLink, 1-1, noConstraint)
+			childRefCollectTerm type:{index} (recordLink, 0-X, noConstraint)
+			childRefCollectTerm type:{permission} (recordLink, 0-1, noConstraint)
+			childRefCollectTerm type:{storage} (recordLink, 0-1, noConstraint)
+			recordPartConstraint (collectionVariable, 0-1, noConstraint)
+	excludePGroupCreation (collectionVariable, 0-1, noConstraint)-!}
+
+*!
+!include -seamless .HelperPages.checkValidationType
+
+!*< Setup validation type definition
+
+!define validationTypeId {metadataItemCollection}
+!define recordTypeId {metadata}
+!define createValidationTypeDefinition {!-metadata type:{itemCollection} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		dataDivider (recordLink, 1-1, noConstraint, P)
+		validationType {metadataItemCollection} (recordLink, 1-1, noConstraint)
+	nameInData (textVariable, 1-1, noConstraint)
+	textId (recordLink, 0-1, noConstraint)
+	defTextId (recordLink, 0-1, noConstraint)
+	collectionItemReferences (group, 1-1, noConstraint)
+		ref (recordLink, 1-X, noConstraint)-!}
+
+!define updateValidationTypeDefinition {!-metadata type:{itemCollection} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	nameInData (textVariable, 1-1, noConstraint)
+	textId (recordLink, 1-1, noConstraint)
+	defTextId (recordLink, 1-1, noConstraint)
+	collectionItemReferences (group, 1-1, noConstraint)
+		ref (recordLink, 1-X, noConstraint)-!}
+
+*!
+!include -seamless .HelperPages.checkValidationType
+
+!*< Setup validation type definition
+
+!define validationTypeId {metadataNumberVariable}
+!define recordTypeId {metadata}
+!define createValidationTypeDefinition {!-metadata type:{numberVariable} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		dataDivider (recordLink, 1-1, noConstraint, P)
+		validationType {metadataNumberVariable} (recordLink, 1-1, noConstraint)
+	nameInData (textVariable, 1-1, noConstraint)
+	textId (recordLink, 0-1, noConstraint)
+	defTextId (recordLink, 0-1, noConstraint)
+	min (textVariable, 1-1, noConstraint)
+	max (textVariable, 1-1, noConstraint)
+	warningMin (textVariable, 1-1, noConstraint)
+	warningMax (textVariable, 1-1, noConstraint)
+	numberOfDecimals (textVariable, 1-1, noConstraint)
+	attributeReferences (group, 0-1, noConstraint)
+		ref (recordLink, 1-X, noConstraint)-!}
+
+!define updateValidationTypeDefinition {!-metadata type:{numberVariable} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	nameInData (textVariable, 1-1, noConstraint)
+	textId (recordLink, 1-1, noConstraint)
+	defTextId (recordLink, 1-1, noConstraint)
+	min (textVariable, 1-1, noConstraint)
+	max (textVariable, 1-1, noConstraint)
+	warningMin (textVariable, 1-1, noConstraint)
+	warningMax (textVariable, 1-1, noConstraint)
+	numberOfDecimals (textVariable, 1-1, noConstraint)
+	attributeReferences (group, 0-1, noConstraint)
+		ref (recordLink, 1-X, noConstraint)-!}
+
+*!
+!include -seamless .HelperPages.checkValidationType
+
+!*< Setup validation type definition
+
+!define validationTypeId {metadataRecordLink}
+!define recordTypeId {metadata}
+!define createValidationTypeDefinition {!-metadata type:{recordLink} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		dataDivider (recordLink, 1-1, noConstraint, P)
+		validationType {metadataRecordLink} (recordLink, 1-1, noConstraint)
+	nameInData (textVariable, 1-1, noConstraint)
+	textId (recordLink, 0-1, noConstraint)
+	defTextId (recordLink, 0-1, noConstraint)
+	attributeReferences (group, 0-1, noConstraint)
+		ref (recordLink, 1-X, noConstraint)
+	linkedRecordType (recordLink, 1-1, noConstraint)
+	linkedPath (group, 0-1, noConstraint)
+		nameInData (textVariable, 1-1, noConstraint)
+		attributes (group, 0-1, noConstraint)
+			attribute (group, 1-X, noConstraint)
+				attributeName (textVariable, 1-1, noConstraint)
+				attributeValue (textVariable, 1-1, noConstraint)
+		linkedPath (group, 0-1, noConstraint)
+	refParentId (recordLink, 0-1, noConstraint)
+	finalValue (textVariable, 0-1, noConstraint)-!}
+
+!define updateValidationTypeDefinition {!-metadata type:{recordLink} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	nameInData (textVariable, 1-1, noConstraint)
+	textId (recordLink, 1-1, noConstraint)
+	defTextId (recordLink, 1-1, noConstraint)
+	attributeReferences (group, 0-1, noConstraint)
+		ref (recordLink, 1-X, noConstraint)
+	linkedRecordType (recordLink, 1-1, noConstraint)
+	linkedPath (group, 0-1, noConstraint)
+		nameInData (textVariable, 1-1, noConstraint)
+		attributes (group, 0-1, noConstraint)
+			attribute (group, 1-X, noConstraint)
+				attributeName (textVariable, 1-1, noConstraint)
+				attributeValue (textVariable, 1-1, noConstraint)
+		linkedPath (group, 0-1, noConstraint)
+	refParentId (recordLink, 0-1, noConstraint)
+	finalValue (textVariable, 0-1, noConstraint)-!}
+
+*!
+!include -seamless .HelperPages.checkValidationType
+
+!*< Setup validation type definition
+
+!define validationTypeId {metadataResourceLink}
+!define recordTypeId {metadata}
+!define createValidationTypeDefinition {!-metadata type:{resourceLink} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		dataDivider (recordLink, 1-1, noConstraint, P)
+		validationType (recordLink, 1-1, noConstraint)
+	nameInData (textVariable, 1-1, noConstraint)
+	textId (recordLink, 1-1, noConstraint)
+	defTextId (recordLink, 1-1, noConstraint)-!}
+
+!define updateValidationTypeDefinition {!-metadata type:{resourceLink} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	nameInData (textVariable, 1-1, noConstraint)
+	textId (recordLink, 1-1, noConstraint)
+	defTextId (recordLink, 1-1, noConstraint)-!}
+
+*!
+!include -seamless .HelperPages.checkValidationType
+
+!*< Setup validation type definition
+
+!define validationTypeId {metadataTextVariable}
+!define recordTypeId {metadata}
+!define createValidationTypeDefinition {!-metadata type:{textVariable} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		dataDivider (recordLink, 1-1, noConstraint, P)
+		validationType {metadataTextVariable} (recordLink, 1-1, noConstraint)
+	nameInData (textVariable, 1-1, noConstraint)
+	textId (recordLink, 0-1, noConstraint)
+	defTextId (recordLink, 0-1, noConstraint)
+	regEx (textVariable, 1-1, noConstraint)
+	refParentId (recordLink, 0-1, noConstraint)
+	finalValue (textVariable, 0-1, noConstraint)
+	attributeReferences (group, 0-1, noConstraint)
+		ref (recordLink, 1-X, noConstraint)-!}
+
+!define updateValidationTypeDefinition {!-metadata type:{textVariable} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	nameInData (textVariable, 1-1, noConstraint)
+	textId (recordLink, 1-1, noConstraint, I)
+	defTextId (recordLink, 1-1, noConstraint)
+	regEx (textVariable, 1-1, noConstraint)
+	refParentId (recordLink, 0-1, noConstraint)
+	finalValue (textVariable, 0-1, noConstraint)
+	attributeReferences (group, 0-1, noConstraint)
+		ref (recordLink, 1-X, noConstraint)-!}
+
+*!
+!include -seamless .HelperPages.checkValidationType
+
+
+2025-11-24 07:46:06,968 INFO s.u.u.c.f.a.DefinitionAutomatorRunner Generating definition for: recordType
+2025-11-24 07:46:09,011 INFO s.u.u.c.f.a.DefinitionAutomatorRunner ---
+Test
+---
+!1 recordType
+Some text about the recordType.
+
+There are a total of 1 validation types for this record type.
+
+!2 recordType
+Some text about the validation type.
+
+!*< Setup record type definition
+
+!define recordTypeId {recordType}
+!define recordTypeDefinition {!-recordType (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	metadataId (recordLink, 1-1, noConstraint)
+	unique (group, 0-X, noConstraint)
+		uniqueTerm (recordLink, 1-1, noConstraint)
+		combineTerm (recordLink, 0-X, noConstraint)
+	presentationViewId (recordLink, 1-1, noConstraint)
+	menuPresentationViewId (recordLink, 1-1, noConstraint)
+	listPresentationViewId (recordLink, 1-1, noConstraint)
+	textId (recordLink, 1-1, noConstraint)
+	defTextId (recordLink, 1-1, noConstraint)
+	search (recordLink, 0-1, noConstraint)
+	idSource (collectionVariable, 1-1, noConstraint)
+	sequence (recordLink, 0-1, noConstraint)
+	autocompletePresentationView (recordLink, 0-1, noConstraint)
+	groupOfRecordType (collectionVariable, 1-X, noConstraint)
+	filter (recordLink, 0-1, noConstraint)
+	filterPresentation (recordLink, 0-1, noConstraint)
+	public (collectionVariable, 1-1, noConstraint)
+	recordTypeCategory (collectionVariable, 0-X, noConstraint)
+	indexSettings (recordLink, 0-1, noConstraint)
+	storeInArchive (collectionVariable, 1-1, noConstraint)
+	usePermissionUnit (collectionVariable, 1-1, noConstraint)
+	useVisibility (collectionVariable, 1-1, noConstraint)
+	useTrashBin (collectionVariable, 1-1, noConstraint)-!}
+
+#idSource (userSupplied/timestamp/sequence) others true/false
+!define recordTypeIdSource {userSupplied}
+!define recordTypeIsPublic {false}
+!define recordTypeUsePermissionUnit {false}
+!define recordTypeUseVisibility {false}
+!define recordTypeUseTrashBin {false}
+!define recordTypeStoreInArchive {false}
+*!
+!include -seamless .HelperPages.checkRecordType
+
+!*< Setup validation type definition
+
+!define validationTypeId {recordType}
+!define recordTypeId {recordType}
+!define createValidationTypeDefinition {!-recordType (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P)
+	metadataId (recordLink, 0-1, noConstraint)
+	unique (group, 0-X, noConstraint)
+		uniqueTerm (recordLink, 1-1, noConstraint)
+		combineTerm (recordLink, 0-X, noConstraint)
+	presentationViewId (recordLink, 0-1, noConstraint)
+	menuPresentationViewId (recordLink, 0-1, noConstraint)
+	listPresentationViewId (recordLink, 0-1, noConstraint)
+	textId (recordLink, 0-1, noConstraint)
+	defTextId (recordLink, 0-1, noConstraint)
+	search (recordLink, 0-1, noConstraint)
+	idSource (collectionVariable, 1-1, noConstraint)
+	sequence (recordLink, 0-1, noConstraint)
+	autocompletePresentationView (recordLink, 0-1, noConstraint)
+	groupOfRecordType (collectionVariable, 1-X, noConstraint)
+	filter (recordLink, 0-1, noConstraint)
+	filterPresentation (recordLink, 0-1, noConstraint)
+	public (collectionVariable, 1-1, noConstraint)
+	recordTypeCategory (collectionVariable, 0-1, noConstraint)
+	indexSettings (recordLink, 0-1, noConstraint)
+	storeInArchive (collectionVariable, 1-1, noConstraint)
+	usePermissionUnit (collectionVariable, 1-1, noConstraint)
+	useVisibility (collectionVariable, 1-1, noConstraint)
+	useTrashBin (collectionVariable, 1-1, noConstraint)-!}
+
+!define updateValidationTypeDefinition {!-recordType (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	metadataId (recordLink, 1-1, noConstraint)
+	unique (group, 0-X, noConstraint)
+		uniqueTerm (recordLink, 1-1, noConstraint)
+		combineTerm (recordLink, 0-X, noConstraint)
+	presentationViewId (recordLink, 1-1, noConstraint)
+	menuPresentationViewId (recordLink, 1-1, noConstraint)
+	listPresentationViewId (recordLink, 1-1, noConstraint)
+	textId (recordLink, 1-1, noConstraint)
+	defTextId (recordLink, 1-1, noConstraint)
+	search (recordLink, 0-1, noConstraint)
+	idSource (collectionVariable, 1-1, noConstraint)
+	sequence (recordLink, 0-1, noConstraint)
+	autocompletePresentationView (recordLink, 0-1, noConstraint)
+	groupOfRecordType (collectionVariable, 1-X, noConstraint)
+	filter (recordLink, 0-1, noConstraint)
+	filterPresentation (recordLink, 0-1, noConstraint)
+	public (collectionVariable, 1-1, noConstraint)
+	recordTypeCategory (collectionVariable, 0-X, noConstraint)
+	indexSettings (recordLink, 0-1, noConstraint)
+	storeInArchive (collectionVariable, 1-1, noConstraint)
+	usePermissionUnit (collectionVariable, 1-1, noConstraint)
+	useVisibility (collectionVariable, 1-1, noConstraint)
+	useTrashBin (collectionVariable, 1-1, noConstraint)-!}
+
+*!
+!include -seamless .HelperPages.checkValidationType
+
+----
+
+2025-11-24 07:46:09,012 INFO s.u.u.c.f.a.DefinitionAutomatorRunner Generating definition for: collectTerm
+2025-11-24 07:46:09,019 INFO s.u.u.c.f.a.DefinitionAutomatorRunner ---
+Test
+---
+!1 collectTerm
+Some text about the recordType.
+
+There are a total of 3 validation types for this record type.
+
+!2 collectIndexTerm
+Some text about the validation type.
+
+!2 collectPermissionTerm
+Some text about the validation type.
+
+!2 collectStorageTerm
+Some text about the validation type.
+
+!*< Setup record type definition
+
+!define recordTypeId {collectTerm}
+!define recordTypeDefinition {!-collectTerm type:{index, permission, storage} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	nameInData (textVariable, 0-1, noConstraint)
+	extraData (group, 1-1, noConstraint)
+		indexFieldName (textVariable, 0-1, noConstraint)
+		indexType (collectionVariable, 0-1, noConstraint)
+		permissionKey (textVariable, 0-1, noConstraint)
+		mode (collectionVariable, 0-1, noConstraint)
+		storageKey (textVariable, 0-1, noConstraint)-!}
+
+#idSource (userSupplied/timestamp/sequence) others true/false
+!define recordTypeIdSource {userSupplied}
+!define recordTypeIsPublic {false}
+!define recordTypeUsePermissionUnit {false}
+!define recordTypeUseVisibility {false}
+!define recordTypeUseTrashBin {false}
+!define recordTypeStoreInArchive {false}
+*!
+!include -seamless .HelperPages.checkRecordType
+
+!*< Setup validation type definition
+
+!define validationTypeId {collectIndexTerm}
+!define recordTypeId {collectTerm}
+!define createValidationTypeDefinition {!-collectTerm type:{index} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P)
+	nameInData (textVariable, 1-1, noConstraint)
+	extraData (group, 1-1, noConstraint)
+		indexFieldName (textVariable, 1-1, noConstraint)
+		indexType (collectionVariable, 1-1, noConstraint)-!}
+
+!define updateValidationTypeDefinition {!-collectTerm type:{index} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	nameInData (textVariable, 1-1, noConstraint)
+	extraData (group, 1-1, noConstraint)
+		indexFieldName (textVariable, 1-1, noConstraint)
+		indexType (collectionVariable, 1-1, noConstraint)-!}
+
+*!
+!include -seamless .HelperPages.checkValidationType
+
+!*< Setup validation type definition
+
+!define validationTypeId {collectPermissionTerm}
+!define recordTypeId {collectTerm}
+!define createValidationTypeDefinition {!-collectPermissionTerm type:{permission} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P)
+	nameInData (textVariable, 1-1, noConstraint)
+	extraData (group, 1-1, noConstraint)
+		permissionKey (textVariable, 1-1, noConstraint)
+		mode (collectionVariable, 1-1, noConstraint)-!}
+
+!define updateValidationTypeDefinition {!-collectPermissionTerm type:{permission} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	nameInData (textVariable, 1-1, noConstraint)
+	extraData (group, 1-1, noConstraint)
+		permissionKey (textVariable, 1-1, noConstraint)
+		mode (collectionVariable, 1-1, noConstraint)-!}
+
+*!
+!include -seamless .HelperPages.checkValidationType
+
+!*< Setup validation type definition
+
+!define validationTypeId {collectStorageTerm}
+!define recordTypeId {collectTerm}
+!define createValidationTypeDefinition {!-collectStorageTerm type:{storage} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P)
+	extraData (group, 1-1, noConstraint)
+		storageKey (textVariable, 1-1, noConstraint)-!}
+
+!define updateValidationTypeDefinition {!-collectStorageTerm type:{storage} (group)
+	recordInfo (group, 1-1, noConstraint)
+		id (textVariable, 1-1, noConstraint, I)
+		type (recordLink, 1-1, noConstraint)
+		validationType (recordLink, 1-1, noConstraint)
+		dataDivider (recordLink, 1-1, noConstraint, P, I)
+		createdBy (recordLink, 1-1, noConstraint)
+		permissionUnit (recordLink, 0-X, noConstraint)
+		tsCreated (textVariable, 1-1, noConstraint)
+		updated (group, 1-X, noConstraint)
+			updatedBy (recordLink, 1-1, noConstraint)
+			tsUpdated (textVariable, 1-1, noConstraint)
+	extraData (group, 1-1, noConstraint)
+		storageKey (textVariable, 1-1, noConstraint)-!}
+
+*!
+!include -seamless .HelperPages.checkValidationType
+
+----
+
