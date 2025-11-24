@@ -179,6 +179,7 @@ public class DefinitionAutomatorTest {
 	@Test
 	public void testCreateTestForRecordAndValidationType() {
 		String start = """
+
 				---
 				Test
 				---
@@ -194,6 +195,9 @@ public class DefinitionAutomatorTest {
 				Some text about the validation type.
 
 				""";
+		String end = """
+				----
+				""";
 		DefinitionAutomator dat = new DefinitionAutomatorImp();
 
 		String recordTypeTest = dat.createTestForRecordType(RECORD_TYPE_ID);
@@ -203,7 +207,7 @@ public class DefinitionAutomatorTest {
 		String combined = dat.createTestForRecordAndValidationType(RECORD_TYPE_ID);
 
 		assertEquals(combined,
-				start + recordTypeTest + firstValidationTypeTest + thirdValidationTypeTest);
+				start + recordTypeTest + firstValidationTypeTest + thirdValidationTypeTest + end);
 	}
 
 }

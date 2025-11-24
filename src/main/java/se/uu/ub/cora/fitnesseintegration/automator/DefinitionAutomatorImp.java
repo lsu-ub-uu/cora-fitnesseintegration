@@ -132,11 +132,15 @@ public class DefinitionAutomatorImp implements DefinitionAutomator {
 		out.append(createStartOfTest(recordType));
 		out.append(createTestForRecordType(recordType));
 		appendTestsForValidationTypes(recordType, out);
+		out.append("""
+				----
+				""");
 		return out.toString();
 	}
 
 	private Object createStartOfTest(String recordType) {
 		String start = """
+
 				---
 				Test
 				---
