@@ -37,4 +37,8 @@ public class StringSupport {
 		return text.replace(find, replaceWith);
 	}
 
+	public String getValueFromVariable(String value) {
+		return value;
+	}
+
 }

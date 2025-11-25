@@ -23,27 +23,31 @@ import static org.testng.Assert.assertEquals;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.fitnesseintegration.script.StringSupport;
-
 public class StringSupportTest {
-	@Test
-	public void testConcatenate() throws Exception {
-		StringSupport stringSupport = new StringSupport();
 
+	private StringSupport stringSupport;
+
+	@BeforeMethod
+	private void beforeMethod() {
+		stringSupport = new StringSupport();
+
+	}
+
+	@Test
+	public void testConcatenate() {
 		String result = stringSupport.concatenate("one", "two");
 
 		assertEquals(result, "onetwo");
 	}
 
 	@Test
-	public void testGenerateStingUsingFormat() throws Exception {
+	public void testGenerateStingUsingFormat() {
 		String pattern = "YYYY-YYYY-YYYY-YYYY";
 		SimpleDateFormat stodaysYear = new SimpleDateFormat(pattern);
 		String todaysYear = stodaysYear.format(new Date());
-
-		StringSupport stringSupport = new StringSupport();
 
 		String result = stringSupport.dateFormat(pattern);
 
@@ -51,13 +55,20 @@ public class StringSupportTest {
 	}
 
 	@Test
-	public void testReplaceAll() throws Exception {
-		StringSupport stringSupport = new StringSupport();
+	public void testReplaceAll() {
 		String text = "ababa";
 		String find = "b";
 		String replaceWith = "a";
 		String textReplaced = stringSupport.replaceAll(text, find, replaceWith);
 
 		assertEquals(textReplaced, "aaaaa");
+	}
+
+	@Test
+	public void testGetValueFromVariable() {
+
+		String textReplaced = stringSupport.getValueFromVariable("someValue");
+
+		assertEquals(textReplaced, "someValue");
 	}
 }
