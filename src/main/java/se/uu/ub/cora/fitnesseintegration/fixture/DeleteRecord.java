@@ -18,6 +18,9 @@
  */
 package se.uu.ub.cora.fitnesseintegration.fixture;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import se.uu.ub.cora.clientdata.ClientData;
 import se.uu.ub.cora.clientdata.ClientDataList;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
@@ -54,12 +57,39 @@ public class DeleteRecord {
 
 	public String deleteAllRecordsForRecordType() {
 		DataClient client = FitnesseJavaClientProvider.getFitnesseAdminDataClient();
-		ClientDataList list = client.readList(recordType);
-		System.err.println(list.getTotalNumberOfTypeInStorage());
-		for (ClientData clientData : list.getDataList()) {
-			ClientDataRecord clientDataAsRecord = (ClientDataRecord) clientData;
-			client.delete(recordType, clientDataAsRecord.getId());
+		return deleteAllRecordsUsingClient(client);
+	}
+
+	private String deleteAllRecordsUsingClient(DataClient client) {
+		List<String> deletedRecordIds = new ArrayList<>();
+		return tryToDeleteRecords(client, deletedRecordIds);
+	}
+
+	private String tryToDeleteRecords(DataClient client, List<String> deletedRecordIds) {
+		try {
+			deleteRecordsByRecordType(client, deletedRecordIds);
+		} catch (Exception e) {
+			return deletedRecordsPlusErrorMessage(deletedRecordIds.toString(), e);
 		}
-		return "OK";
+		return "OK ⋮ " + deletedRecordIds.toString();
+	}
+
+	private String deletedRecordsPlusErrorMessage(String deletedRecordIds, Exception e) {
+		return "FAILED ⋮ " + deletedRecordIds + " ⋮ " + e.getMessage();
+	}
+
+	private void deleteRecordsByRecordType(DataClient client, List<String> deletedRecordIds) {
+		ClientDataList list = client.readList(recordType);
+		for (ClientData clientData : list.getDataList()) {
+			String id = deleteRecord(client, clientData);
+			deletedRecordIds.add(id);
+		}
+	}
+
+	private String deleteRecord(DataClient client, ClientData clientData) {
+		ClientDataRecord clientDataAsRecord = (ClientDataRecord) clientData;
+		String id = clientDataAsRecord.getId();
+		client.delete(recordType, id);
+		return id;
 	}
 }

@@ -76,7 +76,23 @@ public class DeleteRecordTest {
 		dataClient.MCR.assertParameters("readList", 0, "someRecordType");
 		dataClient.MCR.assertParameters("delete", 0, "someRecordType", "one");
 		dataClient.MCR.assertParameters("delete", 1, "someRecordType", "two");
-		assertEquals(message, "OK");
+		assertEquals(message, "OK ⋮ [one, two]");
+	}
+
+	@Test
+	public void testDeleteAll_ExceptionOnSecondRead() {
+		var clientDataList = creatDataListUsingRecordIds("one", "two");
+		dataClient.MRV.setDefaultReturnValuesSupplier("readList", () -> clientDataList);
+		dataClient.MRV.setDefaultReturnValuesSupplier("readList", () -> clientDataList);
+		dataClient.MRV.setThrowException("delete", new RuntimeException("someException"),
+				"someRecordType", "two");
+
+		String message = fixture.deleteAllRecordsForRecordType();
+
+		dataClient.MCR.assertParameters("readList", 0, "someRecordType");
+		dataClient.MCR.assertParameters("delete", 0, "someRecordType", "one");
+		dataClient.MCR.assertParameters("delete", 1, "someRecordType", "two");
+		assertEquals(message, "FAILED ⋮ [one] ⋮ someException");
 	}
 
 	private ClientDataListSpy creatDataListUsingRecordIds(String... recordIds) {
