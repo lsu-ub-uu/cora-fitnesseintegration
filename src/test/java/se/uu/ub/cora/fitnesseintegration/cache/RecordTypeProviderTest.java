@@ -124,11 +124,11 @@ public class RecordTypeProviderTest {
 	}
 
 	@Test
-	public void testOnlyForTestAddRecordGroupToInternalMap() {
+	public void testSetRecordGroupInInternalMap() {
 		String id = "someId";
 		ClientDataRecordGroupSpy clientDataRecordGroup = new ClientDataRecordGroupSpy();
 
-		RecordTypeProvider.onlyForTestAddRecordGroupToInternalMap(id, clientDataRecordGroup);
+		RecordTypeProvider.setRecordGroupInInternalMap(id, clientDataRecordGroup);
 
 		ClientDataRecordGroup recordType = RecordTypeProvider.getRecordGroup(id);
 		assertSame(recordType, clientDataRecordGroup);

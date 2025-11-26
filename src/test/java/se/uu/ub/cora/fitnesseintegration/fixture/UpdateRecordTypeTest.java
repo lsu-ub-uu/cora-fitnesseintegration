@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Uppsala University Library
+ * Copyright 2025 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -19,28 +19,39 @@
 package se.uu.ub.cora.fitnesseintegration.fixture;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.clientdata.ClientDataProvider;
 import se.uu.ub.cora.clientdata.ClientDataRecordLink;
+import se.uu.ub.cora.clientdata.spies.ClientDataFactorySpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordGroupSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordLinkSpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
+import se.uu.ub.cora.fitnesseintegration.cache.FitnesseJavaClientProvider;
 import se.uu.ub.cora.fitnesseintegration.cache.RecordTypeProvider;
-import se.uu.ub.cora.fitnesseintegration.script.DependencyProvider;
-import se.uu.ub.cora.fitnesseintegration.spy.DefinitionWriterSpy;
-import se.uu.ub.cora.fitnesseintegration.spy.DependencyFactorySpy;
+import se.uu.ub.cora.fitnesseintegration.spy.DataClientSpy;
 
-public class CheckRecordTypeTest {
-	private CheckRecordType fixture;
-	private DependencyFactorySpy dependencyFactory;
+public class UpdateRecordTypeTest {
+	private UpdateRecordType fixture;
 	private ClientDataRecordGroupSpy dataRecordGroup;
+	private ClientDataFactorySpy dataFactory;
+	private DataClientSpy client;
 
 	@BeforeMethod
 	public void beforeMethod() {
-		dependencyFactory = new DependencyFactorySpy();
-		DependencyProvider.onlyForTestSetDependencyFactory(dependencyFactory);
+		dataFactory = new ClientDataFactorySpy();
+		ClientDataProvider.onlyForTestSetDataFactory(dataFactory);
+
+		client = new DataClientSpy();
+		FitnesseJavaClientProvider.onlyForTestSetClient(
+				FitnesseJavaClientProvider.FITNESSE_ADMIN_JAVA_CLIENT, client);
+
+		ClientDataRecordSpy updated = new ClientDataRecordSpy();
+		client.MRV.setDefaultReturnValuesSupplier("update", () -> updated);
 
 		ClientDataRecordGroupSpy recordGroup = new ClientDataRecordGroupSpy();
 		recordGroup.MRV.setDefaultReturnValuesSupplier("getId", () -> "someId");
@@ -48,17 +59,20 @@ public class CheckRecordTypeTest {
 		createClientDataRecordGroup();
 		RecordTypeProvider.setRecordGroupInInternalMap("someId", dataRecordGroup);
 
-		fixture = new CheckRecordType();
+		fixture = new UpdateRecordType();
 		fixture.setId("someId");
 	}
 
 	@AfterMethod
 	public void afterMethod() {
 		RecordTypeProvider.resetInternalHolder();
+		ClientDataProvider.onlyForTestSetDataFactory(null);
 	}
 
 	private ClientDataRecordGroupSpy createClientDataRecordGroup() {
 		dataRecordGroup = new ClientDataRecordGroupSpy();
+		dataRecordGroup.MRV.setDefaultReturnValuesSupplier("getType", () -> "someType");
+		dataRecordGroup.MRV.setDefaultReturnValuesSupplier("getId", () -> "someId");
 		setReturnValueForLinkWithNameAndValue("metadataId", "someDefinitionGroup");
 		setReturnValueForAtomicWithNameAndValue("idSource", "userSupplied");
 		setReturnValueForAtomicWithNameAndValue("public", "false");
@@ -82,63 +96,65 @@ public class CheckRecordTypeTest {
 	}
 
 	@Test
-	public void testDefinitionIs() {
-		String definition = fixture.definitionIs();
+	public void testSetIdSource() {
+		fixture.setIdSource("value");
 
-		DefinitionWriterSpy writer = (DefinitionWriterSpy) dependencyFactory.MCR
-				.getReturnValue("factorDefinitionWriter", 0);
+		assertAtomicRemovedCreatedAndAdded("idSource", "value");
+	}
 
-		writer.MCR.assertCalledParametersReturn("writeDefinitionUsingRecordId",
-				"someDefinitionGroup");
-		writer.MCR.assertReturn("writeDefinitionUsingRecordId", 0, definition);
+	private void assertAtomicRemovedCreatedAndAdded(String nameInData, String value) {
+		dataRecordGroup.MCR.assertCalledParameters("removeAllChildrenWithNameInData", nameInData);
+		var newIdSource = dataFactory.MCR.assertCalledParametersReturn(
+				"factorAtomicUsingNameInDataAndValue", nameInData, value);
+		dataRecordGroup.MCR.assertCalledParameters("addChild", newIdSource);
 	}
 
 	@Test
-	public void testIdSourceIs() {
-		String value = fixture.idSourceIs();
+	public void testSetPublic() {
+		fixture.setPublic("value");
 
-		assertEquals(value, dataRecordGroup.MCR
-				.assertCalledParametersReturn("getFirstAtomicValueWithNameInData", "idSource"));
+		assertAtomicRemovedCreatedAndAdded("public", "value");
 	}
 
 	@Test
-	public void testIsPublic() {
-		String value = fixture.isPublic();
+	public void testSetUsePermissionUnit() {
+		fixture.setUsePermissionUnit("value");
 
-		assertEquals(value, dataRecordGroup.MCR
-				.assertCalledParametersReturn("getFirstAtomicValueWithNameInData", "public"));
+		assertAtomicRemovedCreatedAndAdded("usePermissionUnit", "value");
 	}
 
 	@Test
-	public void testUsePermissionUnit() {
-		String value = fixture.usePermissionUnit();
+	public void testSetUseVisibility() {
+		fixture.setUseVisibility("value");
 
-		assertEquals(value, dataRecordGroup.MCR.assertCalledParametersReturn(
-				"getFirstAtomicValueWithNameInData", "usePermissionUnit"));
+		assertAtomicRemovedCreatedAndAdded("useVisibility", "value");
 	}
 
 	@Test
-	public void testUseVisibility() {
-		String value = fixture.useVisibility();
+	public void testSetUseTrashBin() {
+		fixture.setUseTrashBin("value");
 
-		assertEquals(value, dataRecordGroup.MCR.assertCalledParametersReturn(
-				"getFirstAtomicValueWithNameInData", "useVisibility"));
+		assertAtomicRemovedCreatedAndAdded("useTrashBin", "value");
 	}
 
 	@Test
-	public void testUseTrashBin() {
-		String value = fixture.useTrashBin();
+	public void testSetStoreInArchive() {
+		fixture.setStoreInArchive("value");
 
-		assertEquals(value, dataRecordGroup.MCR
-				.assertCalledParametersReturn("getFirstAtomicValueWithNameInData", "useTrashBin"));
+		assertAtomicRemovedCreatedAndAdded("storeInArchive", "value");
 	}
 
 	@Test
-	public void testStoreInArchive() {
-		String value = fixture.storeInArchive();
+	public void testUpdateInStorageAndProvider() {
+		String result = fixture.update();
 
-		assertEquals(value, dataRecordGroup.MCR.assertCalledParametersReturn(
-				"getFirstAtomicValueWithNameInData", "storeInArchive"));
+		ClientDataRecordSpy updated = (ClientDataRecordSpy) client.MCR
+				.assertCalledParametersReturn("update", "someType", "someId", dataRecordGroup);
+
+		var updatedGroup = updated.MCR.getReturnValue("getDataRecordGroup", 0);
+		assertSame(RecordTypeProvider.getRecordGroup("someId"), updatedGroup);
+
+		assertEquals(result, "OK");
 	}
 
 }
