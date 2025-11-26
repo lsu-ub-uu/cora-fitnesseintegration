@@ -68,7 +68,7 @@ public class RecordTypeProvider {
 		recordGroupMap = new HashMap<>();
 	}
 
-	public static void onlyForTestAddRecordGroupToInternalMap(String id,
+	public static void setRecordGroupInInternalMap(String id,
 			ClientDataRecordGroup clientDataRecordGroup) {
 		recordGroupMap.put(id, clientDataRecordGroup);
 	}

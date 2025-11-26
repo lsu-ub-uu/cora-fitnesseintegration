@@ -63,7 +63,7 @@ public class DefinitionAutomatorTest {
 		recordGroup.MRV.setDefaultReturnValuesSupplier("getId", () -> RECORD_TYPE_ID);
 
 		dataRecordGroup = createClientDataRecordGroup();
-		RecordTypeProvider.onlyForTestAddRecordGroupToInternalMap(RECORD_TYPE_ID, dataRecordGroup);
+		RecordTypeProvider.setRecordGroupInInternalMap(RECORD_TYPE_ID, dataRecordGroup);
 
 		validationType = createValidationType(FIRST_VALIDATION_TYPE_ID, RECORD_TYPE_ID);
 		ValidationTypeProvider.onlyForTestAddValidationTypeToInternalMap(validationType);
