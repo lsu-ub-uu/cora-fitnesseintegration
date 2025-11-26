@@ -25,11 +25,11 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataProvider;
-import se.uu.ub.cora.clientdata.ClientDataRecordLink;
+import se.uu.ub.cora.clientdata.spies.ClientDataAtomicSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataFactorySpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordGroupSpy;
-import se.uu.ub.cora.clientdata.spies.ClientDataRecordLinkSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
 import se.uu.ub.cora.fitnesseintegration.cache.FitnesseJavaClientProvider;
 import se.uu.ub.cora.fitnesseintegration.cache.RecordTypeProvider;
@@ -71,77 +71,61 @@ public class UpdateRecordTypeTest {
 
 	private ClientDataRecordGroupSpy createClientDataRecordGroup() {
 		dataRecordGroup = new ClientDataRecordGroupSpy();
+		dataRecordGroup.MRV.setDefaultReturnValuesSupplier("getFirstChildOfTypeAndName",
+				ClientDataAtomicSpy::new);
+
 		dataRecordGroup.MRV.setDefaultReturnValuesSupplier("getType", () -> "someType");
 		dataRecordGroup.MRV.setDefaultReturnValuesSupplier("getId", () -> "someId");
-		setReturnValueForLinkWithNameAndValue("metadataId", "someDefinitionGroup");
-		setReturnValueForAtomicWithNameAndValue("idSource", "userSupplied");
-		setReturnValueForAtomicWithNameAndValue("public", "false");
-		setReturnValueForAtomicWithNameAndValue("usePermissionUnit", "false");
-		setReturnValueForAtomicWithNameAndValue("useVisibility", "false");
-		setReturnValueForAtomicWithNameAndValue("useTrashBin", "false");
-		setReturnValueForAtomicWithNameAndValue("storeInArchive", "false");
 		return dataRecordGroup;
-	}
-
-	private void setReturnValueForLinkWithNameAndValue(String nameInData, String linkPointsTo) {
-		ClientDataRecordLinkSpy metadataLink = new ClientDataRecordLinkSpy();
-		metadataLink.MRV.setDefaultReturnValuesSupplier("getLinkedRecordId", () -> linkPointsTo);
-		dataRecordGroup.MRV.setSpecificReturnValuesSupplier("getFirstChildOfTypeAndName",
-				() -> metadataLink, ClientDataRecordLink.class, nameInData);
-	}
-
-	private void setReturnValueForAtomicWithNameAndValue(String nameInData, String value) {
-		dataRecordGroup.MRV.setSpecificReturnValuesSupplier("getFirstAtomicValueWithNameInData",
-				() -> value, nameInData);
 	}
 
 	@Test
 	public void testSetIdSource() {
 		fixture.setIdSource("value");
 
-		assertAtomicRemovedCreatedAndAdded("idSource", "value");
+		assertAtomicsValueSet("idSource", "value");
 	}
 
-	private void assertAtomicRemovedCreatedAndAdded(String nameInData, String value) {
-		dataRecordGroup.MCR.assertCalledParameters("removeAllChildrenWithNameInData", nameInData);
-		var newIdSource = dataFactory.MCR.assertCalledParametersReturn(
-				"factorAtomicUsingNameInDataAndValue", nameInData, value);
-		dataRecordGroup.MCR.assertCalledParameters("addChild", newIdSource);
+	private void assertAtomicsValueSet(String nameInData, String value) {
+		ClientDataAtomicSpy dataAtomic = (ClientDataAtomicSpy) dataRecordGroup.MCR
+				.assertCalledParametersReturn("getFirstChildOfTypeAndName", ClientDataAtomic.class,
+						nameInData);
+		dataAtomic.MCR.assertCalledParameters("setValue", value);
 	}
 
 	@Test
 	public void testSetPublic() {
 		fixture.setPublic("value");
 
-		assertAtomicRemovedCreatedAndAdded("public", "value");
+		assertAtomicsValueSet("public", "value");
 	}
 
 	@Test
 	public void testSetUsePermissionUnit() {
 		fixture.setUsePermissionUnit("value");
 
-		assertAtomicRemovedCreatedAndAdded("usePermissionUnit", "value");
+		assertAtomicsValueSet("usePermissionUnit", "value");
 	}
 
 	@Test
 	public void testSetUseVisibility() {
 		fixture.setUseVisibility("value");
 
-		assertAtomicRemovedCreatedAndAdded("useVisibility", "value");
+		assertAtomicsValueSet("useVisibility", "value");
 	}
 
 	@Test
 	public void testSetUseTrashBin() {
 		fixture.setUseTrashBin("value");
 
-		assertAtomicRemovedCreatedAndAdded("useTrashBin", "value");
+		assertAtomicsValueSet("useTrashBin", "value");
 	}
 
 	@Test
 	public void testSetStoreInArchive() {
 		fixture.setStoreInArchive("value");
 
-		assertAtomicRemovedCreatedAndAdded("storeInArchive", "value");
+		assertAtomicsValueSet("storeInArchive", "value");
 	}
 
 	@Test

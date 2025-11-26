@@ -18,7 +18,7 @@
  */
 package se.uu.ub.cora.fitnesseintegration.fixture;
 
-import se.uu.ub.cora.clientdata.ClientDataProvider;
+import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.fitnesseintegration.cache.FitnesseJavaClientProvider;
@@ -37,34 +37,33 @@ public class UpdateRecordType {
 	}
 
 	public void setIdSource(String idSource) {
-		removeCreateNewAndAddToDataRecordGroup("idSource", idSource);
+		updateAtomicForNameInDataAndValue("idSource", idSource);
 	}
 
-	private void removeCreateNewAndAddToDataRecordGroup(String nameInData, String idSource) {
-		dataRecordGroup.removeAllChildrenWithNameInData(nameInData);
-		var newIdSource = ClientDataProvider.createAtomicUsingNameInDataAndValue(nameInData,
-				idSource);
-		dataRecordGroup.addChild(newIdSource);
+	private void updateAtomicForNameInDataAndValue(String nameInData, String value) {
+		ClientDataAtomic dataAtomic = dataRecordGroup
+				.getFirstChildOfTypeAndName(ClientDataAtomic.class, nameInData);
+		dataAtomic.setValue(value);
 	}
 
 	public void setPublic(String publicValue) {
-		removeCreateNewAndAddToDataRecordGroup("public", publicValue);
+		updateAtomicForNameInDataAndValue("public", publicValue);
 	}
 
 	public void setUsePermissionUnit(String usePermissionUnit) {
-		removeCreateNewAndAddToDataRecordGroup("usePermissionUnit", usePermissionUnit);
+		updateAtomicForNameInDataAndValue("usePermissionUnit", usePermissionUnit);
 	}
 
 	public void setUseVisibility(String useVisibility) {
-		removeCreateNewAndAddToDataRecordGroup("useVisibility", useVisibility);
+		updateAtomicForNameInDataAndValue("useVisibility", useVisibility);
 	}
 
 	public void setUseTrashBin(String useTrashBin) {
-		removeCreateNewAndAddToDataRecordGroup("useTrashBin", useTrashBin);
+		updateAtomicForNameInDataAndValue("useTrashBin", useTrashBin);
 	}
 
 	public void setStoreInArchive(String storeInArchive) {
-		removeCreateNewAndAddToDataRecordGroup("storeInArchive", storeInArchive);
+		updateAtomicForNameInDataAndValue("storeInArchive", storeInArchive);
 	}
 
 	public String update() {
