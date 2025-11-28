@@ -26,6 +26,7 @@ import se.uu.ub.cora.clientdata.ClientDataProvider;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.fitnesseintegration.cache.FitnesseJavaClientProvider;
+import se.uu.ub.cora.fitnesseintegration.cache.RecordTypeProvider;
 import se.uu.ub.cora.javaclient.data.DataClient;
 
 public class RememberRecordState {
@@ -63,15 +64,31 @@ public class RememberRecordState {
 	}
 
 	public String memoryToStorage() {
-		DataClient client = FitnesseJavaClientProvider.getFitnesseAdminDataClient();
-
 		ClientDataRecordGroup dataRecordGroup = memory.get(currentKey());
-		ClientDataGroup recordInfo = dataRecordGroup.getFirstGroupWithNameInData("recordInfo");
+		addIgnoreOverwriteProtectionToMakeSureUpdateDoesNotGetConflictWithNewVersion(
+				dataRecordGroup);
 
+		ClientDataRecord updated = updateInStorage(dataRecordGroup);
+		possiblyUpdateRecordTypeInRecordTypeProvider(updated);
+		return "OK";
+	}
+
+	private void addIgnoreOverwriteProtectionToMakeSureUpdateDoesNotGetConflictWithNewVersion(
+			ClientDataRecordGroup dataRecordGroup) {
+		ClientDataGroup recordInfo = dataRecordGroup.getFirstGroupWithNameInData("recordInfo");
 		recordInfo.addChild(ClientDataProvider
 				.createAtomicUsingNameInDataAndValue("ignoreOverwriteProtection", "true"));
-		client.update(currentType, currentId, dataRecordGroup);
-		return "OK";
+	}
+
+	private ClientDataRecord updateInStorage(ClientDataRecordGroup dataRecordGroup) {
+		DataClient client = FitnesseJavaClientProvider.getFitnesseAdminDataClient();
+		return client.update(currentType, currentId, dataRecordGroup);
+	}
+
+	private void possiblyUpdateRecordTypeInRecordTypeProvider(ClientDataRecord updated) {
+		if ("recordType".equals(currentType)) {
+			RecordTypeProvider.setRecordGroupInInternalMap(currentId, updated.getDataRecordGroup());
+		}
 	}
 
 	public static String forgetAllRecords() {

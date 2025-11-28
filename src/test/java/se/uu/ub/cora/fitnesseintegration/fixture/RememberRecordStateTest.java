@@ -35,6 +35,7 @@ import se.uu.ub.cora.clientdata.spies.ClientDataGroupSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordGroupSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
 import se.uu.ub.cora.fitnesseintegration.cache.FitnesseJavaClientProvider;
+import se.uu.ub.cora.fitnesseintegration.cache.RecordTypeProvider;
 import se.uu.ub.cora.fitnesseintegration.spy.DataClientSpy;
 
 public class RememberRecordStateTest {
@@ -56,8 +57,16 @@ public class RememberRecordStateTest {
 		ClientDataRecordSpy read3 = createRecordSpy();
 
 		client.MRV.setReturnValues("read", List.of(read, read2, read3), "someType", "someId");
+		client.MRV.setReturnValues("update", List.of(read, read2, read3), "recordType", "someId");
 
 		fixture = new RememberRecordState();
+
+		setSomeDataToPreventLoadingOfRecordTypes();
+	}
+
+	private void setSomeDataToPreventLoadingOfRecordTypes() {
+		RecordTypeProvider.setRecordGroupInInternalMap("someRecordTypeId",
+				new ClientDataRecordGroupSpy());
 	}
 
 	private ClientDataRecordSpy createRecordSpy() {
@@ -78,6 +87,7 @@ public class RememberRecordStateTest {
 	public void afterMethod() {
 		ClientDataProvider.onlyForTestSetDataFactory(null);
 		RememberRecordState.forgetAllRecords();
+		RecordTypeProvider.resetInternalHolder();
 	}
 
 	@Test
@@ -148,6 +158,26 @@ public class RememberRecordStateTest {
 
 		assertSame(updatedWithVersion, readWithVersion);
 		assertSame(updatedNoVersion, readNoVersion);
+	}
+
+	@Test
+	public void testRecordTypeProviderIsUpdatedOnMemoryToStorageForRecordType() throws Exception {
+		fixture.setType("recordType");
+		fixture.setId("someId");
+		fixture.setVersion("someVersion");
+		fixture.remember();
+
+		fixture = new RememberRecordState();
+		fixture.setType("recordType");
+		fixture.setId("someId");
+		fixture.setVersion("someVersion");
+		fixture.memoryToStorage();
+
+		ClientDataRecordSpy updatedWithVersion = (ClientDataRecordSpy) client.MCR
+				.getReturnValue("update", 0);
+
+		assertSame(RecordTypeProvider.getRecordGroup("someId"),
+				updatedWithVersion.MCR.getReturnValue("getDataRecordGroup", 0));
 	}
 
 	@Test
