@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Uppsala University Library
+ * Copyright 2024, 2026 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -24,9 +24,13 @@ import java.util.regex.Pattern;
 public class ExtractSubstringUsingRegex {
 
 	public String getSubstringUsingTextAndRegex(String text, String regex) {
+		return getSubstringUsingTextAndRegexAndGroup(text, regex, 0);
+	}
+
+	public String getSubstringUsingTextAndRegexAndGroup(String text, String regex, int groupNo) {
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(text);
-		return matcher.find() ? matcher.group() : "No match found";
+		return matcher.find() ? matcher.group(groupNo) : "No match found";
 	}
 
 	public boolean matchFoundUsingTextAndRegex(String text, String regex) {
@@ -56,7 +60,8 @@ public class ExtractSubstringUsingRegex {
 			}
 		}
 
-		Pattern compiledRegEx = Pattern.compile(includeMatches.toString() + excludeMatches.toString() + ".*");
+		Pattern compiledRegEx = Pattern
+				.compile(includeMatches.toString() + excludeMatches.toString() + ".*");
 		return compiledRegEx.matcher(body).find();
 	}
 
@@ -76,4 +81,5 @@ public class ExtractSubstringUsingRegex {
 			return false;
 		}
 	}
+
 }

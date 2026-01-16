@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Uppsala University Library
+ * Copyright 2024, 2026 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -27,8 +27,11 @@ import org.testng.annotations.Test;
 
 public class ExtractSubstringUsingRegexTest {
 
+	private static final String NO_MATCH_FOUND = "No match found";
+	private static final String REG_EX_THAT_WONT_BE_A_MATCH = "someRegExThatWontBeAMatch";
 	private ExtractSubstringUsingRegex extractScript;
 	private String regex = "\"tsVisibility\",\"value\":\"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{6}Z\"";
+	private String regexWithGroups = "\"(tsVisibility)\",\"value\":\"(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{6}Z)\"";
 
 	@BeforeTest
 	public void testInit() {
@@ -36,7 +39,7 @@ public class ExtractSubstringUsingRegexTest {
 	}
 
 	@Test
-	public void testSubstringExtraction() throws Exception {
+	public void testSubstringExtraction() {
 		String regexExtract = extractScript.getSubstringUsingTextAndRegex(getChunkOfText(), regex);
 		assertEquals(regexExtract, "\"tsVisibility\",\"value\":\"2024-02-08T09:53:43.016913Z\"");
 	}
@@ -48,22 +51,54 @@ public class ExtractSubstringUsingRegexTest {
 	}
 
 	@Test
-	public void testSubstringExtractionNotFound() throws Exception {
-		String regexExtract = extractScript.getSubstringUsingTextAndRegex(getChunkOfText(),
-				"someRegExThatWontBeAMatch");
-		assertEquals(regexExtract, "No match found");
+	public void testSubstringExtractionGroup0NoMatch() {
+		int groupNo = 0;
+		String regexExtract = extractScript.getSubstringUsingTextAndRegexAndGroup(getChunkOfText(),
+				REG_EX_THAT_WONT_BE_A_MATCH, groupNo);
+		assertEquals(regexExtract, NO_MATCH_FOUND);
 	}
 
 	@Test
-	public void testRegExMatch() throws Exception {
+	public void testSubstringExtractionGroup0() {
+		int groupNo = 0;
+		String regexExtract = extractScript.getSubstringUsingTextAndRegexAndGroup(getChunkOfText(),
+				regexWithGroups, groupNo);
+		assertEquals(regexExtract, "\"tsVisibility\",\"value\":\"2024-02-08T09:53:43.016913Z\"");
+	}
+
+	@Test
+	public void testSubstringExtractionGroup1() {
+		int groupNo = 1;
+		String regexExtract = extractScript.getSubstringUsingTextAndRegexAndGroup(getChunkOfText(),
+				regexWithGroups, groupNo);
+		assertEquals(regexExtract, "tsVisibility");
+	}
+
+	@Test
+	public void testSubstringExtractionGroup2() {
+		int groupNo = 2;
+		String regexExtract = extractScript.getSubstringUsingTextAndRegexAndGroup(getChunkOfText(),
+				regexWithGroups, groupNo);
+		assertEquals(regexExtract, "2024-02-08T09:53:43.016913Z");
+	}
+
+	@Test
+	public void testSubstringExtractionNotFound() {
+		String regexExtract = extractScript.getSubstringUsingTextAndRegex(getChunkOfText(),
+				REG_EX_THAT_WONT_BE_A_MATCH);
+		assertEquals(regexExtract, NO_MATCH_FOUND);
+	}
+
+	@Test
+	public void testRegExMatch() {
 		boolean regexMatch = extractScript.matchFoundUsingTextAndRegex(getChunkOfText(), regex);
 		assertTrue(regexMatch);
 	}
 
 	@Test
-	public void testRegExDoesntMatch() throws Exception {
+	public void testRegExDoesntMatch() {
 		boolean regexMatch = extractScript.matchFoundUsingTextAndRegex(getChunkOfText(),
-				"someRegExThatWontBeAMatch");
+				REG_EX_THAT_WONT_BE_A_MATCH);
 		assertFalse(regexMatch);
 	}
 
