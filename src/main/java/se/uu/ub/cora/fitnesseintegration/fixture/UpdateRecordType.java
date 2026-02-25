@@ -74,4 +74,10 @@ public class UpdateRecordType {
 				updated.getDataRecordGroup());
 		return "OK";
 	}
+
+	public void setUseHostRecordForPermissions(String useHostRecordForPermissions) {
+		updateAtomicForNameInDataAndValue("useHostRecordForPermissions",
+				useHostRecordForPermissions);
+
+	}
 }
