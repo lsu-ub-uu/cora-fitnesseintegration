@@ -129,6 +129,13 @@ public class UpdateRecordTypeTest {
 	}
 
 	@Test
+	public void testSetUseHostRecordForPermissions() {
+		fixture.setUseHostRecordForPermissions("value");
+
+		assertAtomicsValueSet("useHostRecordForPermissions", "value");
+	}
+
+	@Test
 	public void testUpdateInStorageAndProvider() {
 		String result = fixture.update();
 
