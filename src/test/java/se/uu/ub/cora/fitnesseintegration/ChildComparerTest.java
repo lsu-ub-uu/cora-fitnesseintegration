@@ -54,7 +54,13 @@ public class ChildComparerTest {
 
 	@Test
 	public void testCheckContainOKWhenOneChild() {
-		JsonValue jsonValue = jsonParser.parseString("{\"children\":[{\"name\":\"workoutName\"}]}");
+		String json = """
+				{
+					"children": [
+						{"name": "workoutName"}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertTrue(errorMessages.isEmpty());
@@ -64,7 +70,13 @@ public class ChildComparerTest {
 
 	@Test
 	public void testContainOKWhenOneChild() {
-		JsonValue jsonValue = jsonParser.parseString("{\"children\":[{\"name\":\"workoutName\"}]}");
+		String json = """
+				{
+					"children": [
+						{"name": "workoutName"}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertTrue(errorMessages.isEmpty());
@@ -76,8 +88,14 @@ public class ChildComparerTest {
 		dataGroup.addChild(
 				ClientDataProvider.createAtomicUsingNameInDataAndValue("instructorId", "45"));
 
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"workoutName\"},{\"name\":\"instructorId\"}]}");
+		String json = """
+				{
+					"children": [
+						{"name": "workoutName"},
+						{"name": "instructorId"}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
 		assertTrue(containsChildren);
 
@@ -87,8 +105,14 @@ public class ChildComparerTest {
 	public void testContainOKWhenMoreThanOneChild() {
 		dataGroup.addChild(
 				ClientDataProvider.createAtomicUsingNameInDataAndValue("instructorId", "45"));
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"workoutName\"},{\"name\":\"instructorId\"}]}");
+		String json = """
+				{
+					"children": [
+						{"name": "workoutName"},
+						{"name": "instructorId"}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertTrue(errorMessages.isEmpty());
@@ -97,7 +121,13 @@ public class ChildComparerTest {
 	@Test
 	public void testCheckContainNotOKNoChildExistInDataGroup() {
 		dataGroup = ClientDataProvider.createGroupUsingNameInData("someDataGroup");
-		JsonValue jsonValue = jsonParser.parseString("{\"children\":[{\"name\":\"workoutName\"}]}");
+		String json = """
+				{
+					"children": [
+						{"name": "workoutName"}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertEquals(errorMessages.size(), 1);
@@ -110,8 +140,13 @@ public class ChildComparerTest {
 
 	@Test
 	public void testContainNotOKNoChildWithCorrectTypeExistInDataGroup() {
-		JsonValue jsonValue = jsonParser
-				.parseString("{\"children\":[{\"name\":\"workoutName\",\"children\":[]}]}");
+		String json = """
+				{
+					"children": [
+						{"name": "workoutName", "children": []}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertEquals(errorMessages.size(), 1);
@@ -122,8 +157,14 @@ public class ChildComparerTest {
 
 	@Test
 	public void testCheckContainOneButNotTheOther() {
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"workoutName\"},{\"name\":\"instructorId\"}]}");
+		String json = """
+				{
+					"children": [
+						{"name": "workoutName"},
+						{"name": "instructorId"}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		boolean containsChildren = childComparer.dataGroupContainsChildren(dataGroup, jsonValue);
 		assertFalse(containsChildren);
 
@@ -131,8 +172,14 @@ public class ChildComparerTest {
 
 	@Test
 	public void testContainOneButNotTheOther() {
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"workoutName\"},{\"name\":\"instructorId\"}]}");
+		String json = """
+				{
+					"children": [
+						{"name": "workoutName"},
+						{"name": "instructorId"}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertEquals(errorMessages.size(), 1);
@@ -144,8 +191,14 @@ public class ChildComparerTest {
 	@Test
 	public void testContainNone() {
 		dataGroup = ClientDataProvider.createGroupUsingNameInData("someDataGroup");
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"workoutName\"},{\"name\":\"instructorId\"}]}");
+		String json = """
+				{
+					"children": [
+						{"name": "workoutName"},
+						{"name": "instructorId"}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertEquals(errorMessages.size(), 2);
@@ -163,8 +216,18 @@ public class ChildComparerTest {
 				"someUnimportantValue"));
 		dataGroup.addChild(instructorName);
 
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\"}]}]}");
+		String json = """
+				{
+					"children": [
+						{
+							"name": "instructorName",
+							"children": [
+								{"name": "firstName"}
+							]
+						}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertEquals(errorMessages.size(), 0);
@@ -177,8 +240,20 @@ public class ChildComparerTest {
 		instructorName.setRepeatId("0");
 		dataGroup.addChild(instructorName);
 
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"workoutName\"},{\"name\":\"instructorName\",\"repeatId\":\"0\",\"children\":[{\"name\":\"firstName\"}]}]}");
+		String json = """
+				{
+					"children": [
+						{"name": "workoutName"},
+						{
+							"name": "instructorName",
+							"repeatId": "0",
+							"children": [
+								{"name": "firstName"}
+							]
+						}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertEquals(errorMessages.size(), 1);
@@ -197,10 +272,19 @@ public class ChildComparerTest {
 		childGroupLevel1.addChild(atomicChild1);
 		topGroup.addChild(childGroupLevel1);
 
-		JsonValue jsonValue = jsonParser
-				.parseString("{\"children\":[{\"name\":\"childGroupLevel1\", "
-						+ "\"attributes\":{\"exampleAttributeChoice\":\"one\"},"
-						+ "\"children\":[{\"name\":\"atomicChild1\",\"value\":\"valueOne\"}]}]}");
+		String json = """
+				{
+					"children": [
+						{
+							"name": "childGroupLevel1",
+							"attributes": {"exampleAttributeChoice": "one"},
+							"children": [
+								{"name": "atomicChild1", "value": "valueOne"}
+							]
+						}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(topGroup, jsonValue);
@@ -218,10 +302,22 @@ public class ChildComparerTest {
 		childGroupLevel1.addChild(atomicChild1);
 		topGroup.addChild(childGroupLevel1);
 
-		JsonValue jsonValue = jsonParser
-				.parseString("{\"children\":[{\"name\":\"childGroupLevel1\", \"attributes\":{"
-						+ "\"exampleAttributeChoiceOne\":\"one\", \"exampleAttributeChoiceTwo\":\"two\"},"
-						+ "\"children\":[{\"name\":\"atomicChild1\",\"value\":\"valueOne\"}]}]}");
+		String json = """
+				{
+					"children": [
+						{
+							"name": "childGroupLevel1",
+							"attributes": {
+								"exampleAttributeChoiceOne": "one",
+								"exampleAttributeChoiceTwo": "two"
+							},
+							"children": [
+								{"name": "atomicChild1", "value": "valueOne"}
+							]
+						}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(topGroup, jsonValue);
@@ -238,9 +334,17 @@ public class ChildComparerTest {
 		selectableAttribute.addAttributeByIdWithValue("exampleAttributeChoice", "one");
 		aDataGroup.addChild(selectableAttribute);
 
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"selectableAttribute1\",\"value\":\"valueOne\","
-						+ "\"attributes\":{\"exampleAttributeChoice\":\"one\"}}]}");
+		String json = """
+				{
+					"children": [
+						{
+							"name": "selectableAttribute1",
+							"value": "valueOne",
+							"attributes": {"exampleAttributeChoice": "one"}
+						}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(aDataGroup, jsonValue);
@@ -254,9 +358,17 @@ public class ChildComparerTest {
 				.createAtomicUsingNameInDataAndValue("selectableAttribute1", "valueOne");
 		aDataGroup.addChild(selectableAttribute);
 
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"selectableAttribute1\",\"value\":\"valueOne\","
-						+ "\"attributes\":{\"exampleAttributeChoice\":\"one\"}}]}");
+		String json = """
+				{
+					"children": [
+						{
+							"name": "selectableAttribute1",
+							"value": "valueOne",
+							"attributes": {"exampleAttributeChoice": "one"}
+						}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(aDataGroup, jsonValue);
@@ -271,9 +383,13 @@ public class ChildComparerTest {
 		selectableAttribute.addAttributeByIdWithValue("exampleAttributeChoice", "one");
 		aDataGroup.addChild(selectableAttribute);
 
-		JsonValue jsonValue = jsonParser.parseString(
-
-				"{\"children\":[{\"name\":\"selectableAttribute1\",\"value\":\"valueOne\"}]}");
+		String json = """
+				{
+					"children": [
+						{"name": "selectableAttribute1", "value": "valueOne"}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(aDataGroup, jsonValue);
@@ -288,9 +404,17 @@ public class ChildComparerTest {
 		selectableAttribute.addAttributeByIdWithValue("exampleAttributeChoiceWrong", "one");
 		aDataGroup.addChild(selectableAttribute);
 
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"selectableAttribute1\",\"value\":\"valueOne\","
-						+ "\"attributes\":{\"exampleAttributeChoice\":\"one\"}}]}");
+		String json = """
+				{
+					"children": [
+						{
+							"name": "selectableAttribute1",
+							"value": "valueOne",
+							"attributes": {"exampleAttributeChoice": "one"}
+						}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(aDataGroup, jsonValue);
@@ -305,9 +429,17 @@ public class ChildComparerTest {
 		selectableAttribute.addAttributeByIdWithValue("exampleAttributeChoice", "oneWrong");
 		aDataGroup.addChild(selectableAttribute);
 
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"selectableAttribute1\",\"value\":\"valueOne\","
-						+ "\"attributes\":{\"exampleAttributeChoice\":\"one\"}}]}");
+		String json = """
+				{
+					"children": [
+						{
+							"name": "selectableAttribute1",
+							"value": "valueOne",
+							"attributes": {"exampleAttributeChoice": "one"}
+						}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(aDataGroup, jsonValue);
@@ -320,8 +452,18 @@ public class ChildComparerTest {
 				.createGroupUsingNameInData("instructorName");
 		dataGroup.addChild(instructorName);
 
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"children\":[]}]}]}");
+		String json = """
+				{
+					"children": [
+						{
+							"name": "instructorName",
+							"children": [
+								{"name": "firstName", "children": []}
+							]
+						}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertEquals(errorMessages.size(), 1);
@@ -340,8 +482,21 @@ public class ChildComparerTest {
 		instructorName1.setRepeatId("1");
 		dataGroup.addChild(instructorName1);
 
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"NOTworkoutName\"},{\"name\":\"instructorName\",\"repeatId\":\"0\",\"children\":[{\"name\":\"firstName\",\"children\":[]}]},{\"name\":\"instructorName\",\"repeatId\":\"NOT1\",\"children\":[]}]}");
+		String json = """
+				{
+					"children": [
+						{"name": "NOTworkoutName"},
+						{
+							"name": "instructorName",
+							"repeatId": "0",
+							"children": [
+								{"name": "firstName", "children": []}
+							]
+						},
+						{"name": "instructorName", "repeatId": "NOT1", "children": []}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertEquals(errorMessages.size(), 3);
@@ -356,15 +511,25 @@ public class ChildComparerTest {
 	@Test(expectedExceptions = JsonParseException.class, expectedExceptionsMessageRegExp = ""
 			+ "child must contain key: name")
 	public void testJsonValueDoesNotContainName() {
-		JsonValue jsonValue = jsonParser
-				.parseString("{\"children\":[{\"NOTname\":\"workoutName\"}]}");
+		String json = """
+				{
+					"children": [
+						{"NOTname": "workoutName"}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		childComparer.checkDataGroupContainsChildren(dataGroup, jsonValue);
 	}
 
 	@Test
 	public void testJsonValueDoesNotContainNameInitalExceptionIsSentAlong() {
-		JsonValue jsonValue = jsonParser
-				.parseString("{\"children\":[{\"NOTname\":\"workoutName\"}]}");
+		String json = """
+				{
+					"children": [
+						{"NOTname": "workoutName"}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		try {
 			childComparer.checkDataGroupContainsChildren(dataGroup, jsonValue);
 
@@ -378,8 +543,19 @@ public class ChildComparerTest {
 		ClientDataGroup instructorName = createChildDataGroupInstructorName();
 		instructorName.addAttributeByIdWithValue("type", "default");
 		dataGroup.addChild(instructorName);
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"}],\"attributes\":{\"type\":\"default\"}}]}");
+		String json = """
+				{
+					"children": [
+						{
+							"name": "instructorName",
+							"children": [
+								{"name": "firstName", "value": "Anna"}
+							],
+							"attributes": {"type": "default"}
+						}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertTrue(errorMessages.isEmpty());
@@ -392,8 +568,19 @@ public class ChildComparerTest {
 		ClientDataGroup instructorName = createChildDataGroupInstructorName();
 		instructorName.addAttributeByIdWithValue("type", "NOTdefault");
 		dataGroup.addChild(instructorName);
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"}],\"attributes\":{\"type\":\"default\"}}]}");
+		String json = """
+				{
+					"children": [
+						{
+							"name": "instructorName",
+							"children": [
+								{"name": "firstName", "value": "Anna"}
+							],
+							"attributes": {"type": "default"}
+						}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 
@@ -410,8 +597,19 @@ public class ChildComparerTest {
 		instructorName.addAttributeByIdWithValue("type", "default");
 		instructorName.addAttributeByIdWithValue("other", "name");
 		dataGroup.addChild(instructorName);
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"}],\"attributes\":{\"type\":\"default\",\"other\":\"name\"}}]}");
+		String json = """
+				{
+					"children": [
+						{
+							"name": "instructorName",
+							"children": [
+								{"name": "firstName", "value": "Anna"}
+							],
+							"attributes": {"type": "default", "other": "name"}
+						}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 		assertEquals(errorMessages.size(), 0);
@@ -425,8 +623,20 @@ public class ChildComparerTest {
 		instructorName.addAttributeByIdWithValue("type", "default");
 		instructorName.addAttributeByIdWithValue("other", "NOTname");
 		dataGroup.addChild(instructorName);
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"},{\"name\":\"lastName\",\"value\":\"Ledare\"}],\"attributes\":{\"type\":\"default\",\"other\":\"name\"}}]}");
+		String json = """
+				{
+					"children": [
+						{
+							"name": "instructorName",
+							"children": [
+								{"name": "firstName", "value": "Anna"},
+								{"name": "lastName", "value": "Ledare"}
+							],
+							"attributes": {"type": "default", "other": "name"}
+						}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer.checkDataGroupContainsChildren(dataGroup,
 				jsonValue);
 
@@ -440,15 +650,25 @@ public class ChildComparerTest {
 	@Test(expectedExceptions = JsonParseException.class, expectedExceptionsMessageRegExp = ""
 			+ "child must contain key: name")
 	public void testCheckCorrectValuesJsonValueDoesNotContainName() {
-		JsonValue jsonValue = jsonParser
-				.parseString("{\"children\":[{\"NOTname\":\"workoutName\"}]}");
+		String json = """
+				{
+					"children": [
+						{"NOTname": "workoutName"}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		childComparer.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 	}
 
 	@Test
 	public void testCheckCorrectValuesJsonValueDoesNotContainNameInitalExceptionIsSentAlong() {
-		JsonValue jsonValue = jsonParser
-				.parseString("{\"children\":[{\"NOTname\":\"workoutName\"}]}");
+		String json = """
+				{
+					"children": [
+						{"NOTname": "workoutName"}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		try {
 			childComparer.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 
@@ -513,29 +733,36 @@ public class ChildComparerTest {
 
 	@Test
 	public void testValuesNonRepeatableAtomicChildTestCorrect() {
-		JsonValue jsonValue = jsonParser
-				.parseString("{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"}]}");
+		String json = """
+				{
+					"children": [
+						{"name": "workoutName", "value": "cirkelfys"}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		assertNoErrorMessagesWhenContainsWithValues(jsonValue);
 	}
 
 	@Test
 	public void testValuesNonRepeatableAtomicChildTestWrongName() {
-		String json = "{\"name\":\"NOT_workoutName\",\"value\":\"cirkelfys\"}";
+		String json = """
+				{"name": "NOT_workoutName", "value": "cirkelfys"}""";
 		String error = "Did not find a match for child with nameInData NOT_workoutName and value cirkelfys.";
 		testValuesNonRepeatableAtomicWithRepeatIdJsonResultsInOneError(json, error);
 	}
 
 	@Test
 	public void testValuesNonRepeatableAtomicChildTestWrongValue() {
-		String json = "{\"name\":\"workoutName\",\"value\":\"NOT_cirkelfys\"}";
+		String json = """
+				{"name": "workoutName", "value": "NOT_cirkelfys"}""";
 		String error = "Did not find a match for child with nameInData workoutName and value NOT_cirkelfys.";
 		testValuesNonRepeatableAtomicWithRepeatIdJsonResultsInOneError(json, error);
 	}
 
 	@Test
 	public void testValuesNonRepeatableAtomicChildTestExtraRepeatId() {
-		String json = "{\"name\":\"workoutName\",\"value\":\"cirkelfys\""
-				+ ",\"repeatId\":\"EXTRA_repeatId\"}";
+		String json = """
+				{"name": "workoutName", "value": "cirkelfys", "repeatId": "EXTRA_repeatId"}""";
 		String error = "Did not find a match for child with nameInData workoutName and value cirkelfys"
 				+ " and repeatId EXTRA_repeatId.";
 		testValuesNonRepeatableAtomicWithRepeatIdJsonResultsInOneError(json, error);
@@ -543,14 +770,17 @@ public class ChildComparerTest {
 
 	@Test
 	public void testValuesNonRepeatableAtomicChildTestChildTypeDiffers() {
-		String json = "{\"name\":\"workoutName\",\"children\":[]}";
+		String json = """
+				{"name": "workoutName", "children": []}""";
 		String error = "Child with nameInData workoutName and type group is missing.";
 		testValuesNonRepeatableAtomicWithRepeatIdJsonResultsInOneError(json, error);
 	}
 
 	private void testValuesNonRepeatableAtomicWithRepeatIdJsonResultsInOneError(String jsonString,
 			String error) {
-		JsonValue jsonValue = jsonParser.parseString("{\"children\":[" + jsonString + "]}");
+		String json = """
+				{"children": [%s]}""".formatted(jsonString);
+		JsonValue jsonValue = jsonParser.parseString(json);
 		assertOneErrorWithMessage(jsonValue, error);
 	}
 
@@ -570,25 +800,34 @@ public class ChildComparerTest {
 	@Test
 	public void testTwoAtomicChildrenTestCorrect() {
 		addRepeatableAtomic();
-		String firstChild = "{\"name\":\"workoutName\",\"value\":\"cirkelfys\"}";
-		String secondChild = "{\"name\":\"myName\",\"value\":\"myValue\",\"repeatId\":\"myRepeatId\"}";
-		JsonValue jsonValue = jsonParser
-				.parseString("{\"children\":[" + firstChild + "," + secondChild + "]}");
+		String firstChild = """
+				{"name": "workoutName", "value": "cirkelfys"}""";
+		String secondChild = """
+				{"name": "myName", "value": "myValue", "repeatId": "myRepeatId"}""";
+		String json = """
+				{"children": [%s, %s]}""".formatted(firstChild, secondChild);
+		JsonValue jsonValue = jsonParser.parseString(json);
 		assertNoErrorMessagesWhenContainsWithValues(jsonValue);
 	}
 
 	@Test
 	public void testValuesRepeatableAtomicWithRepeatIdTestCorrect() {
 		addRepeatableAtomic();
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"name\":\"myName\",\"value\":\"myValue\",\"repeatId\":\"myRepeatId\"}]}");
+		String json = """
+				{
+					"children": [
+						{"name": "myName", "value": "myValue", "repeatId": "myRepeatId"}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 
 		assertNoErrorMessagesWhenContainsWithValues(jsonValue);
 	}
 
 	@Test
 	public void testValuesRepeatableAtomicWithRepeatIdChildTestWrongName() {
-		String json = "{\"name\":\"NOT_myName\",\"value\":\"myValue\",\"repeatId\":\"myRepeatId\"}";
+		String json = """
+				{"name": "NOT_myName", "value": "myValue", "repeatId": "myRepeatId"}""";
 		String error = "Did not find a match for child with nameInData NOT_myName and value myValue "
 				+ "and repeatId myRepeatId.";
 		testValuesRepeatableAtomicWithRepeatIdJsonResultsInOneError(json, error);
@@ -596,7 +835,8 @@ public class ChildComparerTest {
 
 	@Test
 	public void testValuesRepeatableAtomicWithRepeatIdTestWrongValue() {
-		String json = "{\"name\":\"myName\",\"value\":\"NOT_myValue\",\"repeatId\":\"myRepeatId\"}";
+		String json = """
+				{"name": "myName", "value": "NOT_myValue", "repeatId": "myRepeatId"}""";
 		String error = "Did not find a match for child with nameInData myName and value NOT_myValue "
 				+ "and repeatId myRepeatId.";
 		testValuesRepeatableAtomicWithRepeatIdJsonResultsInOneError(json, error);
@@ -604,7 +844,8 @@ public class ChildComparerTest {
 
 	@Test
 	public void testValuesRepeatableAtomicWithRepeatIdTestWrongRepeatId() {
-		String json = "{\"name\":\"myName\",\"value\":\"myValue\",\"repeatId\":\"NOT_myRepeatId\"}";
+		String json = """
+				{"name": "myName", "value": "myValue", "repeatId": "NOT_myRepeatId"}""";
 		String error = "Did not find a match for child with nameInData myName and value myValue "
 				+ "and repeatId NOT_myRepeatId.";
 		testValuesRepeatableAtomicWithRepeatIdJsonResultsInOneError(json, error);
@@ -613,18 +854,20 @@ public class ChildComparerTest {
 	@Test
 	public void testValuesRepeatableAtomicWithRepeatIdTestNoRepeatId() {
 		addRepeatableAtomic();
-		String json = "{\"name\":\"myName\",\"value\":\"myValue\"}";
-		// String error = "Did not find a match for child with nameInData myName and value
-		// myValue.";
-		// testValuesRepeatableAtomicWithRepeatIdJsonResultsInOneError(json, error);
-		JsonValue jsonValue = jsonParser.parseString("{\"children\":[" + json + "]}");
+		String json = """
+				{"name": "myName", "value": "myValue"}""";
+		String wrappedJson = """
+				{"children": [%s]}""".formatted(json);
+		JsonValue jsonValue = jsonParser.parseString(wrappedJson);
 		assertNoErrorMessagesWhenContainsWithValues(jsonValue);
 	}
 
 	private void testValuesRepeatableAtomicWithRepeatIdJsonResultsInOneError(String jsonString,
 			String error) {
 		addRepeatableAtomic();
-		JsonValue jsonValue = jsonParser.parseString("{\"children\":[" + jsonString + "]}");
+		String json = """
+				{"children": [%s]}""".formatted(jsonString);
+		JsonValue jsonValue = jsonParser.parseString(json);
 		assertOneErrorWithMessage(jsonValue, error);
 	}
 
@@ -637,18 +880,27 @@ public class ChildComparerTest {
 
 	@Test
 	public void testValuesOneAtomicChildAsGrandChildTestCorrect() {
-		String json = "{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"}]}";
+		String json = """
+				{
+					"name": "instructorName",
+					"children": [
+						{"name": "firstName", "value": "Anna"}
+					]
+				}""";
 
 		ClientDataGroup instructorName = createChildDataGroupInstructorName();
 		dataGroup.addChild(instructorName);
 
-		JsonValue jsonValue = jsonParser.parseString("{\"children\":[" + json + "]}");
+		String wrappedJson = """
+				{"children": [%s]}""".formatted(json);
+		JsonValue jsonValue = jsonParser.parseString(wrappedJson);
 		assertNoErrorMessagesWhenContainsWithValues(jsonValue);
 	}
 
 	@Test
 	public void testValuesOneAtomicChildAsGrandChildTestWrongName() {
-		String json = "{\"name\":\"NOT_firstName\",\"value\":\"Anna\"}";
+		String json = """
+				{"name": "NOT_firstName", "value": "Anna"}""";
 		String error = "Did not find a match for child with nameInData NOT_firstName and value Anna.";
 		testValuesOneAtomicChildAsGrandChildJsonResultsInOneError(json, error);
 	}
@@ -657,21 +909,31 @@ public class ChildComparerTest {
 			String error) {
 		ClientDataGroup instructorName = createChildDataGroupInstructorName();
 		dataGroup.addChild(instructorName);
-		JsonValue jsonValue = jsonParser.parseString("{\"children\":["
-				+ "{\"name\":\"instructorName\",\"children\":[" + jsonString + "]}]}");
+		String json = """
+				{
+					"children": [
+						{
+							"name": "instructorName",
+							"children": [%s]
+						}
+					]
+				}""".formatted(jsonString);
+		JsonValue jsonValue = jsonParser.parseString(json);
 		assertOneErrorWithMessage(jsonValue, error);
 	}
 
 	@Test
 	public void testValuesOneAtomicChildAsGrandChildTestWrongValue() {
-		String json = "{\"name\":\"firstName\",\"value\":\"NOT_Anna\"}";
+		String json = """
+				{"name": "firstName", "value": "NOT_Anna"}""";
 		String error = "Did not find a match for child with nameInData firstName and value NOT_Anna.";
 		testValuesOneAtomicChildAsGrandChildJsonResultsInOneError(json, error);
 	}
 
 	@Test(enabled = false)
 	public void testValuesOneAtomicChildAsGrandChildTestExtraRepeatId() {
-		String json = "{\"name\":\"firstName\",\"value\":\"Anna\", \"repeatId\":\"EXTRA_repeatId\"}";
+		String json = """
+				{"name": "firstName", "value": "Anna", "repeatId": "EXTRA_repeatId"}""";
 		String error = "Did not find a match for child with nameInData firstName and value Anna and "
 				+ "repeatId EXTRA_repeatId.";
 		testValuesOneAtomicChildAsGrandChildJsonResultsInOneError(json, error);
@@ -681,7 +943,8 @@ public class ChildComparerTest {
 	public void testValuesOneAtomicChildWithRepeatIdAsGrandChildTestCorrect() {
 		createRecordInfoInStandardDataGroupWithDomainKTHWithRepeatId0();
 
-		String changingTestDomainPart = "{\"repeatId\":\"0\",\"name\":\"domain\",\"value\":\"kth\"}";
+		String changingTestDomainPart = """
+				{"repeatId": "0", "name": "domain", "value": "kth"}""";
 		JsonValue jsonValue = createJsonValueForRecordInfoUsingChangingPart(changingTestDomainPart);
 
 		assertNoErrorMessagesWhenContainsWithValues(jsonValue);
@@ -689,7 +952,8 @@ public class ChildComparerTest {
 
 	@Test
 	public void testValuesOneAtomicChildWithRepeatIdAsGrandChildTestWrongName() {
-		String json = "{\"name\":\"NOT_firstName\",\"value\":\"Anna\",\"repeatId\":\"0\"}";
+		String json = """
+				{"name": "NOT_firstName", "value": "Anna", "repeatId": "0"}""";
 		String error = "Did not find a match for child with nameInData NOT_firstName and value Anna"
 				+ " and repeatId 0.";
 		testValuesOneAtomicChildWithRepeatIdAsGrandChildJsonResultsInOneError(json, error);
@@ -697,7 +961,8 @@ public class ChildComparerTest {
 
 	@Test
 	public void testValuesOneAtomicChildWithRepeatIdAsGrandChildTestWrongValue() {
-		String json = "{\"name\":\"firstName\",\"value\":\"NOT_Anna\",\"repeatId\":\"0\"}";
+		String json = """
+				{"name": "firstName", "value": "NOT_Anna", "repeatId": "0"}""";
 		String error = "Did not find a match for child with nameInData firstName and value NOT_Anna"
 				+ " and repeatId 0.";
 		testValuesOneAtomicChildWithRepeatIdAsGrandChildJsonResultsInOneError(json, error);
@@ -705,7 +970,8 @@ public class ChildComparerTest {
 
 	@Test
 	public void testValuesOneAtomicChildWithRepeatIdAsGrandChildTestWrongRepeatId() {
-		String json = "{\"name\":\"firstName\",\"value\":\"Anna\", \"repeatId\":\"NOT_repeatId\"}";
+		String json = """
+				{"name": "firstName", "value": "Anna", "repeatId": "NOT_repeatId"}""";
 		String error = "Did not find a match for child with nameInData firstName and value Anna and "
 				+ "repeatId NOT_repeatId.";
 		testValuesOneAtomicChildWithRepeatIdAsGrandChildJsonResultsInOneError(json, error);
@@ -713,7 +979,8 @@ public class ChildComparerTest {
 
 	@Test
 	public void testValuesOneAtomicChildWithRepeatIdAsGrandChildTestEmptyRepeatId() {
-		String json = "{\"name\":\"firstName\",\"value\":\"Anna\", \"repeatId\":\"\"}";
+		String json = """
+				{"name": "firstName", "value": "Anna", "repeatId": ""}""";
 		String error = "Did not find a match for child with nameInData firstName and value Anna and "
 				+ "repeatId .";
 		testValuesOneAtomicChildWithRepeatIdAsGrandChildJsonResultsInOneError(json, error);
@@ -721,7 +988,8 @@ public class ChildComparerTest {
 
 	@Test
 	public void testValuesOneAtomicChildWithRepeatIdAsGrandChildTestMissingRepeatId() {
-		String json = "{\"name\":\"firstName\",\"value\":\"Anna\"}";
+		String json = """
+				{"name": "firstName", "value": "Anna"}""";
 		String error = "Did not find a match for child with nameInData firstName and value Anna.";
 		testValuesOneAtomicChildWithRepeatIdAsGrandChildJsonResultsInOneError(json, error);
 	}
@@ -740,11 +1008,20 @@ public class ChildComparerTest {
 		instructorName.addChild(
 				ClientDataProvider.createAtomicUsingNameInDataAndValue("lastName", "Ledare"));
 		dataGroup.addChild(instructorName);
-		JsonValue jsonValue = jsonParser
-				.parseString("{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"},"
-						+ "{\"name\":\"instructorName\",\"children\":["
-						+ "{\"name\":\"firstName\",\"value\":\"NOTAnna\"},"
-						+ "{\"name\":\"NOTlastName\",\"value\":\"Ledare\"}]}]}");
+		String json = """
+				{
+					"children": [
+						{"name": "workoutName", "value": "cirkelfys"},
+						{
+							"name": "instructorName",
+							"children": [
+								{"name": "firstName", "value": "NOTAnna"},
+								{"name": "NOTlastName", "value": "Ledare"}
+							]
+						}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 2);
@@ -759,8 +1036,13 @@ public class ChildComparerTest {
 		createAndAddChildDataGroupInstructorNameWithRepeatId("1");
 		createAndAddChildDataGroupInstructorNameWithRepeatId("0");
 
-		JsonValue jsonValue = jsonParser.parseString("{\"children\":["
-				+ "{\"name\":\"instructorName\",\"children\":[],\"repeatId\":\"0\"}]}");
+		String json = """
+				{
+					"children": [
+						{"name": "instructorName", "children": [], "repeatId": "0"}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 
@@ -778,6 +1060,8 @@ public class ChildComparerTest {
 				.createGroupUsingNameInData("instructorName");
 		instructorName.addChild(
 				ClientDataProvider.createAtomicUsingNameInDataAndValue("firstName", "Anna"));
+		instructorName.addChild(
+				ClientDataProvider.createAtomicUsingNameInDataAndValue("lastName", "Montesori"));
 		return instructorName;
 	}
 
@@ -785,9 +1069,20 @@ public class ChildComparerTest {
 	public void testValuesOneGroupChildWithNORepeatIdTestExtraRepeatId() {
 		ClientDataGroup instructorName = createChildDataGroupInstructorName();
 		dataGroup.addChild(instructorName);
-		JsonValue jsonValue = jsonParser
-				.parseString("{\"children\":[{\"name\":\"workoutName\",\"value\":\"cirkelfys\"},"
-						+ "{\"name\":\"instructorName\",\"children\":[{\"name\":\"firstName\",\"value\":\"Anna\"}],\"repeatId\":\"0\"}]}");
+		String json = """
+				{
+					"children": [
+						{"name": "workoutName", "value": "cirkelfys"},
+						{
+							"name": "instructorName",
+							"children": [
+								{"name": "firstName", "value": "Anna"}
+							],
+							"repeatId": "0"
+						}
+					]
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 1);
@@ -797,12 +1092,15 @@ public class ChildComparerTest {
 
 	@Test
 	public void testValuesTwoGroupChildWithRepeatIdTestNoRepeatIdInData() {
-		String json = "{\"name\":\"instructorName\",\"children\":[]}";
+		String json = """
+				{"name": "instructorName", "children": []}""";
 
 		createAndAddChildDataGroupInstructorNameWithRepeatId("1");
 		createAndAddChildDataGroupInstructorNameWithRepeatId("0");
 
-		JsonValue jsonValue = jsonParser.parseString("{\"children\":[" + json + "]}");
+		String wrappedJson = """
+				{"children": [%s]}""".formatted(json);
+		JsonValue jsonValue = jsonParser.parseString(wrappedJson);
 
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
@@ -812,7 +1110,8 @@ public class ChildComparerTest {
 
 	@Test
 	public void testValuesTwoGroupChildWithRepeatIdTestWrongRepeatIds() {
-		String json = "{\"name\":\"instructorName\",\"children\":[], \"repeatId\":\"NOT_0\"}";
+		String json = """
+				{"name": "instructorName", "children": [], "repeatId": "NOT_0"}""";
 		String error = "Child with nameInData instructorName and type group and repeatId NOT_0 is missing.";
 		testValuesTwoGroupChildWithRepeatIdJsonResultsInOneError(json, error);
 	}
@@ -821,7 +1120,9 @@ public class ChildComparerTest {
 			String error) {
 		createAndAddChildDataGroupInstructorNameWithRepeatId("1");
 		createAndAddChildDataGroupInstructorNameWithRepeatId("0");
-		JsonValue jsonValue = jsonParser.parseString("{\"children\":[" + jsonString + "]}");
+		String json = """
+				{"children": [%s]}""".formatted(jsonString);
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 1);
@@ -842,8 +1143,9 @@ public class ChildComparerTest {
 		atomicChild3.setRepeatId("2");
 		recordInfo.addChild(atomicChild3);
 
-		String changingTestDomainPart = "{\"repeatId\":\"NOT_0\",\"name\":\"domain\",\"value\":\"kth\"}"
-				+ ",{\"repeatId\":\"0\",\"name\":\"domain\",\"value\":\"NOT_kth\"}";
+		String changingTestDomainPart = """
+				{"repeatId": "NOT_0", "name": "domain", "value": "kth"},
+				{"repeatId": "0", "name": "domain", "value": "NOT_kth"}""";
 
 		List<String> errorMessages = compareChangingPartToExistingDataGroups(
 				changingTestDomainPart);
@@ -870,31 +1172,53 @@ public class ChildComparerTest {
 
 	private List<String> compareChangingPartToExistingDataGroups(String changingTestDomainPart) {
 		JsonValue jsonValue = createJsonValueForRecordInfoUsingChangingPart(changingTestDomainPart);
-		List<String> errorMessages = childComparer
-				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
-		return errorMessages;
+		return childComparer.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 	}
 
 	private JsonValue createJsonValueForRecordInfoUsingChangingPart(String changingTestDomainPart) {
-		JsonValue jsonValue = jsonParser.parseString(
-				"{\"children\":[{\"children\":[{\"repeatId\":\"0\",\"name\":\"domain\",\"value\":\"kth\"},"
-						+ changingTestDomainPart
-						+ "],\"name\":\"recordInfo\"}],\"name\":\"person\"}");
-		return jsonValue;
+		String json = """
+				{
+					"children": [
+						{
+							"children": [
+								{"repeatId": "0", "name": "domain", "value": "kth"},
+								%s
+							],
+							"name": "recordInfo"
+						}
+					],
+					"name": "person"
+				}""".formatted(changingTestDomainPart);
+		return jsonParser.parseString(json);
 	}
 
 	@Test
 	public void testLinksRepeatId() {
 		createAndAddDomainPart("authority-person:106:kth", "0");
 		createAndAddDomainPart("authority-person:106:test", "1");
-		JsonValue jsonValue = jsonParser
-				.parseString("{\"children\":[{\"repeatId\":\"0\",\"children\":["
-						+ "{\"name\":\"linkedRecordType\",\"value\":\"personDomainPart\"},"
-						+ "{\"name\":\"linkedRecordId\",\"value\":\"authority-person:106:kth\"}"
-						+ "],\"name\":\"personDomainPart\"}," + "{\"repeatId\":\"1\",\"children\":["
-						+ "{\"name\":\"linkedRecordType\",\"value\":\"personDomainPart\"},"
-						+ "{\"name\":\"linkedRecordId\",\"value\":\"authority-person:106:test\"}"
-						+ "],\"name\":\"personDomainPart\"}],\"name\":\"person\"}");
+		String json = """
+				{
+					"children": [
+						{
+							"repeatId": "0",
+							"children": [
+								{"name": "linkedRecordType", "value": "personDomainPart"},
+								{"name": "linkedRecordId", "value": "authority-person:106:kth"}
+							],
+							"name": "personDomainPart"
+						},
+						{
+							"repeatId": "1",
+							"children": [
+								{"name": "linkedRecordType", "value": "personDomainPart"},
+								{"name": "linkedRecordId", "value": "authority-person:106:test"}
+							],
+							"name": "personDomainPart"
+						}
+					],
+					"name": "person"
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		assertNoErrorMessagesWhenContainsWithValues(jsonValue);
 	}
 
@@ -910,14 +1234,29 @@ public class ChildComparerTest {
 	public void testLinksRepeatIdNoMatch() {
 		createAndAddDomainPart("authority-person:106:kth", "0");
 		createAndAddDomainPart("authority-person:106:test", "1");
-		JsonValue jsonValue = jsonParser
-				.parseString("{\"children\":[{\"repeatId\":\"0\",\"children\":["
-						+ "{\"name\":\"linkedRecordType\",\"value\":\"personDomainPart\"},"
-						+ "{\"name\":\"linkedRecordId\",\"value\":\"authority-person:106:kth\"}"
-						+ "],\"name\":\"personDomainPart\"},{\"repeatId\":\"3\",\"children\":["
-						+ "{\"name\":\"linkedRecordType\",\"value\":\"personDomainPart\"},"
-						+ "{\"name\":\"linkedRecordId\",\"value\":\"authority-person:106:test\"}"
-						+ "],\"name\":\"personDomainPart\"}],\"name\":\"person\"}");
+		String json = """
+				{
+					"children": [
+						{
+							"repeatId": "0",
+							"children": [
+								{"name": "linkedRecordType", "value": "personDomainPart"},
+								{"name": "linkedRecordId", "value": "authority-person:106:kth"}
+							],
+							"name": "personDomainPart"
+						},
+						{
+							"repeatId": "3",
+							"children": [
+								{"name": "linkedRecordType", "value": "personDomainPart"},
+								{"name": "linkedRecordId", "value": "authority-person:106:test"}
+							],
+							"name": "personDomainPart"
+						}
+					],
+					"name": "person"
+				}""";
+		JsonValue jsonValue = jsonParser.parseString(json);
 		List<String> errorMessages = childComparer
 				.checkDataGroupContainsChildrenWithCorrectValues(dataGroup, jsonValue);
 		assertEquals(errorMessages.size(), 1);

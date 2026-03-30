@@ -182,9 +182,8 @@ public class ChildComparerImp implements ChildComparer {
 
 	private void checkChildrenIfGroup(List<String> errorMessages, JsonObject childObject,
 			ClientDataChild matchingChild) {
-		if (matchingChild instanceof ClientDataGroup) {
-			tryToCheckDataGroupContainsChildren((ClientDataGroup) matchingChild, childObject,
-					errorMessages);
+		if (matchingChild instanceof ClientDataGroup matchingChildDG) {
+			tryToCheckDataGroupContainsChildren(matchingChildDG, childObject, errorMessages);
 		}
 	}
 
@@ -211,10 +210,10 @@ public class ChildComparerImp implements ChildComparer {
 	}
 
 	private String getRepeatIdFromChildElement(ClientDataChild childElement) {
-		if (childElement instanceof ClientDataGroup) {
-			return ((ClientDataGroup) childElement).getRepeatId();
+		if (childElement instanceof ClientDataGroup clientDataGroup) {
+			return clientDataGroup.getRepeatId();
 		}
-		return ((ClientDataAtomic) childElement).getRepeatId();
+		return childElement.getRepeatId();
 	}
 
 	private boolean typesAreEqual(String type, ClientDataChild childElement) {
