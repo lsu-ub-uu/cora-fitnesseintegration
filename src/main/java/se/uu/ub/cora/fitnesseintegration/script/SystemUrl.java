@@ -26,6 +26,7 @@ public final class SystemUrl {
 	private static String idpLoginUrl;
 	private static String gatekeeperServerUrl;
 	private static String tokenVerifierUrl;
+	private static String urnNbnUrl;
 
 	public SystemUrl() {
 		// needed by fitnesse
@@ -83,6 +84,15 @@ public final class SystemUrl {
 
 	public static String getGatekeeperServerUrl() {
 		return gatekeeperServerUrl;
+	}
+
+	public static void setUrnNbnUrl(String urlIn) {
+		urnNbnUrl = urlIn;
+
+	}
+
+	public static String getUrnNbnUrl() {
+		return urnNbnUrl;
 	}
 
 }

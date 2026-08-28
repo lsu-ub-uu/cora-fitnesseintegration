@@ -75,4 +75,10 @@ public class SystemUrlTest {
 		assertEquals(SystemUrl.getGatekeeperServerUrl(),
 				"http://localhost:8281/gatekeeperserver/rest/authToken");
 	}
+
+	@Test
+	public void testGetUrnNbnUrl() {
+		SystemUrl.setUrnNbnUrl("http://somedomain:someport/");
+		assertEquals(SystemUrl.getUrnNbnUrl(), "http://somedomain:someport/");
+	}
 }

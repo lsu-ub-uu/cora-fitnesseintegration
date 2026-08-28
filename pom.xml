@@ -38,11 +38,11 @@
 		<httphandlerspies.version>1.7.0</httphandlerspies.version>
 		<clientdata.version>7.1.0</clientdata.version>
 		<basicclientdata.version>2.2.0</basicclientdata.version>
-		<coradata.version>11.1.0</coradata.version>
+		<coradata.version>11.2.0</coradata.version>
 		<converter.version>4.1.0</converter.version>
 		<javaclient.version>5.1.0</javaclient.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
-		<fitnesse.version>20251025</fitnesse.version>
+		<fitnesse.version>20260313</fitnesse.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
 		<javax-activation.version>1.2.0</javax-activation.version>
 		<maven-classpath-plugin.version>1.9</maven-classpath-plugin.version>
@@ -50,7 +50,7 @@
 		<junit.version>4.13.2</junit.version>
 		<indexmessenger.version>1.14.0</indexmessenger.version>
 		<testutils.version>1.14.0</testutils.version>
-		<coradata-spies.version>3.1.0</coradata-spies.version>
+		<coradata-spies.version>3.2.0</coradata-spies.version>
 		<clientdata-spies.version>2.1.0</clientdata-spies.version>
 		<loggerspies.version>1.5.0</loggerspies.version>
 	</properties>
