@@ -22,6 +22,8 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -146,5 +148,60 @@ public class FileReaderTest {
 
 		assertTrue(
 				fileReader.fileNameExistsInArchiveAsVersionUnderPath("fileName", "v1", basePath));
+	}
+
+	@Test
+	public void testGetLastModifiedTimeForPath() throws Exception {
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileName");
+
+		Instant fileInstant = fileReader.getLastModifiedTime(basePath + "/fileName");
+
+		assertTrue(Duration.between(fileInstant, Instant.now()).abs()
+				.compareTo(Duration.ofSeconds(2)) < 0);
+
+		Instant fileInstant2 = fileReader.getLastModifiedTime(basePath + "/fileName");
+
+		assertTrue(fileInstant.compareTo(fileInstant2) == 0);
+	}
+
+	@Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ""
+			+ "Path not found!")
+	public void testGetLastModifiedTimeForNonExistingPath() {
+		fileReader.getLastModifiedTime(basePath + "/fileName");
+	}
+
+	@Test
+	public void testStoreAndCheckLastModifiedTimeForPath_NotModified() throws Exception {
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileName");
+
+		fileReader.storeLastModifiedTime(basePath + "/fileName");
+		boolean checkFileHasBeenModified = fileReader
+				.checkFileHasBeenModified(basePath + "/fileName");
+
+		assertFalse(checkFileHasBeenModified);
+	}
+
+	@Test
+	public void testStoreAndCheckLastModifiedTimeForPath_Modified() throws Exception {
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileName");
+		fileReader.storeLastModifiedTime(basePath + "/fileName");
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileName");
+
+		boolean checkFileHasBeenModified = fileReader
+				.checkFileHasBeenModified(basePath + "/fileName");
+
+		assertTrue(checkFileHasBeenModified);
+	}
+
+	@Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ""
+			+ "Path not found!")
+	public void testStoreAndCheckLastModifiedTimeForPath_PathNotFound() {
+		fileReader.storeLastModifiedTime(basePath + "/fileName");
+	}
+
+	@Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ""
+			+ "Last modified instant using path has not been stored.")
+	public void testStoreAndCheckLastModifiedTimeForPath_NotStored() {
+		fileReader.checkFileHasBeenModified(basePath + "/fileName2");
 	}
 }

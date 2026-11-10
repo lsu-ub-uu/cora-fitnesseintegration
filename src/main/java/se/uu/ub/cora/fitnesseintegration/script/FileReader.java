@@ -18,15 +18,21 @@
  */
 package se.uu.ub.cora.fitnesseintegration.script;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import se.uu.ub.cora.fitnesseintegration.file.ArchiveFileReaderImp;
 import se.uu.ub.cora.fitnesseintegration.internal.Waiter;
 
 public class FileReader {
+
 	boolean fileExists = true;
+	private static Map<String, Instant> filesLastModifiedInstant = new HashMap<>();
 
 	public boolean fileNameExistsInPath(String fileName, String path) {
 		Path filePath = Path.of(path, fileName);
@@ -53,5 +59,34 @@ public class FileReader {
 		Optional<Path> path = archiveFileReader.findPathWithNameAndVersion(basePath, fileName,
 				version);
 		return path.isPresent();
+	}
+
+	public Instant getLastModifiedTime(String path) {
+		try {
+			Path filePath = Path.of(path);
+			return Files.getLastModifiedTime(filePath).toInstant();
+		} catch (IOException _) {
+			throw new RuntimeException("Path not found!");
+		}
+	}
+
+	public void storeLastModifiedTime(String path) {
+		try {
+			Path filePath = Path.of(path);
+			Instant instant = Files.getLastModifiedTime(filePath).toInstant();
+			filesLastModifiedInstant.put(path, instant);
+
+		} catch (IOException _) {
+			throw new RuntimeException("Path not found!");
+		}
+	}
+
+	public boolean checkFileHasBeenModified(String path) {
+		if (!filesLastModifiedInstant.containsKey(path)) {
+			throw new RuntimeException("Last modified instant using path has not been stored.");
+		}
+		Instant instantBefore = filesLastModifiedInstant.get(path);
+		Instant instantNow = getLastModifiedTime(path);
+		return instantBefore.compareTo(instantNow) < 0;
 	}
 }

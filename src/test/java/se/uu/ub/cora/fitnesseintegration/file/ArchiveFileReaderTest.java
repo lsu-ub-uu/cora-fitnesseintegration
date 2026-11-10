@@ -49,7 +49,7 @@ public class ArchiveFileReaderTest {
 
 	@Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ""
 			+ "File with name: someFileName and version: v1, not found in archive.")
-	public void testInit() throws Exception {
+	public void testInit() {
 		archiveFileReader.readFileWithNameAndVersion(basePath, "someFileName", "v1");
 	}
 
@@ -126,7 +126,7 @@ public class ArchiveFileReaderTest {
 	}
 
 	@Test
-	public void testFindPathInit() throws Exception {
+	public void testFindPathInit() {
 		Optional<Path> path = archiveFileReader.findPathWithNameAndVersion(basePath, "someFileName",
 				"v1");
 		assertTrue(path.isEmpty());
