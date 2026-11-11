@@ -18,6 +18,7 @@
  */
 package se.uu.ub.cora.fitnesseintegration.script;
 
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
@@ -203,5 +204,25 @@ public class FileReaderTest {
 			+ "Last modified instant using path has not been stored.")
 	public void testStoreAndCheckLastModifiedTimeForPath_NotStored() {
 		fileReader.checkFileHasBeenModified(basePath + "/fileName2");
+	}
+
+	@Test
+	public void testFindFileExists() throws Exception {
+		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "someFolder", "fileName");
+		String fileToPath = fileReader.findFileInBasepath("fileName", basePath);
+
+		assertEquals(fileToPath, basePath + "/someFolder/fileName");
+	}
+
+	@Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ""
+			+ "Could not find any file with the given path and filename.")
+	public void testFindFileDoNotExists() {
+		fileReader.findFileInBasepath("fileName", basePath);
+	}
+
+	@Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ""
+			+ "Something went wrong when trying to find the file in the given path. Maybe basePath do not exists.")
+	public void testFindFileSomethingWrong() {
+		fileReader.findFileInBasepath("fileName", "doNotExistFolder");
 	}
 }
