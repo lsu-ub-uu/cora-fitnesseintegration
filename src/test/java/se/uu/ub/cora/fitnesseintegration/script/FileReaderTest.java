@@ -186,6 +186,8 @@ public class FileReaderTest {
 	public void testStoreAndCheckLastModifiedTimeForPath_Modified() throws Exception {
 		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileName");
 		fileReader.storeLastModifiedTime(basePath + "/fileName");
+		fileReader.findFileInBasepath("fileName", basePath);
+
 		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileName");
 
 		boolean checkFileHasBeenModified = fileReader
