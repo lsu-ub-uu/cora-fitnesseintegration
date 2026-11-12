@@ -186,14 +186,17 @@ public class FileReaderTest {
 	public void testStoreAndCheckLastModifiedTimeForPath_Modified() throws Exception {
 		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileName");
 		fileReader.storeLastModifiedTime(basePath + "/fileName");
-		fileReader.findFileInBasepath("fileName", basePath);
+		try {
+			Thread.sleep(1000); // Pauses for 1 second
+			fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileName");
+			Thread.sleep(1000); // Pauses for 1 second
+			boolean checkFileHasBeenModified = fileReader
+					.checkFileHasBeenModified(basePath + "/fileName");
+			assertTrue(checkFileHasBeenModified);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt(); // Restores the interrupted status
+		}
 
-		fileHelper.writeFileToDiskWithContentInFolderWithName("someData", "", "fileName");
-
-		boolean checkFileHasBeenModified = fileReader
-				.checkFileHasBeenModified(basePath + "/fileName");
-
-		assertTrue(checkFileHasBeenModified);
 	}
 
 	@Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ""
