@@ -18,15 +18,23 @@
  */
 package se.uu.ub.cora.fitnesseintegration.script;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import se.uu.ub.cora.fitnesseintegration.file.ArchiveFileReaderImp;
 import se.uu.ub.cora.fitnesseintegration.internal.Waiter;
 
 public class FileReader {
+
 	boolean fileExists = true;
+	private static Map<String, Instant> filesLastModifiedInstant = new HashMap<>();
 
 	public boolean fileNameExistsInPath(String fileName, String path) {
 		Path filePath = Path.of(path, fileName);
@@ -54,4 +62,63 @@ public class FileReader {
 				version);
 		return path.isPresent();
 	}
+
+	public Instant getLastModifiedTime(String path) {
+		try {
+			Path filePath = Path.of(path);
+			return Files.getLastModifiedTime(filePath).toInstant();
+		} catch (IOException _) {
+			throw new RuntimeException("Path not found!");
+		}
+	}
+
+	public void storeLastModifiedTime(String path) {
+		try {
+			Path filePath = Path.of(path);
+			Instant instant = Files.getLastModifiedTime(filePath).toInstant();
+			filesLastModifiedInstant.put(path, instant);
+
+		} catch (IOException _) {
+			throw new RuntimeException("Path not found!");
+		}
+	}
+
+	public boolean checkFileHasBeenModified(String path) {
+		if (!filesLastModifiedInstant.containsKey(path)) {
+			throw new RuntimeException("Last modified instant using path has not been stored.");
+		}
+		Instant instantBefore = filesLastModifiedInstant.get(path);
+		Instant instantNow = getLastModifiedTime(path);
+		return instantBefore.compareTo(instantNow) < 0;
+	}
+
+	public String findFileInBasepath(String file, String basepath) {
+		Path root = Paths.get(basepath).toAbsolutePath().normalize();
+
+		try (Stream<Path> paths = findPathToFile(file, root)) {
+			return getFirstPathToFileIfExists(paths);
+		} catch (IOException e) {
+			throw new RuntimeException(
+					"Something went wrong when trying to find the file in the given path. Maybe basePath do not exists.");
+		}
+	}
+
+	private Stream<Path> findPathToFile(String fileName, Path root) throws IOException {
+		return Files.find(root, Integer.MAX_VALUE, (path, attributes) -> attributes.isRegularFile()
+				&& path.getFileName().toString().equals(fileName));
+	}
+
+	private String getFirstPathToFileIfExists(Stream<Path> paths) {
+		Optional<Path> pathToFileOptional = paths.findFirst();
+		if (fileNotFoundInBasePath(pathToFileOptional)) {
+			throw new RuntimeException("Could not find any file with the given path and filename.");
+		}
+		Path pathToFile = pathToFileOptional.get();
+		return pathToFile.toString();
+	}
+
+	private boolean fileNotFoundInBasePath(Optional<Path> pathToFileOptional) {
+		return pathToFileOptional.isEmpty();
+	}
+
 }
